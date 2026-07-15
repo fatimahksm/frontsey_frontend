@@ -1,51 +1,74 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
+import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
+import { WebsiteStatusBadge } from "@/components/dashboard/WebsiteStatusBadge";
+import { ApiError } from "@/lib/api/client";
+import { websitesApi } from "@/lib/api/websites";
+import type { WebsiteResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 
-export default function DashboardPage() {
-  const router = useRouter();
-  const { session, isLoading, logout } = useAuth();
+export default function WebsitesPage() {
+  const { session } = useAuth();
+  const [websites, setWebsites] = useState<WebsiteResponse[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isLoading && !session) {
-      router.replace("/login");
-    }
-  }, [isLoading, session, router]);
-
-  if (isLoading || !session) {
-    return null;
-  }
+    if (!session) return;
+    websitesApi
+      .listMine(session.accessToken)
+      .then(setWebsites)
+      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load your websites."));
+  }, [session]);
 
   return (
-    <div className="flex flex-1 flex-col items-center px-4 py-16">
-      <div className="w-full max-w-lg rounded-2xl border border-black/[.08] p-8 dark:border-white/[.145]">
-        <h1 className="text-xl font-semibold tracking-tight">Welcome back</h1>
-        <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-          <dt className="text-zinc-500 dark:text-zinc-400">Email</dt>
-          <dd>{session.email}</dd>
-          <dt className="text-zinc-500 dark:text-zinc-400">Role</dt>
-          <dd>{session.role}</dd>
-        </dl>
-        <p className="mt-6 text-sm text-zinc-600 dark:text-zinc-400">
-          Website creation is coming in the next phase. For now, this confirms your account is
-          registered, verified, and authenticated end to end against the backend.
-        </p>
-        <div className="mt-6">
-          <Button
-            variant="secondary"
-            onClick={() => {
-              logout();
-              router.push("/login");
-            }}
-          >
-            Log out
-          </Button>
+    <div className="mx-auto w-full max-w-4xl flex-1 px-4 py-10">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Your websites</h1>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Manage every business website tied to your account.
+          </p>
         </div>
+        <Link href="/dashboard/websites/new">
+          <Button className="w-auto px-5">Create website</Button>
+        </Link>
       </div>
+
+      {error && <Alert tone="error">{error}</Alert>}
+
+      {websites === null && !error && <p className="text-sm text-zinc-500">Loading…</p>}
+
+      {websites !== null && websites.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-black/[.12] p-10 text-center dark:border-white/[.18]">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            You haven&apos;t created a website yet.
+          </p>
+          <Link href="/dashboard/websites/new" className="mt-4 inline-block">
+            <Button className="w-auto px-5">Create your first website</Button>
+          </Link>
+        </div>
+      )}
+
+      <ul className="flex flex-col gap-3">
+        {websites?.map((website) => (
+          <li key={website.id}>
+            <Link
+              href={`/dashboard/websites/${website.id}`}
+              className="flex items-center justify-between rounded-2xl border border-black/[.08] p-5 transition-colors hover:bg-black/[.02] dark:border-white/[.145] dark:hover:bg-white/[.04]"
+            >
+              <div>
+                <p className="font-medium">{website.businessName}</p>
+                <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">/{website.slug}</p>
+              </div>
+              <WebsiteStatusBadge status={website.status} />
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

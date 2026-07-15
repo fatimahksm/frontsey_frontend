@@ -46,8 +46,10 @@ export async function apiFetch<T>(
     }
   }
 
+  const isFormData = options.body instanceof FormData;
+
   const headers: Record<string, string> = {};
-  if (options.body !== undefined) {
+  if (options.body !== undefined && !isFormData) {
     headers["Content-Type"] = "application/json";
   }
   if (options.accessToken) {
@@ -57,7 +59,12 @@ export async function apiFetch<T>(
   const response = await fetch(url.toString(), {
     method: options.method ?? "GET",
     headers,
-    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+    body:
+      options.body === undefined
+        ? undefined
+        : isFormData
+          ? (options.body as FormData)
+          : JSON.stringify(options.body),
   });
 
   const envelope = (await parseEnvelope(response)) as ApiResponse<T>;
@@ -78,4 +85,34 @@ async function parseEnvelope(response: Response): Promise<ApiResponse<unknown>> 
   } catch {
     return { success: false, data: null, message: response.statusText };
   }
+}
+
+/**
+ * For the handful of endpoints that return a raw file body (e.g. the
+ * analytics CSV export) instead of the `{ success, data, message }`
+ * envelope - unwrapping JSON would just fail on these.
+ */
+export async function apiFetchBlob(
+  path: string,
+  options: ApiFetchOptions = {},
+): Promise<Blob> {
+  const url = new URL(apiUrl(path));
+  if (options.query) {
+    for (const [key, value] of Object.entries(options.query)) {
+      if (value !== undefined) {
+        url.searchParams.set(key, String(value));
+      }
+    }
+  }
+
+  const headers: Record<string, string> = {};
+  if (options.accessToken) {
+    headers["Authorization"] = `Bearer ${options.accessToken}`;
+  }
+
+  const response = await fetch(url.toString(), { method: options.method ?? "GET", headers });
+  if (!response.ok) {
+    throw new ApiError("Failed to download file.", response.status);
+  }
+  return response.blob();
 }

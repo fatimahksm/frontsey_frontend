@@ -31,3 +31,536 @@ export interface AuthResponse {
   email: string;
   role: Role;
 }
+
+export type AccountStatus =
+  | "PENDING_VERIFICATION"
+  | "ACTIVE"
+  | "DISABLED_PENDING_DELETION"
+  | "DELETED";
+
+export type PageMode = "MULTI_PAGE" | "ONE_PAGE";
+export type OrderingMode = "DISPLAY_ONLY" | "WHATSAPP_ORDERING";
+export type WebsiteStatus =
+  | "DRAFT"
+  | "PUBLISHED"
+  | "SUSPENDED_TEMPORARY"
+  | "SUSPENDED_PERMANENT"
+  | "EXPIRED"
+  | "TRASHED"
+  | "DELETED";
+
+export interface WebsiteResponse {
+  id: string;
+  businessName: string;
+  slug: string;
+  pageMode: PageMode;
+  orderingMode: OrderingMode;
+  status: WebsiteStatus;
+  primaryLanguage: string;
+  currency: string;
+  draftContent: string | null;
+  publishedContent: string | null;
+  publishedAt: string | null;
+  themeId: string | null;
+}
+
+export interface CreateWebsiteRequest {
+  businessName: string;
+  pageMode: PageMode;
+  themeId?: string | null;
+}
+
+export interface UpdateDraftContentRequest {
+  content: string;
+  orderingMode: OrderingMode;
+}
+
+export interface ThemeResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  themeConfig: string | null;
+}
+
+export interface ThemeRequest {
+  name: string;
+  description?: string | null;
+  themeConfig?: string | null;
+  active: boolean;
+}
+
+export interface OpeningHoursEntry {
+  dayOfWeek:
+    | "MONDAY"
+    | "TUESDAY"
+    | "WEDNESDAY"
+    | "THURSDAY"
+    | "FRIDAY"
+    | "SATURDAY"
+    | "SUNDAY";
+  open: boolean;
+  opensAt: string | null;
+  closesAt: string | null;
+}
+
+export interface BusinessProfileRequest {
+  description?: string | null;
+  logoUrl?: string | null;
+  coverImageUrl?: string | null;
+  phone?: string | null;
+  whatsappNumber?: string | null;
+  email?: string | null;
+  address?: string | null;
+  googleMapsUrl?: string | null;
+  instagramUrl?: string | null;
+  tiktokUrl?: string | null;
+  showPrivacyPolicy: boolean;
+  privacyPolicyContent?: string | null;
+  showTermsAndConditions: boolean;
+  termsAndConditionsContent?: string | null;
+  showDeliveryPolicy: boolean;
+  deliveryPolicyContent?: string | null;
+  showRefundPolicy: boolean;
+  refundPolicyContent?: string | null;
+}
+
+export type BusinessProfileResponse = BusinessProfileRequest;
+
+export interface SeoMetadataRequest {
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  ogImageUrl?: string | null;
+}
+
+export type SeoMetadataResponse = SeoMetadataRequest;
+
+export interface DeliveryAreaResponse {
+  id: string;
+  name: string;
+  deliveryFee: number;
+  minimumOrderAmount: number;
+  freeDeliveryThreshold: number | null;
+}
+
+export interface GalleryImageResponse {
+  id: string;
+  imageUrl: string;
+  sortOrder: number;
+  cover: boolean;
+}
+
+export type ItemAvailability = "AVAILABLE" | "UNAVAILABLE";
+
+export interface CategoryDto {
+  id: string;
+  name: string;
+}
+
+export type CategoryDeletionMode = "MOVE_ITEMS_TO_CATEGORY" | "DELETE_ITEMS" | "CANCEL";
+
+export interface MenuItemRequest {
+  categoryId: string;
+  name: string;
+  description?: string | null;
+  ingredients?: string | null;
+  price: string;
+  discountPrice?: string | null;
+  imageUrl?: string | null;
+  maxOrderQuantity?: number | null;
+  fixedBoxItem: boolean;
+}
+
+export interface MenuItemResponse {
+  id: string;
+  categoryId: string;
+  name: string;
+  description: string | null;
+  ingredients: string | null;
+  price: number;
+  discountPrice: number | null;
+  imageUrl: string | null;
+  availability: ItemAvailability;
+  unavailableUntil: string | null;
+  maxOrderQuantity: number | null;
+  fixedBoxItem: boolean;
+}
+
+export interface SizeVariantRequest {
+  label: string;
+  price: string;
+}
+
+export interface SizeVariantResponse {
+  id: string;
+  label: string;
+  price: number;
+}
+
+export interface BoxVariantRequest {
+  label: string;
+  unitCount: number;
+  price: string;
+}
+
+export interface BoxVariantResponse {
+  id: string;
+  label: string;
+  unitCount: number;
+  price: number;
+}
+
+export interface AddonRequest {
+  name: string;
+  extraPrice: string;
+}
+
+export interface AddonResponse {
+  id: string;
+  name: string;
+  extraPrice: number;
+}
+
+export interface AddonGroupRequest {
+  name: string;
+  maxSelections?: number | null;
+}
+
+export interface AddonGroupResponse {
+  id: string;
+  name: string;
+  maxSelections: number | null;
+  addons: AddonResponse[];
+}
+
+export type ImportRowStatus = "VALID" | "INVALID" | "DUPLICATE";
+export type DuplicateAction = "UPDATE" | "SKIP";
+
+export interface ImportRowResult {
+  rowNumber: number;
+  categoryName: string;
+  name: string;
+  description: string | null;
+  ingredients: string | null;
+  price: number | null;
+  discountPrice: number | null;
+  imageUrl: string | null;
+  maxOrderQuantity: number | null;
+  status: ImportRowStatus;
+  errors: string[];
+  existingItemId: string | null;
+}
+
+export interface ImportPreviewResponse {
+  totalRows: number;
+  validCount: number;
+  invalidCount: number;
+  duplicateCount: number;
+  rows: ImportRowResult[];
+}
+
+export interface ImportRowDecision {
+  rowNumber: number;
+  action: DuplicateAction;
+}
+
+export interface ConfirmImportRequest {
+  importValidRowsOnly: boolean;
+  duplicateDecisions: ImportRowDecision[];
+}
+
+export interface ImportOutcomeResponse {
+  createdCount: number;
+  updatedCount: number;
+  skippedCount: number;
+  skippedRows: ImportRowResult[];
+}
+
+export type Permission =
+  | "MANAGE_MENU"
+  | "MANAGE_PRICES"
+  | "MANAGE_THEME_AND_CONTENT"
+  | "VIEW_ANALYTICS"
+  | "PUBLISH_WEBSITE"
+  | "MANAGE_BUSINESS_PROFILE"
+  | "MANAGE_DELIVERY_SETTINGS";
+
+export type InvitationStatus = "PENDING" | "ACCEPTED" | "REVOKED";
+
+export interface InviteManagerRequest {
+  email: string;
+  permissions: Permission[];
+}
+
+export interface ManagerAccessResponse {
+  id: string;
+  invitedEmail: string;
+  status: InvitationStatus;
+  permissions: Permission[];
+}
+
+export type PlanCode = "BASIC" | "PREMIUM";
+export type BillingPeriod = "MONTHLY" | "YEARLY";
+
+export interface PlanResponse {
+  id: string;
+  code: PlanCode;
+  billingPeriod: BillingPeriod;
+  price: number;
+  maxWebsites: number;
+  maxManagersPerWebsite: number;
+  maxLanguages: number;
+  maxGalleryImages: number;
+  imageStorageLimitMb: number;
+  analyticsEnabled: boolean;
+  multiPageEnabled: boolean;
+}
+
+export interface PlanUpdateRequest {
+  price: string;
+  maxWebsites: number;
+  maxManagersPerWebsite: number;
+  maxLanguages: number;
+  maxGalleryImages: number;
+  imageStorageLimitMb: number;
+  analyticsEnabled: boolean;
+  multiPageEnabled: boolean;
+  active: boolean;
+}
+
+export type SubscriptionStatus = "PENDING" | "ACTIVE" | "GRACE" | "EXPIRED" | "CANCELED";
+export type MockPaymentStatus = "PENDING" | "SUCCESS" | "FAILED";
+
+export interface SubscriptionResponse {
+  id: string;
+  websiteId: string;
+  planCode: string;
+  billingPeriod: string;
+  status: SubscriptionStatus;
+  startDate: string | null;
+  endDate: string | null;
+  graceEndsAt: string | null;
+}
+
+export interface CheckoutRequest {
+  planCode: PlanCode;
+  billingPeriod: BillingPeriod;
+}
+
+export interface MockPaymentResponse {
+  id: string;
+  subscriptionId: string;
+  amount: number;
+  status: MockPaymentStatus;
+  reference: string;
+}
+
+export type NotificationEvent =
+  | "MANAGER_INVITATION"
+  | "PAYMENT_FAILED"
+  | "PAYMENT_SUCCESS"
+  | "SUBSCRIPTION_EXPIRING"
+  | "WEBSITE_PUBLISHED"
+  | "WEBSITE_SUSPENDED";
+
+export interface NotificationResponse {
+  id: string;
+  event: NotificationEvent;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export type SupportCategory =
+  | "ACCOUNT_ACCESS"
+  | "BILLING_AND_SUBSCRIPTION"
+  | "FEATURE_REQUEST"
+  | "OTHER"
+  | "TECHNICAL_ISSUE";
+export type SupportTicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED";
+
+export interface SubmitSupportTicketRequest {
+  category: SupportCategory;
+  subject: string;
+  message: string;
+  attachmentUrl?: string | null;
+}
+
+export interface SupportTicketResponse {
+  id: string;
+  category: SupportCategory;
+  subject: string;
+  message: string;
+  attachmentUrl: string | null;
+  status: SupportTicketStatus;
+  createdAt: string;
+}
+
+export interface AccountDataExportResponse {
+  accountEmail: string;
+  exportedAt: string;
+  websites: {
+    website: WebsiteResponse;
+    profile: BusinessProfileResponse;
+    openingHours: OpeningHoursEntry[];
+    categories: CategoryDto[];
+    menuItems: MenuItemResponse[];
+    deliveryAreas: DeliveryAreaResponse[];
+  }[];
+}
+
+export interface AnalyticsSummaryResponse {
+  from: string;
+  to: string;
+  totalVisits: number;
+  mostViewedItems: { itemId: string; itemName: string; views: number }[];
+  visitsByReferralSource: Record<string, number>;
+  visitsByDeviceType: Record<string, number>;
+}
+
+// --- Admin (Super Admin console) ---
+
+export interface AccountSummaryResponse {
+  id: string;
+  email: string;
+  fullName: string | null;
+  role: Role;
+  status: AccountStatus;
+  emailVerified: boolean;
+  createdAt: string;
+}
+
+export interface AdminWebsiteSummaryResponse {
+  id: string;
+  businessName: string;
+  slug: string;
+  status: WebsiteStatus;
+  ownerId: string;
+  ownerEmail: string;
+  suspensionReason: string | null;
+  suspensionReactivateAt: string | null;
+  publishedAt: string | null;
+}
+
+export interface SuspendWebsiteRequest {
+  reason: string;
+  permanent: boolean;
+  reactivateAt?: string | null;
+}
+
+export interface AdminDashboardResponse {
+  totalUsers: number;
+  totalWebsites: number;
+  activeSubscriptions: number;
+  pendingPayments: number;
+  subscriptionsExpiringSoon: number;
+  totalRevenue: number;
+}
+
+// --- Public storefront ---
+
+export interface PublicSizeOption {
+  id: string;
+  label: string;
+  price: number;
+}
+
+export interface PublicAddonOption {
+  id: string;
+  name: string;
+  extraPrice: number;
+}
+
+export interface PublicAddonGroupOption {
+  id: string;
+  name: string;
+  maxSelections: number | null;
+  options: PublicAddonOption[];
+}
+
+export interface PublicBoxOption {
+  id: string;
+  label: string;
+  unitCount: number;
+  price: number;
+}
+
+export interface PublicMenuItem {
+  id: string;
+  name: string;
+  description: string | null;
+  ingredients: string | null;
+  price: number;
+  discountPrice: number | null;
+  imageUrl: string | null;
+  availability: ItemAvailability;
+  maxOrderQuantity: number | null;
+  fixedBoxItem: boolean;
+  sizes: PublicSizeOption[];
+  addonGroups: PublicAddonGroupOption[];
+  boxVariants: PublicBoxOption[];
+}
+
+export interface PublicCategory {
+  id: string;
+  name: string;
+  items: PublicMenuItem[];
+}
+
+export interface PublicDeliveryArea {
+  id: string;
+  name: string;
+  fee: number;
+  minimumOrder: number;
+  freeThreshold: number | null;
+}
+
+export interface PublicOpeningHours {
+  dayOfWeek: string;
+  open: boolean;
+  opensAt: string | null;
+  closesAt: string | null;
+}
+
+export interface PublicProfile {
+  description: string | null;
+  logoUrl: string | null;
+  coverImageUrl: string | null;
+  phone: string | null;
+  whatsappNumber: string | null;
+  email: string | null;
+  address: string | null;
+  googleMapsUrl: string | null;
+  instagramUrl: string | null;
+  tiktokUrl: string | null;
+  policies: Record<string, string>;
+}
+
+export interface PublicSeoMetadata {
+  metaTitle: string | null;
+  metaDescription: string | null;
+  ogImageUrl: string | null;
+}
+
+export interface PublicWebsiteResponse {
+  businessName: string;
+  slug: string;
+  pageMode: PageMode;
+  orderingMode: OrderingMode;
+  primaryLanguage: string;
+  currency: string;
+  publishedContent: string | null;
+  profile: PublicProfile | null;
+  openingHours: PublicOpeningHours[];
+  categories: PublicCategory[];
+  deliveryAreas: PublicDeliveryArea[];
+  galleryImageUrls: string[];
+  seo: PublicSeoMetadata | null;
+}
+
+/** BR-QR-003/004: distinguishes "doesn't exist" from "suspended" without ever exposing the internal WebsiteStatus/reason. */
+export type PublicWebsiteStatus = "AVAILABLE" | "NOT_FOUND" | "UNAVAILABLE";
+
+export interface PublicWebsiteEnvelope {
+  status: PublicWebsiteStatus;
+  website: PublicWebsiteResponse | null;
+}
