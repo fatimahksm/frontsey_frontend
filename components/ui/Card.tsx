@@ -7,7 +7,7 @@ export function Card({ title, description, action, children }: {
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-black/[.08] p-6 dark:border-white/[.145]">
+    <section className="rounded-2xl border border-black/[.08] bg-surface p-6 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.1]">
       {(title || action) && (
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>

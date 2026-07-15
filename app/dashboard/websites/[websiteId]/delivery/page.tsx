@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -81,9 +82,9 @@ export default function DeliveryAreasPage() {
         {isLoading ? (
           <p className="text-sm text-zinc-500">Loading…</p>
         ) : (
-          <ul className="flex flex-col gap-2">
+          <StaggerGroup as="ul" className="flex flex-col gap-2">
             {areas.map((area) => (
-              <li key={area.id} className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
+              <StaggerItem as="li" key={area.id} className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
                 <div>
                   <p className="font-medium">{area.name}</p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -96,10 +97,10 @@ export default function DeliveryAreasPage() {
                 <button type="button" className="text-xs text-red-600 hover:underline" onClick={() => handleDelete(area.id)}>
                   Delete
                 </button>
-              </li>
+              </StaggerItem>
             ))}
             {areas.length === 0 && <p className="text-sm text-zinc-500">No delivery areas yet.</p>}
-          </ul>
+          </StaggerGroup>
         )}
 
         <form onSubmit={handleCreate} className="mt-5 grid gap-4 sm:grid-cols-2">

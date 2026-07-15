@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -111,18 +112,18 @@ export default function SupportPage() {
       ) : tickets.length === 0 ? (
         <p className="text-sm text-zinc-500">No tickets yet.</p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <StaggerGroup as="ul" className="flex flex-col gap-2">
           {tickets.map((ticket) => (
-            <li key={ticket.id} className="rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
+            <StaggerItem as="li" key={ticket.id} className="rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
               <div className="flex items-center justify-between">
                 <span className="font-medium">{ticket.subject}</span>
                 <Badge tone={STATUS_TONE[ticket.status]}>{ticket.status.replace("_", " ")}</Badge>
               </div>
               <p className="mt-1 text-zinc-600 dark:text-zinc-400">{ticket.message}</p>
               <p className="mt-1 text-xs text-zinc-500">{formatDateTime(ticket.createdAt)}</p>
-            </li>
+            </StaggerItem>
           ))}
-        </ul>
+        </StaggerGroup>
       )}
     </div>
   );

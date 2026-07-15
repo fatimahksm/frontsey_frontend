@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
 import type { PublicMenuItem } from "@/lib/api/types";
@@ -92,7 +93,12 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
   const maxQuantity = item.maxOrderQuantity ?? 20;
 
   return (
-    <li className={`rounded-xl border border-black/[.08] p-4 dark:border-white/[.145] ${isUnavailable ? "opacity-60" : ""}`}>
+    <motion.div
+      layout
+      whileHover={isUnavailable ? undefined : { y: -2 }}
+      transition={{ duration: 0.2 }}
+      className={`rounded-xl border border-black/[.08] p-4 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.145] ${isUnavailable ? "opacity-60" : ""}`}
+    >
       <button type="button" onClick={handleExpand} className="flex w-full items-start justify-between gap-4 text-left">
         <div>
           <p className="font-medium">{item.name}</p>
@@ -110,7 +116,15 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
 
       {isUnavailable && <p className="mt-2 text-xs font-medium text-amber-600">Currently unavailable</p>}
 
+      <AnimatePresence initial={false}>
       {expanded && !isUnavailable && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+          className="overflow-hidden"
+        >
         <div className="mt-3 flex flex-col gap-3 border-t border-black/[.06] pt-3 dark:border-white/[.1]">
           {item.ingredients && <p className="text-xs text-zinc-500">{item.ingredients}</p>}
 
@@ -182,7 +196,9 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
             </div>
           )}
         </div>
+        </motion.div>
       )}
-    </li>
+      </AnimatePresence>
+    </motion.div>
   );
 }

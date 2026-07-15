@@ -10,7 +10,7 @@ export function TextField({ label, id, className = "", ...props }: TextFieldProp
       <span className="font-medium text-foreground">{label}</span>
       <input
         id={id}
-        className={`h-11 rounded-lg border border-black/[.12] bg-transparent px-3.5 text-sm outline-none transition-colors focus:border-foreground dark:border-white/[.18] ${className}`}
+        className={`h-11 rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16] ${className}`}
         {...props}
       />
     </label>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -80,9 +81,9 @@ export default function AdminWebsitesPage() {
         {isLoading ? (
           <p className="text-sm text-zinc-500">Loading…</p>
         ) : (
-          <ul className="flex flex-col gap-3">
+          <StaggerGroup as="ul" className="flex flex-col gap-3">
             {websites.map((website) => (
-              <li key={website.id} className="rounded-lg border border-black/[.08] p-3 dark:border-white/[.145]">
+              <StaggerItem as="li" key={website.id} className="rounded-lg border border-black/[.08] p-3 dark:border-white/[.145]">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium">{website.businessName}</p>
@@ -133,9 +134,9 @@ export default function AdminWebsitesPage() {
                     </Button>
                   </div>
                 )}
-              </li>
+              </StaggerItem>
             ))}
-          </ul>
+          </StaggerGroup>
         )}
       </Card>
     </div>

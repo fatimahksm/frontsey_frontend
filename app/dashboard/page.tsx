@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { WebsiteStatusBadge } from "@/components/dashboard/WebsiteStatusBadge";
@@ -53,12 +54,12 @@ export default function WebsitesPage() {
         </div>
       )}
 
-      <ul className="flex flex-col gap-3">
+      <StaggerGroup as="ul" className="flex flex-col gap-3">
         {websites?.map((website) => (
-          <li key={website.id}>
+          <StaggerItem as="li" key={website.id}>
             <Link
               href={`/dashboard/websites/${website.id}`}
-              className="flex items-center justify-between rounded-2xl border border-black/[.08] p-5 transition-colors hover:bg-black/[.02] dark:border-white/[.145] dark:hover:bg-white/[.04]"
+              className="flex items-center justify-between rounded-2xl border border-black/[.08] bg-surface p-5 shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lift dark:border-white/[.1]"
             >
               <div>
                 <p className="font-medium">{website.businessName}</p>
@@ -66,9 +67,9 @@ export default function WebsitesPage() {
               </div>
               <WebsiteStatusBadge status={website.status} />
             </Link>
-          </li>
+          </StaggerItem>
         ))}
-      </ul>
+      </StaggerGroup>
     </div>
   );
 }

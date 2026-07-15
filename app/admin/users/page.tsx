@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
@@ -39,9 +40,9 @@ export default function AdminUsersPage() {
         {users === null ? (
           <p className="text-sm text-zinc-500">Loading…</p>
         ) : (
-          <ul className="flex flex-col gap-2">
+          <StaggerGroup as="ul" className="flex flex-col gap-2">
             {users.map((user) => (
-              <li key={user.id} className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
+              <StaggerItem as="li" key={user.id} className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
                 <div>
                   <p className="font-medium">{user.email}</p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -52,9 +53,9 @@ export default function AdminUsersPage() {
                   {!user.emailVerified && <Badge tone="warning">Unverified</Badge>}
                   <Badge tone={STATUS_TONE[user.status]}>{user.status.replace(/_/g, " ")}</Badge>
                 </div>
-              </li>
+              </StaggerItem>
             ))}
-          </ul>
+          </StaggerGroup>
         )}
       </Card>
     </div>

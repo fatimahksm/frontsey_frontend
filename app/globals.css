@@ -2,25 +2,88 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0a0a0f;
+  --surface: #ffffff;
+  --surface-muted: #f7f7f9;
+  --border-subtle: rgba(10, 10, 15, 0.08);
+  --accent-from: #6d28d9;
+  --accent-to: #db2777;
+  --accent-solid: #7c3aed;
+  --shadow-soft: 0 1px 2px rgba(10, 10, 15, 0.04), 0 8px 24px -8px rgba(10, 10, 15, 0.12);
+  --shadow-lift: 0 4px 8px rgba(10, 10, 15, 0.06), 0 16px 40px -12px rgba(10, 10, 15, 0.18);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border-subtle: var(--border-subtle);
+  --color-accent-solid: var(--accent-solid);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #08080b;
+    --foreground: #f4f4f6;
+    --surface: #111114;
+    --surface-muted: #16161a;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --accent-from: #a78bfa;
+    --accent-to: #f472b6;
+    --accent-solid: #a78bfa;
+    --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -8px rgba(0, 0, 0, 0.5);
+    --shadow-lift: 0 4px 8px rgba(0, 0, 0, 0.3), 0 16px 40px -12px rgba(0, 0, 0, 0.6);
   }
+}
+
+* {
+  border-color: var(--border-subtle);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent-solid);
+  color: white;
+}
+
+.text-gradient {
+  background-image: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bg-gradient-accent {
+  background-image: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+}
+
+.shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+
+.shadow-lift {
+  box-shadow: var(--shadow-lift);
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -33,19 +34,36 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`rounded-lg px-3 py-2 text-sm transition-colors ${
-                      isActive
-                        ? "bg-foreground text-background"
-                        : "text-zinc-600 hover:bg-black/[.04] dark:text-zinc-400 dark:hover:bg-white/[.06]"
-                    }`}
+                    className={`relative block rounded-lg px-3 py-2 text-sm ${!isActive ? "hover:bg-black/[.04] dark:hover:bg-white/[.06]" : ""}`}
                   >
-                    {item.label}
+                    {isActive && (
+                      <motion.span
+                        layoutId="admin-sidebar-active"
+                        className="absolute inset-0 rounded-lg bg-gradient-accent"
+                        transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                      />
+                    )}
+                    <span className={`relative transition-colors ${isActive ? "text-white" : "text-zinc-600 dark:text-zinc-400"}`}>
+                      {item.label}
+                    </span>
                   </Link>
                 );
               })}
             </nav>
           </aside>
-          <div className="min-w-0 flex-1">{children}</div>
+          <div className="min-w-0 flex-1">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </RequireAuth>

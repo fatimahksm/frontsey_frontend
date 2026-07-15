@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -74,9 +75,10 @@ export default function AdminPlansPage() {
       {isLoading ? (
         <p className="text-sm text-zinc-500">Loading…</p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <StaggerGroup className="grid gap-4 sm:grid-cols-2">
           {plans.map((plan) => (
-            <Card key={plan.id} title={`${plan.code} · ${plan.billingPeriod}`}>
+            <StaggerItem key={plan.id}>
+            <Card title={`${plan.code} · ${plan.billingPeriod}`}>
               {editingId === plan.id && draft ? (
                 <div className="flex flex-col gap-3">
                   <TextField
@@ -164,8 +166,9 @@ export default function AdminPlansPage() {
                 </div>
               )}
             </Card>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
       )}
     </div>
   );

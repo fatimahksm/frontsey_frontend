@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
@@ -56,9 +57,9 @@ export default function AdminSupportPage() {
         ) : tickets.length === 0 ? (
           <p className="text-sm text-zinc-500">No tickets.</p>
         ) : (
-          <ul className="flex flex-col gap-3">
+          <StaggerGroup as="ul" className="flex flex-col gap-3">
             {tickets.map((ticket) => (
-              <li key={ticket.id} className="rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
+              <StaggerItem as="li" key={ticket.id} className="rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="font-medium">{ticket.subject}</p>
@@ -83,9 +84,9 @@ export default function AdminSupportPage() {
                     ))}
                   </Select>
                 </div>
-              </li>
+              </StaggerItem>
             ))}
-          </ul>
+          </StaggerGroup>
         )}
       </Card>
     </div>

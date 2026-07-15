@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -103,9 +104,9 @@ export default function ManagersPage() {
         {isLoading ? (
           <p className="text-sm text-zinc-500">Loading…</p>
         ) : (
-          <ul className="flex flex-col gap-3">
+          <StaggerGroup as="ul" className="flex flex-col gap-3">
             {managers.map((manager) => (
-              <li key={manager.id} className="rounded-lg border border-black/[.08] p-3 dark:border-white/[.145]">
+              <StaggerItem as="li" key={manager.id} className="rounded-lg border border-black/[.08] p-3 dark:border-white/[.145]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">{manager.invitedEmail}</span>
@@ -130,10 +131,10 @@ export default function ManagersPage() {
                     ))}
                   </div>
                 )}
-              </li>
+              </StaggerItem>
             ))}
             {managers.length === 0 && <p className="text-sm text-zinc-500">No managers invited yet.</p>}
-          </ul>
+          </StaggerGroup>
         )}
       </Card>
 

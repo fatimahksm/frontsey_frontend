@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/api/client";
@@ -61,9 +62,10 @@ export default function NotificationsPage() {
       ) : notifications.length === 0 ? (
         <p className="text-sm text-zinc-500">No notifications yet.</p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <StaggerGroup as="ul" className="flex flex-col gap-2">
           {notifications.map((n) => (
-            <li
+            <StaggerItem
+              as="li"
               key={n.id}
               className={`rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145] ${n.read ? "" : "bg-black/[.02] dark:bg-white/[.04]"}`}
             >
@@ -76,9 +78,9 @@ export default function NotificationsPage() {
                 )}
               </div>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{formatDateTime(n.createdAt)}</p>
-            </li>
+            </StaggerItem>
           ))}
-        </ul>
+        </StaggerGroup>
       )}
     </div>
   );

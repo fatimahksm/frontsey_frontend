@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -86,9 +87,9 @@ export default function AdminThemesPage() {
         {isLoading ? (
           <p className="text-sm text-zinc-500">Loading…</p>
         ) : (
-          <ul className="flex flex-col gap-2">
+          <StaggerGroup as="ul" className="flex flex-col gap-2">
             {themes.map((theme) => (
-              <li key={theme.id} className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
+              <StaggerItem as="li" key={theme.id} className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
                 <div>
                   <p className="font-medium">{theme.name}</p>
                   {theme.description && <p className="text-xs text-zinc-500">{theme.description}</p>}
@@ -101,10 +102,10 @@ export default function AdminThemesPage() {
                     Delete
                   </button>
                 </div>
-              </li>
+              </StaggerItem>
             ))}
             {themes.length === 0 && <p className="text-sm text-zinc-500">No themes yet.</p>}
-          </ul>
+          </StaggerGroup>
         )}
       </Card>
 

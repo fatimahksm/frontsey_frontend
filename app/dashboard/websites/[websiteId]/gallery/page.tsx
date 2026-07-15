@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -107,9 +108,13 @@ export default function GalleryPage() {
         {isLoading ? (
           <p className="text-sm text-zinc-500">Loading…</p>
         ) : (
-          <ul className="grid gap-3 sm:grid-cols-2">
+          <StaggerGroup as="ul" className="grid gap-3 sm:grid-cols-2">
             {images.map((image, index) => (
-              <li key={image.id} className="overflow-hidden rounded-lg border border-black/[.08] dark:border-white/[.145]">
+              <StaggerItem
+                as="li"
+                key={image.id}
+                className="overflow-hidden rounded-lg border border-black/[.08] shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.145]"
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URLs; next/image would need a configured remote pattern per business */}
                 <img src={image.imageUrl} alt="" className="h-40 w-full object-cover" />
                 <div className="flex items-center justify-between p-2 text-xs">
@@ -137,10 +142,10 @@ export default function GalleryPage() {
                     Delete
                   </button>
                 </div>
-              </li>
+              </StaggerItem>
             ))}
             {images.length === 0 && <p className="text-sm text-zinc-500">No images yet.</p>}
-          </ul>
+          </StaggerGroup>
         )}
 
         <form onSubmit={handleAdd} className="mt-5 flex items-end gap-2">

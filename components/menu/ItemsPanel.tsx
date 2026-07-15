@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -186,11 +187,12 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
       ) : items.length === 0 ? (
         <p className="text-sm text-zinc-500">{showTrash ? "Trash is empty." : "No menu items yet."}</p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <StaggerGroup as="ul" className="flex flex-col gap-2">
           {items.map((item) => (
-            <li
+            <StaggerItem
+              as="li"
               key={item.id}
-              className="flex items-center gap-3 rounded-lg border border-black/[.08] p-3 dark:border-white/[.145]"
+              className="flex items-center gap-3 rounded-lg border border-black/[.08] p-3 transition-colors dark:border-white/[.145]"
             >
               {!showTrash && (
                 <input
@@ -244,9 +246,9 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
                   </>
                 )}
               </div>
-            </li>
+            </StaggerItem>
           ))}
-        </ul>
+        </StaggerGroup>
       )}
     </div>
   );

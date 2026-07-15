@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
@@ -82,9 +83,9 @@ export function CategoryManager({ accessToken, websiteId, categories, onChange }
     <div className="flex flex-col gap-3">
       {error && <Alert tone="error">{error}</Alert>}
 
-      <ul className="flex flex-col gap-2">
+      <StaggerGroup as="ul" className="flex flex-col gap-2">
         {categories.map((category) => (
-          <li key={category.id} className="rounded-lg border border-black/[.08] p-3 dark:border-white/[.145]">
+          <StaggerItem as="li" key={category.id} className="rounded-lg border border-black/[.08] p-3 dark:border-white/[.145]">
             {renaming?.id === category.id ? (
               <div className="flex items-center gap-2">
                 <input
@@ -164,10 +165,10 @@ export function CategoryManager({ accessToken, websiteId, categories, onChange }
                 </div>
               </div>
             )}
-          </li>
+          </StaggerItem>
         ))}
         {categories.length === 0 && <p className="text-sm text-zinc-500">No categories yet.</p>}
-      </ul>
+      </StaggerGroup>
 
       <form onSubmit={handleCreate} className="flex items-end gap-2">
         <TextField id="newCategory" label="New category" value={newName} onChange={(e) => setNewName(e.target.value)} />
