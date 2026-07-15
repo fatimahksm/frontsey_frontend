@@ -78,15 +78,29 @@ export default function BusinessProfilePage() {
   const [isSavingHours, setIsSavingHours] = useState(false);
 
   useEffect(() => {
+    // `cancelled` guards against a stale response overwriting form state the
+    // user has already started editing - React Strict Mode's dev-only double
+    // effect invocation double-fires this fetch, and without this guard the
+    // second (redundant) response can silently wipe out whatever the user
+    // typed in the gap between the two resolutions.
+    let cancelled = false;
     Promise.all([profileApi.get(accessToken, website.id), profileApi.getOpeningHours(accessToken, website.id)])
       .then(([fetchedProfile, fetchedHours]) => {
+        if (cancelled) return;
         setProfile(fetchedProfile);
         if (fetchedHours.length > 0) {
           setHours(DAYS.map((day) => fetchedHours.find((h) => h.dayOfWeek === day) ?? { dayOfWeek: day, open: false, opensAt: null, closesAt: null }));
         }
       })
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load business profile."))
-      .finally(() => setIsLoading(false));
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof ApiError ? err.message : "Failed to load business profile.");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [accessToken, website.id]);
 
   function updateField<K extends keyof BusinessProfileRequest>(key: K, value: BusinessProfileRequest[K]) {

@@ -23,15 +23,27 @@ export default function SeoPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    // See BusinessProfilePage for why this guard exists: without it, React
+    // Strict Mode's dev-only double effect invocation can let a stale
+    // second response silently overwrite text the user already typed.
+    let cancelled = false;
     seoApi
       .get(accessToken, website.id)
       .then((seo) => {
+        if (cancelled) return;
         setMetaTitle(seo.metaTitle ?? "");
         setMetaDescription(seo.metaDescription ?? "");
         setOgImageUrl(seo.ogImageUrl ?? "");
       })
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load SEO metadata."))
-      .finally(() => setIsLoading(false));
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof ApiError ? err.message : "Failed to load SEO metadata.");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [accessToken, website.id]);
 
   async function handleSave(event: React.FormEvent) {

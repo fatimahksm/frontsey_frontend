@@ -40,6 +40,8 @@ export type AccountStatus =
 
 export type PageMode = "MULTI_PAGE" | "ONE_PAGE";
 export type OrderingMode = "DISPLAY_ONLY" | "WHATSAPP_ORDERING";
+/** The structural shape of a website - distinct from Theme, which is only visual styling. */
+export type TemplateType = "MENU_ORDERING" | "PORTFOLIO";
 export type WebsiteStatus =
   | "DRAFT"
   | "PUBLISHED"
@@ -54,6 +56,7 @@ export interface WebsiteResponse {
   businessName: string;
   slug: string;
   pageMode: PageMode;
+  templateType: TemplateType;
   orderingMode: OrderingMode;
   status: WebsiteStatus;
   primaryLanguage: string;
@@ -67,6 +70,7 @@ export interface WebsiteResponse {
 export interface CreateWebsiteRequest {
   businessName: string;
   pageMode: PageMode;
+  templateType: TemplateType;
   themeId?: string | null;
 }
 
@@ -150,6 +154,24 @@ export interface GalleryImageResponse {
 }
 
 export type ItemAvailability = "AVAILABLE" | "UNAVAILABLE";
+
+// --- Services (PORTFOLIO template) ---
+
+export interface ServiceItemRequest {
+  name: string;
+  description?: string | null;
+  price?: string | null; // null => priced on request
+  imageUrl?: string | null;
+}
+
+export interface ServiceItemResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number | null;
+  imageUrl: string | null;
+  sortOrder: number;
+}
 
 export interface CategoryDto {
   id: string;
@@ -541,10 +563,19 @@ export interface PublicSeoMetadata {
   ogImageUrl: string | null;
 }
 
+export interface PublicService {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number | null;
+  imageUrl: string | null;
+}
+
 export interface PublicWebsiteResponse {
   businessName: string;
   slug: string;
   pageMode: PageMode;
+  templateType: TemplateType;
   orderingMode: OrderingMode;
   primaryLanguage: string;
   currency: string;
@@ -553,6 +584,8 @@ export interface PublicWebsiteResponse {
   openingHours: PublicOpeningHours[];
   categories: PublicCategory[];
   deliveryAreas: PublicDeliveryArea[];
+  /** Populated only for TemplateType.PORTFOLIO sites; empty for MENU_ORDERING. */
+  services: PublicService[];
   galleryImageUrls: string[];
   seo: PublicSeoMetadata | null;
 }

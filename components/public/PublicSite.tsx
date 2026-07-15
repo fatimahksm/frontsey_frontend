@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { CartPanel } from "@/components/public/CartPanel";
 import { PublicMenuItemCard } from "@/components/public/PublicMenuItemCard";
+import { PublicServiceCard } from "@/components/public/PublicServiceCard";
 import { publicSiteApi } from "@/lib/api/publicSite";
 import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types";
 import type { CartLine } from "@/lib/site/cart";
@@ -94,7 +95,8 @@ export function PublicSite({ slug }: { slug: string }) {
     );
   }
 
-  const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
+  const isPortfolio = site.templateType === "PORTFOLIO";
+  const orderingEnabled = !isPortfolio && site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-10 lg:flex-row lg:items-start">
@@ -157,25 +159,51 @@ export function PublicSite({ slug }: { slug: string }) {
           </div>
         )}
 
-        <div className="flex flex-col gap-8">
-          {site.categories.map((category) => (
-            <section key={category.id}>
-              <h2 className="mb-3 text-lg font-semibold tracking-tight">{category.name}</h2>
+        {isPortfolio ? (
+          <div className="flex flex-col gap-8">
+            <section>
+              <h2 className="mb-3 text-lg font-semibold tracking-tight">Services</h2>
               <ul className="flex flex-col gap-3">
-                {category.items.map((item) => (
-                  <PublicMenuItemCard
-                    key={item.id}
-                    item={item}
-                    currency={site.currency}
-                    orderingEnabled={orderingEnabled}
-                    onAddToCart={handleAddToCart}
-                    onFirstView={handleFirstView}
-                  />
+                {site.services.map((service) => (
+                  <PublicServiceCard key={service.id} service={service} currency={site.currency} />
                 ))}
               </ul>
             </section>
-          ))}
-        </div>
+
+            {site.profile?.whatsappNumber && (
+              <a
+                href={whatsappUrl(
+                  site.profile.whatsappNumber,
+                  `Hi ${site.businessName}, I'm interested in your services.`,
+                )}
+                target="_blank"
+                className="inline-flex w-fit items-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700"
+              >
+                Contact us on WhatsApp
+              </a>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-8">
+            {site.categories.map((category) => (
+              <section key={category.id}>
+                <h2 className="mb-3 text-lg font-semibold tracking-tight">{category.name}</h2>
+                <ul className="flex flex-col gap-3">
+                  {category.items.map((item) => (
+                    <PublicMenuItemCard
+                      key={item.id}
+                      item={item}
+                      currency={site.currency}
+                      orderingEnabled={orderingEnabled}
+                      onAddToCart={handleAddToCart}
+                      onFirstView={handleFirstView}
+                    />
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        )}
 
         {(site.profile?.policies.PRIVACY ||
           site.profile?.policies.TERMS ||

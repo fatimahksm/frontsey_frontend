@@ -7,22 +7,30 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { ApiError } from "@/lib/api/client";
 import { websitesApi } from "@/lib/api/websites";
-import type { WebsiteResponse } from "@/lib/api/types";
+import type { TemplateType, WebsiteResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { WebsiteProvider } from "@/lib/website/website-context";
 
-const NAV_ITEMS = [
-  { href: "", label: "Overview" },
-  { href: "/profile", label: "Business profile" },
-  { href: "/menu", label: "Menu" },
-  { href: "/delivery", label: "Delivery areas" },
-  { href: "/gallery", label: "Gallery" },
-  { href: "/theme", label: "Theme" },
-  { href: "/seo", label: "SEO" },
-  { href: "/managers", label: "Managers" },
-  { href: "/subscription", label: "Subscription" },
-  { href: "/analytics", label: "Analytics" },
-];
+/** The content-model nav item differs by TemplateType; everything else is shared. */
+function navItemsFor(templateType: TemplateType) {
+  const contentItem =
+    templateType === "PORTFOLIO"
+      ? { href: "/services", label: "Services" }
+      : { href: "/menu", label: "Menu" };
+
+  return [
+    { href: "", label: "Overview" },
+    { href: "/profile", label: "Business profile" },
+    contentItem,
+    ...(templateType === "MENU_ORDERING" ? [{ href: "/delivery", label: "Delivery areas" }] : []),
+    { href: "/gallery", label: "Gallery" },
+    { href: "/theme", label: "Theme" },
+    { href: "/seo", label: "SEO" },
+    { href: "/managers", label: "Managers" },
+    { href: "/subscription", label: "Subscription" },
+    { href: "/analytics", label: "Analytics" },
+  ];
+}
 
 export function WebsiteShell({ websiteId, children }: { websiteId: string; children: ReactNode }) {
   const { session } = useAuth();
@@ -64,7 +72,7 @@ export function WebsiteShell({ websiteId, children }: { websiteId: string; child
         <aside className="w-52 shrink-0">
           <p className="truncate px-3 text-sm font-semibold">{website.businessName}</p>
           <nav className="mt-4 flex flex-col gap-0.5">
-            {NAV_ITEMS.map((item) => {
+            {navItemsFor(website.templateType).map((item) => {
               const href = `${base}${item.href}`;
               const isActive = pathname === href;
               return (

@@ -10,16 +10,30 @@ import { TextField } from "@/components/ui/TextField";
 import { ApiError } from "@/lib/api/client";
 import { themeApi } from "@/lib/api/theme";
 import { websitesApi } from "@/lib/api/websites";
-import type { PageMode, ThemeResponse } from "@/lib/api/types";
+import type { PageMode, TemplateType, ThemeResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 
-/** BR-SITE-001..004: name, page mode, and an optional theme (null = build from scratch). */
+const TEMPLATE_TYPES: { value: TemplateType; label: string; description: string }[] = [
+  {
+    value: "MENU_ORDERING",
+    label: "Menu & ordering",
+    description: "Categories, items, sizes/add-ons, and optional WhatsApp cart ordering. For cafes, restaurants, shops.",
+  },
+  {
+    value: "PORTFOLIO",
+    label: "Portfolio",
+    description: "A services showcase with no cart. For salons, studios, agencies, and similar businesses.",
+  },
+];
+
+/** BR-SITE-001..004: name, template type, page mode, and an optional theme (null = build from scratch). */
 export default function NewWebsitePage() {
   const router = useRouter();
   const { session } = useAuth();
 
   const [themes, setThemes] = useState<ThemeResponse[]>([]);
   const [businessName, setBusinessName] = useState("");
+  const [templateType, setTemplateType] = useState<TemplateType>("MENU_ORDERING");
   const [pageMode, setPageMode] = useState<PageMode>("ONE_PAGE");
   const [themeId, setThemeId] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +52,7 @@ export default function NewWebsitePage() {
       const website = await websitesApi.create(session.accessToken, {
         businessName,
         pageMode,
+        templateType,
         themeId: themeId || null,
       });
       router.push(`/dashboard/websites/${website.id}`);
@@ -64,6 +79,31 @@ export default function NewWebsitePage() {
           value={businessName}
           onChange={(e) => setBusinessName(e.target.value)}
         />
+
+        <fieldset className="flex flex-col gap-2">
+          <legend className="text-sm font-medium text-foreground">Website type</legend>
+          {TEMPLATE_TYPES.map((option) => (
+            <label
+              key={option.value}
+              className={`flex cursor-pointer flex-col gap-0.5 rounded-lg border p-3 text-sm transition-colors ${
+                templateType === option.value
+                  ? "border-foreground"
+                  : "border-black/[.12] hover:bg-black/[.02] dark:border-white/[.18] dark:hover:bg-white/[.04]"
+              }`}
+            >
+              <span className="flex items-center gap-2 font-medium">
+                <input
+                  type="radio"
+                  name="templateType"
+                  checked={templateType === option.value}
+                  onChange={() => setTemplateType(option.value)}
+                />
+                {option.label}
+              </span>
+              <span className="pl-5 text-xs text-zinc-500 dark:text-zinc-400">{option.description}</span>
+            </label>
+          ))}
+        </fieldset>
 
         <Select
           id="pageMode"
