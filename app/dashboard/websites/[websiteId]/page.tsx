@@ -7,6 +7,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
+import { SuggestButton } from "@/components/ui/SuggestButton";
 import { TextField } from "@/components/ui/TextField";
 import { Textarea } from "@/components/ui/Textarea";
 import { WebsiteStatusBadge } from "@/components/dashboard/WebsiteStatusBadge";
@@ -100,17 +101,48 @@ export default function WebsiteOverviewPage() {
       {error && <Alert tone="error">{error}</Alert>}
       {message && <Alert tone="success">{message}</Alert>}
 
-      <Card title="Page content" description="Shown on your homepage hero. Save the draft, then publish when ready.">
+      <Card
+        title="Page content"
+        description="A short tagline shown right under your business name on your public site, plus your brand's accent color. Save the draft, then publish when ready."
+      >
         <div className="flex flex-col gap-4">
-          <TextField id="heroHeading" label="Hero heading" value={heroHeading} onChange={(e) => setHeroHeading(e.target.value)} />
-          <Textarea
-            id="heroSubtitle"
-            label="Hero subtitle"
-            value={heroSubtitle}
-            onChange={(e) => setHeroSubtitle(e.target.value)}
-          />
+          <div className="flex flex-col gap-1.5">
+            <TextField
+              id="heroHeading"
+              label="Tagline"
+              placeholder="e.g. Fresh coffee, made your way"
+              value={heroHeading}
+              onChange={(e) => setHeroHeading(e.target.value)}
+            />
+            <SuggestButton
+              accessToken={accessToken}
+              businessName={website.businessName}
+              templateType={website.templateType}
+              fieldType="HERO_HEADING"
+              currentText={heroHeading}
+              onSuggestion={setHeroHeading}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Textarea
+              id="heroSubtitle"
+              label="Supporting line"
+              placeholder="A sentence or two shown just below the tagline"
+              value={heroSubtitle}
+              onChange={(e) => setHeroSubtitle(e.target.value)}
+            />
+            <SuggestButton
+              accessToken={accessToken}
+              businessName={website.businessName}
+              templateType={website.templateType}
+              fieldType="HERO_SUBTITLE"
+              currentText={heroSubtitle}
+              onSuggestion={setHeroSubtitle}
+            />
+          </div>
           <label htmlFor="brandColor" className="flex flex-col gap-1.5 text-sm">
             <span className="font-medium text-foreground">Brand color</span>
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">Used for buttons and accents across your public site.</span>
             <input
               id="brandColor"
               type="color"
@@ -136,6 +168,11 @@ export default function WebsiteOverviewPage() {
 
       <Card title="Publish" description="Publishing makes your draft live at your public URL.">
         <div className="flex items-center gap-3">
+          <Link href={`/preview/${website.id}`} target="_blank">
+            <Button variant="secondary" className="w-auto px-5">
+              Preview draft
+            </Button>
+          </Link>
           <Button onClick={handlePublish} isLoading={isPublishing} className="w-auto px-5">
             Publish
           </Button>

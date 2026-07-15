@@ -4,10 +4,12 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
+import { ImageUploadField } from "@/components/ui/ImageUploadField";
 import { Select } from "@/components/ui/Select";
 import { TextField } from "@/components/ui/TextField";
 import { Textarea } from "@/components/ui/Textarea";
 import type { CategoryDto, MenuItemRequest } from "@/lib/api/types";
+import { useWebsite } from "@/lib/website/website-context";
 
 interface Props {
   categories: CategoryDto[];
@@ -18,6 +20,7 @@ interface Props {
 }
 
 export function MenuItemForm({ categories, initial, submitLabel, isSubmitting, onSubmit }: Props) {
+  const { accessToken } = useWebsite();
   const [categoryId, setCategoryId] = useState(initial.categoryId);
   const [name, setName] = useState(initial.name);
   const [description, setDescription] = useState(initial.description ?? "");
@@ -82,7 +85,7 @@ export function MenuItemForm({ categories, initial, submitLabel, isSubmitting, o
           value={discountPrice}
           onChange={(e) => setDiscountPrice(e.target.value)}
         />
-        <TextField id="imageUrl" label="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+        <ImageUploadField id="imageUrl" label="Image" value={imageUrl} onChange={setImageUrl} accessToken={accessToken} />
         <TextField
           id="maxOrderQuantity"
           label="Max order quantity (optional)"

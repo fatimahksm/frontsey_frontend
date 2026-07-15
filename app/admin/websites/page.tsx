@@ -21,6 +21,8 @@ export default function AdminWebsitesPage() {
   const [reason, setReason] = useState("");
   const [permanent, setPermanent] = useState(false);
   const [reactivateAt, setReactivateAt] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isBusy, setIsBusy] = useState(false);
@@ -73,6 +75,36 @@ export default function AdminWebsitesPage() {
     }
   }
 
+  async function handleSaveEdit(id: string) {
+    if (!session || !editName.trim()) return;
+    setError(null);
+    setIsBusy(true);
+    try {
+      await adminApi.updateWebsite(session.accessToken, id, { businessName: editName.trim() });
+      setEditingId(null);
+      await load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to update website.");
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function handleDelete(id: string, businessName: string) {
+    if (!session) return;
+    if (!window.confirm(`Permanently delete "${businessName}"? This cannot be undone.`)) return;
+    setError(null);
+    setIsBusy(true);
+    try {
+      await adminApi.deleteWebsite(session.accessToken, id);
+      await load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to delete website.");
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold tracking-tight">Websites</h1>
@@ -91,7 +123,7 @@ export default function AdminWebsitesPage() {
                       /{website.slug} · owner {website.ownerEmail}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <WebsiteStatusBadge status={website.status} />
                     {website.status === "SUSPENDED_TEMPORARY" || website.status === "SUSPENDED_PERMANENT" ? (
                       <button type="button" className="text-xs font-medium hover:underline" onClick={() => handleReactivate(website.id)}>
@@ -106,11 +138,44 @@ export default function AdminWebsitesPage() {
                         Suspend
                       </button>
                     )}
+                    <button
+                      type="button"
+                      className="text-xs font-medium hover:underline"
+                      onClick={() => {
+                        setEditingId(editingId === website.id ? null : website.id);
+                        setEditName(website.businessName);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isBusy}
+                      className="text-xs text-red-600 hover:underline disabled:opacity-50"
+                      onClick={() => handleDelete(website.id, website.businessName)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
 
                 {website.suspensionReason && (
                   <p className="mt-1 text-xs text-zinc-500">Suspended: {website.suspensionReason}</p>
+                )}
+
+                {editingId === website.id && (
+                  <div className="mt-3 flex items-end gap-2 rounded-lg bg-black/[.03] p-3 dark:bg-white/[.05]">
+                    <TextField
+                      id={`editName-${website.id}`}
+                      label="Business name"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button className="w-auto px-3" onClick={() => handleSaveEdit(website.id)} isLoading={isBusy} disabled={!editName.trim()}>
+                      Save
+                    </Button>
+                  </div>
                 )}
 
                 {suspending === website.id && (

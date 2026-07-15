@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { SuggestButton } from "@/components/ui/SuggestButton";
 import { TextField } from "@/components/ui/TextField";
 import { Textarea } from "@/components/ui/Textarea";
 import { ApiError } from "@/lib/api/client";
@@ -78,20 +79,40 @@ export default function SeoPage() {
 
       <Card title="Search & social preview">
         <form onSubmit={handleSave} className="flex flex-col gap-4">
-          <TextField
-            id="metaTitle"
-            label="Meta title"
-            maxLength={70}
-            value={metaTitle}
-            onChange={(e) => setMetaTitle(e.target.value)}
-          />
-          <Textarea
-            id="metaDescription"
-            label="Meta description"
-            maxLength={160}
-            value={metaDescription}
-            onChange={(e) => setMetaDescription(e.target.value)}
-          />
+          <div className="flex flex-col gap-1.5">
+            <TextField
+              id="metaTitle"
+              label="Meta title"
+              maxLength={70}
+              value={metaTitle}
+              onChange={(e) => setMetaTitle(e.target.value)}
+            />
+            <SuggestButton
+              accessToken={accessToken}
+              businessName={website.businessName}
+              templateType={website.templateType}
+              fieldType="SEO_META_TITLE"
+              currentText={metaTitle}
+              onSuggestion={setMetaTitle}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Textarea
+              id="metaDescription"
+              label="Meta description"
+              maxLength={160}
+              value={metaDescription}
+              onChange={(e) => setMetaDescription(e.target.value)}
+            />
+            <SuggestButton
+              accessToken={accessToken}
+              businessName={website.businessName}
+              templateType={website.templateType}
+              fieldType="SEO_META_DESCRIPTION"
+              currentText={metaDescription}
+              onSuggestion={setMetaDescription}
+            />
+          </div>
           <TextField
             id="ogImageUrl"
             label="Social share image URL"

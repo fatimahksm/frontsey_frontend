@@ -11,6 +11,7 @@ import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types"
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
+import { brandColorStyle, parseDraftContent } from "@/lib/website/draft-content";
 
 const DAY_LABELS: Record<string, string> = {
   MONDAY: "Monday",
@@ -26,6 +27,7 @@ const DAY_LABELS: Record<string, string> = {
 export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteResponse; onFirstView(itemId: string): void }) {
   const [cart, setCart] = useState<CartLine[]>([]);
 
+  const content = parseDraftContent(site.publishedContent);
   const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
 
   function handleAddToCart(line: CartLine) {
@@ -49,7 +51,10 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-10 lg:flex-row lg:items-start">
+    <div
+      className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-10 lg:flex-row lg:items-start"
+      style={brandColorStyle(content.brandColor)}
+    >
       <div className="min-w-0 flex-1">
         <motion.header
           initial={{ opacity: 0, y: -12 }}
@@ -68,6 +73,12 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
             )}
             <div>
               <h1 className="text-2xl font-semibold tracking-tight">{site.businessName}</h1>
+              {content.heroHeading && (
+                <p className="mt-1 text-lg font-medium text-[var(--accent-solid)]">{content.heroHeading}</p>
+              )}
+              {content.heroSubtitle && (
+                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{content.heroSubtitle}</p>
+              )}
               {site.profile?.description && (
                 <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{site.profile.description}</p>
               )}

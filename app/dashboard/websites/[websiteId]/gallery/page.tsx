@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
@@ -10,6 +10,7 @@ import { TextField } from "@/components/ui/TextField";
 import { ApiError } from "@/lib/api/client";
 import { galleryApi } from "@/lib/api/gallery";
 import type { GalleryImageResponse } from "@/lib/api/types";
+import { uploadsApi } from "@/lib/api/uploads";
 import { useWebsite } from "@/lib/website/website-context";
 
 function moved<T>(list: T[], from: number, to: number): T[] {
@@ -26,6 +27,8 @@ export default function GalleryPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isBusy, setIsBusy] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function load() {
     const list = await galleryApi.list(accessToken, website.id);
@@ -53,6 +56,20 @@ export default function GalleryPage() {
       setError(err instanceof ApiError ? err.message : "Failed to add image.");
     } finally {
       setIsBusy(false);
+    }
+  }
+
+  async function handleFileSelected(file: File) {
+    setError(null);
+    setIsUploading(true);
+    try {
+      const { url } = await uploadsApi.uploadImage(accessToken, file);
+      await galleryApi.add(accessToken, website.id, url);
+      await load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to upload image.");
+    } finally {
+      setIsUploading(false);
     }
   }
 
@@ -148,12 +165,37 @@ export default function GalleryPage() {
           </StaggerGroup>
         )}
 
-        <form onSubmit={handleAdd} className="mt-5 flex items-end gap-2">
-          <TextField id="imageUrl" label="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="flex-1" />
-          <Button type="submit" isLoading={isBusy} className="w-auto px-5">
-            Add image
-          </Button>
-        </form>
+        <div className="mt-5 flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFileSelected(file);
+                e.target.value = "";
+              }}
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-auto px-4"
+              isLoading={isUploading}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Upload image
+            </Button>
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">or paste a URL below</span>
+          </div>
+          <form onSubmit={handleAdd} className="flex items-end gap-2">
+            <TextField id="imageUrl" label="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="flex-1" />
+            <Button type="submit" isLoading={isBusy} className="w-auto px-5">
+              Add image
+            </Button>
+          </form>
+        </div>
       </Card>
     </div>
   );

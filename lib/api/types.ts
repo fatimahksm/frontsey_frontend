@@ -597,3 +597,39 @@ export interface PublicWebsiteEnvelope {
   status: PublicWebsiteStatus;
   website: PublicWebsiteResponse | null;
 }
+
+export interface UpdateUserRoleRequest {
+  role: Role;
+}
+
+export interface AdminWebsiteUpdateRequest {
+  businessName: string;
+}
+
+export interface AuditLogResponse {
+  id: string;
+  actorAccountId: string;
+  actorEmail: string | null;
+  action: string;
+  targetId: string | null;
+  createdAt: string;
+}
+
+/** Matches com.dbwb.platform.ai.dto.AiSuggestionFieldType. */
+export type AiSuggestionFieldType =
+  | "HERO_HEADING"
+  | "HERO_SUBTITLE"
+  | "BUSINESS_DESCRIPTION"
+  | "SEO_META_TITLE"
+  | "SEO_META_DESCRIPTION";
+
+export interface AiSuggestionRequest {
+  businessName: string;
+  templateType?: TemplateType | null;
+  fieldType: AiSuggestionFieldType;
+  existingText?: string | null;
+}
+
+export interface AiSuggestionResponse {
+  suggestion: string;
+}

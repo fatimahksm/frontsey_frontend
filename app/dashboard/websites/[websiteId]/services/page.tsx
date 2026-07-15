@@ -6,6 +6,7 @@ import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { ImageUploadField } from "@/components/ui/ImageUploadField";
 import { TextField } from "@/components/ui/TextField";
 import { Textarea } from "@/components/ui/Textarea";
 import { ApiError } from "@/lib/api/client";
@@ -176,11 +177,12 @@ export default function ServicesPage() {
               value={draft.price ?? ""}
               onChange={(e) => setDraft({ ...draft, price: e.target.value })}
             />
-            <TextField
+            <ImageUploadField
               id="serviceImageUrl"
-              label="Image URL"
+              label="Image"
               value={draft.imageUrl ?? ""}
-              onChange={(e) => setDraft({ ...draft, imageUrl: e.target.value })}
+              onChange={(url) => setDraft({ ...draft, imageUrl: url })}
+              accessToken={accessToken}
             />
           </div>
           <div className="flex gap-3">

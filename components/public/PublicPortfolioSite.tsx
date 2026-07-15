@@ -8,6 +8,7 @@ import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
 import { fadeInUp } from "@/lib/motion";
 import { whatsappUrl } from "@/lib/site/whatsapp";
+import { brandColorStyle, parseDraftContent } from "@/lib/website/draft-content";
 
 const DAY_LABELS: Record<string, string> = {
   MONDAY: "Mon",
@@ -29,9 +30,10 @@ const DAY_LABELS: Record<string, string> = {
 export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
   const whatsappNumber = site.profile?.whatsappNumber;
   const inquiryMessage = `Hi ${site.businessName}, I'm interested in your services.`;
+  const content = parseDraftContent(site.publishedContent);
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col" style={brandColorStyle(content.brandColor)}>
       <section
         className="relative flex min-h-[70vh] flex-col items-center justify-center overflow-hidden bg-zinc-950 px-4 py-24 text-center text-white"
         style={
@@ -63,11 +65,31 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
         >
           {site.businessName}
         </motion.h1>
+        {content.heroHeading && (
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="text-gradient relative mt-3 text-xl font-medium sm:text-2xl"
+          >
+            {content.heroHeading}
+          </motion.p>
+        )}
+        {content.heroSubtitle && (
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="relative mt-3 max-w-xl text-balance text-lg text-zinc-300"
+          >
+            {content.heroSubtitle}
+          </motion.p>
+        )}
         {site.profile?.description && (
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
             className="relative mt-4 max-w-xl text-balance text-lg text-zinc-300"
           >
             {site.profile.description}
@@ -77,7 +99,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
           <motion.a
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
             href={whatsappUrl(whatsappNumber, inquiryMessage)}

@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/api/client";
-import type { CreateWebsiteRequest, UpdateDraftContentRequest, WebsiteResponse } from "@/lib/api/types";
+import type { CreateWebsiteRequest, PublicWebsiteResponse, UpdateDraftContentRequest, WebsiteResponse } from "@/lib/api/types";
 
 /** `/api/websites/**` (BRD 9.2/9.3/9.9) - create, list, draft/publish lifecycle. */
 export const websitesApi = {
@@ -13,6 +13,11 @@ export const websitesApi = {
 
   get(accessToken: string, websiteId: string): Promise<WebsiteResponse> {
     return apiFetch<WebsiteResponse>(`/websites/${websiteId}`, { accessToken });
+  },
+
+  /** Renders the current draft (unpublished changes included) exactly as customers would see it. */
+  preview(accessToken: string, websiteId: string): Promise<PublicWebsiteResponse> {
+    return apiFetch<PublicWebsiteResponse>(`/websites/${websiteId}/preview`, { accessToken });
   },
 
   saveDraft(accessToken: string, websiteId: string, request: UpdateDraftContentRequest): Promise<WebsiteResponse> {

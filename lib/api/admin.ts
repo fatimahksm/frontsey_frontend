@@ -3,6 +3,8 @@ import type {
   AccountSummaryResponse,
   AdminDashboardResponse,
   AdminWebsiteSummaryResponse,
+  AdminWebsiteUpdateRequest,
+  AuditLogResponse,
   PlanResponse,
   PlanUpdateRequest,
   SupportTicketResponse,
@@ -10,6 +12,7 @@ import type {
   SuspendWebsiteRequest,
   ThemeRequest,
   ThemeResponse,
+  UpdateUserRoleRequest,
   WebsiteResponse,
 } from "@/lib/api/types";
 
@@ -23,8 +26,28 @@ export const adminApi = {
     return apiFetch<AccountSummaryResponse[]>("/admin/users", { accessToken });
   },
 
+  updateUserRole(accessToken: string, accountId: string, request: UpdateUserRoleRequest): Promise<AccountSummaryResponse> {
+    return apiFetch<AccountSummaryResponse>(`/admin/users/${accountId}/role`, { method: "PUT", body: request, accessToken });
+  },
+
+  disableUser(accessToken: string, accountId: string): Promise<AccountSummaryResponse> {
+    return apiFetch<AccountSummaryResponse>(`/admin/users/${accountId}/disable`, { method: "POST", accessToken });
+  },
+
+  reactivateUser(accessToken: string, accountId: string): Promise<AccountSummaryResponse> {
+    return apiFetch<AccountSummaryResponse>(`/admin/users/${accountId}/reactivate`, { method: "POST", accessToken });
+  },
+
   listWebsites(accessToken: string): Promise<AdminWebsiteSummaryResponse[]> {
     return apiFetch<AdminWebsiteSummaryResponse[]>("/admin/websites", { accessToken });
+  },
+
+  updateWebsite(accessToken: string, websiteId: string, request: AdminWebsiteUpdateRequest): Promise<WebsiteResponse> {
+    return apiFetch<WebsiteResponse>(`/admin/websites/${websiteId}`, { method: "PUT", body: request, accessToken });
+  },
+
+  deleteWebsite(accessToken: string, websiteId: string): Promise<void> {
+    return apiFetch<void>(`/admin/websites/${websiteId}`, { method: "DELETE", accessToken });
   },
 
   suspendWebsite(accessToken: string, websiteId: string, request: SuspendWebsiteRequest): Promise<WebsiteResponse> {
@@ -77,5 +100,9 @@ export const adminApi = {
       query: { status },
       accessToken,
     });
+  },
+
+  listAuditLogs(accessToken: string): Promise<AuditLogResponse[]> {
+    return apiFetch<AuditLogResponse[]>("/admin/audit-log", { accessToken });
   },
 };
