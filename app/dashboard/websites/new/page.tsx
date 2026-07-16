@@ -42,7 +42,7 @@ const LAYOUT_OPTIONS: Record<TemplateType, { value: LayoutVariant; label: string
   ],
   PORTFOLIO: [
     { value: "PORTFOLIO_HERO", label: "Hero", description: "Full-bleed dark hero, centered content, services grid, work gallery." },
-    { value: "PORTFOLIO_MINIMAL", label: "Minimal", description: "Light editorial split-screen - fixed profile panel, scrollable content." },
+    { value: "PORTFOLIO_MINIMAL", label: "Minimal", description: "Warm editorial personal-site style - serif type, About block, and a project grid." },
     { value: "PORTFOLIO_BOLD", label: "Bold", description: "Vibrant creative-agency style with bold type and a masonry work gallery." },
   ],
 };

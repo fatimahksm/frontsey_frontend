@@ -190,10 +190,12 @@ export function DynamicSections({ sections, tone }: { sections: PublicPageSectio
               (() => {
                 const data = parseSectionData<AboutSectionData>(section.data, "ABOUT");
                 return (
-                  <Reveal>
-                    <Heading tone={tone}>{data.heading}</Heading>
+                  <>
+                    <Reveal>
+                      <Heading tone={tone}>{data.heading}</Heading>
+                    </Reveal>
                     <AboutBlock tone={tone} data={data} />
-                  </Reveal>
+                  </>
                 );
               })()}
             {section.type === "TESTIMONIALS" &&

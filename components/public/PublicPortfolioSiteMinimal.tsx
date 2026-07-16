@@ -21,140 +21,187 @@ const DAY_LABELS: Record<string, string> = {
 };
 
 /**
- * The "Minimal" layout for PORTFOLIO: same data as the Hero layout (profile,
- * services, gallery), arranged as a light, editorial split-screen instead of
- * a dark full-bleed hero - a fixed left profile panel and a scrollable right
- * content column. Same WhatsApp-only contact model.
+ * "Minimal" layout for PORTFOLIO: same data as Hero/Bold, presented as a
+ * warm, editorial personal-site style - a top nav, a two-column hero with
+ * an eyebrow label and a photo, a side-by-side About block, a "Selected
+ * Work" project grid, and a warm contact card. Deliberately serif-leaning
+ * type and a cream background regardless of the site's light/dark toggle,
+ * to read as its own distinct design.
  */
 export function PublicPortfolioSiteMinimal({ site }: { site: PublicWebsiteResponse }) {
   const whatsappNumber = site.profile?.whatsappNumber;
   const inquiryMessage = `Hi ${site.businessName}, I'm interested in your services.`;
   const content = parseDraftContent(site.publishedContent);
+  const hasWork = site.services.length > 0 || site.galleryImageUrls.length > 0;
 
   return (
-    <div className="flex flex-1 flex-col lg:flex-row" style={brandColorStyle(content.brandColor)}>
-      <aside className="flex shrink-0 flex-col justify-center gap-5 border-b border-black/[.06] px-6 py-12 dark:border-white/[.1] lg:sticky lg:top-0 lg:h-screen lg:w-[380px] lg:border-b-0 lg:border-r">
-        {site.profile?.logoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-          <img src={site.profile.logoUrl} alt="" className="h-20 w-20 rounded-full object-cover shadow-soft" />
-        ) : (
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-accent text-2xl font-semibold text-white">
-            {site.businessName.charAt(0)}
-          </div>
-        )}
+    <div className="flex flex-1 flex-col bg-[#faf6f0] text-[#2b2621]" style={brandColorStyle(content.brandColor)}>
+      <header className="flex items-center justify-between px-6 py-6 sm:px-12">
+        <span className="font-serif text-2xl">{site.businessName.charAt(0)}.</span>
+        <nav className="hidden items-center gap-8 text-sm sm:flex">
+          <a href="#home" className="border-b border-current pb-0.5">
+            Home
+          </a>
+          <a href="#about">About</a>
+          {site.services.length > 0 && <a href="#work">Work</a>}
+          <a href="#contact">Contact</a>
+        </nav>
+      </header>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="text-3xl font-semibold tracking-tight"
-        >
-          {site.businessName}
-        </motion.h1>
-
-        {content.heroHeading && <p className="text-gradient text-lg font-medium">{content.heroHeading}</p>}
-        {content.heroSubtitle && <p className="text-sm text-zinc-500 dark:text-zinc-400">{content.heroSubtitle}</p>}
-        {site.profile?.description && <p className="text-sm text-zinc-500 dark:text-zinc-400">{site.profile.description}</p>}
-
-        <div className="flex flex-col gap-1 text-sm text-zinc-600 dark:text-zinc-400">
-          {site.profile?.phone && <span>{site.profile.phone}</span>}
-          {site.profile?.address && <span>{site.profile.address}</span>}
-          {site.profile?.googleMapsUrl && (
-            <a href={site.profile.googleMapsUrl} target="_blank" className="hover:underline">
-              Map
-            </a>
-          )}
-          {site.profile?.instagramUrl && (
-            <a href={site.profile.instagramUrl} target="_blank" className="hover:underline">
-              Instagram
-            </a>
-          )}
-          {site.profile?.tiktokUrl && (
-            <a href={site.profile.tiktokUrl} target="_blank" className="hover:underline">
-              TikTok
-            </a>
-          )}
-        </div>
-
-        {site.openingHours.length > 0 && (
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-zinc-500">
-            {site.openingHours.map((h) => (
-              <span key={h.dayOfWeek}>
-                {DAY_LABELS[h.dayOfWeek] ?? h.dayOfWeek}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : "Closed"}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {whatsappNumber && (
-          <motion.a
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            href={whatsappUrl(whatsappNumber, inquiryMessage)}
-            target="_blank"
-            className="mt-2 inline-flex w-fit items-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white shadow-soft hover:bg-emerald-700"
+      <section id="home" className="px-6 py-10 sm:px-12 sm:py-16">
+        <div className="mx-auto grid w-full max-w-6xl gap-10 sm:grid-cols-2 sm:items-center">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[var(--accent-solid)]">Hello, I&apos;m</p>
+            <h1 className="mt-2 font-serif text-4xl leading-tight sm:text-5xl">{site.businessName}</h1>
+            {content.heroHeading && <p className="mt-3 text-lg text-[#5c554d]">{content.heroHeading}</p>}
+            {(content.heroSubtitle || site.profile?.description) && (
+              <p className="mt-4 max-w-md text-sm text-[#7a7369]">{content.heroSubtitle || site.profile?.description}</p>
+            )}
+            {site.services.length > 0 && (
+              <a
+                href="#work"
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-[var(--accent-solid)] px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-105"
+              >
+                View my work →
+              </a>
+            )}
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="aspect-[4/3] w-full overflow-hidden rounded-2xl bg-[#ece4d8]"
           >
-            Contact on WhatsApp
-          </motion.a>
-        )}
-      </aside>
+            {site.profile?.coverImageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
+              <img src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
+            )}
+          </motion.div>
+        </div>
+      </section>
 
-      <div className="min-w-0 flex-1 px-6 py-12 lg:px-12">
-        {site.services.length > 0 && (
-          <section className="mb-16">
-            <Reveal>
-              <h2 className="mb-6 text-sm font-semibold uppercase tracking-widest text-zinc-500">Services</h2>
+      {(site.profile?.description || site.profile?.logoUrl) && (
+        <section id="about" className="px-6 py-14 sm:px-12">
+          <div className="mx-auto grid w-full max-w-6xl gap-10 sm:grid-cols-2 sm:items-center">
+            <Reveal className="aspect-square w-full max-w-sm overflow-hidden rounded-2xl bg-[#ece4d8]">
+              {site.profile?.logoUrl && (
+                // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
+                <img src={site.profile.logoUrl} alt="" className="h-full w-full object-cover" />
+              )}
             </Reveal>
-            <StaggerGroup as="ul" className="flex flex-col divide-y divide-black/[.06] dark:divide-white/[.1]">
+            <Reveal delay={0.1}>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[var(--accent-solid)]">About</p>
+              {site.profile?.description && <h2 className="mt-2 font-serif text-2xl leading-snug sm:text-3xl">{site.profile.description}</h2>}
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      {hasWork && (
+        <section id="work" className="px-6 py-14 sm:px-12">
+          <div className="mx-auto w-full max-w-6xl">
+            <Reveal>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[var(--accent-solid)]">Projects</p>
+              <h2 className="mt-2 font-serif text-3xl">Selected work</h2>
+            </Reveal>
+            <StaggerGroup className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {site.services.map((service) => (
-                <StaggerItem as="li" key={service.id} className="flex items-center justify-between gap-4 py-4">
-                  <div className="min-w-0">
-                    <p className="font-medium">{service.name}</p>
-                    {service.description && <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{service.description}</p>}
-                  </div>
-                  <span className="shrink-0 text-sm font-semibold">
-                    {service.price != null ? formatMoney(service.price, site.currency) : "On request"}
-                  </span>
+                <StaggerItem key={service.id}>
+                  <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
+                    <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl bg-[#ece4d8]">
+                      {service.imageUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
+                        <img src={service.imageUrl} alt="" className="h-full w-full object-cover" />
+                      )}
+                    </div>
+                    <p className="mt-3 font-medium">{service.name}</p>
+                    <p className="text-xs text-[#7a7369]">
+                      {service.price != null ? formatMoney(service.price, site.currency) : "Priced on request"}
+                    </p>
+                  </motion.div>
                 </StaggerItem>
               ))}
-            </StaggerGroup>
-          </section>
-        )}
-
-        {site.galleryImageUrls.length > 0 && (
-          <section>
-            <Reveal>
-              <h2 className="mb-6 text-sm font-semibold uppercase tracking-widest text-zinc-500">Work</h2>
-            </Reveal>
-            <StaggerGroup className="columns-2 gap-3 sm:columns-3">
               {site.galleryImageUrls.map((url) => (
-                <StaggerItem key={url} className="mb-3 break-inside-avoid">
+                <StaggerItem key={url}>
                   <motion.img
                     whileHover={{ scale: 1.02 }}
-                    transition={{ duration: 0.25 }}
+                    transition={{ duration: 0.2 }}
                     src={url}
                     alt=""
-                    className="w-full rounded-xl object-cover shadow-soft"
+                    className="aspect-[4/3] w-full rounded-2xl object-cover"
                   />
                 </StaggerItem>
               ))}
             </StaggerGroup>
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        <DynamicSections sections={site.sections} tone="minimal" />
+      <DynamicSections sections={site.sections} tone="minimal" />
 
-        {(site.profile?.policies.PRIVACY || site.profile?.policies.TERMS || site.profile?.policies.DELIVERY || site.profile?.policies.REFUND) && (
-          <footer className="mt-16 flex flex-col gap-4 border-t border-black/[.06] pt-6 text-xs text-zinc-500 dark:border-white/[.1]">
-            {Object.entries(site.profile?.policies ?? {}).map(([key, policyContent]) => (
-              <details key={key}>
-                <summary className="cursor-pointer font-medium">{key.charAt(0) + key.slice(1).toLowerCase()} policy</summary>
-                <p className="mt-2 whitespace-pre-wrap">{policyContent}</p>
-              </details>
-            ))}
-          </footer>
-        )}
-      </div>
+      <section id="contact" className="px-6 py-14 sm:px-12">
+        <Reveal className="mx-auto flex w-full max-w-6xl flex-col gap-6 rounded-3xl bg-[#ece4d8] p-8 sm:flex-row sm:items-center sm:justify-between sm:p-12">
+          <div>
+            <h2 className="font-serif text-3xl">Let&apos;s work together</h2>
+            <p className="mt-2 max-w-sm text-sm text-[#7a7369]">Have a project in mind or just want to say hello? Feel free to reach out.</p>
+            {whatsappNumber && (
+              <a
+                href={whatsappUrl(whatsappNumber, inquiryMessage)}
+                target="_blank"
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--accent-solid)] px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-105"
+              >
+                Get in touch →
+              </a>
+            )}
+          </div>
+          <div className="flex flex-col gap-2 text-sm text-[#5c554d]">
+            {site.profile?.email && <span>✉ {site.profile.email}</span>}
+            {site.profile?.phone && <span>☎ {site.profile.phone}</span>}
+            {site.profile?.address && <span>📍 {site.profile.address}</span>}
+            {site.openingHours.length > 0 && (
+              <div className="mt-2 flex flex-col gap-0.5 text-xs text-[#8b8478]">
+                {site.openingHours.map((h) => (
+                  <span key={h.dayOfWeek}>
+                    {DAY_LABELS[h.dayOfWeek] ?? h.dayOfWeek}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : "Closed"}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </Reveal>
+      </section>
+
+      {(site.profile?.policies.PRIVACY || site.profile?.policies.TERMS || site.profile?.policies.DELIVERY || site.profile?.policies.REFUND) && (
+        <section className="mx-auto w-full max-w-6xl px-6 pb-8 text-xs text-[#8b8478] sm:px-12">
+          {Object.entries(site.profile?.policies ?? {}).map(([key, policyContent]) => (
+            <details key={key}>
+              <summary className="cursor-pointer font-medium">{key.charAt(0) + key.slice(1).toLowerCase()} policy</summary>
+              <p className="mt-2 whitespace-pre-wrap">{policyContent}</p>
+            </details>
+          ))}
+        </section>
+      )}
+
+      <footer className="flex flex-col items-center justify-between gap-3 border-t border-[#e4dccd] px-6 py-6 text-xs text-[#8b8478] sm:flex-row sm:px-12">
+        <span>© {new Date().getFullYear()} {site.businessName}. All rights reserved.</span>
+        <div className="flex gap-4">
+          {site.profile?.instagramUrl && (
+            <a href={site.profile.instagramUrl} target="_blank" className="hover:text-[#2b2621]">
+              Instagram
+            </a>
+          )}
+          {site.profile?.tiktokUrl && (
+            <a href={site.profile.tiktokUrl} target="_blank" className="hover:text-[#2b2621]">
+              TikTok
+            </a>
+          )}
+          {site.profile?.googleMapsUrl && (
+            <a href={site.profile.googleMapsUrl} target="_blank" className="hover:text-[#2b2621]">
+              Map
+            </a>
+          )}
+        </div>
+      </footer>
     </div>
   );
 }
