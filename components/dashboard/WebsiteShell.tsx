@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
+import { LivePreviewPanel } from "@/components/dashboard/LivePreviewPanel";
 import { Alert } from "@/components/ui/Alert";
 import { ApiError } from "@/lib/api/client";
 import { websitesApi } from "@/lib/api/websites";
@@ -77,7 +78,7 @@ export function WebsiteShell({ websiteId, children }: { websiteId: string; child
 
   return (
     <WebsiteProvider websiteId={websiteId} accessToken={session.accessToken} initialWebsite={website}>
-      <div className="mx-auto flex w-full max-w-6xl flex-1 gap-8 px-4 py-8">
+      <div className="mx-auto flex w-full max-w-[104rem] flex-1 gap-8 px-4 py-8">
         <aside className="w-52 shrink-0">
           <p className="truncate px-3 text-sm font-semibold">{website.businessName}</p>
           <nav className="mt-4 flex flex-col gap-0.5">
@@ -118,6 +119,7 @@ export function WebsiteShell({ websiteId, children }: { websiteId: string; child
             </motion.div>
           </AnimatePresence>
         </div>
+        <LivePreviewPanel websiteId={websiteId} />
       </div>
     </WebsiteProvider>
   );
