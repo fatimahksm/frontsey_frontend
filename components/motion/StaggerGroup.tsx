@@ -9,7 +9,7 @@ import { staggerContainer, staggerItem } from "@/lib/motion";
 export function StaggerGroup({ children, className, as = "div" }: { children: ReactNode; className?: string; as?: "div" | "ul" }) {
   const MotionTag = motion[as];
   return (
-    <MotionTag initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-40px" }} variants={staggerContainer} className={className}>
+    <MotionTag initial="hidden" animate="visible" variants={staggerContainer} className={className}>
       {children}
     </MotionTag>
   );
