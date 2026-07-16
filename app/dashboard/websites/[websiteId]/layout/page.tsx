@@ -73,6 +73,13 @@ export default function LayoutPage() {
                   <div>
                     <p className="font-semibold">{option.label}</p>
                     <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{option.description}</p>
+                    <a
+                      href={`/preview/mock/${option.value}`}
+                      target="_blank"
+                      className="mt-1 inline-block text-xs font-medium text-[var(--accent-solid)] hover:underline"
+                    >
+                      Preview ↗
+                    </a>
                   </div>
                   <button
                     type="button"

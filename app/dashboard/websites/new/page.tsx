@@ -172,8 +172,20 @@ export default function NewWebsitePage() {
                     <PublicSiteRenderer site={mockSiteFor(option.value)} onFirstView={() => {}} />
                   </ScaledPreviewFrame>
                 </div>
-                <p className="mt-3 font-semibold">{option.label}</p>
-                <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{option.description}</p>
+                <div className="mt-3 flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold">{option.label}</p>
+                    <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{option.description}</p>
+                  </div>
+                  <a
+                    href={`/preview/mock/${option.value}`}
+                    target="_blank"
+                    onClick={(e) => e.stopPropagation()}
+                    className="shrink-0 text-xs font-medium text-[var(--accent-solid)] hover:underline"
+                  >
+                    Preview ↗
+                  </a>
+                </div>
               </div>
             </StaggerItem>
           );
