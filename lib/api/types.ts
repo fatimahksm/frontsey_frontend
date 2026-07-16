@@ -43,7 +43,13 @@ export type OrderingMode = "DISPLAY_ONLY" | "WHATSAPP_ORDERING";
 /** The structural shape of a website - distinct from Theme, which is only visual styling. */
 export type TemplateType = "MENU_ORDERING" | "PORTFOLIO";
 /** Matches com.dbwb.platform.website.entity.LayoutVariant - a structural arrangement, orthogonal to Theme (colors only). */
-export type LayoutVariant = "MENU_CLASSIC" | "MENU_GRID" | "PORTFOLIO_HERO" | "PORTFOLIO_MINIMAL";
+export type LayoutVariant =
+  | "MENU_CLASSIC"
+  | "MENU_GRID"
+  | "MENU_ELEGANT"
+  | "PORTFOLIO_HERO"
+  | "PORTFOLIO_MINIMAL"
+  | "PORTFOLIO_BOLD";
 export type WebsiteStatus =
   | "DRAFT"
   | "PUBLISHED"

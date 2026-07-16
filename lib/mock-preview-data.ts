@@ -1,7 +1,7 @@
-import type { PublicWebsiteResponse } from "@/lib/api/types";
+import type { LayoutVariant, PublicWebsiteResponse } from "@/lib/api/types";
 
 /** Sample/placeholder data (no real business's content) used purely so the layout gallery can render live, populated-looking thumbnails before an owner has entered anything of their own. */
-export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID"): PublicWebsiteResponse {
+export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU_ELEGANT"): PublicWebsiteResponse {
   return {
     businessName: "Sunny Side Cafe",
     slug: "preview",
@@ -96,7 +96,7 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID"): Publi
   };
 }
 
-export function mockPortfolioSite(layoutVariant: "PORTFOLIO_HERO" | "PORTFOLIO_MINIMAL"): PublicWebsiteResponse {
+export function mockPortfolioSite(layoutVariant: "PORTFOLIO_HERO" | "PORTFOLIO_MINIMAL" | "PORTFOLIO_BOLD"): PublicWebsiteResponse {
   return {
     businessName: "Glow Studio",
     slug: "preview",
@@ -135,4 +135,18 @@ export function mockPortfolioSite(layoutVariant: "PORTFOLIO_HERO" | "PORTFOLIO_M
     galleryImageUrls: [],
     seo: null,
   };
+}
+
+/** Convenience for pages that just need "a mock site for this variant" without caring which template family it belongs to. */
+export function mockSiteFor(layoutVariant: LayoutVariant): PublicWebsiteResponse {
+  switch (layoutVariant) {
+    case "MENU_CLASSIC":
+    case "MENU_GRID":
+    case "MENU_ELEGANT":
+      return mockMenuSite(layoutVariant);
+    case "PORTFOLIO_HERO":
+    case "PORTFOLIO_MINIMAL":
+    case "PORTFOLIO_BOLD":
+      return mockPortfolioSite(layoutVariant);
+  }
 }

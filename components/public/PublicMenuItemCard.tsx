@@ -13,9 +13,11 @@ interface Props {
   orderingEnabled: boolean;
   onAddToCart(line: CartLine): void;
   onFirstView(itemId: string): void;
+  /** "card" (default) is the bordered/shadowed presentation used by Classic and Grid. "elegant" is a plain list row with a dotted price leader, used by the Elegant layout - same interactive logic either way. */
+  variant?: "card" | "elegant";
 }
 
-export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCart, onFirstView }: Props) {
+export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCart, onFirstView, variant = "card" }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [sizeId, setSizeId] = useState<string>(item.sizes[0]?.id ?? "");
   const [boxVariantId, setBoxVariantId] = useState<string>(item.boxVariants[0]?.id ?? "");
@@ -92,27 +94,43 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
 
   const maxQuantity = item.maxOrderQuantity ?? 20;
 
+  const containerClassName =
+    variant === "elegant"
+      ? `border-b border-black/[.06] py-4 dark:border-white/[.1] ${isUnavailable ? "opacity-60" : ""}`
+      : `rounded-xl border border-black/[.08] p-4 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.145] ${isUnavailable ? "opacity-60" : ""}`;
+
   return (
-    <motion.div
-      layout
-      whileHover={isUnavailable ? undefined : { y: -2 }}
-      transition={{ duration: 0.2 }}
-      className={`rounded-xl border border-black/[.08] p-4 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.145] ${isUnavailable ? "opacity-60" : ""}`}
-    >
-      <button type="button" onClick={handleExpand} className="flex w-full items-start justify-between gap-4 text-left">
-        <div>
-          <p className="font-medium">{item.name}</p>
-          {item.description && <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{item.description}</p>}
-          <p className="mt-1 text-sm font-medium">
+    <motion.div layout whileHover={isUnavailable || variant === "elegant" ? undefined : { y: -2 }} transition={{ duration: 0.2 }} className={containerClassName}>
+      {variant === "elegant" ? (
+        <button type="button" onClick={handleExpand} className="flex w-full items-baseline gap-3 text-left">
+          <span className="font-medium">{item.name}</span>
+          <span className="h-px flex-1 border-b border-dotted border-black/[.2] dark:border-white/[.25]" aria-hidden />
+          <span className="shrink-0 font-medium">
             {formatMoney(item.discountPrice ?? item.price, currency)}
             {item.discountPrice != null && (
               <span className="ml-2 text-zinc-400 line-through">{formatMoney(item.price, currency)}</span>
             )}
-          </p>
-        </div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {item.imageUrl && <img src={item.imageUrl} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover" />}
-      </button>
+          </span>
+        </button>
+      ) : (
+        <button type="button" onClick={handleExpand} className="flex w-full items-start justify-between gap-4 text-left">
+          <div>
+            <p className="font-medium">{item.name}</p>
+            {item.description && <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{item.description}</p>}
+            <p className="mt-1 text-sm font-medium">
+              {formatMoney(item.discountPrice ?? item.price, currency)}
+              {item.discountPrice != null && (
+                <span className="ml-2 text-zinc-400 line-through">{formatMoney(item.price, currency)}</span>
+              )}
+            </p>
+          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {item.imageUrl && <img src={item.imageUrl} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover" />}
+        </button>
+      )}
+      {variant === "elegant" && item.description && (
+        <p className="mt-1 text-sm italic text-zinc-500 dark:text-zinc-400">{item.description}</p>
+      )}
 
       {isUnavailable && <p className="mt-2 text-xs font-medium text-amber-600">Currently unavailable</p>}
 

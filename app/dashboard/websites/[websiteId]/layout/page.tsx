@@ -10,17 +10,19 @@ import { Card } from "@/components/ui/Card";
 import { ApiError } from "@/lib/api/client";
 import type { LayoutVariant } from "@/lib/api/types";
 import { websitesApi } from "@/lib/api/websites";
-import { mockMenuSite, mockPortfolioSite } from "@/lib/mock-preview-data";
+import { mockSiteFor } from "@/lib/mock-preview-data";
 import { useWebsite } from "@/lib/website/website-context";
 
 const MENU_OPTIONS: { value: LayoutVariant; label: string; description: string }[] = [
   { value: "MENU_CLASSIC", label: "Classic", description: "Business-card header, gallery strip, categorized list, cart sidebar." },
   { value: "MENU_GRID", label: "Grid", description: "Full-width cover, sticky category tabs, items as a card grid, cart drawer." },
+  { value: "MENU_ELEGANT", label: "Elegant", description: "Fine-dining style list with dotted price leaders and a minimal bottom cart bar." },
 ];
 
 const PORTFOLIO_OPTIONS: { value: LayoutVariant; label: string; description: string }[] = [
   { value: "PORTFOLIO_HERO", label: "Hero", description: "Full-bleed dark hero, centered content, services grid, work gallery." },
   { value: "PORTFOLIO_MINIMAL", label: "Minimal", description: "Light editorial split-screen - fixed profile panel, scrollable content." },
+  { value: "PORTFOLIO_BOLD", label: "Bold", description: "Vibrant creative-agency style with bold type and a masonry work gallery." },
 ];
 
 export default function LayoutPage() {
@@ -54,13 +56,10 @@ export default function LayoutPage() {
       </div>
       {error && <Alert tone="error">{error}</Alert>}
 
-      <StaggerGroup className="grid gap-6 sm:grid-cols-2">
+      <StaggerGroup className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {options.map((option) => {
           const isSelected = website.layoutVariant === option.value;
-          const mockSite =
-            option.value === "MENU_CLASSIC" || option.value === "MENU_GRID"
-              ? mockMenuSite(option.value)
-              : mockPortfolioSite(option.value);
+          const mockSite = mockSiteFor(option.value);
 
           return (
             <StaggerItem key={option.value}>
