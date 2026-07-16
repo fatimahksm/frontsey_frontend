@@ -1,5 +1,11 @@
 import { apiFetch } from "@/lib/api/client";
-import type { CreateWebsiteRequest, PublicWebsiteResponse, UpdateDraftContentRequest, WebsiteResponse } from "@/lib/api/types";
+import type {
+  CreateWebsiteRequest,
+  LayoutVariant,
+  PublicWebsiteResponse,
+  UpdateDraftContentRequest,
+  WebsiteResponse,
+} from "@/lib/api/types";
 
 /** `/api/websites/**` (BRD 9.2/9.3/9.9) - create, list, draft/publish lifecycle. */
 export const websitesApi = {
@@ -39,6 +45,14 @@ export const websitesApi = {
     return apiFetch<WebsiteResponse>(`/websites/${websiteId}/theme`, {
       method: "PUT",
       body: { themeId },
+      accessToken,
+    });
+  },
+
+  updateLayoutVariant(accessToken: string, websiteId: string, layoutVariant: LayoutVariant): Promise<WebsiteResponse> {
+    return apiFetch<WebsiteResponse>(`/websites/${websiteId}/layout`, {
+      method: "PUT",
+      body: { layoutVariant },
       accessToken,
     });
   },

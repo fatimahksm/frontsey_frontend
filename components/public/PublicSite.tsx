@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { PublicMenuSite } from "@/components/public/PublicMenuSite";
-import { PublicPortfolioSite } from "@/components/public/PublicPortfolioSite";
+import { PublicSiteRenderer } from "@/components/public/PublicSiteRenderer";
 import { publicSiteApi } from "@/lib/api/publicSite";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 
@@ -53,9 +52,5 @@ export function PublicSite({ slug }: { slug: string }) {
     );
   }
 
-  return site.templateType === "PORTFOLIO" ? (
-    <PublicPortfolioSite site={site} />
-  ) : (
-    <PublicMenuSite site={site} onFirstView={handleFirstView} />
-  );
+  return <PublicSiteRenderer site={site} onFirstView={handleFirstView} />;
 }

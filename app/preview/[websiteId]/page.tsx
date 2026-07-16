@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
-import { PublicMenuSite } from "@/components/public/PublicMenuSite";
-import { PublicPortfolioSite } from "@/components/public/PublicPortfolioSite";
+import { PublicSiteRenderer } from "@/components/public/PublicSiteRenderer";
 import { ApiError } from "@/lib/api/client";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { websitesApi } from "@/lib/api/websites";
@@ -57,12 +56,7 @@ export default function PreviewPage({ params }: Props) {
 
       {error && <p className="p-10 text-center text-sm text-red-600">{error}</p>}
       {!error && !site && <p className="p-10 text-center text-sm text-zinc-500">Loading preview…</p>}
-      {site &&
-        (site.templateType === "PORTFOLIO" ? (
-          <PublicPortfolioSite site={site} />
-        ) : (
-          <PublicMenuSite site={site} onFirstView={() => {}} />
-        ))}
+      {site && <PublicSiteRenderer site={site} onFirstView={() => {}} />}
     </div>
   );
 }

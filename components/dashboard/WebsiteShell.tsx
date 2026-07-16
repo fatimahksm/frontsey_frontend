@@ -26,6 +26,7 @@ function navItemsFor(templateType: TemplateType) {
     contentItem,
     ...(templateType === "MENU_ORDERING" ? [{ href: "/delivery", label: "Delivery areas" }] : []),
     { href: "/gallery", label: "Gallery" },
+    { href: "/layout", label: "Layout" },
     { href: "/theme", label: "Theme" },
     { href: "/seo", label: "SEO" },
     { href: "/managers", label: "Managers" },
