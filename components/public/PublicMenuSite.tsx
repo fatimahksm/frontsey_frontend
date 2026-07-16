@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Reveal } from "@/components/motion/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { CartPanel } from "@/components/public/CartPanel";
+import { DynamicSections } from "@/components/public/DynamicSections";
 import { PublicMenuItemCard } from "@/components/public/PublicMenuItemCard";
 import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types";
 import type { CartLine } from "@/lib/site/cart";
@@ -153,6 +154,10 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
               </StaggerGroup>
             </section>
           ))}
+        </div>
+
+        <div className="mt-8 flex flex-col gap-8">
+          <DynamicSections sections={site.sections} tone="classic" />
         </div>
 
         {(site.profile?.policies.PRIVACY || site.profile?.policies.TERMS || site.profile?.policies.DELIVERY || site.profile?.policies.REFUND) && (

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
+import { DynamicSections } from "@/components/public/DynamicSections";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
 import { whatsappUrl } from "@/lib/site/whatsapp";
@@ -283,6 +284,8 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
           </div>
         </section>
       )}
+
+      <DynamicSections sections={site.sections} tone="hero" />
 
       {(site.profile?.policies.PRIVACY || site.profile?.policies.TERMS || site.profile?.policies.DELIVERY || site.profile?.policies.REFUND) && (
         <section className="mx-auto w-full max-w-5xl px-6 py-8 text-xs text-zinc-500 sm:px-12">

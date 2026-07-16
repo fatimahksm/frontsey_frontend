@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { CartPanel } from "@/components/public/CartPanel";
+import { DynamicSections } from "@/components/public/DynamicSections";
 import { PublicMenuItemCard } from "@/components/public/PublicMenuItemCard";
 import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types";
 import type { CartLine } from "@/lib/site/cart";
@@ -99,6 +100,8 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
             </div>
           </Reveal>
         )}
+
+        <DynamicSections sections={site.sections} tone="elegant" />
       </div>
 
       {orderingEnabled && cart.length > 0 && (

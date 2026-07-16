@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
+import { DynamicSections } from "@/components/public/DynamicSections";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
 import { brandColorStyle, parseDraftContent } from "@/lib/website/draft-content";
@@ -140,6 +141,8 @@ export function PublicPortfolioSiteMinimal({ site }: { site: PublicWebsiteRespon
             </StaggerGroup>
           </section>
         )}
+
+        <DynamicSections sections={site.sections} tone="minimal" />
 
         {(site.profile?.policies.PRIVACY || site.profile?.policies.TERMS || site.profile?.policies.DELIVERY || site.profile?.policies.REFUND) && (
           <footer className="mt-16 flex flex-col gap-4 border-t border-black/[.06] pt-6 text-xs text-zinc-500 dark:border-white/[.1]">

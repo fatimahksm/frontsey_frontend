@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Reveal } from "@/components/motion/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { CartPanel } from "@/components/public/CartPanel";
+import { DynamicSections } from "@/components/public/DynamicSections";
 import { PublicMenuItemCard } from "@/components/public/PublicMenuItemCard";
 import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types";
 import type { CartLine } from "@/lib/site/cart";
@@ -181,6 +182,8 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
             )}
           </Reveal>
         )}
+
+        <DynamicSections sections={site.sections} tone="grid" />
 
         {(site.profile?.policies.PRIVACY || site.profile?.policies.TERMS || site.profile?.policies.DELIVERY || site.profile?.policies.REFUND) && (
           <footer className="mt-10 flex flex-col gap-4 border-t border-black/[.06] pt-6 text-xs text-zinc-500 dark:border-white/[.1]">

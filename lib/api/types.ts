@@ -182,6 +182,22 @@ export interface ServiceItemResponse {
   sortOrder: number;
 }
 
+/** The closed set of extra sections an owner can add on top of the fixed template content. */
+export type PageSectionType = "ABOUT" | "TESTIMONIALS" | "FAQ" | "TEAM";
+
+export interface PageSectionRequest {
+  type: PageSectionType;
+  /** Opaque JSON string; shape depends on `type` - see lib/website/page-sections.ts. */
+  data: string;
+}
+
+export interface PageSectionResponse {
+  id: string;
+  type: PageSectionType;
+  data: string;
+  sortOrder: number;
+}
+
 export interface CategoryDto {
   id: string;
   name: string;
@@ -598,6 +614,14 @@ export interface PublicWebsiteResponse {
   services: PublicService[];
   galleryImageUrls: string[];
   seo: PublicSeoMetadata | null;
+  /** Owner-added extra sections (About/Testimonials/FAQ/Team), in display order. */
+  sections: PublicPageSection[];
+}
+
+export interface PublicPageSection {
+  id: string;
+  type: PageSectionType;
+  data: string;
 }
 
 /** BR-QR-003/004: distinguishes "doesn't exist" from "suspended" without ever exposing the internal WebsiteStatus/reason. */

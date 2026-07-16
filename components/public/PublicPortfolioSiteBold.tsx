@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
+import { DynamicSections } from "@/components/public/DynamicSections";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
 import { brandColorStyle, parseDraftContent } from "@/lib/website/draft-content";
@@ -143,6 +144,8 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
             </StaggerGroup>
           </section>
         )}
+
+        <DynamicSections sections={site.sections} tone="bold" />
 
         {(site.profile?.policies.PRIVACY || site.profile?.policies.TERMS || site.profile?.policies.DELIVERY || site.profile?.policies.REFUND) && (
           <section className="mt-16 flex flex-col gap-3 text-xs text-zinc-500">

@@ -93,6 +93,30 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
     services: [],
     galleryImageUrls: [],
     seo: null,
+    sections: [
+      {
+        id: "sec1",
+        type: "TESTIMONIALS",
+        data: JSON.stringify({
+          heading: "What our customers say",
+          items: [
+            { name: "Maya K.", quote: "Best cappuccino in Hamra, hands down.", imageUrl: null },
+            { name: "Karim H.", quote: "Cozy spot, super friendly staff.", imageUrl: null },
+          ],
+        }),
+      },
+      {
+        id: "sec2",
+        type: "FAQ",
+        data: JSON.stringify({
+          heading: "Frequently asked questions",
+          items: [
+            { question: "Do you take reservations?", answer: "Walk-ins only, but we rarely have a wait." },
+            { question: "Is there parking nearby?", answer: "Street parking is available on Hamra Street." },
+          ],
+        }),
+      },
+    ],
   };
 }
 
@@ -134,6 +158,28 @@ export function mockPortfolioSite(layoutVariant: "PORTFOLIO_HERO" | "PORTFOLIO_M
     ],
     galleryImageUrls: [],
     seo: null,
+    sections: [
+      {
+        id: "sec1",
+        type: "ABOUT",
+        data: JSON.stringify({
+          heading: "Our story",
+          body: "Founded in 2019, Glow Studio has been helping clients look and feel their best with modern techniques and a warm, welcoming space.",
+          imageUrl: null,
+        }),
+      },
+      {
+        id: "sec2",
+        type: "TEAM",
+        data: JSON.stringify({
+          heading: "Meet the team",
+          items: [
+            { name: "Layla", role: "Senior Stylist", imageUrl: null },
+            { name: "Nour", role: "Colorist", imageUrl: null },
+          ],
+        }),
+      },
+    ],
   };
 }
 
