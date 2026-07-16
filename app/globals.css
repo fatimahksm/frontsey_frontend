@@ -39,8 +39,10 @@
   }
 }
 
-* {
-  border-color: var(--border-subtle);
+@layer base {
+  * {
+    border-color: var(--border-subtle);
+  }
 }
 
 body {

@@ -11,13 +11,15 @@ interface RevealProps {
   delay?: number;
   className?: string;
   as?: "div" | "section" | "li";
+  id?: string;
 }
 
 /** Fades/slides content in the first time it scrolls into view - the base building block for scroll-reveal sections. */
-export function Reveal({ children, variants = fadeInUp, delay = 0, className, as = "div" }: RevealProps) {
+export function Reveal({ children, variants = fadeInUp, delay = 0, className, as = "div", id }: RevealProps) {
   const MotionTag = motion[as];
   return (
     <MotionTag
+      id={id}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-80px" }}
