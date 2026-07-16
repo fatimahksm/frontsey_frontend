@@ -143,13 +143,18 @@ export default function WebsiteOverviewPage() {
           <label htmlFor="brandColor" className="flex flex-col gap-1.5 text-sm">
             <span className="font-medium text-foreground">Brand color</span>
             <span className="text-xs text-zinc-500 dark:text-zinc-400">Used for buttons and accents across your public site.</span>
-            <input
-              id="brandColor"
-              type="color"
-              value={brandColor}
-              onChange={(e) => setBrandColor(e.target.value)}
-              className="h-11 w-20 rounded-lg border border-black/[.12] bg-transparent dark:border-white/[.18]"
-            />
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border-2 border-black/[.15] bg-surface p-1 dark:border-white/[.3]">
+                <input
+                  id="brandColor"
+                  type="color"
+                  value={brandColor}
+                  onChange={(e) => setBrandColor(e.target.value)}
+                  className="h-full w-full cursor-pointer rounded border-0 bg-transparent p-0"
+                />
+              </div>
+              <span className="font-mono text-xs uppercase text-zinc-500 dark:text-zinc-400">{brandColor}</span>
+            </div>
           </label>
           <Select
             id="orderingMode"
