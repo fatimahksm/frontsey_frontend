@@ -58,36 +58,35 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
 
   return (
     <div className="flex flex-1 flex-col" style={brandColorStyle(content.brandColor)}>
-      <div
-        className="relative flex min-h-[45vh] flex-col items-center justify-end overflow-hidden bg-gradient-accent px-4 pb-10 pt-16 text-center text-white"
-        style={
-          site.profile?.coverImageUrl
-            ? {
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.55)), url(${site.profile.coverImageUrl})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }
-            : undefined
-        }
-      >
-        {site.profile?.logoUrl && (
+      {/* A practical, app-like header (cover strip + overlapping logo, left-aligned info) - deliberately not a
+          cinematic full-bleed hero, which is Portfolio's signature move. Menu sites are about getting to the
+          menu fast, not a dramatic intro. */}
+      <div className="relative h-40 w-full overflow-hidden bg-surface-muted sm:h-52">
+        {site.profile?.coverImageUrl && (
           // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-          <img
-            src={site.profile.logoUrl}
-            alt=""
-            className="mb-3 h-20 w-20 rounded-2xl border-2 border-white/40 object-cover shadow-lift"
-          />
+          <img src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
         )}
-        <motion.h1
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="text-3xl font-semibold tracking-tight sm:text-4xl"
-        >
-          {site.businessName}
-        </motion.h1>
-        {content.heroHeading && <p className="mt-2 text-base font-medium text-white/90">{content.heroHeading}</p>}
-        {content.heroSubtitle && <p className="mt-1 max-w-md text-sm text-white/75">{content.heroSubtitle}</p>}
+      </div>
+      <div className="mx-auto w-full max-w-6xl px-4 pb-4">
+        <div className="-mt-10 flex items-end gap-4 sm:-mt-12">
+          {site.profile?.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
+            <img
+              src={site.profile.logoUrl}
+              alt=""
+              className="h-20 w-20 shrink-0 rounded-2xl border-4 border-background object-cover shadow-lift sm:h-24 sm:w-24"
+            />
+          ) : (
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-4 border-background bg-gradient-accent text-2xl font-semibold text-white shadow-lift sm:h-24 sm:w-24">
+              {site.businessName.charAt(0)}
+            </div>
+          )}
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="min-w-0 pb-2">
+            <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">{site.businessName}</h1>
+            {content.heroHeading && <p className="mt-0.5 truncate text-sm font-medium text-[var(--accent-solid)]">{content.heroHeading}</p>}
+          </motion.div>
+        </div>
+        {content.heroSubtitle && <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">{content.heroSubtitle}</p>}
       </div>
 
       {site.categories.length > 0 && (
