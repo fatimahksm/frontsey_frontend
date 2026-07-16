@@ -13,9 +13,14 @@ export function NotificationsBell({ accessToken }: { accessToken: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    notificationsApi.list(accessToken).then((list) => {
-      if (!cancelled) setNotifications(list);
-    });
+    notificationsApi
+      .list(accessToken)
+      .then((list) => {
+        if (!cancelled) setNotifications(list);
+      })
+      .catch(() => {
+        // Non-critical: the bell just stays empty if this fails, no need to disrupt the page.
+      });
     return () => {
       cancelled = true;
     };
@@ -34,13 +39,21 @@ export function NotificationsBell({ accessToken }: { accessToken: string }) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   async function markAsRead(id: string) {
-    await notificationsApi.markAsRead(accessToken, id);
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    try {
+      await notificationsApi.markAsRead(accessToken, id);
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    } catch {
+      // Non-critical: leave the notification as unread if this fails.
+    }
   }
 
   async function markAllAsRead() {
-    await notificationsApi.markAllAsRead(accessToken);
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    try {
+      await notificationsApi.markAllAsRead(accessToken);
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } catch {
+      // Non-critical: leave notifications as-is if this fails.
+    }
   }
 
   return (
