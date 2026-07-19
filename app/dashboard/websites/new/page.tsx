@@ -192,6 +192,17 @@ export default function NewWebsitePage() {
         })}
       </StaggerGroup>
 
+      <div className="mt-8">
+        <p className="mb-2 text-sm font-medium">
+          Live preview - {LAYOUT_OPTIONS[templateType].find((o) => o.value === layoutVariant)?.label}
+        </p>
+        <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
+          <ScaledPreviewFrame width={820} height={520}>
+            <PublicSiteRenderer site={mockSiteFor(layoutVariant)} onFirstView={() => {}} />
+          </ScaledPreviewFrame>
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} className="mt-10 flex max-w-lg flex-col gap-5">
         {error && <Alert tone="error">{error}</Alert>}
 

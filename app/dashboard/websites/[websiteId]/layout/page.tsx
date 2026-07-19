@@ -29,6 +29,7 @@ export default function LayoutPage() {
   const { website, accessToken, reload } = useWebsite();
   const [error, setError] = useState<string | null>(null);
   const [busyVariant, setBusyVariant] = useState<LayoutVariant | null>(null);
+  const [previewVariant, setPreviewVariant] = useState<LayoutVariant>(website.layoutVariant);
 
   const options = website.templateType === "PORTFOLIO" ? PORTFOLIO_OPTIONS : MENU_OPTIONS;
 
@@ -64,7 +65,20 @@ export default function LayoutPage() {
           return (
             <StaggerItem key={option.value}>
               <Card>
-                <div className="flex justify-center overflow-x-auto">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setPreviewVariant(option.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setPreviewVariant(option.value);
+                    }
+                  }}
+                  className={`flex w-full cursor-pointer justify-center overflow-x-auto rounded-xl transition-shadow ${
+                    previewVariant === option.value ? "ring-2 ring-[var(--accent-solid)]" : ""
+                  }`}
+                >
                   <ScaledPreviewFrame>
                     <PublicSiteRenderer site={mockSite} onFirstView={() => {}} />
                   </ScaledPreviewFrame>
@@ -99,6 +113,17 @@ export default function LayoutPage() {
           );
         })}
       </StaggerGroup>
+
+      <div>
+        <p className="mb-2 text-sm font-medium">
+          Live preview - {options.find((o) => o.value === previewVariant)?.label}
+        </p>
+        <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
+          <ScaledPreviewFrame width={820} height={520}>
+            <PublicSiteRenderer site={mockSiteFor(previewVariant)} onFirstView={() => {}} />
+          </ScaledPreviewFrame>
+        </div>
+      </div>
     </div>
   );
 }
