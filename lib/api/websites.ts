@@ -17,6 +17,11 @@ export const websitesApi = {
     return apiFetch<WebsiteResponse[]>("/websites", { accessToken });
   },
 
+  /** Phase 4 (BR-MGR): every website the caller owns or has accepted manager access to. */
+  listAccessible(accessToken: string): Promise<WebsiteResponse[]> {
+    return apiFetch<WebsiteResponse[]>("/websites/accessible", { accessToken });
+  },
+
   get(accessToken: string, websiteId: string): Promise<WebsiteResponse> {
     return apiFetch<WebsiteResponse>(`/websites/${websiteId}`, { accessToken });
   },

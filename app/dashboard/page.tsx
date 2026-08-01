@@ -9,6 +9,7 @@ import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/api/client";
+import { managerInvitationsApi } from "@/lib/api/managerInvitations";
 import { websitesApi } from "@/lib/api/websites";
 import type { WebsiteResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
@@ -16,14 +17,19 @@ import { useAuth } from "@/lib/auth/auth-context";
 export default function WebsitesPage() {
   const { session } = useAuth();
   const [websites, setWebsites] = useState<WebsiteResponse[] | null>(null);
+  const [pendingInvitationCount, setPendingInvitationCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!session) return;
     websitesApi
-      .listMine(session.accessToken)
+      .listAccessible(session.accessToken)
       .then(setWebsites)
       .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load your websites."));
+    managerInvitationsApi
+      .list(session.accessToken)
+      .then((invitations) => setPendingInvitationCount(invitations.length))
+      .catch(() => setPendingInvitationCount(0));
   }, [session]);
 
   return (
@@ -32,7 +38,7 @@ export default function WebsitesPage() {
         <div>
           <h1 className="text-xl font-semibold tracking-tight">My Websites</h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Every business website tied to your account, in one place.
+            Every business website you own or help manage, in one place.
           </p>
         </div>
         {websites !== null && websites.length > 0 && (
@@ -41,6 +47,15 @@ export default function WebsitesPage() {
           </Link>
         )}
       </div>
+
+      {pendingInvitationCount > 0 && (
+        <Alert tone="info">
+          You have {pendingInvitationCount} pending manager invitation{pendingInvitationCount > 1 ? "s" : ""}.{" "}
+          <Link href="/dashboard/invitations" className="font-medium underline">
+            Review invitations →
+          </Link>
+        </Alert>
+      )}
 
       {error && <Alert tone="error">{error}</Alert>}
 

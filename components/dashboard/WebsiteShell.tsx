@@ -7,17 +7,23 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import { LivePreviewPanel } from "@/components/dashboard/LivePreviewPanel";
 import { Alert } from "@/components/ui/Alert";
+import { Badge } from "@/components/ui/Badge";
 import { ApiError } from "@/lib/api/client";
 import { plansApi } from "@/lib/api/plans";
 import { subscriptionApi } from "@/lib/api/subscription";
 import { websitesApi } from "@/lib/api/websites";
-import type { TemplateType, WebsiteResponse } from "@/lib/api/types";
+import type { Permission, TemplateType, WebsiteResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
+import { hasPermission } from "@/lib/website/permissions";
 import { WebsiteProvider } from "@/lib/website/website-context";
 
 interface NavItem {
   href: string;
   label: string;
+  /** Undefined = visible to any accepted manager (e.g. Overview, read-only pages). */
+  permission?: Permission;
+  /** Owner-only regardless of permissions (managing managers, the subscription). */
+  ownerOnly?: boolean;
 }
 
 interface NavGroup {
@@ -29,34 +35,66 @@ interface NavGroup {
  * Reduced, grouped navigation (Phase 2): Overview / Content / Design /
  * Website Settings / Analytics / Subscription, instead of one flat list of
  * 11+ top-level tabs. Only shows what's relevant to this website's type -
- * Delivery areas never appears for a Portfolio site, and Analytics is
- * hidden when the active plan doesn't include it.
+ * Delivery areas never appears for a Portfolio site, Analytics is hidden
+ * when the active plan doesn't include it, and (Phase 4) a Manager only
+ * sees the items they've actually been granted permission for - mirrors
+ * exactly what WebsiteAccessGuard.requirePermission enforces server-side.
  */
 function navGroupsFor(templateType: TemplateType, analyticsEnabled: boolean): NavGroup[] {
   const contentItem: NavItem =
-    templateType === "PORTFOLIO" ? { href: "/services", label: "Services" } : { href: "/menu", label: "Menu" };
+    templateType === "PORTFOLIO"
+      ? { href: "/services", label: "Services", permission: "MANAGE_MENU" }
+      : { href: "/menu", label: "Menu", permission: "MANAGE_MENU" };
 
   const groups: NavGroup[] = [
     { label: null, items: [{ href: "", label: "Overview" }] },
-    { label: "Content", items: [contentItem, { href: "/gallery", label: "Gallery" }, { href: "/sections", label: "Custom sections" }] },
-    { label: "Design", items: [{ href: "/layout", label: "Template" }, { href: "/theme", label: "Theme" }] },
+    {
+      label: "Content",
+      items: [
+        contentItem,
+        { href: "/gallery", label: "Gallery", permission: "MANAGE_THEME_AND_CONTENT" },
+        { href: "/sections", label: "Custom sections", permission: "MANAGE_THEME_AND_CONTENT" },
+      ],
+    },
+    {
+      label: "Design",
+      items: [
+        { href: "/layout", label: "Template", permission: "MANAGE_THEME_AND_CONTENT" },
+        { href: "/theme", label: "Theme", permission: "MANAGE_THEME_AND_CONTENT" },
+      ],
+    },
     {
       label: "Website Settings",
       items: [
-        { href: "/profile", label: "Business profile" },
-        ...(templateType === "MENU_ORDERING" ? [{ href: "/delivery", label: "Delivery areas" }] : []),
-        { href: "/seo", label: "SEO" },
-        { href: "/managers", label: "Managers" },
+        { href: "/profile", label: "Business profile", permission: "MANAGE_BUSINESS_PROFILE" },
+        ...(templateType === "MENU_ORDERING"
+          ? [{ href: "/delivery", label: "Delivery areas", permission: "MANAGE_DELIVERY_SETTINGS" } as NavItem]
+          : []),
+        { href: "/seo", label: "SEO", permission: "MANAGE_THEME_AND_CONTENT" },
+        { href: "/managers", label: "Managers", ownerOnly: true },
       ],
     },
   ];
 
   if (analyticsEnabled) {
-    groups.push({ label: null, items: [{ href: "/analytics", label: "Analytics" }] });
+    groups.push({ label: null, items: [{ href: "/analytics", label: "Analytics", permission: "VIEW_ANALYTICS" }] });
   }
-  groups.push({ label: null, items: [{ href: "/subscription", label: "Subscription" }] });
+  groups.push({ label: null, items: [{ href: "/subscription", label: "Subscription", ownerOnly: true }] });
 
   return groups;
+}
+
+function visibleFor(groups: NavGroup[], website: WebsiteResponse): NavGroup[] {
+  return groups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
+        if (item.ownerOnly) return website.role === "OWNER" || website.role === null;
+        if (!item.permission) return true;
+        return hasPermission(website, item.permission);
+      }),
+    }))
+    .filter((group) => group.items.length > 0);
 }
 
 export function WebsiteShell({ websiteId, children }: { websiteId: string; children: ReactNode }) {
@@ -134,9 +172,14 @@ export function WebsiteShell({ websiteId, children }: { websiteId: string; child
     <WebsiteProvider websiteId={websiteId} accessToken={session.accessToken} initialWebsite={website}>
       <div className="mx-auto flex w-full max-w-[104rem] flex-1 gap-8 px-4 py-8">
         <aside className="w-52 shrink-0">
-          <p className="truncate px-3 text-sm font-semibold">{website.businessName}</p>
+          <div className="flex items-center gap-2 px-3">
+            <p className="truncate text-sm font-semibold">{website.businessName}</p>
+            <Badge tone={website.role === "MANAGER" ? "neutral" : "success"}>
+              {website.role === "MANAGER" ? "Manager" : "Owner"}
+            </Badge>
+          </div>
           <nav className="mt-4 flex flex-col gap-4">
-            {navGroupsFor(website.templateType, analyticsEnabled).map((group, groupIndex) => (
+            {visibleFor(navGroupsFor(website.templateType, analyticsEnabled), website).map((group, groupIndex) => (
               <div key={group.label ?? `group-${groupIndex}`} className="flex flex-col gap-0.5">
                 {group.label && (
                   <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">

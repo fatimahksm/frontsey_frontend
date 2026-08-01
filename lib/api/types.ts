@@ -61,6 +61,9 @@ export type WebsiteStatus =
   | "TRASHED"
   | "DELETED";
 
+/** Phase 4: the caller's relationship to a website. */
+export type AccessRole = "OWNER" | "MANAGER";
+
 export interface WebsiteResponse {
   id: string;
   businessName: string;
@@ -76,6 +79,10 @@ export interface WebsiteResponse {
   publishedContent: string | null;
   publishedAt: string | null;
   themeId: string | null;
+  /** Null on action-response endpoints that don't resolve it; always set on GET /websites/{id} and /websites/accessible. */
+  role: AccessRole | null;
+  /** For role="MANAGER", exactly the granted permissions; empty for role="OWNER" (an owner implicitly has all of them). */
+  permissions: Permission[];
 }
 
 export interface CreateWebsiteRequest {
@@ -333,7 +340,7 @@ export type Permission =
   | "MANAGE_BUSINESS_PROFILE"
   | "MANAGE_DELIVERY_SETTINGS";
 
-export type InvitationStatus = "PENDING" | "ACCEPTED" | "REVOKED";
+export type InvitationStatus = "PENDING" | "ACCEPTED" | "REJECTED" | "REVOKED" | "EXPIRED";
 
 export interface InviteManagerRequest {
   email: string;
@@ -343,6 +350,15 @@ export interface InviteManagerRequest {
 export interface ManagerAccessResponse {
   id: string;
   invitedEmail: string;
+  status: InvitationStatus;
+  permissions: Permission[];
+}
+
+/** Phase 4: an invitation from the invited person's point of view - which website, not just the raw access-record fields. */
+export interface ManagerInvitationResponse {
+  id: string;
+  websiteId: string;
+  businessName: string;
   status: InvitationStatus;
   permissions: Permission[];
 }

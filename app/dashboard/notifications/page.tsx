@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
@@ -77,7 +78,14 @@ export default function NotificationsPage() {
                   </button>
                 )}
               </div>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{formatDateTime(n.createdAt)}</p>
+              <div className="mt-1 flex items-center gap-3">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">{formatDateTime(n.createdAt)}</p>
+                {n.event === "MANAGER_INVITATION" && (
+                  <Link href="/dashboard/invitations" className="text-xs font-medium text-[var(--accent-solid)] hover:underline">
+                    Review invitation →
+                  </Link>
+                )}
+              </div>
             </StaggerItem>
           ))}
         </StaggerGroup>

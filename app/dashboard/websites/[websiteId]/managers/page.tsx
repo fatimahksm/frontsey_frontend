@@ -26,7 +26,25 @@ const PERMISSIONS: { value: Permission; label: string }[] = [
   { value: "MANAGE_DELIVERY_SETTINGS", label: "Manage delivery settings" },
 ];
 
-const STATUS_TONE = { ACCEPTED: "success", PENDING: "warning", REVOKED: "danger" } as const;
+const STATUS_TONE = {
+  ACCEPTED: "success",
+  PENDING: "warning",
+  REJECTED: "danger",
+  REVOKED: "danger",
+  EXPIRED: "neutral",
+} as const;
+
+const STATUS_LABEL = {
+  ACCEPTED: "Active",
+  PENDING: "Pending",
+  REJECTED: "Declined",
+  REVOKED: "Revoked",
+  EXPIRED: "Expired",
+} as const;
+
+function canManage(status: keyof typeof STATUS_LABEL) {
+  return status === "PENDING" || status === "ACCEPTED";
+}
 
 export default function ManagersPage() {
   const { website, accessToken } = useWebsite();
@@ -110,15 +128,15 @@ export default function ManagersPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">{manager.invitedEmail}</span>
-                    <Badge tone={STATUS_TONE[manager.status]}>{manager.status}</Badge>
+                    <Badge tone={STATUS_TONE[manager.status]}>{STATUS_LABEL[manager.status]}</Badge>
                   </div>
-                  {manager.status !== "REVOKED" && (
+                  {canManage(manager.status) && (
                     <button type="button" className="text-xs text-red-600 hover:underline" onClick={() => handleRevoke(manager.id)}>
                       Revoke
                     </button>
                   )}
                 </div>
-                {manager.status !== "REVOKED" && (
+                {canManage(manager.status) && (
                   <div className="mt-2 flex flex-wrap gap-3">
                     {PERMISSIONS.map((p) => (
                       <Checkbox

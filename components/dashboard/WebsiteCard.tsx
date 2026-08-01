@@ -83,7 +83,7 @@ export function WebsiteCard({ website, accessToken }: { website: WebsiteResponse
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <p className="truncate text-base font-semibold">{website.businessName}</p>
-          <Badge tone="neutral">Owner</Badge>
+          <Badge tone={website.role === "MANAGER" ? "neutral" : "success"}>{website.role === "MANAGER" ? "Manager" : "Owner"}</Badge>
           <WebsiteStatusBadge status={website.status} />
           {subscription ? (
             <Badge tone={SUBSCRIPTION_TONE[subscription.status]}>Subscription: {SUBSCRIPTION_LABEL[subscription.status]}</Badge>
