@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { WebsiteCard } from "@/components/dashboard/WebsiteCard";
 import { Reveal } from "@/components/motion/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
-import { WebsiteStatusBadge } from "@/components/dashboard/WebsiteStatusBadge";
 import { ApiError } from "@/lib/api/client";
 import { websitesApi } from "@/lib/api/websites";
 import type { WebsiteResponse } from "@/lib/api/types";
@@ -30,9 +30,9 @@ export default function WebsitesPage() {
     <div className="mx-auto w-full max-w-4xl flex-1 px-4 py-10">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">Your websites</h1>
+          <h1 className="text-xl font-semibold tracking-tight">My Websites</h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Manage every business website tied to your account.
+            Every business website tied to your account, in one place.
           </p>
         </div>
         {websites !== null && websites.length > 0 && (
@@ -66,22 +66,15 @@ export default function WebsitesPage() {
         </Reveal>
       )}
 
-      <StaggerGroup as="ul" className="flex flex-col gap-3">
-        {websites?.map((website) => (
-          <StaggerItem as="li" key={website.id}>
-            <Link
-              href={`/dashboard/websites/${website.id}`}
-              className="flex items-center justify-between rounded-2xl border border-black/[.08] bg-surface p-5 shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lift dark:border-white/[.1]"
-            >
-              <div>
-                <p className="font-medium">{website.businessName}</p>
-                <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">/{website.slug}</p>
-              </div>
-              <WebsiteStatusBadge status={website.status} />
-            </Link>
-          </StaggerItem>
-        ))}
-      </StaggerGroup>
+      {session && (
+        <StaggerGroup as="ul" className="flex flex-col gap-4">
+          {websites?.map((website) => (
+            <StaggerItem as="li" key={website.id} className="list-none">
+              <WebsiteCard website={website} accessToken={session.accessToken} />
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+      )}
     </div>
   );
 }

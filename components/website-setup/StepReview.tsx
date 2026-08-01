@@ -6,51 +6,31 @@ import { useEffect, useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/api/client";
-import { menuApi } from "@/lib/api/menu";
-import { profileApi } from "@/lib/api/profile";
-import { servicesApi } from "@/lib/api/services";
-import { subscriptionApi } from "@/lib/api/subscription";
 import { websitesApi } from "@/lib/api/websites";
-import type { BusinessProfileResponse, SubscriptionResponse } from "@/lib/api/types";
-import { buildPublicationChecklist } from "@/lib/website/setup-checklist";
+import type { ChecklistItem } from "@/lib/website/setup-checklist";
+import { loadSetupStatus } from "@/lib/website/setup-checklist";
 import { useWebsite } from "@/lib/website/website-context";
 
 /** Wizard Step 7 - publication checklist plus the single "Publish website" action. */
 export function StepReview({ onPublished }: { onPublished(): void }) {
   const { website, accessToken, reload } = useWebsite();
-  const [profile, setProfile] = useState<BusinessProfileResponse | null>(null);
-  const [contentCount, setContentCount] = useState(0);
-  const [subscription, setSubscription] = useState<SubscriptionResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [checklist, setChecklist] = useState<ChecklistItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    async function load() {
-      try {
-        const [fetchedProfile, fetchedSubscription, count] = await Promise.all([
-          profileApi.get(accessToken, website.id),
-          subscriptionApi.get(accessToken, website.id).catch(() => null),
-          website.templateType === "PORTFOLIO"
-            ? servicesApi.list(accessToken, website.id).then((list) => list.length)
-            : menuApi.listItems(accessToken, website.id).then((list) => list.length),
-        ]);
-        if (cancelled) return;
-        setProfile(fetchedProfile);
-        setSubscription(fetchedSubscription);
-        setContentCount(count);
-      } catch (err) {
+    loadSetupStatus(accessToken, website)
+      .then((result) => {
+        if (!cancelled) setChecklist(result);
+      })
+      .catch((err) => {
         if (!cancelled) setError(err instanceof ApiError ? err.message : "Failed to load your setup status.");
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
-    }
-    load();
+      });
     return () => {
       cancelled = true;
     };
-  }, [accessToken, website.id, website.templateType]);
+  }, [accessToken, website]);
 
   async function handlePublish() {
     setError(null);
@@ -66,11 +46,10 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
     }
   }
 
-  if (isLoading) {
+  if (!checklist) {
     return <p className="text-sm text-zinc-500">Loading…</p>;
   }
 
-  const checklist = buildPublicationChecklist({ website, profile, contentCount, subscription });
   const allComplete = checklist.every((item) => item.complete);
 
   return (

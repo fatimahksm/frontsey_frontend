@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
@@ -16,6 +16,13 @@ import { websitesApi } from "@/lib/api/websites";
 import type { OrderingMode } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
 import { parseDraftContent, serializeDraftContent } from "@/lib/website/draft-content";
+import { loadSetupStatus, readinessPercent, type ChecklistItem } from "@/lib/website/setup-checklist";
+
+/** Where each checklist item can be fixed, so the setup card can link straight there. "content" is resolved separately since it depends on the website's template type. */
+const CHECKLIST_LINKS: Record<string, string> = {
+  contact: "/profile",
+  subscription: "/subscription",
+};
 
 export default function WebsiteOverviewPage() {
   const { website, accessToken, reload } = useWebsite();
@@ -25,12 +32,27 @@ export default function WebsiteOverviewPage() {
   const [heroSubtitle, setHeroSubtitle] = useState(initial.heroSubtitle);
   const [brandColor, setBrandColor] = useState(initial.brandColor);
   const [orderingMode, setOrderingMode] = useState<OrderingMode>(website.orderingMode);
+  const [checklist, setChecklist] = useState<ChecklistItem[] | null>(null);
 
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadSetupStatus(accessToken, website)
+      .then((result) => {
+        if (!cancelled) setChecklist(result);
+      })
+      .catch(() => {
+        if (!cancelled) setChecklist(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, website]);
 
   async function handleSaveDraft() {
     setError(null);
@@ -101,14 +123,103 @@ export default function WebsiteOverviewPage() {
       {error && <Alert tone="error">{error}</Alert>}
       {message && <Alert tone="success">{message}</Alert>}
 
-      {website.status === "DRAFT" && (
-        <Alert tone="info">
-          Your website isn&apos;t published yet.{" "}
-          <Link href={`/dashboard/websites/${website.id}/setup`} className="font-medium underline">
-            Continue guided setup →
+      {(website.status === "SUSPENDED_TEMPORARY" || website.status === "SUSPENDED_PERMANENT") && (
+        <Alert tone="error">
+          This website is currently suspended and isn&apos;t visible to the public.
+          {website.status === "SUSPENDED_TEMPORARY" ? " Contact support if you believe this is a mistake." : ""}
+        </Alert>
+      )}
+      {website.status === "EXPIRED" && (
+        <Alert tone="error">
+          Your subscription has expired, so this website is no longer public.{" "}
+          <Link href={`/dashboard/websites/${website.id}/subscription`} className="font-medium underline">
+            Renew your subscription →
           </Link>
         </Alert>
       )}
+
+      <Card title="Setup progress" description="What's left before this website is ready to publish.">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-black/[.06] dark:bg-white/[.08]">
+              <div
+                className="h-full rounded-full bg-gradient-accent transition-[width] duration-500"
+                style={{ width: `${checklist ? readinessPercent(checklist) : 0}%` }}
+              />
+            </div>
+            <span className="shrink-0 text-sm font-medium">
+              {checklist ? `${readinessPercent(checklist)}% ready` : "Checking…"}
+            </span>
+          </div>
+
+          {checklist && (
+            <ul className="flex flex-col gap-1.5 text-sm">
+              {checklist.map((item) => {
+                const contentHref = website.templateType === "PORTFOLIO" ? "/services" : "/menu";
+                const linkSuffix = item.key === "content" ? contentHref : CHECKLIST_LINKS[item.key];
+                return (
+                  <li key={item.key} className="flex items-center gap-2">
+                    <span
+                      aria-hidden
+                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] ${
+                        item.complete
+                          ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400"
+                          : "bg-amber-500/20 text-amber-700 dark:text-amber-400"
+                      }`}
+                    >
+                      {item.complete ? "✓" : "!"}
+                    </span>
+                    <span className={item.complete ? "text-zinc-500 dark:text-zinc-400" : ""}>{item.label}</span>
+                    {!item.complete && linkSuffix !== undefined && (
+                      <Link
+                        href={`/dashboard/websites/${website.id}${linkSuffix}`}
+                        className="text-xs font-medium text-[var(--accent-solid)] hover:underline"
+                      >
+                        Fix →
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          {website.status === "DRAFT" && (
+            <Link href={`/dashboard/websites/${website.id}/setup`} className="self-start">
+              <Button variant="secondary" className="w-auto px-4">
+                Continue guided setup
+              </Button>
+            </Link>
+          )}
+        </div>
+      </Card>
+
+      <Card title="Quick actions">
+        <div className="flex flex-wrap gap-3">
+          <Link href={`/dashboard/websites/${website.id}${website.templateType === "PORTFOLIO" ? "/services" : "/menu"}`}>
+            <Button variant="secondary" className="w-auto px-4">
+              {website.templateType === "PORTFOLIO" ? "Add service" : "Add menu item"}
+            </Button>
+          </Link>
+          <Link href={`/dashboard/websites/${website.id}/layout`}>
+            <Button variant="secondary" className="w-auto px-4">
+              Change template
+            </Button>
+          </Link>
+          <Link href={`/preview/${website.id}`} target="_blank">
+            <Button variant="secondary" className="w-auto px-4">
+              Preview website
+            </Button>
+          </Link>
+          {website.status === "PUBLISHED" && (
+            <Link href={`/dashboard/websites/${website.id}/analytics`}>
+              <Button variant="secondary" className="w-auto px-4">
+                View analytics
+              </Button>
+            </Link>
+          )}
+        </div>
+      </Card>
 
       <Card
         title="Page content"

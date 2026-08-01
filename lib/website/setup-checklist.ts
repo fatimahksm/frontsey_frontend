@@ -1,3 +1,7 @@
+import { menuApi } from "@/lib/api/menu";
+import { profileApi } from "@/lib/api/profile";
+import { servicesApi } from "@/lib/api/services";
+import { subscriptionApi } from "@/lib/api/subscription";
 import type { BusinessProfileResponse, SubscriptionResponse, WebsiteResponse } from "@/lib/api/types";
 
 export interface ChecklistItem {
@@ -32,4 +36,27 @@ export function buildPublicationChecklist(input: {
     { key: "content", label: contentLabel, complete: contentCount > 0 },
     { key: "subscription", label: "Subscription active", complete: subscriptionActive },
   ];
+}
+
+/** 0-100 readiness score used on the My Websites cards and the Overview page. */
+export function readinessPercent(checklist: ChecklistItem[]): number {
+  if (checklist.length === 0) return 0;
+  const complete = checklist.filter((item) => item.complete).length;
+  return Math.round((complete / checklist.length) * 100);
+}
+
+/**
+ * Fetches everything buildPublicationChecklist needs for one website. Shared
+ * by the My Websites cards and the website Overview page so "readiness" is
+ * computed identically everywhere instead of drifting between screens.
+ */
+export async function loadSetupStatus(accessToken: string, website: WebsiteResponse): Promise<ChecklistItem[]> {
+  const [profile, subscription, contentCount] = await Promise.all([
+    profileApi.get(accessToken, website.id).catch(() => null),
+    subscriptionApi.get(accessToken, website.id).catch(() => null),
+    website.templateType === "PORTFOLIO"
+      ? servicesApi.list(accessToken, website.id).then((list) => list.length).catch(() => 0)
+      : menuApi.listItems(accessToken, website.id).then((list) => list.length).catch(() => 0),
+  ]);
+  return buildPublicationChecklist({ website, profile, contentCount, subscription });
 }
