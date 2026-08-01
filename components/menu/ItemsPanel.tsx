@@ -185,7 +185,9 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
       {isLoading ? (
         <p className="text-sm text-zinc-500">Loading…</p>
       ) : items.length === 0 ? (
-        <p className="text-sm text-zinc-500">{showTrash ? "Trash is empty." : "No menu items yet."}</p>
+        <p className="text-sm text-zinc-500">
+          {showTrash ? "Trash is empty." : "You have not added any menu items yet. Use \"Add item\" above to add your first one."}
+        </p>
       ) : (
         <StaggerGroup as="ul" className="flex flex-col gap-2">
           {items.map((item) => (

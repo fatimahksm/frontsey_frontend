@@ -101,6 +101,15 @@ export default function WebsiteOverviewPage() {
       {error && <Alert tone="error">{error}</Alert>}
       {message && <Alert tone="success">{message}</Alert>}
 
+      {website.status === "DRAFT" && (
+        <Alert tone="info">
+          Your website isn&apos;t published yet.{" "}
+          <Link href={`/dashboard/websites/${website.id}/setup`} className="font-medium underline">
+            Continue guided setup →
+          </Link>
+        </Alert>
+      )}
+
       <Card
         title="Page content"
         description="A short tagline shown right under your business name on your public site, plus your brand's accent color. Save the draft, then publish when ready."

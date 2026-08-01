@@ -2,14 +2,11 @@
 
 import { useEffect, useState } from "react";
 
+import { BusinessProfileForm } from "@/components/profile/BusinessProfileForm";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Checkbox } from "@/components/ui/Checkbox";
-import { ImageUploadField } from "@/components/ui/ImageUploadField";
-import { PhoneField } from "@/components/ui/PhoneField";
-import { SuggestButton } from "@/components/ui/SuggestButton";
-import { TextField } from "@/components/ui/TextField";
 import { Textarea } from "@/components/ui/Textarea";
 import { ApiError } from "@/lib/api/client";
 import { profileApi } from "@/lib/api/profile";
@@ -152,67 +149,13 @@ export default function BusinessProfilePage() {
       {message && <Alert tone="success">{message}</Alert>}
 
       <Card title="Details" description="Contact info shown on your public page.">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Textarea
-              id="description"
-              label="Description"
-              value={profile.description ?? ""}
-              onChange={(e) => updateField("description", e.target.value)}
-            />
-            <SuggestButton
-              accessToken={accessToken}
-              businessName={website.businessName}
-              templateType={website.templateType}
-              fieldType="BUSINESS_DESCRIPTION"
-              currentText={profile.description ?? ""}
-              onSuggestion={(text) => updateField("description", text)}
-            />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <ImageUploadField
-              id="logoUrl"
-              label="Logo"
-              value={profile.logoUrl ?? ""}
-              onChange={(url) => updateField("logoUrl", url)}
-              accessToken={accessToken}
-            />
-            <ImageUploadField
-              id="coverImageUrl"
-              label="Cover image"
-              value={profile.coverImageUrl ?? ""}
-              onChange={(url) => updateField("coverImageUrl", url)}
-              accessToken={accessToken}
-            />
-            <PhoneField id="phone" label="Phone" value={profile.phone ?? ""} onChange={(v) => updateField("phone", v)} />
-            <PhoneField
-              id="whatsappNumber"
-              label="WhatsApp number"
-              value={profile.whatsappNumber ?? ""}
-              onChange={(v) => updateField("whatsappNumber", v)}
-            />
-            <TextField id="email" label="Email" value={profile.email ?? ""} onChange={(e) => updateField("email", e.target.value)} />
-            <TextField id="address" label="Address" value={profile.address ?? ""} onChange={(e) => updateField("address", e.target.value)} />
-            <TextField
-              id="googleMapsUrl"
-              label="Google Maps URL"
-              value={profile.googleMapsUrl ?? ""}
-              onChange={(e) => updateField("googleMapsUrl", e.target.value)}
-            />
-            <TextField
-              id="instagramUrl"
-              label="Instagram URL"
-              value={profile.instagramUrl ?? ""}
-              onChange={(e) => updateField("instagramUrl", e.target.value)}
-            />
-            <TextField
-              id="tiktokUrl"
-              label="TikTok URL"
-              value={profile.tiktokUrl ?? ""}
-              onChange={(e) => updateField("tiktokUrl", e.target.value)}
-            />
-          </div>
-        </div>
+        <BusinessProfileForm
+          businessName={website.businessName}
+          templateType={website.templateType}
+          accessToken={accessToken}
+          profile={profile}
+          onChange={updateField}
+        />
       </Card>
 
       <Card title="Policies" description="Optional legal/policy pages shown to customers.">

@@ -11,19 +11,8 @@ import { ApiError } from "@/lib/api/client";
 import type { LayoutVariant } from "@/lib/api/types";
 import { websitesApi } from "@/lib/api/websites";
 import { mockSiteFor } from "@/lib/mock-preview-data";
+import { TEMPLATE_OPTIONS } from "@/lib/website/layout-options";
 import { useWebsite } from "@/lib/website/website-context";
-
-const MENU_OPTIONS: { value: LayoutVariant; label: string; description: string }[] = [
-  { value: "MENU_CLASSIC", label: "Classic", description: "Business-card header, gallery strip, categorized list, cart sidebar." },
-  { value: "MENU_GRID", label: "Grid", description: "Full-width cover, sticky category tabs, items as a card grid, cart drawer." },
-  { value: "MENU_ELEGANT", label: "Elegant", description: "Fine-dining style list with dotted price leaders and a minimal bottom cart bar." },
-];
-
-const PORTFOLIO_OPTIONS: { value: LayoutVariant; label: string; description: string }[] = [
-  { value: "PORTFOLIO_HERO", label: "Hero", description: "Full-bleed dark hero, centered content, services grid, work gallery." },
-  { value: "PORTFOLIO_MINIMAL", label: "Minimal", description: "Warm editorial personal-site style - serif type, About block, and a project grid." },
-  { value: "PORTFOLIO_BOLD", label: "Bold", description: "Vibrant creative-agency style with bold type and a masonry work gallery." },
-];
 
 export default function LayoutPage() {
   const { website, accessToken, reload } = useWebsite();
@@ -31,7 +20,7 @@ export default function LayoutPage() {
   const [busyVariant, setBusyVariant] = useState<LayoutVariant | null>(null);
   const [previewVariant, setPreviewVariant] = useState<LayoutVariant>(website.layoutVariant);
 
-  const options = website.templateType === "PORTFOLIO" ? PORTFOLIO_OPTIONS : MENU_OPTIONS;
+  const options = TEMPLATE_OPTIONS[website.templateType];
 
   async function handleSelect(variant: LayoutVariant) {
     setError(null);
@@ -49,10 +38,10 @@ export default function LayoutPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">Layout</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Template</h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          The structural shape of your page - your content and functionality stay the same, only the arrangement changes.
-          Switch anytime, just like a theme.
+          The complete ready-made visual design for your website - your content stays the same, only the look and
+          arrangement change. Switch anytime.
         </p>
       </div>
       {error && <Alert tone="error">{error}</Alert>}

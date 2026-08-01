@@ -27,7 +27,7 @@ function navItemsFor(templateType: TemplateType) {
     ...(templateType === "MENU_ORDERING" ? [{ href: "/delivery", label: "Delivery areas" }] : []),
     { href: "/gallery", label: "Gallery" },
     { href: "/sections", label: "Sections" },
-    { href: "/layout", label: "Layout" },
+    { href: "/layout", label: "Template" },
     { href: "/theme", label: "Theme" },
     { href: "/seo", label: "SEO" },
     { href: "/managers", label: "Managers" },
@@ -77,6 +77,15 @@ export function WebsiteShell({ websiteId, children }: { websiteId: string; child
   }
 
   const base = `/dashboard/websites/${websiteId}`;
+  const isSetupWizard = pathname === `${base}/setup`;
+
+  if (isSetupWizard) {
+    return (
+      <WebsiteProvider websiteId={websiteId} accessToken={session.accessToken} initialWebsite={website}>
+        {children}
+      </WebsiteProvider>
+    );
+  }
 
   return (
     <WebsiteProvider websiteId={websiteId} accessToken={session.accessToken} initialWebsite={website}>

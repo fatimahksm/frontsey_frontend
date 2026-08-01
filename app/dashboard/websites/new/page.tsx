@@ -11,6 +11,7 @@ import { PublicSiteRenderer } from "@/components/public/PublicSiteRenderer";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
+import { Stepper, type StepDefinition } from "@/components/ui/Stepper";
 import { TextField } from "@/components/ui/TextField";
 import { ApiError } from "@/lib/api/client";
 import { themeApi } from "@/lib/api/theme";
@@ -18,36 +19,19 @@ import { websitesApi } from "@/lib/api/websites";
 import type { LayoutVariant, PageMode, TemplateType, ThemeResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { mockSiteFor } from "@/lib/mock-preview-data";
+import { TEMPLATE_OPTIONS, WEBSITE_TYPES, defaultLayoutVariant } from "@/lib/website/layout-options";
 
-const TEMPLATE_TYPES: { value: TemplateType; icon: string; label: string; description: string }[] = [
-  {
-    value: "MENU_ORDERING",
-    icon: "🍽️",
-    label: "Menu & ordering",
-    description: "Categories, items, sizes/add-ons, and optional WhatsApp cart ordering. For cafes, restaurants, shops.",
-  },
-  {
-    value: "PORTFOLIO",
-    icon: "🎨",
-    label: "Portfolio",
-    description: "A services showcase with no cart. For salons, studios, agencies, and similar businesses.",
-  },
+const WIZARD_STEPS: StepDefinition[] = [
+  { step: 1, label: "Website type" },
+  { step: 2, label: "Template" },
+  { step: 3, label: "Business info" },
+  { step: 4, label: "Content" },
+  { step: 5, label: "Design" },
+  { step: 6, label: "Preview" },
+  { step: 7, label: "Review & publish" },
 ];
 
-const LAYOUT_OPTIONS: Record<TemplateType, { value: LayoutVariant; label: string; description: string }[]> = {
-  MENU_ORDERING: [
-    { value: "MENU_CLASSIC", label: "Classic", description: "Business-card header, gallery strip, categorized list, cart sidebar." },
-    { value: "MENU_GRID", label: "Grid", description: "Full-width cover, sticky category tabs, items as a card grid, cart drawer." },
-    { value: "MENU_ELEGANT", label: "Elegant", description: "Fine-dining style list with dotted price leaders and a minimal bottom cart bar." },
-  ],
-  PORTFOLIO: [
-    { value: "PORTFOLIO_HERO", label: "Hero", description: "Full-bleed dark hero, centered content, services grid, work gallery." },
-    { value: "PORTFOLIO_MINIMAL", label: "Minimal", description: "Warm editorial personal-site style - serif type, About block, and a project grid." },
-    { value: "PORTFOLIO_BOLD", label: "Bold", description: "Vibrant creative-agency style with bold type and a masonry work gallery." },
-  ],
-};
-
-/** BR-SITE-001..004: name, template type, page mode, and an optional theme (null = build from scratch). */
+/** BR-SITE-001..004: name, template type, page mode, and an optional theme (null = build from scratch). Steps 1-2 of the guided creation wizard - steps 3-7 continue at /dashboard/websites/{id}/setup once the website exists. */
 export default function NewWebsitePage() {
   const router = useRouter();
   const { session } = useAuth();
@@ -69,7 +53,7 @@ export default function NewWebsitePage() {
 
   function selectTemplateType(type: TemplateType) {
     setTemplateType(type);
-    setLayoutVariant(LAYOUT_OPTIONS[type][0].value);
+    setLayoutVariant(defaultLayoutVariant(type));
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -84,10 +68,10 @@ export default function NewWebsitePage() {
         templateType,
         themeId: themeId || null,
       });
-      if (layoutVariant !== LAYOUT_OPTIONS[templateType][0].value) {
+      if (layoutVariant !== defaultLayoutVariant(templateType)) {
         await websitesApi.updateLayoutVariant(session.accessToken, website.id, layoutVariant);
       }
-      router.push(`/dashboard/websites/${website.id}`);
+      router.push(`/dashboard/websites/${website.id}/setup`);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to create website.");
       setIsSubmitting(false);
@@ -99,11 +83,14 @@ export default function NewWebsitePage() {
       <div className="mx-auto w-full max-w-lg flex-1 px-4 py-10">
         <Reveal>
           <h1 className="text-xl font-semibold tracking-tight">Create a website</h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">What kind of site are you building?</p>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Step 1 of 7 - What kind of site are you building?</p>
+          <div className="mt-4">
+            <Stepper steps={WIZARD_STEPS} currentStep={1} completedSteps={new Set()} />
+          </div>
         </Reveal>
 
         <StaggerGroup className="mt-6 grid gap-3 sm:grid-cols-2">
-          {TEMPLATE_TYPES.map((option) => {
+          {WEBSITE_TYPES.map((option) => {
             const isSelected = templateType === option.value;
             return (
               <StaggerItem key={option.value}>
@@ -130,7 +117,7 @@ export default function NewWebsitePage() {
         </StaggerGroup>
 
         <Button className="mt-6" onClick={() => setStep(2)}>
-          Next: pick a design
+          Next: choose a template
         </Button>
       </div>
     );
@@ -142,14 +129,17 @@ export default function NewWebsitePage() {
         <button type="button" onClick={() => setStep(1)} className="mb-2 text-sm text-zinc-500 hover:underline">
           ← Back
         </button>
-        <h1 className="text-xl font-semibold tracking-tight">Pick a design</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Choose a template</h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Every design below has the exact same features - only the look changes. You can switch anytime later, too.
+          Step 2 of 7 - every template below has the exact same features, only the look changes. You can switch anytime later, too.
         </p>
+        <div className="mt-4">
+          <Stepper steps={WIZARD_STEPS} currentStep={2} completedSteps={new Set([1])} />
+        </div>
       </Reveal>
 
       <StaggerGroup className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {LAYOUT_OPTIONS[templateType].map((option) => {
+        {TEMPLATE_OPTIONS[templateType].map((option) => {
           const isSelected = layoutVariant === option.value;
           return (
             <StaggerItem key={option.value}>
@@ -194,7 +184,7 @@ export default function NewWebsitePage() {
 
       <div className="mt-8">
         <p className="mb-2 text-sm font-medium">
-          Live preview - {LAYOUT_OPTIONS[templateType].find((o) => o.value === layoutVariant)?.label}
+          Live preview - {TEMPLATE_OPTIONS[templateType].find((o) => o.value === layoutVariant)?.label}
         </p>
         <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
           <ScaledPreviewFrame width={820} height={520}>
