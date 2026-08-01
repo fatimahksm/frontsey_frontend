@@ -16,18 +16,33 @@ import { ApiError } from "@/lib/api/client";
 import { menuApi } from "@/lib/api/menu";
 import { servicesApi } from "@/lib/api/services";
 import { websitesApi } from "@/lib/api/websites";
-import type { OrderingMode } from "@/lib/api/types";
+import type { AnalyticsSummaryResponse, OrderingMode } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
 import { parseDraftContent, serializeDraftContent } from "@/lib/website/draft-content";
 import { loadSetupStatus, readinessPercent, type ChecklistItem } from "@/lib/website/setup-checklist";
 
 /** Small at-a-glance KPI tile for the stats row - only ever fed real, already-fetched numbers (never a placeholder/fake value). */
-function StatTile({ label, value }: { label: string; value: string | number }) {
+function StatTile({ icon, label, value }: { icon: string; label: string; value: string | number }) {
   return (
-    <div className="flex flex-col gap-1 rounded-2xl border border-black/[.08] bg-surface p-4 dark:border-white/[.1]">
-      <span className="text-2xl font-semibold tracking-tight">{value}</span>
-      <span className="text-xs text-zinc-500 dark:text-zinc-400">{label}</span>
+    <div className="flex items-center gap-3 rounded-2xl border border-black/[.08] bg-surface p-4 dark:border-white/[.1]">
+      <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-accent text-lg">
+        {icon}
+      </span>
+      <div className="flex flex-col gap-0.5">
+        <span className="text-2xl font-semibold tracking-tight">{value}</span>
+        <span className="text-xs text-zinc-500 dark:text-zinc-400">{label}</span>
+      </div>
     </div>
+  );
+}
+
+/** Compact "label - count" row shared by the Top items / Referral source / Device type cards. */
+function StatRow({ label, value }: { label: string; value: number }) {
+  return (
+    <li className="flex items-center justify-between text-sm">
+      <span className="truncate">{label}</span>
+      <span className="shrink-0 text-zinc-500 dark:text-zinc-400">{value}</span>
+    </li>
   );
 }
 
@@ -48,7 +63,7 @@ export default function WebsiteOverviewPage() {
   const [orderingMode, setOrderingMode] = useState<OrderingMode>(website.orderingMode);
   const [checklist, setChecklist] = useState<ChecklistItem[] | null>(null);
   const [contentCount, setContentCount] = useState<number | null>(null);
-  const [visits30d, setVisits30d] = useState<number | null>(null);
+  const [analyticsSummary, setAnalyticsSummary] = useState<AnalyticsSummaryResponse | null>(null);
 
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -96,10 +111,10 @@ export default function WebsiteOverviewPage() {
     analyticsApi
       .summary(accessToken, website.id, from.toISOString(), to.toISOString())
       .then((summary) => {
-        if (!cancelled) setVisits30d(summary.totalVisits);
+        if (!cancelled) setAnalyticsSummary(summary);
       })
       .catch(() => {
-        if (!cancelled) setVisits30d(null);
+        if (!cancelled) setAnalyticsSummary(null);
       });
     return () => {
       cancelled = true;
@@ -191,10 +206,46 @@ export default function WebsiteOverviewPage() {
       )}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <StatTile label={website.templateType === "PORTFOLIO" ? "Projects" : "Menu items"} value={contentCount ?? "—"} />
-        <StatTile label="Readiness" value={checklist ? `${readinessPercent(checklist)}%` : "—"} />
-        {visits30d !== null && <StatTile label="Visits (30d)" value={visits30d} />}
+        <StatTile
+          icon={website.templateType === "PORTFOLIO" ? "🛠️" : "🍽️"}
+          label={website.templateType === "PORTFOLIO" ? "Projects" : "Menu items"}
+          value={contentCount ?? "—"}
+        />
+        <StatTile icon="✅" label="Readiness" value={checklist ? `${readinessPercent(checklist)}%` : "—"} />
+        {analyticsSummary !== null && <StatTile icon="👀" label="Visits (30d)" value={analyticsSummary.totalVisits} />}
       </div>
+
+      {analyticsSummary !== null && (analyticsSummary.mostViewedItems.length > 0 || analyticsSummary.totalVisits > 0) && (
+        <div className="grid gap-4 sm:grid-cols-3">
+          {analyticsSummary.mostViewedItems.length > 0 && (
+            <Card title="Top items" description="Most-viewed in the last 30 days.">
+              <ul className="flex flex-col gap-2">
+                {analyticsSummary.mostViewedItems.slice(0, 5).map((item) => (
+                  <StatRow key={item.itemId} label={item.itemName} value={item.views} />
+                ))}
+              </ul>
+            </Card>
+          )}
+          {Object.keys(analyticsSummary.visitsByReferralSource).length > 0 && (
+            <Card title="Referral source">
+              <ul className="flex flex-col gap-2">
+                {Object.entries(analyticsSummary.visitsByReferralSource).map(([source, count]) => (
+                  <StatRow key={source} label={source} value={count} />
+                ))}
+              </ul>
+            </Card>
+          )}
+          {Object.keys(analyticsSummary.visitsByDeviceType).length > 0 && (
+            <Card title="Device type">
+              <ul className="flex flex-col gap-2">
+                {Object.entries(analyticsSummary.visitsByDeviceType).map(([device, count]) => (
+                  <StatRow key={device} label={device} value={count} />
+                ))}
+              </ul>
+            </Card>
+          )}
+        </div>
+      )}
 
       <Card title="Setup progress" description="What's left before this website is ready to publish.">
         <div className="flex flex-col gap-4">

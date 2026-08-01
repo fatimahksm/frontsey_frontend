@@ -20,6 +20,7 @@ import { WebsiteProvider } from "@/lib/website/website-context";
 interface NavItem {
   href: string;
   label: string;
+  icon: string;
   /** Undefined = visible to any accepted manager (e.g. Overview, read-only pages). */
   permission?: Permission;
   /** Owner-only regardless of permissions (managing managers, the subscription). */
@@ -43,43 +44,43 @@ interface NavGroup {
 function navGroupsFor(templateType: TemplateType, analyticsEnabled: boolean): NavGroup[] {
   const contentItem: NavItem =
     templateType === "PORTFOLIO"
-      ? { href: "/services", label: "Services", permission: "MANAGE_MENU" }
-      : { href: "/menu", label: "Menu", permission: "MANAGE_MENU" };
+      ? { href: "/services", label: "Services", icon: "🛠️", permission: "MANAGE_MENU" }
+      : { href: "/menu", label: "Menu", icon: "🍽️", permission: "MANAGE_MENU" };
 
   const groups: NavGroup[] = [
-    { label: null, items: [{ href: "", label: "Overview" }] },
+    { label: null, items: [{ href: "", label: "Overview", icon: "🏠" }] },
     {
       label: "Content",
       items: [
         contentItem,
-        { href: "/gallery", label: "Gallery", permission: "MANAGE_THEME_AND_CONTENT" },
-        { href: "/sections", label: "Custom sections", permission: "MANAGE_THEME_AND_CONTENT" },
+        { href: "/gallery", label: "Gallery", icon: "🖼️", permission: "MANAGE_THEME_AND_CONTENT" },
+        { href: "/sections", label: "Custom sections", icon: "🧩", permission: "MANAGE_THEME_AND_CONTENT" },
       ],
     },
     {
       label: "Design",
       items: [
-        { href: "/layout", label: "Template", permission: "MANAGE_THEME_AND_CONTENT" },
-        { href: "/theme", label: "Theme", permission: "MANAGE_THEME_AND_CONTENT" },
+        { href: "/layout", label: "Template", icon: "🎨", permission: "MANAGE_THEME_AND_CONTENT" },
+        { href: "/theme", label: "Theme", icon: "🖌️", permission: "MANAGE_THEME_AND_CONTENT" },
       ],
     },
     {
       label: "Website Settings",
       items: [
-        { href: "/profile", label: "Business profile", permission: "MANAGE_BUSINESS_PROFILE" },
+        { href: "/profile", label: "Business profile", icon: "🏢", permission: "MANAGE_BUSINESS_PROFILE" },
         ...(templateType === "MENU_ORDERING"
-          ? [{ href: "/delivery", label: "Delivery areas", permission: "MANAGE_DELIVERY_SETTINGS" } as NavItem]
+          ? [{ href: "/delivery", label: "Delivery areas", icon: "🚚", permission: "MANAGE_DELIVERY_SETTINGS" } as NavItem]
           : []),
-        { href: "/seo", label: "SEO", permission: "MANAGE_THEME_AND_CONTENT" },
-        { href: "/managers", label: "Managers", ownerOnly: true },
+        { href: "/seo", label: "SEO", icon: "🔍", permission: "MANAGE_THEME_AND_CONTENT" },
+        { href: "/managers", label: "Managers", icon: "👥", ownerOnly: true },
       ],
     },
   ];
 
   if (analyticsEnabled) {
-    groups.push({ label: null, items: [{ href: "/analytics", label: "Analytics", permission: "VIEW_ANALYTICS" }] });
+    groups.push({ label: null, items: [{ href: "/analytics", label: "Analytics", icon: "📈", permission: "VIEW_ANALYTICS" }] });
   }
-  groups.push({ label: null, items: [{ href: "/subscription", label: "Subscription", ownerOnly: true }] });
+  groups.push({ label: null, items: [{ href: "/subscription", label: "Subscription", icon: "💳", ownerOnly: true }] });
 
   return groups;
 }
@@ -202,7 +203,8 @@ export function WebsiteShell({ websiteId, children }: { websiteId: string; child
                           transition={{ type: "spring", stiffness: 380, damping: 32 }}
                         />
                       )}
-                      <span className={`relative transition-colors ${isActive ? "text-white" : "text-zinc-600 hover:text-foreground dark:text-zinc-400"}`}>
+                      <span className={`relative flex items-center gap-2 transition-colors ${isActive ? "text-white" : "text-zinc-600 hover:text-foreground dark:text-zinc-400"}`}>
+                        <span aria-hidden>{item.icon}</span>
                         {item.label}
                       </span>
                     </Link>
