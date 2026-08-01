@@ -12,7 +12,8 @@ import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types"
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
-import { brandColorStyle, parseDraftContent } from "@/lib/website/draft-content";
+import { parseDraftContent } from "@/lib/website/draft-content";
+import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
 
 function slugifyId(value: string): string {
   return `category-${value}`;
@@ -58,7 +59,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
   }
 
   return (
-    <div className="flex flex-1 flex-col" style={brandColorStyle(content.brandColor)}>
+    <div className="flex flex-1 flex-col" style={themeCssVars(site.theme, content.brandColor)}>
       {/* A practical, app-like header (cover strip + overlapping logo, left-aligned info) - deliberately not a
           cinematic full-bleed hero, which is Portfolio's signature move. Menu sites are about getting to the
           menu fast, not a dramatic intro. */}
@@ -83,7 +84,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
             </div>
           )}
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="min-w-0 pb-2">
-            <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">{site.businessName}</h1>
+            <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl" style={themeHeadingStyle()}>{site.businessName}</h1>
             {content.heroHeading && <p className="mt-0.5 truncate text-sm font-medium text-[var(--accent-solid)]">{content.heroHeading}</p>}
           </motion.div>
         </div>
@@ -123,7 +124,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
           </div>
         )}
 
-        <div className="flex flex-col gap-12">
+        <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 3rem)" }}>
           {site.categories.map((category) => (
             <section key={category.id} id={slugifyId(category.id)} className="scroll-mt-24">
               <Reveal as="div">
@@ -206,7 +207,8 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
             animate={{ scale: 1 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="fixed bottom-5 right-5 z-40 flex h-14 items-center gap-2 rounded-full bg-gradient-accent px-5 text-sm font-medium text-white shadow-lift"
+            style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+            className="fixed bottom-5 right-5 z-40 flex h-14 items-center gap-2 bg-gradient-accent px-5 text-sm font-medium text-white shadow-lift"
           >
             🛒 Cart{cartCount > 0 ? ` (${cartCount})` : ""}
           </motion.button>

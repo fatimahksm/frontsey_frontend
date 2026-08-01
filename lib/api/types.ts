@@ -4,6 +4,8 @@
  * here rather than something every page re-declares for itself.
  */
 
+import type { ThemeConfig } from "@/lib/website/theme-config";
+
 /** Matches com.dbwb.platform.common.dto.ApiResponse on the backend. */
 export interface ApiResponse<T> {
   success: boolean;
@@ -616,6 +618,8 @@ export interface PublicWebsiteResponse {
   seo: PublicSeoMetadata | null;
   /** Owner-added extra sections (About/Testimonials/FAQ/Team), in display order. */
   sections: PublicPageSection[];
+  /** Phase 3: the website's effective design system - see lib/website/theme-config.ts. */
+  theme: ThemeConfig;
 }
 
 export interface PublicPageSection {

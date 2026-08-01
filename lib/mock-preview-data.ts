@@ -1,4 +1,5 @@
 import type { LayoutVariant, PublicWebsiteResponse } from "@/lib/api/types";
+import { DEFAULT_THEME_CONFIG } from "@/lib/website/theme-config";
 
 /** Sample/placeholder data (no real business's content) used purely so the layout gallery can render live, populated-looking thumbnails before an owner has entered anything of their own. */
 export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU_ELEGANT"): PublicWebsiteResponse {
@@ -117,6 +118,7 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
         }),
       },
     ],
+    theme: DEFAULT_THEME_CONFIG,
   };
 }
 
@@ -180,6 +182,7 @@ export function mockPortfolioSite(layoutVariant: "PORTFOLIO_HERO" | "PORTFOLIO_M
         }),
       },
     ],
+    theme: DEFAULT_THEME_CONFIG,
   };
 }
 

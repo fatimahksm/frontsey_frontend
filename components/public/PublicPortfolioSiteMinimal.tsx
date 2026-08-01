@@ -7,7 +7,8 @@ import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { DynamicSections } from "@/components/public/DynamicSections";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
-import { brandColorStyle, parseDraftContent } from "@/lib/website/draft-content";
+import { parseDraftContent } from "@/lib/website/draft-content";
+import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
 import { whatsappUrl } from "@/lib/site/whatsapp";
 
 const DAY_LABELS: Record<string, string> = {
@@ -35,7 +36,7 @@ export function PublicPortfolioSiteMinimal({ site }: { site: PublicWebsiteRespon
   const hasWork = site.services.length > 0 || site.galleryImageUrls.length > 0;
 
   return (
-    <div className="flex flex-1 flex-col bg-[#faf6f0] text-[#2b2621]" style={brandColorStyle(content.brandColor)}>
+    <div className="flex flex-1 flex-col bg-[#faf6f0] text-[#2b2621]" style={themeCssVars(site.theme, content.brandColor)}>
       <header className="flex items-center justify-between px-6 py-6 sm:px-12">
         <span className="font-serif text-2xl">{site.businessName.charAt(0)}.</span>
         <nav className="hidden items-center gap-8 text-sm sm:flex">
@@ -52,7 +53,7 @@ export function PublicPortfolioSiteMinimal({ site }: { site: PublicWebsiteRespon
         <div className="mx-auto grid w-full max-w-6xl gap-10 sm:grid-cols-2 sm:items-center">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <p className="text-xs font-semibold uppercase tracking-widest text-[var(--accent-solid)]">Hello, I&apos;m</p>
-            <h1 className="mt-2 font-serif text-4xl leading-tight sm:text-5xl">{site.businessName}</h1>
+            <h1 className="mt-2 text-4xl leading-tight sm:text-5xl" style={themeHeadingStyle()}>{site.businessName}</h1>
             {content.heroHeading && <p className="mt-3 text-lg text-[#5c554d]">{content.heroHeading}</p>}
             {(content.heroSubtitle || site.profile?.description) && (
               <p className="mt-4 max-w-md text-sm text-[#7a7369]">{content.heroSubtitle || site.profile?.description}</p>
@@ -60,7 +61,8 @@ export function PublicPortfolioSiteMinimal({ site }: { site: PublicWebsiteRespon
             {site.services.length > 0 && (
               <a
                 href="#work"
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-[var(--accent-solid)] px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-105"
+                style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+                className="mt-8 inline-flex items-center gap-2 bg-[var(--accent-solid)] px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-105"
               >
                 View my work →
               </a>
@@ -148,7 +150,8 @@ export function PublicPortfolioSiteMinimal({ site }: { site: PublicWebsiteRespon
               <a
                 href={whatsappUrl(whatsappNumber, inquiryMessage)}
                 target="_blank"
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--accent-solid)] px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-105"
+                style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+                className="mt-6 inline-flex items-center gap-2 bg-[var(--accent-solid)] px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-105"
               >
                 Get in touch →
               </a>

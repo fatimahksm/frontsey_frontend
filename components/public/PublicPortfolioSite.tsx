@@ -8,7 +8,8 @@ import { DynamicSections } from "@/components/public/DynamicSections";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
 import { whatsappUrl } from "@/lib/site/whatsapp";
-import { brandColorStyle, parseDraftContent } from "@/lib/website/draft-content";
+import { parseDraftContent } from "@/lib/website/draft-content";
+import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
 
 const DAY_LABELS: Record<string, string> = {
   MONDAY: "Mon",
@@ -74,7 +75,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
   ];
 
   return (
-    <div className="flex flex-1 flex-col bg-zinc-950 text-white" style={brandColorStyle(content.brandColor)}>
+    <div className="flex flex-1 flex-col bg-zinc-950 text-white" style={themeCssVars(site.theme, content.brandColor)}>
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-zinc-950/80 px-6 py-4 backdrop-blur">
         <span className="font-semibold tracking-tight">{site.businessName}</span>
         <nav className="hidden items-center gap-6 text-sm text-zinc-300 sm:flex">
@@ -88,7 +89,8 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
           <a
             href={whatsappUrl(whatsappNumber, inquiryMessage)}
             target="_blank"
-            className="rounded-full bg-[var(--accent-solid)] px-4 py-2 text-xs font-medium text-white transition-transform hover:scale-105"
+            style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+            className="bg-[var(--accent-solid)] px-4 py-2 text-xs font-medium text-white transition-transform hover:scale-105"
           >
             Contact
           </a>
@@ -114,6 +116,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.05 }}
               className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl"
+              style={themeHeadingStyle()}
             >
               {site.businessName}
             </motion.h1>
@@ -146,7 +149,8 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
               {hasServices && (
                 <a
                   href="#services"
-                  className="rounded-full bg-[var(--accent-solid)] px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-105"
+                  style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+                  className="bg-[var(--accent-solid)] px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-105"
                 >
                   View services
                 </a>
@@ -155,7 +159,8 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
                 <a
                   href={whatsappUrl(whatsappNumber, inquiryMessage)}
                   target="_blank"
-                  className="rounded-full border border-white/20 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                  style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+                  className="border border-white/20 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
                 >
                   Contact us
                 </a>
@@ -163,7 +168,8 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
               {hasGallery && (
                 <a
                   href="#work"
-                  className="rounded-full border border-white/20 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                  style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+                  className="border border-white/20 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
                 >
                   View work
                 </a>
@@ -209,7 +215,10 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
               .filter((stat): stat is { label: string; value: string } => Boolean(stat))
               .map((stat) => (
                 <StaggerItem key={stat.label}>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-5 text-center">
+                  <div
+                    className="border border-white/10 bg-white/5 p-5 text-center"
+                    style={{ borderRadius: "var(--theme-radius, 1rem)" }}
+                  >
                     <p className="text-2xl font-bold text-[var(--accent-solid)]">{stat.value}</p>
                     <p className="mt-1 text-xs text-zinc-400">{stat.label}</p>
                   </div>
@@ -234,7 +243,8 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
                   <motion.div
                     whileHover={{ y: -4 }}
                     transition={{ duration: 0.2 }}
-                    className="h-full overflow-hidden rounded-2xl border border-white/10 bg-white/5"
+                    className="h-full overflow-hidden bg-white/5"
+                    style={{ borderRadius: "var(--theme-radius, 1rem)", border: "1px solid rgba(255,255,255,0.1)" }}
                   >
                     <div className="flex h-32 items-center justify-center bg-gradient-accent">
                       {service.imageUrl ? (
@@ -336,7 +346,8 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
             whileTap={{ scale: 0.96 }}
             href={whatsappUrl(whatsappNumber, inquiryMessage)}
             target="_blank"
-            className="mt-6 inline-flex items-center rounded-full bg-[var(--accent-solid)] px-6 py-3 text-sm font-medium text-white"
+            style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+            className="mt-6 inline-flex items-center bg-[var(--accent-solid)] px-6 py-3 text-sm font-medium text-white"
           >
             Contact us on WhatsApp
           </motion.a>

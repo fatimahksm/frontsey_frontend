@@ -11,7 +11,8 @@ import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types"
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
-import { brandColorStyle, parseDraftContent } from "@/lib/website/draft-content";
+import { parseDraftContent } from "@/lib/website/draft-content";
+import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
 import { cartSubtotal } from "@/lib/site/cart";
 import { formatMoney } from "@/lib/format";
 
@@ -51,7 +52,7 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-surface-muted" style={brandColorStyle(content.brandColor)}>
+    <div className="flex flex-1 flex-col bg-surface-muted" style={themeCssVars(site.theme, content.brandColor)}>
       <div className="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -63,12 +64,12 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
             // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
             <img src={site.profile.logoUrl} alt="" className="mb-4 h-16 w-16 rounded-full object-cover shadow-soft" />
           )}
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{site.businessName}</h1>
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl" style={themeHeadingStyle()}>{site.businessName}</h1>
           {content.heroHeading && <p className="mt-2 text-base text-[var(--accent-solid)]">{content.heroHeading}</p>}
           {content.heroSubtitle && <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{content.heroSubtitle}</p>}
         </motion.div>
 
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 2.5rem)" }}>
           {site.categories.map((category) => (
             <section key={category.id}>
               <Reveal as="div">
@@ -117,7 +118,8 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
             <button
               type="button"
               onClick={() => setCartOpen(true)}
-              className="rounded-full bg-gradient-accent px-5 py-2 text-sm font-medium text-white shadow-soft"
+              style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+              className="bg-gradient-accent px-5 py-2 text-sm font-medium text-white shadow-soft"
             >
               View order
             </button>

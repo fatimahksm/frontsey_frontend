@@ -12,7 +12,8 @@ import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types"
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
-import { brandColorStyle, parseDraftContent } from "@/lib/website/draft-content";
+import { parseDraftContent } from "@/lib/website/draft-content";
+import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
 
 const DAY_LABELS: Record<string, string> = {
   MONDAY: "Monday",
@@ -54,7 +55,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
   return (
     <div
       className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-10 lg:flex-row lg:items-start"
-      style={brandColorStyle(content.brandColor)}
+      style={themeCssVars(site.theme, content.brandColor)}
     >
       <div className="min-w-0 flex-1">
         <motion.header
@@ -73,7 +74,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
               <img src={site.profile.logoUrl} alt="" className="h-16 w-16 rounded-full object-cover shadow-soft" />
             )}
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">{site.businessName}</h1>
+              <h1 className="text-2xl font-semibold tracking-tight" style={themeHeadingStyle()}>{site.businessName}</h1>
               {content.heroHeading && (
                 <p className="mt-1 text-lg font-medium text-[var(--accent-solid)]">{content.heroHeading}</p>
               )}
@@ -133,7 +134,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
           </StaggerGroup>
         )}
 
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 2rem)" }}>
           {site.categories.map((category) => (
             <section key={category.id}>
               <Reveal as="div">

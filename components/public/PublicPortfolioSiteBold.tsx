@@ -7,7 +7,8 @@ import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { DynamicSections } from "@/components/public/DynamicSections";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
-import { brandColorStyle, parseDraftContent } from "@/lib/website/draft-content";
+import { parseDraftContent } from "@/lib/website/draft-content";
+import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
 import { whatsappUrl } from "@/lib/site/whatsapp";
 
 /**
@@ -22,7 +23,7 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
   const content = parseDraftContent(site.publishedContent);
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden" style={brandColorStyle(content.brandColor)}>
+    <div className="flex flex-1 flex-col overflow-hidden" style={themeCssVars(site.theme, content.brandColor)}>
       <section className="relative overflow-hidden px-4 pb-16 pt-20 text-center">
         <div aria-hidden className="absolute -left-24 -top-24 h-72 w-72 rotate-12 rounded-[3rem] bg-gradient-accent opacity-20 blur-2xl" />
         <div aria-hidden className="absolute -right-16 top-32 h-56 w-56 -rotate-12 rounded-full bg-gradient-accent opacity-10 blur-2xl" />
@@ -43,6 +44,7 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
           className="text-gradient relative text-5xl font-extrabold tracking-tight sm:text-6xl"
+          style={themeHeadingStyle()}
         >
           {site.businessName}
         </motion.h1>
@@ -75,7 +77,8 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
             whileTap={{ scale: 0.96 }}
             href={whatsappUrl(whatsappNumber, inquiryMessage)}
             target="_blank"
-            className="relative mt-8 inline-flex items-center rounded-full bg-emerald-600 px-6 py-3 text-sm font-medium text-white shadow-lift hover:bg-emerald-700"
+            style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+            className="relative mt-8 inline-flex items-center bg-emerald-600 px-6 py-3 text-sm font-medium text-white shadow-lift hover:bg-emerald-700"
           >
             Let&apos;s talk on WhatsApp
           </motion.a>
@@ -97,7 +100,8 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
                   <motion.div
                     whileHover={{ y: -4, rotate: i % 2 === 0 ? -1 : 1 }}
                     transition={{ duration: 0.2 }}
-                    className={`h-full rounded-3xl border-2 border-black/[.08] p-6 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.145] ${
+                    style={{ borderRadius: "var(--theme-radius, 1.5rem)" }}
+                    className={`h-full border-2 border-black/[.08] p-6 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.145] ${
                       i % 3 === 0 ? "bg-gradient-accent text-white" : ""
                     }`}
                   >
@@ -187,7 +191,8 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
             whileTap={{ scale: 0.96 }}
             href={whatsappUrl(whatsappNumber, inquiryMessage)}
             target="_blank"
-            className="mt-6 inline-flex items-center rounded-full bg-white px-6 py-3 text-sm font-medium text-black hover:bg-white/90"
+            style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+            className="mt-6 inline-flex items-center bg-white px-6 py-3 text-sm font-medium text-black hover:bg-white/90"
           >
             Contact us on WhatsApp
           </motion.a>

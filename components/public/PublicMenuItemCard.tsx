@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { PublicMenuItem } from "@/lib/api/types";
 import type { CartLine } from "@/lib/site/cart";
 import { formatMoney } from "@/lib/format";
+import { themeCardStyle } from "@/lib/website/theme-config";
 
 interface Props {
   item: PublicMenuItem;
@@ -97,10 +98,16 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
   const containerClassName =
     variant === "elegant"
       ? `border-b border-black/[.06] py-4 dark:border-white/[.1] ${isUnavailable ? "opacity-60" : ""}`
-      : `rounded-xl border border-black/[.08] p-4 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.145] ${isUnavailable ? "opacity-60" : ""}`;
+      : `p-4 transition-shadow duration-300 ${isUnavailable ? "opacity-60" : ""}`;
 
   return (
-    <motion.div layout whileHover={isUnavailable || variant === "elegant" ? undefined : { y: -2 }} transition={{ duration: 0.2 }} className={containerClassName}>
+    <motion.div
+      layout
+      whileHover={isUnavailable || variant === "elegant" ? undefined : { y: -2 }}
+      transition={{ duration: 0.2 }}
+      className={containerClassName}
+      style={variant === "elegant" ? undefined : themeCardStyle()}
+    >
       {variant === "elegant" ? (
         <button type="button" onClick={handleExpand} className="flex w-full items-baseline gap-3 text-left">
           <span className="font-medium">{item.name}</span>
@@ -207,7 +214,8 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
                 type="button"
                 onClick={handleAddToCart}
                 disabled={item.fixedBoxItem && item.boxVariants.length > 0 && !boxVariantId}
-                className="h-9 rounded-full bg-foreground px-4 text-sm font-medium text-background disabled:opacity-40"
+                style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+                className="h-9 bg-foreground px-4 text-sm font-medium text-background disabled:opacity-40"
               >
                 Add to cart
               </button>

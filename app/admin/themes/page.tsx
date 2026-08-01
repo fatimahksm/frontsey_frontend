@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 
+import { ThemeConfigForm } from "@/components/admin/ThemeConfigForm";
+import { ScaledPreviewFrame } from "@/components/dashboard/ScaledPreviewFrame";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
+import { PublicSiteRenderer } from "@/components/public/PublicSiteRenderer";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -13,13 +16,22 @@ import { adminApi } from "@/lib/api/admin";
 import { ApiError } from "@/lib/api/client";
 import type { ThemeResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
+import { mockSiteFor } from "@/lib/mock-preview-data";
+import { DEFAULT_THEME_CONFIG, parseThemeConfig, serializeThemeConfig, type ThemeConfig } from "@/lib/website/theme-config";
 
-const EMPTY = { name: "", description: "", themeConfig: "", active: true };
+interface ThemeDraft {
+  name: string;
+  description: string;
+  config: ThemeConfig;
+  active: boolean;
+}
+
+const EMPTY: ThemeDraft = { name: "", description: "", config: DEFAULT_THEME_CONFIG, active: true };
 
 export default function AdminThemesPage() {
   const { session } = useAuth();
   const [themes, setThemes] = useState<ThemeResponse[]>([]);
-  const [draft, setDraft] = useState(EMPTY);
+  const [draft, setDraft] = useState<ThemeDraft>(EMPTY);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,10 +56,16 @@ export default function AdminThemesPage() {
     setError(null);
     setIsBusy(true);
     try {
+      const request = {
+        name: draft.name,
+        description: draft.description,
+        themeConfig: serializeThemeConfig(draft.config),
+        active: draft.active,
+      };
       if (editingId) {
-        await adminApi.updateTheme(session.accessToken, editingId, draft);
+        await adminApi.updateTheme(session.accessToken, editingId, request);
       } else {
-        await adminApi.createTheme(session.accessToken, draft);
+        await adminApi.createTheme(session.accessToken, request);
       }
       setDraft(EMPTY);
       setEditingId(null);
@@ -75,7 +93,11 @@ export default function AdminThemesPage() {
 
   function startEdit(theme: ThemeResponse) {
     setEditingId(theme.id);
-    setDraft({ name: theme.name, description: theme.description ?? "", themeConfig: theme.themeConfig ?? "", active: true });
+    setDraft({ name: theme.name, description: theme.description ?? "", config: parseThemeConfig(theme.themeConfig), active: true });
+  }
+
+  function updateConfig<K extends keyof ThemeConfig>(key: K, value: ThemeConfig[K]) {
+    setDraft((prev) => ({ ...prev, config: { ...prev.config, [key]: value } }));
   }
 
   return (
@@ -118,12 +140,19 @@ export default function AdminThemesPage() {
             value={draft.description}
             onChange={(e) => setDraft({ ...draft, description: e.target.value })}
           />
-          <Textarea
-            id="themeConfig"
-            label="Theme config (JSON)"
-            value={draft.themeConfig}
-            onChange={(e) => setDraft({ ...draft, themeConfig: e.target.value })}
-          />
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ThemeConfigForm config={draft.config} onChange={updateConfig} />
+            <div>
+              <p className="mb-2 text-sm font-medium">Live preview</p>
+              <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
+                <ScaledPreviewFrame width={480} height={340}>
+                  <PublicSiteRenderer site={{ ...mockSiteFor("MENU_CLASSIC"), theme: draft.config }} onFirstView={() => {}} />
+                </ScaledPreviewFrame>
+              </div>
+            </div>
+          </div>
+
           <Checkbox id="themeActive" label="Active" checked={draft.active} onChange={(e) => setDraft({ ...draft, active: e.target.checked })} />
           <div className="flex gap-3">
             <Button type="submit" isLoading={isBusy} className="w-auto px-5">
