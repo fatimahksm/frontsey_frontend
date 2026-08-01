@@ -11,12 +11,25 @@ import { SuggestButton } from "@/components/ui/SuggestButton";
 import { TextField } from "@/components/ui/TextField";
 import { Textarea } from "@/components/ui/Textarea";
 import { WebsiteStatusBadge } from "@/components/dashboard/WebsiteStatusBadge";
+import { analyticsApi } from "@/lib/api/analytics";
 import { ApiError } from "@/lib/api/client";
+import { menuApi } from "@/lib/api/menu";
+import { servicesApi } from "@/lib/api/services";
 import { websitesApi } from "@/lib/api/websites";
 import type { OrderingMode } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
 import { parseDraftContent, serializeDraftContent } from "@/lib/website/draft-content";
 import { loadSetupStatus, readinessPercent, type ChecklistItem } from "@/lib/website/setup-checklist";
+
+/** Small at-a-glance KPI tile for the stats row - only ever fed real, already-fetched numbers (never a placeholder/fake value). */
+function StatTile({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="flex flex-col gap-1 rounded-2xl border border-black/[.08] bg-surface p-4 dark:border-white/[.1]">
+      <span className="text-2xl font-semibold tracking-tight">{value}</span>
+      <span className="text-xs text-zinc-500 dark:text-zinc-400">{label}</span>
+    </div>
+  );
+}
 
 /** Where each checklist item can be fixed, so the setup card can link straight there. "content" is resolved separately since it depends on the website's template type. */
 const CHECKLIST_LINKS: Record<string, string> = {
@@ -31,8 +44,11 @@ export default function WebsiteOverviewPage() {
   const [heroHeading, setHeroHeading] = useState(initial.heroHeading);
   const [heroSubtitle, setHeroSubtitle] = useState(initial.heroSubtitle);
   const [brandColor, setBrandColor] = useState(initial.brandColor);
+  const [heroBadge, setHeroBadge] = useState(initial.heroBadge);
   const [orderingMode, setOrderingMode] = useState<OrderingMode>(website.orderingMode);
   const [checklist, setChecklist] = useState<ChecklistItem[] | null>(null);
+  const [contentCount, setContentCount] = useState<number | null>(null);
+  const [visits30d, setVisits30d] = useState<number | null>(null);
 
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -54,13 +70,49 @@ export default function WebsiteOverviewPage() {
     };
   }, [accessToken, website]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const countPromise =
+      website.templateType === "PORTFOLIO"
+        ? servicesApi.list(accessToken, website.id).then((list) => list.length)
+        : menuApi.listItems(accessToken, website.id).then((list) => list.length);
+    countPromise
+      .then((count) => {
+        if (!cancelled) setContentCount(count);
+      })
+      .catch(() => {
+        if (!cancelled) setContentCount(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, website]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const to = new Date();
+    const from = new Date(to.getTime() - 30 * 24 * 60 * 60 * 1000);
+    // Silently hidden (not an error banner) when the caller lacks VIEW_ANALYTICS or the plan doesn't include analytics - same soft-check pattern as WebsiteShell's nav gating.
+    analyticsApi
+      .summary(accessToken, website.id, from.toISOString(), to.toISOString())
+      .then((summary) => {
+        if (!cancelled) setVisits30d(summary.totalVisits);
+      })
+      .catch(() => {
+        if (!cancelled) setVisits30d(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, website]);
+
   async function handleSaveDraft() {
     setError(null);
     setMessage(null);
     setIsSaving(true);
     try {
       await websitesApi.saveDraft(accessToken, website.id, {
-        content: serializeDraftContent({ heroHeading, heroSubtitle, brandColor }),
+        content: serializeDraftContent({ heroHeading, heroSubtitle, brandColor, heroBadge }),
         orderingMode,
       });
       await reload();
@@ -137,6 +189,12 @@ export default function WebsiteOverviewPage() {
           </Link>
         </Alert>
       )}
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <StatTile label={website.templateType === "PORTFOLIO" ? "Projects" : "Menu items"} value={contentCount ?? "—"} />
+        <StatTile label="Readiness" value={checklist ? `${readinessPercent(checklist)}%` : "—"} />
+        {visits30d !== null && <StatTile label="Visits (30d)" value={visits30d} />}
+      </div>
 
       <Card title="Setup progress" description="What's left before this website is ready to publish.">
         <div className="flex flex-col gap-4">
@@ -260,6 +318,20 @@ export default function WebsiteOverviewPage() {
               onSuggestion={setHeroSubtitle}
             />
           </div>
+          {website.layoutVariant === "PORTFOLIO_PROFILE" && (
+            <div className="flex flex-col gap-1.5">
+              <TextField
+                id="heroBadge"
+                label="Highlight badge (optional)"
+                placeholder="e.g. 3+ Years Experience"
+                value={heroBadge}
+                onChange={(e) => setHeroBadge(e.target.value)}
+              />
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Shown as a small floating badge next to your hero photo. Leave blank to hide it.
+              </p>
+            </div>
+          )}
           <label htmlFor="brandColor" className="flex flex-col gap-1.5 text-sm">
             <span className="font-medium text-foreground">Brand color</span>
             <span className="text-xs text-zinc-500 dark:text-zinc-400">Used for buttons and accents across your public site.</span>

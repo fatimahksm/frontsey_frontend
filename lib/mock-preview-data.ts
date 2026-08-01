@@ -122,7 +122,9 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
   };
 }
 
-export function mockPortfolioSite(layoutVariant: "PORTFOLIO_HERO" | "PORTFOLIO_MINIMAL" | "PORTFOLIO_BOLD"): PublicWebsiteResponse {
+export function mockPortfolioSite(
+  layoutVariant: "PORTFOLIO_HERO" | "PORTFOLIO_MINIMAL" | "PORTFOLIO_BOLD" | "PORTFOLIO_PROFILE",
+): PublicWebsiteResponse {
   return {
     businessName: "Glow Studio",
     slug: "preview",
@@ -136,6 +138,7 @@ export function mockPortfolioSite(layoutVariant: "PORTFOLIO_HERO" | "PORTFOLIO_M
       heroHeading: "Hair and beauty, done right",
       heroSubtitle: "Book your appointment on WhatsApp.",
       brandColor: "#171717",
+      heroBadge: "3+ Years Experience",
     }),
     profile: {
       description: "A boutique salon focused on modern cuts and color.",
@@ -196,6 +199,7 @@ export function mockSiteFor(layoutVariant: LayoutVariant): PublicWebsiteResponse
     case "PORTFOLIO_HERO":
     case "PORTFOLIO_MINIMAL":
     case "PORTFOLIO_BOLD":
+    case "PORTFOLIO_PROFILE":
       return mockPortfolioSite(layoutVariant);
   }
 }

@@ -51,7 +51,8 @@ export type LayoutVariant =
   | "MENU_ELEGANT"
   | "PORTFOLIO_HERO"
   | "PORTFOLIO_MINIMAL"
-  | "PORTFOLIO_BOLD";
+  | "PORTFOLIO_BOLD"
+  | "PORTFOLIO_PROFILE";
 export type WebsiteStatus =
   | "DRAFT"
   | "PUBLISHED"

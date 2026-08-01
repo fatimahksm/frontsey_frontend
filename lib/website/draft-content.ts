@@ -9,12 +9,15 @@ export interface DraftContent {
   heroHeading: string;
   heroSubtitle: string;
   brandColor: string;
+  /** Optional short highlight shown as a floating badge next to the hero photo (e.g. "3+ Years Experience"). Owner-entered; not rendered when blank. */
+  heroBadge: string;
 }
 
 export const EMPTY_DRAFT_CONTENT: DraftContent = {
   heroHeading: "",
   heroSubtitle: "",
   brandColor: "#171717",
+  heroBadge: "",
 };
 
 export function parseDraftContent(raw: string | null): DraftContent {

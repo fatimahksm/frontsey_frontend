@@ -4,6 +4,7 @@ import { PublicMenuSiteGrid } from "@/components/public/PublicMenuSiteGrid";
 import { PublicPortfolioSite } from "@/components/public/PublicPortfolioSite";
 import { PublicPortfolioSiteBold } from "@/components/public/PublicPortfolioSiteBold";
 import { PublicPortfolioSiteMinimal } from "@/components/public/PublicPortfolioSiteMinimal";
+import { PublicPortfolioSiteProfile } from "@/components/public/PublicPortfolioSiteProfile";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 
 /** Single dispatch point from (templateType, layoutVariant) to the actual page component - used by both the live public site and the owner preview, so they can never drift apart. */
@@ -17,6 +18,8 @@ export function PublicSiteRenderer({ site, onFirstView }: { site: PublicWebsiteR
       return <PublicPortfolioSiteMinimal site={site} />;
     case "PORTFOLIO_BOLD":
       return <PublicPortfolioSiteBold site={site} />;
+    case "PORTFOLIO_PROFILE":
+      return <PublicPortfolioSiteProfile site={site} />;
     case "PORTFOLIO_HERO":
       return <PublicPortfolioSite site={site} />;
     case "MENU_CLASSIC":

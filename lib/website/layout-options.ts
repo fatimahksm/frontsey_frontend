@@ -31,6 +31,7 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, { value: LayoutVariant; labe
     { value: "PORTFOLIO_HERO", label: "Hero Portfolio", description: "Full-bleed dark hero, centered content, services grid, work gallery." },
     { value: "PORTFOLIO_MINIMAL", label: "Minimal Portfolio", description: "Warm editorial personal-site style - serif type, About block, and a project grid." },
     { value: "PORTFOLIO_BOLD", label: "Bold Portfolio", description: "Vibrant creative-agency style with bold type and a masonry work gallery." },
+    { value: "PORTFOLIO_PROFILE", label: "Profile Portfolio", description: "Personal, photo-led homepage with a floating highlight badge and a featured-projects grid. Great for individual freelancers and consultants." },
   ],
 };
 
