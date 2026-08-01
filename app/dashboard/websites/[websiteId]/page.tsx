@@ -21,11 +21,17 @@ import { useWebsite } from "@/lib/website/website-context";
 import { parseDraftContent, serializeDraftContent } from "@/lib/website/draft-content";
 import { loadSetupStatus, readinessPercent, type ChecklistItem } from "@/lib/website/setup-checklist";
 
-/** Small at-a-glance KPI tile for the stats row - only ever fed real, already-fetched numbers (never a placeholder/fake value). */
-function StatTile({ icon, label, value }: { icon: string; label: string; value: string | number }) {
+const TILE_TONES = {
+  violet: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
+  emerald: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+  sky: "bg-sky-500/15 text-sky-600 dark:text-sky-400",
+} as const;
+
+/** At-a-glance KPI tile for the stats row - only ever fed real, already-fetched numbers (never a placeholder/fake value). */
+function StatTile({ icon, label, value, tone }: { icon: string; label: string; value: string | number; tone: keyof typeof TILE_TONES }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-black/[.08] bg-surface p-4 dark:border-white/[.1]">
-      <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-accent text-lg">
+    <div className="flex items-center gap-3 rounded-2xl border border-black/[.08] bg-surface p-4 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.1]">
+      <span aria-hidden className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-lg ${TILE_TONES[tone]}`}>
         {icon}
       </span>
       <div className="flex flex-col gap-0.5">
@@ -36,13 +42,68 @@ function StatTile({ icon, label, value }: { icon: string; label: string; value: 
   );
 }
 
-/** Compact "label - count" row shared by the Top items / Referral source / Device type cards. */
-function StatRow({ label, value }: { label: string; value: number }) {
+/** Ranked row with a proportional bar - shared by the Top items and Referral source cards. Bar width is always a real value/max ratio, never a fabricated trend. */
+function BarRow({ label, value, max, barClassName }: { label: string; value: number; max: number; barClassName: string }) {
+  const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
-    <li className="flex items-center justify-between text-sm">
-      <span className="truncate">{label}</span>
-      <span className="shrink-0 text-zinc-500 dark:text-zinc-400">{value}</span>
+    <li>
+      <div className="mb-1 flex items-center justify-between gap-2 text-sm">
+        <span className="truncate">{label}</span>
+        <span className="shrink-0 text-zinc-500 dark:text-zinc-400">{value}</span>
+      </div>
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/[.06] dark:bg-white/[.08]">
+        <div className={`h-full rounded-full ${barClassName}`} style={{ width: `${pct}%` }} />
+      </div>
     </li>
+  );
+}
+
+/** The backend stores the raw Referer header (or "direct" when absent) - format it into a readable source name for display, without changing the underlying real value. */
+function formatReferralSource(source: string): string {
+  if (source.toLowerCase() === "direct") return "Direct";
+  try {
+    const hostname = new URL(source).hostname.replace(/^www\./, "");
+    const label = hostname.split(".")[0];
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  } catch {
+    return source;
+  }
+}
+
+/** DeviceType enum values (DESKTOP/MOBILE/TABLET/UNKNOWN) are all-caps on the wire - title-case them for display only. */
+function formatDeviceType(value: string): string {
+  return value.charAt(0) + value.slice(1).toLowerCase();
+}
+
+const DONUT_COLORS = ["#7c3aed", "#db2777", "#0ea5e9", "#f59e0b", "#10b981"];
+
+/** Real conic-gradient donut (no chart library) built entirely from the actual visitsByDeviceType counts. */
+function DeviceDonut({ data }: { data: Record<string, number> }) {
+  const entries = Object.entries(data);
+  const total = entries.reduce((sum, [, v]) => sum + v, 0);
+  if (total === 0) return null;
+  let cumulative = 0;
+  const stops = entries.map(([, value], i) => {
+    const start = (cumulative / total) * 360;
+    cumulative += value;
+    const end = (cumulative / total) * 360;
+    return `${DONUT_COLORS[i % DONUT_COLORS.length]} ${start}deg ${end}deg`;
+  });
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <div aria-hidden className="relative h-24 w-24 shrink-0 rounded-full" style={{ background: `conic-gradient(${stops.join(", ")})` }}>
+        <div className="absolute inset-[7px] rounded-full bg-surface" />
+      </div>
+      <ul className="flex w-full flex-col gap-1.5 text-sm">
+        {entries.map(([label, value], i) => (
+          <li key={label} className="flex items-center gap-2">
+            <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length] }} />
+            <span className="min-w-0 flex-1 truncate">{formatDeviceType(label)}</span>
+            <span className="shrink-0 text-zinc-500 dark:text-zinc-400">{Math.round((value / total) * 100)}%</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -207,41 +268,46 @@ export default function WebsiteOverviewPage() {
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <StatTile
+          tone="violet"
           icon={website.templateType === "PORTFOLIO" ? "🛠️" : "🍽️"}
           label={website.templateType === "PORTFOLIO" ? "Projects" : "Menu items"}
           value={contentCount ?? "—"}
         />
-        <StatTile icon="✅" label="Readiness" value={checklist ? `${readinessPercent(checklist)}%` : "—"} />
-        {analyticsSummary !== null && <StatTile icon="👀" label="Visits (30d)" value={analyticsSummary.totalVisits} />}
+        <StatTile tone="emerald" icon="✅" label="Readiness" value={checklist ? `${readinessPercent(checklist)}%` : "—"} />
+        {analyticsSummary !== null && <StatTile tone="sky" icon="👀" label="Visits (30d)" value={analyticsSummary.totalVisits} />}
       </div>
 
       {analyticsSummary !== null && (analyticsSummary.mostViewedItems.length > 0 || analyticsSummary.totalVisits > 0) && (
         <div className="grid gap-4 sm:grid-cols-3">
           {analyticsSummary.mostViewedItems.length > 0 && (
             <Card title="Top items" description="Most-viewed in the last 30 days.">
-              <ul className="flex flex-col gap-2">
-                {analyticsSummary.mostViewedItems.slice(0, 5).map((item) => (
-                  <StatRow key={item.itemId} label={item.itemName} value={item.views} />
+              <ul className="flex flex-col gap-3">
+                {analyticsSummary.mostViewedItems.slice(0, 5).map((item, i) => (
+                  <BarRow
+                    key={item.itemId}
+                    label={item.itemName}
+                    value={item.views}
+                    max={analyticsSummary.mostViewedItems[0].views}
+                    barClassName={i === 0 ? "bg-gradient-accent" : "bg-violet-400/70 dark:bg-violet-500/60"}
+                  />
                 ))}
               </ul>
             </Card>
           )}
           {Object.keys(analyticsSummary.visitsByReferralSource).length > 0 && (
             <Card title="Referral source">
-              <ul className="flex flex-col gap-2">
-                {Object.entries(analyticsSummary.visitsByReferralSource).map(([source, count]) => (
-                  <StatRow key={source} label={source} value={count} />
-                ))}
+              <ul className="flex flex-col gap-3">
+                {Object.entries(analyticsSummary.visitsByReferralSource)
+                  .sort(([, a], [, b]) => b - a)
+                  .map(([source, count], i, sorted) => (
+                    <BarRow key={source} label={formatReferralSource(source)} value={count} max={sorted[0][1]} barClassName="bg-sky-500" />
+                  ))}
               </ul>
             </Card>
           )}
           {Object.keys(analyticsSummary.visitsByDeviceType).length > 0 && (
             <Card title="Device type">
-              <ul className="flex flex-col gap-2">
-                {Object.entries(analyticsSummary.visitsByDeviceType).map(([device, count]) => (
-                  <StatRow key={device} label={device} value={count} />
-                ))}
-              </ul>
+              <DeviceDonut data={analyticsSummary.visitsByDeviceType} />
             </Card>
           )}
         </div>
