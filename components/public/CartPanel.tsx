@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
 
 import { Alert } from "@/components/ui/Alert";
+import { Select } from "@/components/ui/Select";
+import { TextField } from "@/components/ui/TextField";
 import type { PublicDeliveryArea } from "@/lib/api/types";
 import { cartSubtotal, lineTotal, type CartLine } from "@/lib/site/cart";
 import { formatMoney } from "@/lib/format";
@@ -25,6 +27,7 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
   const [error, setError] = useState<string | null>(null);
 
   const subtotal = useMemo(() => cartSubtotal(lines), [lines]);
+  const itemCount = lines.reduce((sum, l) => sum + l.quantity, 0);
   const deliveryArea = deliveryAreas.find((a) => a.id === deliveryAreaId) ?? null;
   const deliveryFee = deliveryArea
     ? deliveryArea.freeThreshold != null && subtotal >= deliveryArea.freeThreshold
@@ -54,16 +57,24 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="rounded-xl border border-dashed border-black/[.12] p-6 text-center text-sm text-zinc-500 dark:border-white/[.18]"
+        className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-black/[.12] p-8 text-center dark:border-white/[.18]"
       >
-        Your cart is empty. Add items from the menu to get started.
+        <span aria-hidden className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--accent-solid)]/10 text-2xl">
+          🛒
+        </span>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Your cart is empty. Add items from the menu to get started.</p>
       </motion.div>
     );
   }
 
   return (
-    <motion.div layout className="flex flex-col gap-4 rounded-xl border border-black/[.08] bg-surface p-4 shadow-lift dark:border-white/[.145]">
-      <h3 className="text-sm font-semibold">Your order</h3>
+    <motion.div layout className="flex flex-col gap-5 rounded-2xl border border-black/[.08] bg-surface p-5 shadow-lift dark:border-white/[.145]">
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-semibold tracking-tight">Your order</h3>
+        <span className="rounded-full bg-[var(--accent-solid)]/10 px-2.5 py-1 text-xs font-medium text-[var(--accent-solid)]">
+          {itemCount} {itemCount === 1 ? "item" : "items"}
+        </span>
+      </div>
       {error && <Alert tone="error">{error}</Alert>}
 
       <ul className="flex flex-col gap-2">
@@ -76,22 +87,35 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="flex items-start justify-between gap-2 overflow-hidden text-sm"
+              className="overflow-hidden"
             >
-              <div>
-                <p>
-                  {line.quantity}x {line.itemName}
-                  {line.variantLabel && ` (${line.variantLabel})`}
-                </p>
-                {line.addons.length > 0 && (
-                  <p className="text-xs text-zinc-500">+ {line.addons.map((a) => a.name).join(", ")}</p>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <span>{formatMoney(lineTotal(line), currency)}</span>
-                <button type="button" className="text-xs text-red-600 hover:underline" onClick={() => onRemove(line.key)}>
-                  Remove
-                </button>
+              <div className="flex items-start gap-3 rounded-xl bg-black/[.02] p-3 dark:bg-white/[.04]">
+                <span
+                  aria-hidden
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-solid)] text-xs font-semibold text-white"
+                >
+                  {line.quantity}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">
+                    {line.itemName}
+                    {line.variantLabel && <span className="font-normal text-zinc-500"> ({line.variantLabel})</span>}
+                  </p>
+                  {line.addons.length > 0 && (
+                    <p className="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">+ {line.addons.map((a) => a.name).join(", ")}</p>
+                  )}
+                </div>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <span className="text-sm font-medium">{formatMoney(lineTotal(line), currency)}</span>
+                  <button
+                    type="button"
+                    aria-label={`Remove ${line.itemName}`}
+                    className="text-xs text-zinc-400 hover:text-red-600"
+                    onClick={() => onRemove(line.key)}
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             </motion.li>
           ))}
@@ -99,67 +123,52 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
       </ul>
 
       {deliveryAreas.length > 0 && (
-        <label htmlFor="deliveryArea" className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium">Delivery area</span>
-          <select
-            id="deliveryArea"
-            value={deliveryAreaId}
-            onChange={(e) => setDeliveryAreaId(e.target.value)}
-            className="h-10 rounded-lg border border-black/[.12] bg-transparent px-2.5 text-sm outline-none dark:border-white/[.18]"
-          >
-            <option value="">Pickup / not selected</option>
-            {deliveryAreas.map((area) => (
-              <option key={area.id} value={area.id}>
-                {area.name} - {formatMoney(area.fee, currency)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Select id="deliveryArea" label="Delivery area" value={deliveryAreaId} onChange={(e) => setDeliveryAreaId(e.target.value)}>
+          <option value="">Pickup / not selected</option>
+          {deliveryAreas.map((area) => (
+            <option key={area.id} value={area.id}>
+              {area.name} - {formatMoney(area.fee, currency)}
+            </option>
+          ))}
+        </Select>
       )}
 
-      <div className="flex flex-col gap-1 text-sm">
-        <div className="flex justify-between">
+      <div className="flex flex-col gap-1.5 rounded-xl bg-[var(--accent-solid)]/5 p-3.5 text-sm">
+        <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
           <span>Subtotal</span>
           <span>{formatMoney(subtotal, currency)}</span>
         </div>
         {deliveryArea && (
-          <div className="flex justify-between">
+          <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
             <span>Delivery</span>
             <span>{formatMoney(deliveryFee, currency)}</span>
           </div>
         )}
-        <div className="flex justify-between font-semibold">
+        <div className="flex justify-between border-t border-[var(--accent-solid)]/15 pt-1.5 text-base font-semibold">
           <span>Total</span>
           <span>{formatMoney(subtotal + deliveryFee, currency)}</span>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-black/[.06] pt-3 dark:border-white/[.1]">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Your name"
-          className="h-10 rounded-lg border border-black/[.12] bg-transparent px-3 text-sm outline-none dark:border-white/[.18]"
-        />
-        <input
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder="Phone number"
-          className="h-10 rounded-lg border border-black/[.12] bg-transparent px-3 text-sm outline-none dark:border-white/[.18]"
-        />
-        <input
+      <div className="flex flex-col gap-3 border-t border-black/[.06] pt-4 dark:border-white/[.1]">
+        <TextField id="customerName" label="Your name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" />
+        <TextField id="customerPhone" label="Phone number" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+961 70 123 456" />
+        <TextField
+          id="customerAddress"
+          label="Delivery address (optional)"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          placeholder="Delivery address (optional)"
-          className="h-10 rounded-lg border border-black/[.12] bg-transparent px-3 text-sm outline-none dark:border-white/[.18]"
+          placeholder="Street, building, floor"
         />
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
           type="button"
           onClick={handleCheckout}
-          className="h-11 rounded-full bg-emerald-600 text-sm font-medium text-white shadow-soft hover:bg-emerald-700 hover:shadow-lift"
+          style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+          className="flex h-12 items-center justify-center gap-2 bg-emerald-600 text-sm font-semibold text-white shadow-soft hover:bg-emerald-700 hover:shadow-lift"
         >
+          <span aria-hidden>💬</span>
           Order via WhatsApp
         </motion.button>
       </div>

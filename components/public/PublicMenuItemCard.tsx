@@ -18,6 +18,25 @@ interface Props {
   variant?: "card" | "elegant";
 }
 
+/** Selectable pill used for size/box-variant (single-select) and addon (multi-select) options - replaces raw radio/checkbox rows with a tap-friendly, visually clearer control. */
+function OptionPill({ selected, onClick, children }: { selected: boolean; onClick(): void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+      className={`border px-3 py-1.5 text-left text-xs font-medium transition-colors ${
+        selected
+          ? "border-transparent bg-[var(--accent-solid)] text-white"
+          : "border-black/[.12] text-zinc-600 hover:border-[var(--accent-solid)]/50 dark:border-white/[.18] dark:text-zinc-400"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCart, onFirstView, variant = "card" }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [sizeId, setSizeId] = useState<string>(item.sizes[0]?.id ?? "");
@@ -98,7 +117,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
   const containerClassName =
     variant === "elegant"
       ? `border-b border-black/[.06] py-4 dark:border-white/[.1] ${isUnavailable ? "opacity-60" : ""}`
-      : `p-4 transition-shadow duration-300 ${isUnavailable ? "opacity-60" : ""}`;
+      : `overflow-hidden transition-shadow duration-300 ${isUnavailable ? "opacity-60" : ""}`;
 
   return (
     <motion.div
@@ -120,26 +139,32 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
           </span>
         </button>
       ) : (
-        <button type="button" onClick={handleExpand} className="flex w-full items-start justify-between gap-4 text-left">
-          <div>
-            <p className="font-medium">{item.name}</p>
-            {item.description && <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{item.description}</p>}
-            <p className="mt-1 text-sm font-medium">
-              {formatMoney(item.discountPrice ?? item.price, currency)}
-              {item.discountPrice != null && (
-                <span className="ml-2 text-zinc-400 line-through">{formatMoney(item.price, currency)}</span>
-              )}
-            </p>
-          </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          {item.imageUrl && <img src={item.imageUrl} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover" />}
-        </button>
+        <>
+          {item.imageUrl && (
+            <div className="aspect-[4/3] w-full overflow-hidden bg-black/[.04] dark:bg-white/[.06]">
+              {/* eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL */}
+              <img src={item.imageUrl} alt="" className="h-full w-full object-cover" />
+            </div>
+          )}
+          <button type="button" onClick={handleExpand} className="flex w-full items-start justify-between gap-4 p-4 text-left">
+            <div className="min-w-0">
+              <p className="font-medium">{item.name}</p>
+              {item.description && <p className="mt-0.5 line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400">{item.description}</p>}
+              <p className="mt-1.5 text-sm font-semibold">
+                {formatMoney(item.discountPrice ?? item.price, currency)}
+                {item.discountPrice != null && (
+                  <span className="ml-2 text-xs font-normal text-zinc-400 line-through">{formatMoney(item.price, currency)}</span>
+                )}
+              </p>
+            </div>
+          </button>
+        </>
       )}
       {variant === "elegant" && item.description && (
         <p className="mt-1 text-sm italic text-zinc-500 dark:text-zinc-400">{item.description}</p>
       )}
 
-      {isUnavailable && <p className="mt-2 text-xs font-medium text-amber-600">Currently unavailable</p>}
+      {isUnavailable && <p className={`text-xs font-medium text-amber-600 ${variant === "elegant" ? "mt-2" : "px-4 pb-3"}`}>Currently unavailable</p>}
 
       <AnimatePresence initial={false}>
       {expanded && !isUnavailable && (
@@ -150,32 +175,25 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
           transition={{ duration: 0.25, ease: "easeInOut" }}
           className="overflow-hidden"
         >
-        <div className="mt-3 flex flex-col gap-3 border-t border-black/[.06] pt-3 dark:border-white/[.1]">
+        <div className={`flex flex-col gap-3 border-t border-black/[.06] pt-3 dark:border-white/[.1] ${variant === "elegant" ? "mt-3" : "mx-4 mb-4"}`}>
           {item.ingredients && <p className="text-xs text-zinc-500">{item.ingredients}</p>}
 
           {item.fixedBoxItem && item.boxVariants.length > 0 && (
-            <div className="flex flex-col gap-1.5">
-              {item.boxVariants.map((variant) => (
-                <label key={variant.id} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="radio"
-                    name={`box-${item.id}`}
-                    checked={boxVariantId === variant.id}
-                    onChange={() => setBoxVariantId(variant.id)}
-                  />
-                  {variant.label} ({variant.unitCount} units) - {formatMoney(variant.price, currency)}
-                </label>
+            <div className="flex flex-wrap gap-2">
+              {item.boxVariants.map((v) => (
+                <OptionPill key={v.id} selected={boxVariantId === v.id} onClick={() => setBoxVariantId(v.id)}>
+                  {v.label} ({v.unitCount}) · {formatMoney(v.price, currency)}
+                </OptionPill>
               ))}
             </div>
           )}
 
           {!item.fixedBoxItem && item.sizes.length > 0 && (
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {item.sizes.map((size) => (
-                <label key={size.id} className="flex items-center gap-2 text-sm">
-                  <input type="radio" name={`size-${item.id}`} checked={sizeId === size.id} onChange={() => setSizeId(size.id)} />
-                  {size.label} - {formatMoney(size.price, currency)}
-                </label>
+                <OptionPill key={size.id} selected={sizeId === size.id} onClick={() => setSizeId(size.id)}>
+                  {size.label} · {formatMoney(size.price, currency)}
+                </OptionPill>
               ))}
             </div>
           )}
@@ -187,36 +205,49 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
                   {group.name}
                   {group.maxSelections != null && ` (up to ${group.maxSelections})`}
                 </p>
-                {group.options.map((option) => (
-                  <label key={option.id} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={addonIds.has(option.id)}
-                      onChange={() => toggleAddon(group.id, option.id, group.maxSelections)}
-                    />
-                    {option.name} (+{formatMoney(option.extraPrice, currency)})
-                  </label>
-                ))}
+                <div className="flex flex-wrap gap-2">
+                  {group.options.map((option) => (
+                    <OptionPill
+                      key={option.id}
+                      selected={addonIds.has(option.id)}
+                      onClick={() => toggleAddon(group.id, option.id, group.maxSelections)}
+                    >
+                      {option.name} (+{formatMoney(option.extraPrice, currency)})
+                    </OptionPill>
+                  ))}
+                </div>
               </div>
             ))}
 
           {orderingEnabled && (
             <div className="flex items-center gap-3">
-              <input
-                type="number"
-                min={1}
-                max={maxQuantity}
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, Math.min(maxQuantity, Number(e.target.value) || 1)))}
-                className="h-9 w-16 rounded-lg border border-black/[.12] bg-transparent px-2 text-sm outline-none dark:border-white/[.18]"
-              />
+              <div className="flex h-10 items-center rounded-full border border-black/[.12] dark:border-white/[.18]">
+                <button
+                  type="button"
+                  aria-label="Decrease quantity"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="flex h-full w-9 items-center justify-center text-sm text-zinc-500 hover:text-foreground"
+                >
+                  −
+                </button>
+                <span className="w-6 text-center text-sm font-medium tabular-nums">{quantity}</span>
+                <button
+                  type="button"
+                  aria-label="Increase quantity"
+                  onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
+                  className="flex h-full w-9 items-center justify-center text-sm text-zinc-500 hover:text-foreground"
+                >
+                  +
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={handleAddToCart}
                 disabled={item.fixedBoxItem && item.boxVariants.length > 0 && !boxVariantId}
                 style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
-                className="h-9 bg-foreground px-4 text-sm font-medium text-background disabled:opacity-40"
+                className="flex h-10 flex-1 items-center justify-center gap-1.5 bg-foreground text-sm font-medium text-background transition-transform hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
               >
+                <span aria-hidden>+</span>
                 Add to cart
               </button>
             </div>
