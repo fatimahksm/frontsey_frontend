@@ -26,6 +26,7 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, { value: LayoutVariant; labe
     { value: "MENU_CLASSIC", label: "Classic Menu", description: "Business-card header, gallery strip, categorized list, cart sidebar." },
     { value: "MENU_GRID", label: "Modern Grid", description: "Full-width cover, sticky category tabs, items as a card grid, cart drawer." },
     { value: "MENU_ELEGANT", label: "Elegant Restaurant", description: "Fine-dining style list with dotted price leaders and a minimal bottom cart bar." },
+    { value: "MENU_BISTRO", label: "Bistro Menu", description: "Warm, photography-led cafe style - bold headline hero, combo box deals, and a sticky-filtered card-grid menu." },
   ],
   PORTFOLIO: [
     { value: "PORTFOLIO_HERO", label: "Hero Portfolio", description: "Full-bleed dark hero, centered content, services grid, work gallery." },

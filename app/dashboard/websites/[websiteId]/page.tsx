@@ -318,12 +318,12 @@ export default function WebsiteOverviewPage() {
               onSuggestion={setHeroSubtitle}
             />
           </div>
-          {website.layoutVariant === "PORTFOLIO_PROFILE" && (
+          {(website.layoutVariant === "PORTFOLIO_PROFILE" || website.layoutVariant === "MENU_BISTRO") && (
             <div className="flex flex-col gap-1.5">
               <TextField
                 id="heroBadge"
                 label="Highlight badge (optional)"
-                placeholder="e.g. 3+ Years Experience"
+                placeholder={website.templateType === "PORTFOLIO" ? "e.g. 3+ Years Experience" : "e.g. Fresh Everyday"}
                 value={heroBadge}
                 onChange={(e) => setHeroBadge(e.target.value)}
               />

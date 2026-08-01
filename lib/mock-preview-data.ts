@@ -2,7 +2,7 @@ import type { LayoutVariant, PublicWebsiteResponse } from "@/lib/api/types";
 import { DEFAULT_THEME_CONFIG } from "@/lib/website/theme-config";
 
 /** Sample/placeholder data (no real business's content) used purely so the layout gallery can render live, populated-looking thumbnails before an owner has entered anything of their own. */
-export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU_ELEGANT"): PublicWebsiteResponse {
+export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU_ELEGANT" | "MENU_BISTRO"): PublicWebsiteResponse {
   return {
     businessName: "Sunny Side Cafe",
     slug: "preview",
@@ -16,6 +16,7 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
       heroHeading: "Fresh, fast, and friendly",
       heroSubtitle: "Locally roasted coffee and all-day breakfast.",
       brandColor: "#171717",
+      heroBadge: "Fresh Everyday",
     }),
     profile: {
       description: "A neighborhood cafe serving coffee, breakfast, and good vibes since 2020.",
@@ -86,6 +87,21 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
             sizes: [],
             addonGroups: [],
             boxVariants: [],
+          },
+          {
+            id: "i4",
+            name: "Brunch Box",
+            description: "Sandwich, cold brew, and a cookie.",
+            ingredients: null,
+            price: 9.99,
+            discountPrice: null,
+            imageUrl: null,
+            availability: "AVAILABLE",
+            maxOrderQuantity: null,
+            fixedBoxItem: true,
+            sizes: [],
+            addonGroups: [],
+            boxVariants: [{ id: "bv1", label: "Regular", unitCount: 1, price: 9.99 }],
           },
         ],
       },
@@ -195,6 +211,7 @@ export function mockSiteFor(layoutVariant: LayoutVariant): PublicWebsiteResponse
     case "MENU_CLASSIC":
     case "MENU_GRID":
     case "MENU_ELEGANT":
+    case "MENU_BISTRO":
       return mockMenuSite(layoutVariant);
     case "PORTFOLIO_HERO":
     case "PORTFOLIO_MINIMAL":

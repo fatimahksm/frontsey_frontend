@@ -1,4 +1,5 @@
 import { PublicMenuSite } from "@/components/public/PublicMenuSite";
+import { PublicMenuSiteBistro } from "@/components/public/PublicMenuSiteBistro";
 import { PublicMenuSiteElegant } from "@/components/public/PublicMenuSiteElegant";
 import { PublicMenuSiteGrid } from "@/components/public/PublicMenuSiteGrid";
 import { PublicPortfolioSite } from "@/components/public/PublicPortfolioSite";
@@ -14,6 +15,8 @@ export function PublicSiteRenderer({ site, onFirstView }: { site: PublicWebsiteR
       return <PublicMenuSiteGrid site={site} onFirstView={onFirstView} />;
     case "MENU_ELEGANT":
       return <PublicMenuSiteElegant site={site} onFirstView={onFirstView} />;
+    case "MENU_BISTRO":
+      return <PublicMenuSiteBistro site={site} onFirstView={onFirstView} />;
     case "PORTFOLIO_MINIMAL":
       return <PublicPortfolioSiteMinimal site={site} />;
     case "PORTFOLIO_BOLD":

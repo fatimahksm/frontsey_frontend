@@ -49,6 +49,7 @@ export type LayoutVariant =
   | "MENU_CLASSIC"
   | "MENU_GRID"
   | "MENU_ELEGANT"
+  | "MENU_BISTRO"
   | "PORTFOLIO_HERO"
   | "PORTFOLIO_MINIMAL"
   | "PORTFOLIO_BOLD"
