@@ -16,13 +16,15 @@ import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
 
-/** The MENU_ORDERING template's public page: profile header, gallery, categorized menu, and a WhatsApp cart. */
+/** The MENU_ORDERING template's public page: profile header, gallery, a filterable category-tab menu grid, and a WhatsApp cart. */
 export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteResponse; onFirstView(itemId: string): void }) {
   const { t, dir } = useLocale();
   const [cart, setCart] = useState<CartLine[]>([]);
+  const [activeCategoryId, setActiveCategoryId] = useState(site.categories[0]?.id ?? "");
 
   const content = parseDraftContent(site.publishedContent);
   const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
+  const activeCategory = site.categories.find((c) => c.id === activeCategoryId) ?? site.categories[0];
 
   function handleAddToCart(line: CartLine) {
     setCart((prev) => {
@@ -127,28 +129,43 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
           </StaggerGroup>
         )}
 
-        <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 2rem)" }}>
-          {site.categories.map((category) => (
-            <section key={category.id}>
-              <Reveal as="div">
-                <h2 className="mb-3 text-lg font-semibold tracking-tight">{category.name}</h2>
-              </Reveal>
-              <StaggerGroup as="ul" className="flex flex-col gap-3">
-                {category.items.map((item) => (
-                  <StaggerItem as="li" key={item.id}>
-                    <PublicMenuItemCard
-                      item={item}
-                      currency={site.currency}
-                      orderingEnabled={orderingEnabled}
-                      onAddToCart={handleAddToCart}
-                      onFirstView={onFirstView}
-                    />
-                  </StaggerItem>
-                ))}
-              </StaggerGroup>
-            </section>
-          ))}
-        </div>
+        {site.categories.length > 0 && (
+          <Reveal as="div" className="mb-6 flex flex-wrap gap-2">
+            {site.categories.map((category) => (
+              <button
+                key={category.id}
+                type="button"
+                onClick={() => setActiveCategoryId(category.id)}
+                aria-pressed={activeCategory?.id === category.id}
+                style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+                className={`inline-flex items-center gap-1.5 border px-4 py-1.5 text-sm font-medium transition-colors ${
+                  activeCategory?.id === category.id
+                    ? "border-transparent bg-[var(--accent-solid)] text-white"
+                    : "border-black/[.1] text-zinc-600 hover:bg-black/[.04] dark:border-white/[.16] dark:text-zinc-400 dark:hover:bg-white/[.06]"
+                }`}
+              >
+                {category.name}
+                <span className={activeCategory?.id === category.id ? "text-white/70" : "text-zinc-400"}>{category.items.length}</span>
+              </button>
+            ))}
+          </Reveal>
+        )}
+
+        {activeCategory && (
+          <StaggerGroup key={activeCategory.id} className="grid gap-4 sm:grid-cols-2">
+            {activeCategory.items.map((item) => (
+              <StaggerItem key={item.id}>
+                <PublicMenuItemCard
+                  item={item}
+                  currency={site.currency}
+                  orderingEnabled={orderingEnabled}
+                  onAddToCart={handleAddToCart}
+                  onFirstView={onFirstView}
+                />
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+        )}
 
         <div className="mt-8 flex flex-col gap-8">
           <DynamicSections sections={site.sections} tone="classic" />

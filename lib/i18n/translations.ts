@@ -67,6 +67,7 @@ export interface Dictionary {
     decreaseQuantity: string;
     increaseQuantity: string;
     addToCart: string;
+    chooseOptions: string;
     pricedOnRequest: string;
   };
   cart: {
@@ -157,6 +158,7 @@ const en: Dictionary = {
     decreaseQuantity: "Decrease quantity",
     increaseQuantity: "Increase quantity",
     addToCart: "Add to cart",
+    chooseOptions: "Choose options",
     pricedOnRequest: "Priced on request",
   },
   cart: {
@@ -234,6 +236,7 @@ const fr: Dictionary = {
     decreaseQuantity: "Diminuer la quantité",
     increaseQuantity: "Augmenter la quantité",
     addToCart: "Ajouter au panier",
+    chooseOptions: "Choisir les options",
     pricedOnRequest: "Prix sur demande",
   },
   cart: {
@@ -311,6 +314,7 @@ const ar: Dictionary = {
     decreaseQuantity: "إنقاص الكمية",
     increaseQuantity: "زيادة الكمية",
     addToCart: "أضف إلى السلة",
+    chooseOptions: "اختر الخيارات",
     pricedOnRequest: "السعر عند الطلب",
   },
   cart: {

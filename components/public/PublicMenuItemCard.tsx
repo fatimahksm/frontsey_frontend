@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { PublicMenuItem } from "@/lib/api/types";
 import type { CartLine } from "@/lib/site/cart";
@@ -40,7 +40,10 @@ function OptionPill({ selected, onClick, children }: { selected: boolean; onClic
 
 export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCart, onFirstView, variant = "card" }: Props) {
   const { t } = useLocale();
-  const [expanded, setExpanded] = useState(false);
+  const hasOptions = item.sizes.length > 0 || item.boxVariants.length > 0 || item.addonGroups.length > 0;
+  /** Card-grid items with nothing to configure skip the click-to-expand step entirely - the quantity stepper and Add to cart button are visible right away, matching a simple grid-of-cards menu. Items with sizes/box variants/addons still require an explicit tap to choose those first. The Elegant variant keeps its original always-click-to-expand, minimal list behavior regardless. */
+  const alwaysExpanded = variant === "card" && !hasOptions;
+  const [expanded, setExpanded] = useState(alwaysExpanded);
   const [sizeId, setSizeId] = useState<string>(item.sizes[0]?.id ?? "");
   const [boxVariantId, setBoxVariantId] = useState<string>(item.boxVariants[0]?.id ?? "");
   const [addonIds, setAddonIds] = useState<Set<string>>(new Set());
@@ -56,6 +59,15 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
       setHasBeenViewed(true);
     }
   }
+
+  useEffect(() => {
+    if (alwaysExpanded) {
+      onFirstView(item.id);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time view tracking for an always-expanded simple item, not derivable state
+      setHasBeenViewed(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fire once on mount only
+  }, []);
 
   function toggleAddon(groupId: string, addonId: string, maxSelections: number | null) {
     setAddonIds((prev) => {
@@ -160,6 +172,18 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
               </p>
             </div>
           </button>
+          {!expanded && hasOptions && !isUnavailable && orderingEnabled && (
+            <div className="px-4 pb-4">
+              <button
+                type="button"
+                onClick={handleExpand}
+                style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
+                className="flex h-10 w-full items-center justify-center gap-1.5 border border-black/[.12] text-sm font-medium transition-colors hover:border-[var(--accent-solid)]/50 dark:border-white/[.18]"
+              >
+                {t.item.chooseOptions}
+              </button>
+            </div>
+          )}
         </>
       )}
       {variant === "elegant" && item.description && (
@@ -247,7 +271,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
                 onClick={handleAddToCart}
                 disabled={item.fixedBoxItem && item.boxVariants.length > 0 && !boxVariantId}
                 style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
-                className="flex h-10 flex-1 items-center justify-center gap-1.5 bg-foreground text-sm font-medium text-background transition-transform hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
+                className="flex h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap bg-foreground px-2 text-sm font-medium text-background transition-transform hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
               >
                 <span aria-hidden>+</span>
                 {t.item.addToCart}
