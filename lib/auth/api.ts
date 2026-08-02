@@ -15,6 +15,16 @@ export const authApi = {
     return apiFetch<AuthResponse>("/auth/login", { method: "POST", body: request });
   },
 
+  /** BR-AUTH-007: exchanges the httpOnly refresh cookie (sent automatically) for a fresh access token. */
+  refresh(): Promise<AuthResponse> {
+    return apiFetch<AuthResponse>("/auth/refresh", { method: "POST" });
+  },
+
+  /** Revokes the refresh token server-side and clears its cookie - best-effort, never blocks the client-side logout. */
+  logout(): Promise<void> {
+    return apiFetch<void>("/auth/logout", { method: "POST" });
+  },
+
   requestPasswordReset(email: string): Promise<void> {
     return apiFetch<void>("/auth/password-reset/request", { method: "POST", query: { email } });
   },

@@ -1,5 +1,6 @@
 import { apiUrl } from "@/lib/config";
-import type { ApiResponse } from "@/lib/api/types";
+import type { ApiResponse, AuthResponse } from "@/lib/api/types";
+import { setStoredSession } from "@/lib/auth/token";
 
 /**
  * Thrown whenever the backend responds with `{ success: false }` or a
@@ -27,10 +28,39 @@ export interface ApiFetchOptions {
 }
 
 /**
+ * BR-AUTH-007: a single in-flight refresh at a time - concurrent 401s from
+ * several simultaneous requests all await the same refresh instead of each
+ * triggering their own (which would race token rotation and fail all but one).
+ */
+let refreshInFlight: Promise<string | null> | null = null;
+
+async function refreshAccessToken(): Promise<string | null> {
+  if (!refreshInFlight) {
+    refreshInFlight = (async () => {
+      try {
+        const response = await fetch(apiUrl("/auth/refresh"), { method: "POST", credentials: "include" });
+        const envelope = (await parseEnvelope(response)) as ApiResponse<AuthResponse>;
+        if (!response.ok || !envelope.success || !envelope.data) return null;
+        setStoredSession(envelope.data);
+        return envelope.data.accessToken;
+      } catch {
+        return null;
+      } finally {
+        refreshInFlight = null;
+      }
+    })();
+  }
+  return refreshInFlight;
+}
+
+/**
  * The single fetch wrapper every API call in the app goes through. It
  * applies the shared backend base URL, attaches the bearer token, unwraps
  * the `{ success, data, message }` envelope, and normalizes failures into
- * `ApiError`.
+ * `ApiError`. `credentials: "include"` sends the httpOnly refresh-token
+ * cookie along on every call (harmless outside /auth/**, where it's the
+ * only thing that reads it) - a 401 on an authenticated call transparently
+ * tries one silent refresh-and-retry before giving up.
  */
 export async function apiFetch<T>(
   path: string,
@@ -47,25 +77,28 @@ export async function apiFetch<T>(
   }
 
   const isFormData = options.body instanceof FormData;
+  const body =
+    options.body === undefined ? undefined : isFormData ? (options.body as FormData) : JSON.stringify(options.body);
 
-  const headers: Record<string, string> = {};
-  if (options.body !== undefined && !isFormData) {
-    headers["Content-Type"] = "application/json";
-  }
-  if (options.accessToken) {
-    headers["Authorization"] = `Bearer ${options.accessToken}`;
+  async function attempt(accessToken: string | null | undefined): Promise<Response> {
+    const headers: Record<string, string> = {};
+    if (options.body !== undefined && !isFormData) {
+      headers["Content-Type"] = "application/json";
+    }
+    if (accessToken) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+    return fetch(url.toString(), { method: options.method ?? "GET", headers, body, credentials: "include" });
   }
 
-  const response = await fetch(url.toString(), {
-    method: options.method ?? "GET",
-    headers,
-    body:
-      options.body === undefined
-        ? undefined
-        : isFormData
-          ? (options.body as FormData)
-          : JSON.stringify(options.body),
-  });
+  let response = await attempt(options.accessToken);
+
+  if (response.status === 401 && options.accessToken && !path.startsWith("/auth/")) {
+    const newAccessToken = await refreshAccessToken();
+    if (newAccessToken) {
+      response = await attempt(newAccessToken);
+    }
+  }
 
   const envelope = (await parseEnvelope(response)) as ApiResponse<T>;
 
@@ -110,7 +143,7 @@ export async function apiFetchBlob(
     headers["Authorization"] = `Bearer ${options.accessToken}`;
   }
 
-  const response = await fetch(url.toString(), { method: options.method ?? "GET", headers });
+  const response = await fetch(url.toString(), { method: options.method ?? "GET", headers, credentials: "include" });
   if (!response.ok) {
     throw new ApiError("Failed to download file.", response.status);
   }

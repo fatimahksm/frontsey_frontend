@@ -6,13 +6,20 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 
 import { authApi } from "@/lib/auth/api";
+import { decodeJwtExpiryMs } from "@/lib/auth/jwt";
 import { clearStoredSession, getStoredSession, setStoredSession } from "@/lib/auth/token";
 import type { AuthResponse, LoginRequest } from "@/lib/api/types";
+
+/** BR-AUTH-007: refresh this long before the access token actually expires, so a normal request never races an in-flight expiry. */
+const REFRESH_BUFFER_MS = 2 * 60 * 1000;
+/** Absolute floor on the scheduled delay: if the access-token TTL is ever configured shorter than REFRESH_BUFFER_MS, the naive "expiry - buffer" math goes negative every time a fresh token is issued, which would otherwise refresh in a tight infinite loop. */
+const MIN_REFRESH_DELAY_MS = 10 * 1000;
 
 interface AuthContextValue {
   /** The current session, or null when signed out. */
@@ -28,27 +35,72 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Indirection so the recurring timer can call "the current scheduleRefresh" without
+  // scheduleRefresh needing to close over itself (which the hooks lint rule rejects).
+  const scheduleRefreshRef = useRef<(accessToken: string) => void>(() => {});
+
+  /**
+   * BR-AUTH-007: proactively renews the access token ~2 minutes before it
+   * expires, so a normal session never actually hits a 401 due to expiry.
+   * apiFetch's own reactive refresh-and-retry (see lib/api/client.ts) is
+   * only the safety net for what this misses (e.g. a suspended/backgrounded
+   * tab) - it updates localStorage directly but not this component's state,
+   * so this timer is what keeps `session` itself current in the common case.
+   */
+  const scheduleRefresh = useCallback((accessToken: string) => {
+    if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    const expiryMs = decodeJwtExpiryMs(accessToken);
+    if (expiryMs == null) return;
+    const delay = Math.max(expiryMs - Date.now() - REFRESH_BUFFER_MS, MIN_REFRESH_DELAY_MS);
+    refreshTimer.current = setTimeout(async () => {
+      try {
+        const refreshed = await authApi.refresh();
+        setStoredSession(refreshed);
+        setSession(refreshed);
+        scheduleRefreshRef.current(refreshed.accessToken);
+      } catch {
+        // Refresh cookie missing/expired/revoked - reflect being logged out rather than retrying forever.
+        clearStoredSession();
+        setSession(null);
+      }
+    }, delay);
+  }, []);
+
+  useEffect(() => {
+    scheduleRefreshRef.current = scheduleRefresh;
+  }, [scheduleRefresh]);
 
   useEffect(() => {
     // localStorage doesn't exist during server rendering, so the session can
     // only be known once we're running in the browser - this is a one-time
     // sync with that external system, not state that could be derived during
     // render.
+    const stored = getStoredSession();
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSession(getStoredSession());
+    setSession(stored);
     setIsLoading(false);
-  }, []);
+    if (stored) scheduleRefresh(stored.accessToken);
+
+    return () => {
+      if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    };
+  }, [scheduleRefresh]);
 
   const login = useCallback(async (request: LoginRequest) => {
     const response = await authApi.login(request);
     setStoredSession(response);
     setSession(response);
+    scheduleRefresh(response.accessToken);
     return response;
-  }, []);
+  }, [scheduleRefresh]);
 
   const logout = useCallback(() => {
+    if (refreshTimer.current) clearTimeout(refreshTimer.current);
     clearStoredSession();
     setSession(null);
+    // Best-effort - revokes the refresh token server-side so a copied/stale cookie can't be replayed after logout.
+    authApi.logout().catch(() => {});
   }, []);
 
   const value = useMemo<AuthContextValue>(
