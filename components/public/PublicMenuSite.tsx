@@ -12,6 +12,7 @@ import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types"
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { itemMatchesQuery } from "@/lib/site/menu-search";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
@@ -21,10 +22,12 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
   const { t, dir } = useLocale();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState(site.categories[0]?.id ?? "");
+  const [query, setQuery] = useState("");
 
   const content = parseDraftContent(site.publishedContent);
   const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
   const activeCategory = site.categories.find((c) => c.id === activeCategoryId) ?? site.categories[0];
+  const displayedItems = activeCategory ? activeCategory.items.filter((item) => itemMatchesQuery(item, query)) : [];
 
   function handleAddToCart(line: CartLine) {
     setCart((prev) => {
@@ -130,6 +133,16 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
         )}
 
         {site.categories.length > 0 && (
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t.filter.searchPlaceholder}
+            className="mb-4 h-11 w-full rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
+          />
+        )}
+
+        {site.categories.length > 0 && (
           <Reveal as="div" className="mb-6 flex flex-wrap gap-2">
             {site.categories.map((category) => (
               <button
@@ -151,9 +164,13 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
           </Reveal>
         )}
 
-        {activeCategory && (
+        {activeCategory && displayedItems.length === 0 && (
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t.filter.noResults}</p>
+        )}
+
+        {activeCategory && displayedItems.length > 0 && (
           <StaggerGroup key={activeCategory.id} className="grid gap-4 sm:grid-cols-2">
-            {activeCategory.items.map((item) => (
+            {displayedItems.map((item) => (
               <StaggerItem key={item.id}>
                 <PublicMenuItemCard
                   item={item}

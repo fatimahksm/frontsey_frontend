@@ -12,6 +12,7 @@ import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types"
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { itemMatchesQuery } from "@/lib/site/menu-search";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
@@ -30,10 +31,14 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
   const { t, dir } = useLocale();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
   const content = parseDraftContent(site.publishedContent);
   const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
   const cartCount = cart.reduce((sum, l) => sum + l.quantity, 0);
+  const visibleCategories = site.categories
+    .map((category) => ({ ...category, items: category.items.filter((item) => itemMatchesQuery(item, query)) }))
+    .filter((category) => category.items.length > 0);
 
   function handleAddToCart(line: CartLine) {
     setCart((prev) => {
@@ -94,9 +99,16 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
       </div>
 
       {site.categories.length > 0 && (
-        <div className="sticky top-0 z-30 border-b border-black/[.06] bg-surface/90 px-4 py-3 backdrop-blur-md dark:border-white/[.1]">
+        <div className="sticky top-0 z-30 flex flex-col gap-3 border-b border-black/[.06] bg-surface/90 px-4 py-3 backdrop-blur-md dark:border-white/[.1]">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t.filter.searchPlaceholder}
+            className="mx-auto h-10 w-full max-w-6xl rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
+          />
           <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto">
-            {site.categories.map((category) => (
+            {visibleCategories.map((category) => (
               <button
                 key={category.id}
                 type="button"
@@ -126,8 +138,12 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
           </div>
         )}
 
+        {visibleCategories.length === 0 && (
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t.filter.noResults}</p>
+        )}
+
         <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 3rem)" }}>
-          {site.categories.map((category) => (
+          {visibleCategories.map((category) => (
             <section key={category.id} id={slugifyId(category.id)} className="scroll-mt-24">
               <Reveal as="div">
                 <h2 className="mb-4 text-xl font-semibold tracking-tight">{category.name}</h2>

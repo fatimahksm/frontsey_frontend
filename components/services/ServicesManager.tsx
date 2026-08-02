@@ -31,6 +31,7 @@ function moved<T>(list: T[], from: number, to: number): T[] {
 export function ServicesManager() {
   const { website, accessToken } = useWebsite();
   const [services, setServices] = useState<ServiceItemResponse[]>([]);
+  const [search, setSearch] = useState("");
   const [draft, setDraft] = useState<ServiceItemRequest>(EMPTY);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -100,6 +101,13 @@ export function ServicesManager() {
     }
   }
 
+  const filteredServices = search.trim()
+    ? services.filter((s) => {
+        const q = search.trim().toLowerCase();
+        return s.name.toLowerCase().includes(q) || (s.description ?? "").toLowerCase().includes(q);
+      })
+    : services;
+
   async function handleMove(index: number, direction: -1 | 1) {
     const target = index + direction;
     if (target < 0 || target >= services.length) return;
@@ -122,44 +130,53 @@ export function ServicesManager() {
       {error && <Alert tone="error">{error}</Alert>}
 
       <Card title="Your services">
+        {services.length > 0 && (
+          <TextField id="serviceSearch" label="Search" value={search} onChange={(e) => setSearch(e.target.value)} className="mb-4" />
+        )}
         {isLoading ? (
           <p className="text-sm text-zinc-500">Loading…</p>
         ) : (
           <StaggerGroup as="ul" className="flex flex-col gap-2">
-            {services.map((service, index) => (
-              <StaggerItem as="li" key={service.id} className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
-                <div className="min-w-0">
-                  <p className="font-medium">{service.name}</p>
-                  {service.description && <p className="text-xs text-zinc-500 dark:text-zinc-400">{service.description}</p>}
-                  <p className="text-xs text-zinc-500">
-                    {service.price != null ? formatMoney(service.price, website.currency) : "Priced on request"}
-                  </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-3 text-xs">
-                  <button type="button" disabled={index === 0} onClick={() => handleMove(index, -1)} className="disabled:opacity-30">
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    disabled={index === services.length - 1}
-                    onClick={() => handleMove(index, 1)}
-                    className="disabled:opacity-30"
-                  >
-                    ↓
-                  </button>
-                  <button type="button" className="hover:underline" onClick={() => startEdit(service)}>
-                    Edit
-                  </button>
-                  <button type="button" className="text-red-600 hover:underline" onClick={() => handleDelete(service.id)}>
-                    Delete
-                  </button>
-                </div>
-              </StaggerItem>
-            ))}
+            {filteredServices.map((service) => {
+              const index = services.findIndex((s) => s.id === service.id);
+              return (
+                <StaggerItem as="li" key={service.id} className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
+                  <div className="min-w-0">
+                    <p className="font-medium">{service.name}</p>
+                    {service.description && <p className="text-xs text-zinc-500 dark:text-zinc-400">{service.description}</p>}
+                    <p className="text-xs text-zinc-500">
+                      {service.price != null ? formatMoney(service.price, website.currency) : "Priced on request"}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3 text-xs">
+                    <button type="button" disabled={index === 0} onClick={() => handleMove(index, -1)} className="disabled:opacity-30">
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      disabled={index === services.length - 1}
+                      onClick={() => handleMove(index, 1)}
+                      className="disabled:opacity-30"
+                    >
+                      ↓
+                    </button>
+                    <button type="button" className="hover:underline" onClick={() => startEdit(service)}>
+                      Edit
+                    </button>
+                    <button type="button" className="text-red-600 hover:underline" onClick={() => handleDelete(service.id)}>
+                      Delete
+                    </button>
+                  </div>
+                </StaggerItem>
+              );
+            })}
             {services.length === 0 && (
               <p className="text-sm text-zinc-500">
                 You have not added any services yet. Add your first service below.
               </p>
+            )}
+            {services.length > 0 && filteredServices.length === 0 && (
+              <p className="text-sm text-zinc-500">No services match your search.</p>
             )}
           </StaggerGroup>
         )}

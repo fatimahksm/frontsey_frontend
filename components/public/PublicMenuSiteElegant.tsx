@@ -11,6 +11,7 @@ import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types"
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { itemMatchesQuery } from "@/lib/site/menu-search";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
@@ -27,10 +28,14 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
   const { t, dir } = useLocale();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
   const content = parseDraftContent(site.publishedContent);
   const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
   const subtotal = cartSubtotal(cart);
+  const visibleCategories = site.categories
+    .map((category) => ({ ...category, items: category.items.filter((item) => itemMatchesQuery(item, query)) }))
+    .filter((category) => category.items.length > 0);
 
   function handleAddToCart(line: CartLine) {
     setCart((prev) => {
@@ -71,8 +76,22 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
           {content.heroSubtitle && <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{content.heroSubtitle}</p>}
         </motion.div>
 
+        {site.categories.length > 0 && (
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t.filter.searchPlaceholder}
+            className="mb-8 h-11 w-full rounded-xl border border-black/[.12] bg-surface px-3.5 text-center text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
+          />
+        )}
+
+        {site.categories.length > 0 && visibleCategories.length === 0 && (
+          <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">{t.filter.noResults}</p>
+        )}
+
         <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 2.5rem)" }}>
-          {site.categories.map((category) => (
+          {visibleCategories.map((category) => (
             <section key={category.id}>
               <Reveal as="div">
                 <h2 className="mb-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">{category.name}</h2>

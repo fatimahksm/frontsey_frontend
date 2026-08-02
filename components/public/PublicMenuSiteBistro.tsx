@@ -12,6 +12,7 @@ import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types"
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { itemMatchesQuery } from "@/lib/site/menu-search";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCardStyle, themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
@@ -32,6 +33,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
   const { t, dir } = useLocale();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
   const content = parseDraftContent(site.publishedContent);
   const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
@@ -39,11 +41,17 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
   const whatsappNumber = site.profile?.whatsappNumber;
   const inquiryMessage = `Hi ${site.businessName}, I'd like to place an order.`;
 
-  const comboItems = site.categories.flatMap((c) => c.items).filter((item) => item.fixedBoxItem);
-  const comboIds = new Set(comboItems.map((i) => i.id));
+  const comboItems = site.categories
+    .flatMap((c) => c.items)
+    .filter((item) => item.fixedBoxItem && itemMatchesQuery(item, query));
+  const comboIds = new Set(site.categories.flatMap((c) => c.items).filter((item) => item.fixedBoxItem).map((i) => i.id));
   const visibleCategories = site.categories
-    .map((category) => ({ ...category, items: category.items.filter((item) => !comboIds.has(item.id)) }))
+    .map((category) => ({
+      ...category,
+      items: category.items.filter((item) => !comboIds.has(item.id) && itemMatchesQuery(item, query)),
+    }))
     .filter((category) => category.items.length > 0);
+  const hasNoResults = query.trim() !== "" && comboItems.length === 0 && visibleCategories.length === 0;
 
   function handleAddToCart(line: CartLine) {
     setCart((prev) => {
@@ -190,24 +198,35 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
         </section>
       )}
 
-      {visibleCategories.length > 0 && (
-        <div className="sticky top-[65px] z-20 border-b border-black/[.06] bg-white/90 px-6 py-3 backdrop-blur-md sm:px-12 dark:border-white/[.08] dark:bg-zinc-950/90">
-          <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto">
-            {visibleCategories.map((category) => (
-              <button
-                key={category.id}
-                type="button"
-                onClick={() => scrollToCategory(category.id)}
-                className="shrink-0 rounded-full border border-black/[.1] px-4 py-1.5 text-sm font-medium hover:bg-black/[.04] dark:border-white/[.16] dark:hover:bg-white/[.06]"
-              >
-                {category.name}
-              </button>
-            ))}
-          </div>
+      {site.categories.length > 0 && (
+        <div className="sticky top-[65px] z-20 flex flex-col gap-3 border-b border-black/[.06] bg-white/90 px-6 py-3 backdrop-blur-md sm:px-12 dark:border-white/[.08] dark:bg-zinc-950/90">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t.filter.searchPlaceholder}
+            className="mx-auto h-10 w-full max-w-6xl rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
+          />
+          {visibleCategories.length > 0 && (
+            <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto">
+              {visibleCategories.map((category) => (
+                <button
+                  key={category.id}
+                  type="button"
+                  onClick={() => scrollToCategory(category.id)}
+                  className="shrink-0 rounded-full border border-black/[.1] px-4 py-1.5 text-sm font-medium hover:bg-black/[.04] dark:border-white/[.16] dark:hover:bg-white/[.06]"
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       <div id="menu" className="mx-auto w-full max-w-6xl flex-1 scroll-mt-24 px-6 py-10 sm:px-12">
+        {hasNoResults && <p className="text-sm text-zinc-500 dark:text-zinc-400">{t.filter.noResults}</p>}
+
         <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 3rem)" }}>
           {visibleCategories.map((category) => {
             return (

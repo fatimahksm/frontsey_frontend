@@ -26,6 +26,7 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
   const [showTrash, setShowTrash] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [availabilityFilter, setAvailabilityFilter] = useState<"" | ItemAvailability>("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkTargetCategory, setBulkTargetCategory] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +36,8 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
   function categoryName(id: string): string {
     return categories.find((c) => c.id === id)?.name ?? "-";
   }
+
+  const visibleItems = availabilityFilter ? items.filter((item) => item.availability === availabilityFilter) : items;
 
   async function load() {
     setIsLoading(true);
@@ -112,6 +115,16 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
               ))}
             </Select>
             <TextField id="search" label="Search" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Select
+              id="availabilityFilter"
+              label="Availability"
+              value={availabilityFilter}
+              onChange={(e) => setAvailabilityFilter(e.target.value as "" | ItemAvailability)}
+            >
+              <option value="">All availability</option>
+              <option value="AVAILABLE">Available</option>
+              <option value="UNAVAILABLE">Unavailable</option>
+            </Select>
             <Button className="w-auto px-4" onClick={load} isLoading={isLoading}>
               Apply
             </Button>
@@ -188,9 +201,11 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
         <p className="text-sm text-zinc-500">
           {showTrash ? "Trash is empty." : "You have not added any menu items yet. Use \"Add item\" above to add your first one."}
         </p>
+      ) : visibleItems.length === 0 ? (
+        <p className="text-sm text-zinc-500">No items match the availability filter.</p>
       ) : (
         <StaggerGroup as="ul" className="flex flex-col gap-2">
-          {items.map((item) => (
+          {visibleItems.map((item) => (
             <StaggerItem
               as="li"
               key={item.id}
