@@ -10,6 +10,7 @@ import { PublicMenuItemCard } from "@/components/public/PublicMenuItemCard";
 import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types";
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
+import { useLocale } from "@/lib/i18n/LocaleContext";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
@@ -23,6 +24,7 @@ import { formatMoney } from "@/lib/format";
  * the cart as a minimal fixed bottom bar rather than a sidebar or drawer.
  */
 export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsiteResponse; onFirstView(itemId: string): void }) {
+  const { t, dir } = useLocale();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
 
@@ -52,7 +54,7 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-surface-muted" style={themeCssVars(site.theme, content.brandColor)}>
+    <div dir={dir} className="flex flex-1 flex-col bg-surface-muted" style={themeCssVars(site.theme, content.brandColor)}>
       <div className="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -113,7 +115,7 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
         >
           <div className="mx-auto flex max-w-2xl items-center justify-between gap-3">
             <span className="text-sm font-medium">
-              {cart.reduce((n, l) => n + l.quantity, 0)} item{cart.length !== 1 ? "s" : ""} · {formatMoney(subtotal, site.currency)}
+              {cart.reduce((n, l) => n + l.quantity, 0)} {cart.length !== 1 ? t.cart.itemsPlural : t.cart.itemSingular} · {formatMoney(subtotal, site.currency)}
             </span>
             <button
               type="button"
@@ -121,7 +123,7 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
               style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
               className="bg-gradient-accent px-5 py-2 text-sm font-medium text-white shadow-soft"
             >
-              View order
+              {t.cart.viewOrder}
             </button>
           </div>
         </motion.div>
@@ -131,7 +133,7 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center" onClick={() => setCartOpen(false)}>
           <div onClick={(e) => e.stopPropagation()} className="max-h-[80vh] w-full max-w-sm overflow-y-auto rounded-t-2xl bg-background p-4 sm:rounded-2xl">
             <button type="button" onClick={() => setCartOpen(false)} className="mb-3 text-sm text-zinc-500 hover:underline">
-              ← Close
+              {dir === "rtl" ? `${t.cart.close} →` : `← ${t.cart.close}`}
             </button>
             <CartPanel
               lines={cart}

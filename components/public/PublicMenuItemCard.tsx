@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { PublicMenuItem } from "@/lib/api/types";
 import type { CartLine } from "@/lib/site/cart";
 import { formatMoney } from "@/lib/format";
+import { useLocale } from "@/lib/i18n/LocaleContext";
 import { themeCardStyle } from "@/lib/website/theme-config";
 
 interface Props {
@@ -38,6 +39,7 @@ function OptionPill({ selected, onClick, children }: { selected: boolean; onClic
 }
 
 export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCart, onFirstView, variant = "card" }: Props) {
+  const { t } = useLocale();
   const [expanded, setExpanded] = useState(false);
   const [sizeId, setSizeId] = useState<string>(item.sizes[0]?.id ?? "");
   const [boxVariantId, setBoxVariantId] = useState<string>(item.boxVariants[0]?.id ?? "");
@@ -164,7 +166,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
         <p className="mt-1 text-sm italic text-zinc-500 dark:text-zinc-400">{item.description}</p>
       )}
 
-      {isUnavailable && <p className={`text-xs font-medium text-amber-600 ${variant === "elegant" ? "mt-2" : "px-4 pb-3"}`}>Currently unavailable</p>}
+      {isUnavailable && <p className={`text-xs font-medium text-amber-600 ${variant === "elegant" ? "mt-2" : "px-4 pb-3"}`}>{t.item.currentlyUnavailable}</p>}
 
       <AnimatePresence initial={false}>
       {expanded && !isUnavailable && (
@@ -203,7 +205,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
               <div key={group.id} className="flex flex-col gap-1.5">
                 <p className="text-xs font-medium text-zinc-500">
                   {group.name}
-                  {group.maxSelections != null && ` (up to ${group.maxSelections})`}
+                  {group.maxSelections != null && ` (${t.item.upTo(group.maxSelections)})`}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {group.options.map((option) => (
@@ -224,7 +226,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
               <div className="flex h-10 items-center rounded-full border border-black/[.12] dark:border-white/[.18]">
                 <button
                   type="button"
-                  aria-label="Decrease quantity"
+                  aria-label={t.item.decreaseQuantity}
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   className="flex h-full w-9 items-center justify-center text-sm text-zinc-500 hover:text-foreground"
                 >
@@ -233,7 +235,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
                 <span className="w-6 text-center text-sm font-medium tabular-nums">{quantity}</span>
                 <button
                   type="button"
-                  aria-label="Increase quantity"
+                  aria-label={t.item.increaseQuantity}
                   onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
                   className="flex h-full w-9 items-center justify-center text-sm text-zinc-500 hover:text-foreground"
                 >
@@ -248,7 +250,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
                 className="flex h-10 flex-1 items-center justify-center gap-1.5 bg-foreground text-sm font-medium text-background transition-transform hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
               >
                 <span aria-hidden>+</span>
-                Add to cart
+                {t.item.addToCart}
               </button>
             </div>
           )}

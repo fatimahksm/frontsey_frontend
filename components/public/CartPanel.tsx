@@ -7,6 +7,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Select } from "@/components/ui/Select";
 import { TextField } from "@/components/ui/TextField";
 import type { PublicDeliveryArea } from "@/lib/api/types";
+import { useLocale } from "@/lib/i18n/LocaleContext";
 import { cartSubtotal, lineTotal, type CartLine } from "@/lib/site/cart";
 import { formatMoney } from "@/lib/format";
 import type { Customer } from "@/lib/site/whatsapp";
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout }: Props) {
+  const { t } = useLocale();
   const [deliveryAreaId, setDeliveryAreaId] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -38,15 +40,15 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
   function handleCheckout() {
     setError(null);
     if (lines.length === 0) {
-      setError("Your cart is empty.");
+      setError(t.cart.cartIsEmpty);
       return;
     }
     if (!name.trim() || !phone.trim()) {
-      setError("Please enter your name and phone number.");
+      setError(t.cart.pleaseEnterNamePhone);
       return;
     }
     if (deliveryArea && subtotal < deliveryArea.minimumOrder) {
-      setError(`Minimum order for ${deliveryArea.name} is ${formatMoney(deliveryArea.minimumOrder, currency)}.`);
+      setError(t.cart.minimumOrderFor(deliveryArea.name, formatMoney(deliveryArea.minimumOrder, currency)));
       return;
     }
     onCheckout({ name: name.trim(), phone: phone.trim(), address: address.trim() }, deliveryArea, deliveryFee);
@@ -62,7 +64,7 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
         <span aria-hidden className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--accent-solid)]/10 text-2xl">
           🛒
         </span>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">Your cart is empty. Add items from the menu to get started.</p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">{t.cart.cartIsEmptyBody}</p>
       </motion.div>
     );
   }
@@ -70,9 +72,9 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
   return (
     <motion.div layout className="flex flex-col gap-5 rounded-2xl border border-black/[.08] bg-surface p-5 shadow-lift dark:border-white/[.145]">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold tracking-tight">Your order</h3>
+        <h3 className="text-base font-semibold tracking-tight">{t.cart.yourOrder}</h3>
         <span className="rounded-full bg-[var(--accent-solid)]/10 px-2.5 py-1 text-xs font-medium text-[var(--accent-solid)]">
-          {itemCount} {itemCount === 1 ? "item" : "items"}
+          {itemCount} {itemCount === 1 ? t.cart.itemSingular : t.cart.itemsPlural}
         </span>
       </div>
       {error && <Alert tone="error">{error}</Alert>}
@@ -109,11 +111,11 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
                   <span className="text-sm font-medium">{formatMoney(lineTotal(line), currency)}</span>
                   <button
                     type="button"
-                    aria-label={`Remove ${line.itemName}`}
+                    aria-label={t.cart.removeAria(line.itemName)}
                     className="text-xs text-zinc-400 hover:text-red-600"
                     onClick={() => onRemove(line.key)}
                   >
-                    Remove
+                    {t.cart.remove}
                   </button>
                 </div>
               </div>
@@ -123,8 +125,8 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
       </ul>
 
       {deliveryAreas.length > 0 && (
-        <Select id="deliveryArea" label="Delivery area" value={deliveryAreaId} onChange={(e) => setDeliveryAreaId(e.target.value)}>
-          <option value="">Pickup / not selected</option>
+        <Select id="deliveryArea" label={t.cart.deliveryArea} value={deliveryAreaId} onChange={(e) => setDeliveryAreaId(e.target.value)}>
+          <option value="">{t.cart.pickupNotSelected}</option>
           {deliveryAreas.map((area) => (
             <option key={area.id} value={area.id}>
               {area.name} - {formatMoney(area.fee, currency)}
@@ -135,30 +137,30 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
 
       <div className="flex flex-col gap-1.5 rounded-xl bg-[var(--accent-solid)]/5 p-3.5 text-sm">
         <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
-          <span>Subtotal</span>
+          <span>{t.cart.subtotal}</span>
           <span>{formatMoney(subtotal, currency)}</span>
         </div>
         {deliveryArea && (
           <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
-            <span>Delivery</span>
+            <span>{t.cart.delivery}</span>
             <span>{formatMoney(deliveryFee, currency)}</span>
           </div>
         )}
         <div className="flex justify-between border-t border-[var(--accent-solid)]/15 pt-1.5 text-base font-semibold">
-          <span>Total</span>
+          <span>{t.cart.total}</span>
           <span>{formatMoney(subtotal + deliveryFee, currency)}</span>
         </div>
       </div>
 
       <div className="flex flex-col gap-3 border-t border-black/[.06] pt-4 dark:border-white/[.1]">
-        <TextField id="customerName" label="Your name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" />
-        <TextField id="customerPhone" label="Phone number" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+961 70 123 456" />
+        <TextField id="customerName" label={t.cart.yourName} value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" />
+        <TextField id="customerPhone" label={t.cart.phoneNumber} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+961 70 123 456" />
         <TextField
           id="customerAddress"
-          label="Delivery address (optional)"
+          label={t.cart.deliveryAddressOptional}
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          placeholder="Street, building, floor"
+          placeholder={t.cart.streetBuildingFloor}
         />
         <motion.button
           whileHover={{ scale: 1.02 }}
@@ -169,7 +171,7 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
           className="flex h-12 items-center justify-center gap-2 bg-emerald-600 text-sm font-semibold text-white shadow-soft hover:bg-emerald-700 hover:shadow-lift"
         >
           <span aria-hidden>💬</span>
-          Order via WhatsApp
+          {t.cart.orderViaWhatsApp}
         </motion.button>
       </div>
     </motion.div>

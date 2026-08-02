@@ -7,19 +7,10 @@ import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { DynamicSections } from "@/components/public/DynamicSections";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
+import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
-
-const DAY_LABELS: Record<string, string> = {
-  MONDAY: "Mon",
-  TUESDAY: "Tue",
-  WEDNESDAY: "Wed",
-  THURSDAY: "Thu",
-  FRIDAY: "Fri",
-  SATURDAY: "Sat",
-  SUNDAY: "Sun",
-};
 
 const SECTION_HEADING = "mb-10 text-center text-2xl font-bold tracking-tight text-white";
 const SECTION_UNDERLINE = "mx-auto mt-2 h-1 w-10 rounded-full bg-[var(--accent-solid)]";
@@ -60,6 +51,7 @@ function OrbitBadge({ monogram }: { monogram: string }) {
  * Services and Work as their own sections, closing with Contact.
  */
 export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
+  const { t, dir } = useLocale();
   const whatsappNumber = site.profile?.whatsappNumber;
   const inquiryMessage = `Hi ${site.businessName}, I'm interested in your services.`;
   const content = parseDraftContent(site.publishedContent);
@@ -68,14 +60,14 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
   const monogram = site.businessName.trim().charAt(0).toUpperCase() || "?";
 
   const navLinks = [
-    { href: "#home", label: "Home" },
-    ...(hasServices ? [{ href: "#services", label: "Services" }] : []),
-    ...(hasGallery ? [{ href: "#work", label: "Work" }] : []),
-    { href: "#contact", label: "Contact" },
+    { href: "#home", label: t.nav.home },
+    ...(hasServices ? [{ href: "#services", label: t.nav.services }] : []),
+    ...(hasGallery ? [{ href: "#work", label: t.nav.work }] : []),
+    { href: "#contact", label: t.nav.contact },
   ];
 
   return (
-    <div className="flex flex-1 flex-col bg-zinc-950 text-white" style={themeCssVars(site.theme, content.brandColor)}>
+    <div dir={dir} className="flex flex-1 flex-col bg-zinc-950 text-white" style={themeCssVars(site.theme, content.brandColor)}>
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-zinc-950/80 px-6 py-4 backdrop-blur">
         <span className="font-semibold tracking-tight">{site.businessName}</span>
         <nav className="hidden items-center gap-6 text-sm text-zinc-300 sm:flex">
@@ -92,7 +84,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
             style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
             className="bg-[var(--accent-solid)] px-4 py-2 text-xs font-medium text-white transition-transform hover:scale-105"
           >
-            Contact
+            {t.nav.contact}
           </a>
         )}
       </header>
@@ -152,7 +144,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
                   style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
                   className="bg-[var(--accent-solid)] px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-105"
                 >
-                  View services
+                  {t.hero.viewServices}
                 </a>
               )}
               {whatsappNumber && (
@@ -162,7 +154,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
                   style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
                   className="border border-white/20 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
                 >
-                  Contact us
+                  {t.hero.contactUs}
                 </a>
               )}
               {hasGallery && (
@@ -171,7 +163,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
                   style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
                   className="border border-white/20 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
                 >
-                  View work
+                  {t.hero.viewWork}
                 </a>
               )}
             </motion.div>
@@ -185,7 +177,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="pointer-events-none absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-[10px] uppercase tracking-widest text-zinc-500"
         >
-          Scroll
+          {t.hero.scroll}
           <motion.span
             animate={{ scaleY: [0.3, 1, 0.3], opacity: [0.3, 1, 0.3] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
@@ -199,7 +191,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
           <div className="flex-1">
             <Reveal>
               <h2 className={`${SECTION_HEADING} text-left`}>
-                About
+                {t.section.about}
                 <span className={`${SECTION_UNDERLINE} ml-0`} />
               </h2>
               {site.profile?.description && <p className="max-w-md text-zinc-400">{site.profile.description}</p>}
@@ -207,10 +199,10 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
           </div>
           <StaggerGroup className="grid flex-1 grid-cols-2 gap-4">
             {[
-              hasServices && { label: "Services", value: `${site.services.length}+` },
-              hasGallery && { label: "Photos", value: `${site.galleryImageUrls.length}` },
-              site.openingHours.some((h) => h.open) && { label: "Open days", value: `${site.openingHours.filter((h) => h.open).length}` },
-              whatsappNumber && { label: "Booking", value: "WhatsApp" },
+              hasServices && { label: t.stats.services, value: `${site.services.length}+` },
+              hasGallery && { label: t.stats.photos, value: `${site.galleryImageUrls.length}` },
+              site.openingHours.some((h) => h.open) && { label: t.stats.openDays, value: `${site.openingHours.filter((h) => h.open).length}` },
+              whatsappNumber && { label: t.stats.booking, value: "WhatsApp" },
             ]
               .filter((stat): stat is { label: string; value: string } => Boolean(stat))
               .map((stat) => (
@@ -233,7 +225,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
           <div className="mx-auto w-full max-w-5xl">
             <Reveal>
               <h2 className={SECTION_HEADING}>
-                Services
+                {t.section.services}
                 <span className={SECTION_UNDERLINE} />
               </h2>
             </Reveal>
@@ -258,7 +250,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
                       <p className="font-semibold">{service.name}</p>
                       {service.description && <p className="mt-1 text-sm text-zinc-400">{service.description}</p>}
                       <p className="mt-3 inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-[var(--accent-solid)]">
-                        {service.price != null ? formatMoney(service.price, site.currency) : "Priced on request"}
+                        {service.price != null ? formatMoney(service.price, site.currency) : t.item.pricedOnRequest}
                       </p>
                     </div>
                   </motion.div>
@@ -274,7 +266,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
           <div className="mx-auto w-full max-w-5xl">
             <Reveal>
               <h2 className={SECTION_HEADING}>
-                Work
+                {t.section.work}
                 <span className={SECTION_UNDERLINE} />
               </h2>
             </Reveal>
@@ -301,7 +293,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
         <section className="mx-auto w-full max-w-5xl px-6 py-8 text-xs text-zinc-500 sm:px-12">
           {Object.entries(site.profile?.policies ?? {}).map(([key, policyContent]) => (
             <details key={key}>
-              <summary className="cursor-pointer font-medium">{key.charAt(0) + key.slice(1).toLowerCase()} policy</summary>
+              <summary className="cursor-pointer font-medium">{t.policy[key.toLowerCase() as keyof typeof t.policy]}</summary>
               <p className="mt-2 whitespace-pre-wrap">{policyContent}</p>
             </details>
           ))}
@@ -309,23 +301,23 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
       )}
 
       <Reveal id="contact" as="section" className="px-6 py-16 text-center sm:px-12">
-        <h2 className="text-2xl font-bold tracking-tight">Get in touch</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{t.contact.getInTouch}</h2>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-sm text-zinc-400">
           {site.profile?.phone && <span>{site.profile.phone}</span>}
           {site.profile?.address && <span>{site.profile.address}</span>}
           {site.profile?.googleMapsUrl && (
             <a href={site.profile.googleMapsUrl} target="_blank" className="hover:text-white hover:underline">
-              Map
+              {t.contact.map}
             </a>
           )}
           {site.profile?.instagramUrl && (
             <a href={site.profile.instagramUrl} target="_blank" className="hover:text-white hover:underline">
-              Instagram
+              {t.contact.instagram}
             </a>
           )}
           {site.profile?.tiktokUrl && (
             <a href={site.profile.tiktokUrl} target="_blank" className="hover:text-white hover:underline">
-              TikTok
+              {t.contact.tiktok}
             </a>
           )}
         </div>
@@ -334,7 +326,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
           <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-zinc-500">
             {site.openingHours.map((h) => (
               <span key={h.dayOfWeek}>
-                {DAY_LABELS[h.dayOfWeek] ?? h.dayOfWeek}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : "Closed"}
+                {t.hours.dayShort[h.dayOfWeek] ?? h.dayOfWeek}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : t.hours.closed}
               </span>
             ))}
           </div>
@@ -349,7 +341,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
             style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
             className="mt-6 inline-flex items-center bg-[var(--accent-solid)] px-6 py-3 text-sm font-medium text-white"
           >
-            Contact us on WhatsApp
+            {t.contact.contactUsOnWhatsApp}
           </motion.a>
         )}
       </Reveal>

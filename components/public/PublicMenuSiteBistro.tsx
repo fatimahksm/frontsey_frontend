@@ -11,6 +11,7 @@ import { PublicMenuItemCard } from "@/components/public/PublicMenuItemCard";
 import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types";
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
+import { useLocale } from "@/lib/i18n/LocaleContext";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCardStyle, themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
@@ -28,6 +29,7 @@ function slugifyId(value: string): string {
  * filters, and a card-grid menu.
  */
 export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsiteResponse; onFirstView(itemId: string): void }) {
+  const { t, dir } = useLocale();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
 
@@ -69,7 +71,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50" style={themeCssVars(site.theme, content.brandColor)}>
+    <div dir={dir} className="flex flex-1 flex-col bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50" style={themeCssVars(site.theme, content.brandColor)}>
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-black/[.06] bg-white/80 px-6 py-4 backdrop-blur sm:px-12 dark:border-white/[.08] dark:bg-zinc-950/80">
         <div className="flex items-center gap-2">
           {site.profile?.logoUrl ? (
@@ -83,7 +85,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
           <span className="font-semibold tracking-tight">{site.businessName}</span>
         </div>
         <a href="#menu" className="hidden text-sm sm:inline">
-          Menu
+          {t.nav.menu}
         </a>
       </header>
 
@@ -106,7 +108,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                   style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
                   className="inline-flex items-center gap-2 bg-foreground px-6 py-3 text-sm font-medium text-background transition-transform hover:scale-105"
                 >
-                  View menu
+                  {t.hero.viewMenu}
                 </a>
               )}
               {whatsappNumber && (
@@ -116,7 +118,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                   style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
                   className="inline-flex items-center gap-2 bg-[#25D366] px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-105"
                 >
-                  Order on WhatsApp
+                  {t.hero.orderOnWhatsApp}
                 </a>
               )}
             </div>
@@ -168,8 +170,8 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
         <section className="px-6 py-10 sm:px-12">
           <div className="mx-auto w-full max-w-6xl">
             <Reveal>
-              <h2 className="text-2xl font-bold">Combo Boxes</h2>
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Curated meals, better value.</p>
+              <h2 className="text-2xl font-bold">{t.bistro.comboBoxesTitle}</h2>
+              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{t.bistro.comboBoxesSubtitle}</p>
             </Reveal>
             <StaggerGroup className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {comboItems.map((item) => (
@@ -243,17 +245,17 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                 {site.profile?.address && <span>{site.profile.address}</span>}
                 {site.profile?.googleMapsUrl && (
                   <a href={site.profile.googleMapsUrl} target="_blank" className="hover:underline">
-                    Map
+                    {t.contact.map}
                   </a>
                 )}
                 {site.profile?.instagramUrl && (
                   <a href={site.profile.instagramUrl} target="_blank" className="hover:underline">
-                    Instagram
+                    {t.contact.instagram}
                   </a>
                 )}
                 {site.profile?.tiktokUrl && (
                   <a href={site.profile.tiktokUrl} target="_blank" className="hover:underline">
-                    TikTok
+                    {t.contact.tiktok}
                   </a>
                 )}
               </div>
@@ -261,7 +263,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
                   {site.openingHours.map((h) => (
                     <span key={h.dayOfWeek}>
-                      {h.dayOfWeek.slice(0, 3)}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : "Closed"}
+                      {t.hours.dayShort[h.dayOfWeek] ?? h.dayOfWeek}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : t.hours.closed}
                     </span>
                   ))}
                 </div>
@@ -276,7 +278,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
           <footer className="mt-10 flex flex-col gap-4 border-t border-black/[.06] pt-6 text-xs text-zinc-500 dark:border-white/[.1]">
             {Object.entries(site.profile?.policies ?? {}).map(([key, policyContent]) => (
               <details key={key}>
-                <summary className="cursor-pointer font-medium">{key.charAt(0) + key.slice(1).toLowerCase()} policy</summary>
+                <summary className="cursor-pointer font-medium">{t.policy[key.toLowerCase() as keyof typeof t.policy]}</summary>
                 <p className="mt-2 whitespace-pre-wrap">{policyContent}</p>
               </details>
             ))}
@@ -296,7 +298,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
             style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
             className="fixed bottom-5 right-5 z-40 flex h-14 items-center gap-2 bg-[#25D366] px-5 text-sm font-medium text-white shadow-lift"
           >
-            🛒 Cart{cartCount > 0 ? ` (${cartCount})` : ""}
+            🛒 {t.cart.cart}{cartCount > 0 ? ` (${cartCount})` : ""}
           </motion.button>
 
           <AnimatePresence>
@@ -317,7 +319,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                   className="fixed right-0 top-0 z-50 h-full w-full max-w-sm overflow-y-auto bg-background p-4 shadow-lift"
                 >
                   <button type="button" onClick={() => setCartOpen(false)} className="mb-3 text-sm text-zinc-500 hover:underline">
-                    ← Close
+                    {dir === "rtl" ? `${t.cart.close} →` : `← ${t.cart.close}`}
                   </button>
                   <CartPanel
                     lines={cart}

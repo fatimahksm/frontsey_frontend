@@ -7,6 +7,7 @@ import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { DynamicSections } from "@/components/public/DynamicSections";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
+import { useLocale } from "@/lib/i18n/LocaleContext";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
 import { whatsappUrl } from "@/lib/site/whatsapp";
@@ -18,12 +19,13 @@ import { whatsappUrl } from "@/lib/site/whatsapp";
  * masonry work gallery as the centerpiece. Same WhatsApp-only contact.
  */
 export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse }) {
+  const { t, dir } = useLocale();
   const whatsappNumber = site.profile?.whatsappNumber;
   const inquiryMessage = `Hi ${site.businessName}, I'm interested in your services.`;
   const content = parseDraftContent(site.publishedContent);
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden" style={themeCssVars(site.theme, content.brandColor)}>
+    <div dir={dir} className="flex flex-1 flex-col overflow-hidden" style={themeCssVars(site.theme, content.brandColor)}>
       <section className="relative overflow-hidden px-4 pb-16 pt-20 text-center">
         <div aria-hidden className="absolute -left-24 -top-24 h-72 w-72 rotate-12 rounded-[3rem] bg-gradient-accent opacity-20 blur-2xl" />
         <div aria-hidden className="absolute -right-16 top-32 h-56 w-56 -rotate-12 rounded-full bg-gradient-accent opacity-10 blur-2xl" />
@@ -80,7 +82,7 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
             style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
             className="relative mt-8 inline-flex items-center bg-emerald-600 px-6 py-3 text-sm font-medium text-white shadow-lift hover:bg-emerald-700"
           >
-            Let&apos;s talk on WhatsApp
+            {t.hero.letsTalkOnWhatsApp}
           </motion.a>
         )}
       </section>
@@ -91,7 +93,7 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
             <Reveal>
               <h2 className="mb-8 flex items-center gap-3 text-2xl font-extrabold tracking-tight">
                 <span className="h-3 w-3 rounded-full bg-gradient-accent" aria-hidden />
-                Services
+                {t.section.services}
               </h2>
             </Reveal>
             <StaggerGroup className="grid gap-5 sm:grid-cols-2">
@@ -116,7 +118,7 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
                       </p>
                     )}
                     <p className="mt-3 text-sm font-semibold">
-                      {service.price != null ? formatMoney(service.price, site.currency) : "Priced on request"}
+                      {service.price != null ? formatMoney(service.price, site.currency) : t.item.pricedOnRequest}
                     </p>
                   </motion.div>
                 </StaggerItem>
@@ -130,7 +132,7 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
             <Reveal>
               <h2 className="mb-8 flex items-center gap-3 text-2xl font-extrabold tracking-tight">
                 <span className="h-3 w-3 rotate-45 bg-gradient-accent" aria-hidden />
-                Work
+                {t.section.work}
               </h2>
             </Reveal>
             <StaggerGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -155,7 +157,7 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
           <section className="mt-16 flex flex-col gap-3 text-xs text-zinc-500">
             {Object.entries(site.profile?.policies ?? {}).map(([key, policyContent]) => (
               <details key={key}>
-                <summary className="cursor-pointer font-medium">{key.charAt(0) + key.slice(1).toLowerCase()} policy</summary>
+                <summary className="cursor-pointer font-medium">{t.policy[key.toLowerCase() as keyof typeof t.policy]}</summary>
                 <p className="mt-2 whitespace-pre-wrap">{policyContent}</p>
               </details>
             ))}
@@ -164,23 +166,23 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
       </div>
 
       <Reveal className="bg-gradient-accent px-4 py-16 text-center text-white">
-        <h2 className="text-2xl font-extrabold tracking-tight">Get in touch</h2>
+        <h2 className="text-2xl font-extrabold tracking-tight">{t.contact.getInTouch}</h2>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-sm">
           {site.profile?.phone && <span>{site.profile.phone}</span>}
           {site.profile?.address && <span>{site.profile.address}</span>}
           {site.profile?.googleMapsUrl && (
             <a href={site.profile.googleMapsUrl} target="_blank" className="hover:underline">
-              Map
+              {t.contact.map}
             </a>
           )}
           {site.profile?.instagramUrl && (
             <a href={site.profile.instagramUrl} target="_blank" className="hover:underline">
-              Instagram
+              {t.contact.instagram}
             </a>
           )}
           {site.profile?.tiktokUrl && (
             <a href={site.profile.tiktokUrl} target="_blank" className="hover:underline">
-              TikTok
+              {t.contact.tiktok}
             </a>
           )}
         </div>
@@ -194,7 +196,7 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
             style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
             className="mt-6 inline-flex items-center bg-white px-6 py-3 text-sm font-medium text-black hover:bg-white/90"
           >
-            Contact us on WhatsApp
+            {t.contact.contactUsOnWhatsApp}
           </motion.a>
         )}
       </Reveal>

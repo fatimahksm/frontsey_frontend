@@ -1,3 +1,4 @@
+import { LanguageSwitcher } from "@/components/public/LanguageSwitcher";
 import { PublicMenuSite } from "@/components/public/PublicMenuSite";
 import { PublicMenuSiteBistro } from "@/components/public/PublicMenuSiteBistro";
 import { PublicMenuSiteElegant } from "@/components/public/PublicMenuSiteElegant";
@@ -7,9 +8,9 @@ import { PublicPortfolioSiteBold } from "@/components/public/PublicPortfolioSite
 import { PublicPortfolioSiteMinimal } from "@/components/public/PublicPortfolioSiteMinimal";
 import { PublicPortfolioSiteProfile } from "@/components/public/PublicPortfolioSiteProfile";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
+import { LocaleProvider } from "@/lib/i18n/LocaleContext";
 
-/** Single dispatch point from (templateType, layoutVariant) to the actual page component - used by both the live public site and the owner preview, so they can never drift apart. */
-export function PublicSiteRenderer({ site, onFirstView }: { site: PublicWebsiteResponse; onFirstView(itemId: string): void }) {
+function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string) => void) {
   switch (site.layoutVariant) {
     case "MENU_GRID":
       return <PublicMenuSiteGrid site={site} onFirstView={onFirstView} />;
@@ -29,4 +30,21 @@ export function PublicSiteRenderer({ site, onFirstView }: { site: PublicWebsiteR
     default:
       return <PublicMenuSite site={site} onFirstView={onFirstView} />;
   }
+}
+
+/**
+ * Single dispatch point from (templateType, layoutVariant) to the actual
+ * page component - used by both the live public site and the owner
+ * preview, so they can never drift apart. Also the single place the
+ * visitor-facing LocaleProvider/LanguageSwitcher are mounted, so every
+ * consumer (public site, draft preview, wizard mock preview, admin theme
+ * preview) gets language switching for free.
+ */
+export function PublicSiteRenderer({ site, onFirstView }: { site: PublicWebsiteResponse; onFirstView(itemId: string): void }) {
+  return (
+    <LocaleProvider defaultLocale={site.primaryLanguage}>
+      {renderLayout(site, onFirstView)}
+      <LanguageSwitcher />
+    </LocaleProvider>
+  );
 }

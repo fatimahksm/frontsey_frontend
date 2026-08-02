@@ -11,6 +11,7 @@ import { PublicMenuItemCard } from "@/components/public/PublicMenuItemCard";
 import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types";
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
+import { useLocale } from "@/lib/i18n/LocaleContext";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
@@ -26,6 +27,7 @@ function slugifyId(value: string): string {
  * floating slide-in drawer instead of a fixed sidebar.
  */
 export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteResponse; onFirstView(itemId: string): void }) {
+  const { t, dir } = useLocale();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
 
@@ -59,7 +61,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
   }
 
   return (
-    <div className="flex flex-1 flex-col" style={themeCssVars(site.theme, content.brandColor)}>
+    <div dir={dir} className="flex flex-1 flex-col" style={themeCssVars(site.theme, content.brandColor)}>
       {/* A practical, app-like header (cover strip + overlapping logo, left-aligned info) - deliberately not a
           cinematic full-bleed hero, which is Portfolio's signature move. Menu sites are about getting to the
           menu fast, not a dramatic intro. */}
@@ -158,17 +160,17 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
               {site.profile?.address && <span>{site.profile.address}</span>}
               {site.profile?.googleMapsUrl && (
                 <a href={site.profile.googleMapsUrl} target="_blank" className="hover:underline">
-                  Map
+                  {t.contact.map}
                 </a>
               )}
               {site.profile?.instagramUrl && (
                 <a href={site.profile.instagramUrl} target="_blank" className="hover:underline">
-                  Instagram
+                  {t.contact.instagram}
                 </a>
               )}
               {site.profile?.tiktokUrl && (
                 <a href={site.profile.tiktokUrl} target="_blank" className="hover:underline">
-                  TikTok
+                  {t.contact.tiktok}
                 </a>
               )}
             </div>
@@ -176,7 +178,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
               <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
                 {site.openingHours.map((h) => (
                   <span key={h.dayOfWeek}>
-                    {h.dayOfWeek.slice(0, 3)}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : "Closed"}
+                    {t.hours.dayShort[h.dayOfWeek] ?? h.dayOfWeek}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : t.hours.closed}
                   </span>
                 ))}
               </div>
@@ -190,7 +192,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
           <footer className="mt-10 flex flex-col gap-4 border-t border-black/[.06] pt-6 text-xs text-zinc-500 dark:border-white/[.1]">
             {Object.entries(site.profile?.policies ?? {}).map(([key, policyContent]) => (
               <details key={key}>
-                <summary className="cursor-pointer font-medium">{key.charAt(0) + key.slice(1).toLowerCase()} policy</summary>
+                <summary className="cursor-pointer font-medium">{t.policy[key.toLowerCase() as keyof typeof t.policy]}</summary>
                 <p className="mt-2 whitespace-pre-wrap">{policyContent}</p>
               </details>
             ))}
@@ -210,7 +212,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
             style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
             className="fixed bottom-5 right-5 z-40 flex h-14 items-center gap-2 bg-gradient-accent px-5 text-sm font-medium text-white shadow-lift"
           >
-            🛒 Cart{cartCount > 0 ? ` (${cartCount})` : ""}
+            🛒 {t.cart.cart}{cartCount > 0 ? ` (${cartCount})` : ""}
           </motion.button>
 
           <AnimatePresence>
@@ -235,7 +237,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
                     onClick={() => setCartOpen(false)}
                     className="mb-3 text-sm text-zinc-500 hover:underline"
                   >
-                    ← Close
+                    {dir === "rtl" ? `${t.cart.close} →` : `← ${t.cart.close}`}
                   </button>
                   <CartPanel
                     lines={cart}

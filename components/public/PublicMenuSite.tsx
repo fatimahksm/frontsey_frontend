@@ -11,22 +11,14 @@ import { PublicMenuItemCard } from "@/components/public/PublicMenuItemCard";
 import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types";
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
+import { useLocale } from "@/lib/i18n/LocaleContext";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
 
-const DAY_LABELS: Record<string, string> = {
-  MONDAY: "Monday",
-  TUESDAY: "Tuesday",
-  WEDNESDAY: "Wednesday",
-  THURSDAY: "Thursday",
-  FRIDAY: "Friday",
-  SATURDAY: "Saturday",
-  SUNDAY: "Sunday",
-};
-
 /** The MENU_ORDERING template's public page: profile header, gallery, categorized menu, and a WhatsApp cart. */
 export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteResponse; onFirstView(itemId: string): void }) {
+  const { t, dir } = useLocale();
   const [cart, setCart] = useState<CartLine[]>([]);
 
   const content = parseDraftContent(site.publishedContent);
@@ -54,6 +46,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
 
   return (
     <div
+      dir={dir}
       className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-10 lg:flex-row lg:items-start"
       style={themeCssVars(site.theme, content.brandColor)}
     >
@@ -92,17 +85,17 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
             {site.profile?.address && <span>{site.profile.address}</span>}
             {site.profile?.googleMapsUrl && (
               <a href={site.profile.googleMapsUrl} target="_blank" className="hover:underline">
-                Map
+                {t.contact.map}
               </a>
             )}
             {site.profile?.instagramUrl && (
               <a href={site.profile.instagramUrl} target="_blank" className="hover:underline">
-                Instagram
+                {t.contact.instagram}
               </a>
             )}
             {site.profile?.tiktokUrl && (
               <a href={site.profile.tiktokUrl} target="_blank" className="hover:underline">
-                TikTok
+                {t.contact.tiktok}
               </a>
             )}
           </div>
@@ -111,7 +104,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
             <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
               {site.openingHours.map((h) => (
                 <span key={h.dayOfWeek}>
-                  {DAY_LABELS[h.dayOfWeek] ?? h.dayOfWeek}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : "Closed"}
+                  {t.hours.dayFull[h.dayOfWeek] ?? h.dayOfWeek}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : t.hours.closed}
                 </span>
               ))}
             </div>
@@ -165,7 +158,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
           <footer className="mt-10 flex flex-col gap-4 border-t border-black/[.06] pt-6 text-xs text-zinc-500 dark:border-white/[.1]">
             {Object.entries(site.profile?.policies ?? {}).map(([key, content]) => (
               <details key={key}>
-                <summary className="cursor-pointer font-medium">{key.charAt(0) + key.slice(1).toLowerCase()} policy</summary>
+                <summary className="cursor-pointer font-medium">{t.policy[key.toLowerCase() as keyof typeof t.policy]}</summary>
                 <p className="mt-2 whitespace-pre-wrap">{content}</p>
               </details>
             ))}
