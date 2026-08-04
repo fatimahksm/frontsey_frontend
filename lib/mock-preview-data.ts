@@ -133,6 +133,25 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
     services: [],
     galleryImageUrls: [],
     seo: null,
+    // Classic paints itself entirely from the theme, so its sample uses the
+    // dark "Midnight Gold" preset to show the layout as an owner would
+    // actually see it. The cart-based layouts keep the neutral default.
+    theme:
+      layoutVariant === "MENU_CLASSIC"
+        ? {
+            ...DEFAULT_THEME_CONFIG,
+            fontFamily: "MODERN_SANS",
+            headingFontFamily: "CLASSIC_SERIF",
+            primaryColor: "#f5b921",
+            secondaryColor: "#1c1c1c",
+            backgroundColor: "#0b0b0b",
+            surfaceColor: "#161616",
+            textColor: "#f5f5f5",
+            buttonStyle: "ROUNDED",
+            cardStyle: "FLAT",
+            borderRadius: 10,
+          }
+        : DEFAULT_THEME_CONFIG,
     sections: [
       {
         id: "sec1",
@@ -157,7 +176,6 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
         }),
       },
     ],
-    theme: DEFAULT_THEME_CONFIG,
   };
 }
 
