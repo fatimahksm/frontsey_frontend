@@ -1,10 +1,43 @@
-import type { LayoutVariant, PublicWebsiteResponse } from "@/lib/api/types";
+import type { LayoutVariant, PublicMenuItem, PublicWebsiteResponse } from "@/lib/api/types";
+import type { DishArt, PlateTone } from "@/lib/mock-preview-images";
+import { sampleCoverImage, sampleGalleryImages, sampleItemImage, sampleLogoImage } from "@/lib/mock-preview-images";
 import { DEFAULT_THEME_CONFIG } from "@/lib/website/theme-config";
 
-/** Sample/placeholder data (no real business's content) used purely so the layout gallery can render live, populated-looking thumbnails before an owner has entered anything of their own. */
+/**
+ * A complete sample restaurant - cover, logo, gallery, categories with
+ * sub-categories, and priced items with pictures - so an owner previewing a
+ * layout sees what their own finished website would look like, rather than a
+ * skeleton. Entirely invented content and locally drawn artwork (see
+ * mock-preview-images.ts); no real business's data.
+ */
 export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU_ELEGANT" | "MENU_BISTRO"): PublicWebsiteResponse {
+  const item = (
+    id: string,
+    name: string,
+    description: string,
+    price: number,
+    dish: DishArt,
+    tone: PlateTone,
+    extra: Partial<PublicMenuItem> = {},
+  ): PublicMenuItem => ({
+    id,
+    name,
+    description,
+    ingredients: null,
+    price,
+    discountPrice: null,
+    imageUrl: sampleItemImage(dish, tone),
+    availability: "AVAILABLE",
+    maxOrderQuantity: null,
+    fixedBoxItem: false,
+    sizes: [],
+    addonGroups: [],
+    boxVariants: [],
+    ...extra,
+  });
+
   return {
-    businessName: "Sunny Side Cafe",
+    businessName: "Sunny Side Kitchen",
     slug: "preview",
     pageMode: "ONE_PAGE",
     templateType: "MENU_ORDERING",
@@ -16,122 +49,117 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
     currency: "USD",
     publishedContent: JSON.stringify({
       heroHeading: "Fresh, fast, and friendly",
-      heroSubtitle: "Locally roasted coffee and all-day breakfast.",
+      heroSubtitle: "Burgers, fried chicken, and all-day breakfast.",
       brandColor: "#171717",
       heroBadge: "Fresh Everyday",
     }),
     profile: {
-      description: "A neighborhood cafe serving coffee, breakfast, and good vibes since 2020.",
-      logoUrl: null,
-      coverImageUrl: null,
+      description:
+        "A neighborhood kitchen serving hand-pressed burgers, crispy chicken, and proper coffee since 2020. Everything is made to order.",
+      logoUrl: sampleLogoImage(),
+      coverImageUrl: sampleCoverImage(),
       phone: "+961 70 123 456",
       whatsappNumber: "+961 70 123 456",
       email: null,
       address: "Hamra Street, Beirut",
-      googleMapsUrl: null,
-      instagramUrl: null,
+      googleMapsUrl: "https://maps.google.com",
+      instagramUrl: "https://instagram.com",
       tiktokUrl: null,
       policies: {},
     },
-    openingHours: [],
+    openingHours: [
+      { dayOfWeek: "MONDAY", open: true, opensAt: "10:00", closesAt: "23:00" },
+      { dayOfWeek: "TUESDAY", open: true, opensAt: "10:00", closesAt: "23:00" },
+      { dayOfWeek: "WEDNESDAY", open: true, opensAt: "10:00", closesAt: "23:00" },
+      { dayOfWeek: "THURSDAY", open: true, opensAt: "10:00", closesAt: "23:00" },
+      { dayOfWeek: "FRIDAY", open: true, opensAt: "10:00", closesAt: "01:00" },
+      { dayOfWeek: "SATURDAY", open: true, opensAt: "10:00", closesAt: "01:00" },
+      { dayOfWeek: "SUNDAY", open: false, opensAt: null, closesAt: null },
+    ],
     categories: [
       {
         id: "c1",
-        name: "Coffee",
+        name: "Appetizers",
+        subcategories: [],
+        items: [
+          item("i1", "French Fries Box", "Golden fries served with our homemade special sauce.", 2.78, "fries", "amber"),
+          item("i2", "Onion Rings", "Six crispy rings with honey mustard dip.", 3.6, "rings", "cream"),
+          item("i3", "Chicken Nuggets", "Five pieces served with fries and ketchup.", 4.44, "chicken", "cocoa"),
+          item("i4", "Mozzarella Sticks", "Five breaded sticks with a sweet chilli dip.", 5.0, "sticks", "ember"),
+        ],
+      },
+      {
+        id: "c2",
+        name: "Burgers",
         items: [],
-        // Sample sub-categories, so the Classic preview shows how a menu with
-        // "Coffee -> Hot / Iced" actually reads.
+        // Two sub-categories, so the preview shows how a nested menu reads.
         subcategories: [
           {
-            id: "c1a",
-            name: "Hot",
+            id: "c2a",
+            name: "Beef",
             subcategories: [],
             items: [
-              {
-                id: "i1",
-                name: "Cappuccino",
-                description: "Espresso, steamed milk, foam.",
-                ingredients: null,
-                price: 3.5,
-                discountPrice: null,
-                imageUrl: null,
-                availability: "AVAILABLE",
-                maxOrderQuantity: null,
-                fixedBoxItem: false,
-                sizes: [
-                  { id: "s1", label: "Small", price: 3.5 },
-                  { id: "s2", label: "Large", price: 4.5 },
-                ],
-                addonGroups: [],
-                boxVariants: [],
-              },
+              item("i5", "Classic Cheeseburger", "Beef patty, cheddar, iceberg, tomato, pickles, house sauce.", 6.5, "burger", "ember"),
+              item("i6", "Smokehouse Double", "Two patties, smoked cheese, caramelised onion, BBQ sauce.", 10.56, "burger", "cocoa"),
+              item("i7", "Chilli Stack", "Triple patty, jalapenos, pepper jack, chipotle mayo.", 12.4, "burger", "berry"),
             ],
           },
           {
-            id: "c1b",
-            name: "Iced",
+            id: "c2b",
+            name: "Chicken",
             subcategories: [],
             items: [
-              {
-                id: "i2",
-                name: "Iced Latte",
-                description: "Espresso over ice with cold milk.",
-                ingredients: null,
-                price: 4,
-                discountPrice: null,
-                imageUrl: null,
-                availability: "AVAILABLE",
-                maxOrderQuantity: null,
-                fixedBoxItem: false,
-                sizes: [],
-                addonGroups: [],
-                boxVariants: [],
-              },
+              item("i8", "Crispy Chicken", "Fried chicken breast, melted cheddar, iceberg, cocktail sauce.", 6.6, "chicken", "amber"),
+              item("i9", "Honey Mustard Chicken", "Dipped in honey mustard with chips sticks and cheddar.", 7.2, "chicken", "cream"),
             ],
           },
         ],
       },
       {
-        id: "c2",
+        id: "c3",
+        name: "Coffee",
+        items: [],
+        subcategories: [
+          {
+            id: "c3a",
+            name: "Hot",
+            subcategories: [],
+            items: [
+              item("i10", "Cappuccino", "Espresso, steamed milk, foam.", 3.5, "cup", "cocoa", {
+                sizes: [
+                  { id: "s1", label: "Small", price: 3.5 },
+                  { id: "s2", label: "Large", price: 4.5 },
+                ],
+              }),
+            ],
+          },
+          {
+            id: "c3b",
+            name: "Iced",
+            subcategories: [],
+            items: [item("i11", "Iced Latte", "Espresso over ice with cold milk.", 4, "cup", "cream")],
+          },
+        ],
+      },
+      {
+        id: "c4",
         name: "Breakfast",
         subcategories: [],
         items: [
-          {
-            id: "i3",
-            name: "Avocado Toast",
-            description: "Sourdough, avocado, chili flakes.",
-            ingredients: null,
-            price: 6.5,
-            discountPrice: null,
-            imageUrl: null,
-            availability: "AVAILABLE",
-            maxOrderQuantity: null,
-            fixedBoxItem: false,
-            sizes: [],
-            addonGroups: [],
-            boxVariants: [],
-          },
-          {
-            id: "i4",
-            name: "Brunch Box",
-            description: "Sandwich, cold brew, and a cookie.",
-            ingredients: null,
-            price: 9.99,
-            discountPrice: null,
-            imageUrl: null,
-            availability: "AVAILABLE",
-            maxOrderQuantity: null,
+          item("i12", "Avocado Toast", "Sourdough, smashed avocado, chilli flakes, lemon.", 6.5, "salad", "olive"),
+          item("i13", "Brunch Box", "Sandwich, cold brew, and a cookie.", 9.99, "sweet", "cream", {
             fixedBoxItem: true,
-            sizes: [],
-            addonGroups: [],
-            boxVariants: [{ id: "bv1", label: "Regular", unitCount: 1, price: 9.99 }],
-          },
+            boxVariants: [
+              { id: "bv1", label: "For one", unitCount: 1, price: 9.99 },
+              { id: "bv2", label: "To share", unitCount: 2, price: 17.5 },
+            ],
+          }),
         ],
       },
     ],
     deliveryAreas: [],
     services: [],
-    galleryImageUrls: [],
+    galleryImageUrls: sampleGalleryImages(),
     seo: null,
     // Classic paints itself entirely from the theme, so its sample uses the
     // dark "Midnight Gold" preset to show the layout as an owner would
@@ -159,7 +187,7 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
         data: JSON.stringify({
           heading: "What our customers say",
           items: [
-            { name: "Maya K.", quote: "Best cappuccino in Hamra, hands down.", imageUrl: null },
+            { name: "Maya K.", quote: "Best burger in Hamra, hands down.", imageUrl: null },
             { name: "Karim H.", quote: "Cozy spot, super friendly staff.", imageUrl: null },
           ],
         }),
