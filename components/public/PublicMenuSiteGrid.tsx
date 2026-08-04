@@ -8,6 +8,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { CartPanel } from "@/components/public/CartPanel";
 import { DynamicSections } from "@/components/public/DynamicSections";
+import { LocationCard } from "@/components/public/LocationCard";
 import { PublicMenuItemCard } from "@/components/public/PublicMenuItemCard";
 import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types";
 import type { CartLine } from "@/lib/site/cart";
@@ -72,31 +73,48 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
       {/* A practical, app-like header (cover strip + overlapping logo, left-aligned info) - deliberately not a
           cinematic full-bleed hero, which is Portfolio's signature move. Menu sites are about getting to the
           menu fast, not a dramatic intro. */}
-      <div className="relative h-40 w-full overflow-hidden bg-surface-muted sm:h-52">
+      <div className="relative h-44 w-full overflow-hidden bg-surface-muted sm:h-60">
         {site.profile?.coverImageUrl && (
-          <SafeImage src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
+          <SafeImage src={site.profile.coverImageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
         )}
+        {/* Scrim along the bottom edge. The cover is an arbitrary owner photo,
+            so the logo that overlaps it needs a predictable tone to sit
+            against - without this it can land on a bright highlight and lose
+            its own border. */}
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent" />
       </div>
-      <div className="mx-auto w-full max-w-6xl px-4 pb-4">
-        <div className="-mt-10 flex items-end gap-4 sm:-mt-12">
-          {site.profile?.logoUrl ? (
-            <SafeImage
-              src={site.profile.logoUrl}
-              alt=""
-              className="h-20 w-20 shrink-0 rounded-2xl border-4 border-background object-cover shadow-lift sm:h-24 sm:w-24"
-            />
-          ) : (
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-4 border-background bg-gradient-accent text-2xl font-semibold text-white shadow-lift sm:h-24 sm:w-24">
-              {site.businessName.charAt(0)}
-            </div>
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className="mx-auto w-full max-w-6xl px-4 pb-5"
+      >
+        {/* Only the logo overlaps the cover. The name used to be pulled up
+            alongside it, which laid dark heading text over the photo and left
+            it half-legible on anything but a pale cover. */}
+        {site.profile?.logoUrl ? (
+          <SafeImage
+            src={site.profile.logoUrl}
+            alt=""
+            className="-mt-11 h-24 w-24 rounded-2xl border-4 border-background object-cover shadow-lift sm:-mt-14 sm:h-28 sm:w-28"
+          />
+        ) : (
+          <div className="-mt-11 flex h-24 w-24 items-center justify-center rounded-2xl border-4 border-background bg-gradient-accent text-2xl font-semibold text-white shadow-lift sm:-mt-14 sm:h-28 sm:w-28">
+            {site.businessName.charAt(0)}
+          </div>
+        )}
+        <div className="mt-3 min-w-0">
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl" style={themeHeadingStyle()}>
+            {site.businessName}
+          </h1>
+          {content.heroHeading && (
+            <p className="mt-1 text-sm font-medium text-[var(--accent-solid)] sm:text-base">{content.heroHeading}</p>
           )}
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="min-w-0 pb-2">
-            <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl" style={themeHeadingStyle()}>{site.businessName}</h1>
-            {content.heroHeading && <p className="mt-0.5 truncate text-sm font-medium text-[var(--accent-solid)]">{content.heroHeading}</p>}
-          </motion.div>
+          {content.heroSubtitle && (
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">{content.heroSubtitle}</p>
+          )}
         </div>
-        {content.heroSubtitle && <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">{content.heroSubtitle}</p>}
-      </div>
+      </motion.div>
 
       {site.categories.length > 0 && (
         <div className="sticky top-0 z-30 flex flex-col gap-3 border-b border-black/[.06] bg-surface/90 px-4 py-3 backdrop-blur-md dark:border-white/[.1]">
@@ -107,16 +125,17 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
             placeholder={t.filter.searchPlaceholder}
             className="mx-auto h-10 w-full max-w-6xl rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
           />
-          <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto">
+          <div className="no-scrollbar mx-auto flex max-w-6xl snap-x snap-mandatory gap-2 overflow-x-auto">
             {visibleCategories.map((category) => (
-              <button
+              <motion.button
                 key={category.id}
                 type="button"
                 onClick={() => scrollToCategory(category.id)}
-                className="shrink-0 rounded-full border border-black/[.1] px-4 py-1.5 text-sm font-medium hover:bg-black/[.04] dark:border-white/[.16] dark:hover:bg-white/[.06]"
+                whileTap={{ scale: 0.95 }}
+                className="shrink-0 snap-start rounded-full border border-black/[.08] bg-surface px-4 py-2 text-sm font-medium shadow-soft transition-colors duration-200 hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-solid)] dark:border-white/[.12] dark:bg-white/[.04]"
               >
                 {category.name}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
@@ -124,15 +143,15 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
 
       <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
         {site.galleryImageUrls.length > 0 && (
-          <div className="mb-10 flex gap-3 overflow-x-auto pb-2">
+          <div className="no-scrollbar mb-10 flex snap-x snap-mandatory gap-3 overflow-x-auto">
             {site.galleryImageUrls.map((url) => (
               <MotionSafeImage
                 key={url}
-                whileHover={{ scale: 1.03 }}
-                transition={{ duration: 0.25 }}
+                whileHover={{ scale: 1.04 }}
+                transition={{ type: "spring", stiffness: 300, damping: 24 }}
                 src={url}
                 alt=""
-                className="h-32 w-48 shrink-0 rounded-xl object-cover shadow-soft"
+                className="h-36 w-52 shrink-0 snap-start rounded-2xl object-cover shadow-soft"
               />
             ))}
           </div>
@@ -169,34 +188,33 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
           site.profile?.phone ||
           site.profile?.address ||
           site.openingHours.length > 0) && (
-          <Reveal as="section" className="mt-16 rounded-2xl border border-black/[.08] p-6 text-sm dark:border-white/[.145]">
-            {site.profile?.description && <p className="mb-3 text-zinc-600 dark:text-zinc-400">{site.profile.description}</p>}
-            <div className="flex flex-wrap gap-3 text-zinc-600 dark:text-zinc-400">
-              {site.profile?.phone && <span>{site.profile.phone}</span>}
-              {site.profile?.address && <span>{site.profile.address}</span>}
-              {site.profile?.googleMapsUrl && (
-                <a href={site.profile.googleMapsUrl} target="_blank" className="hover:underline">
-                  {t.contact.map}
-                </a>
-              )}
-              {site.profile?.instagramUrl && (
-                <a href={site.profile.instagramUrl} target="_blank" className="hover:underline">
-                  {t.contact.instagram}
-                </a>
-              )}
-              {site.profile?.tiktokUrl && (
-                <a href={site.profile.tiktokUrl} target="_blank" className="hover:underline">
-                  {t.contact.tiktok}
-                </a>
-              )}
-            </div>
-            {site.openingHours.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
-                {site.openingHours.map((h) => (
-                  <span key={h.dayOfWeek}>
-                    {t.hours.dayShort[h.dayOfWeek] ?? h.dayOfWeek}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : t.hours.closed}
-                  </span>
-                ))}
+          <Reveal as="section" className="mt-16 flex flex-col gap-5">
+            {site.profile?.description && (
+              <p className="max-w-3xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{site.profile.description}</p>
+            )}
+            {site.profile && <LocationCard profile={site.profile} openingHours={site.openingHours} />}
+            {(site.profile?.instagramUrl || site.profile?.tiktokUrl) && (
+              <div className="flex flex-wrap gap-2">
+                {site.profile?.instagramUrl && (
+                  <a
+                    href={site.profile.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-full border border-black/[.08] px-4 py-2 text-sm font-medium transition-colors hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-solid)] dark:border-white/[.12]"
+                  >
+                    {t.contact.instagram}
+                  </a>
+                )}
+                {site.profile?.tiktokUrl && (
+                  <a
+                    href={site.profile.tiktokUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-full border border-black/[.08] px-4 py-2 text-sm font-medium transition-colors hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-solid)] dark:border-white/[.12]"
+                  >
+                    {t.contact.tiktok}
+                  </a>
+                )}
               </div>
             )}
           </Reveal>

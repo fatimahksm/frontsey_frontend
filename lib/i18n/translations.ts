@@ -55,9 +55,16 @@ export interface Dictionary {
     map: string;
     instagram: string;
     tiktok: string;
+    findUs: string;
+    openInMaps: string;
+    callUs: string;
   };
   hours: {
     closed: string;
+    openingHours: string;
+    openNow: string;
+    closedNow: string;
+    today: string;
     dayFull: Record<string, string>;
     dayShort: Record<string, string>;
   };
@@ -148,11 +155,18 @@ const en: Dictionary = {
     haveProjectInMind: "Have a project in mind or just want to say hello? Feel free to reach out.",
     allRightsReserved: "All rights reserved.",
     map: "Map",
+    findUs: "Find us",
+    openInMaps: "Open in Maps",
+    callUs: "Call us",
     instagram: "Instagram",
     tiktok: "TikTok",
   },
   hours: {
     closed: "Closed",
+    openingHours: "Opening hours",
+    openNow: "Open now",
+    closedNow: "Closed now",
+    today: "Today",
     dayFull: { MONDAY: "Monday", TUESDAY: "Tuesday", WEDNESDAY: "Wednesday", THURSDAY: "Thursday", FRIDAY: "Friday", SATURDAY: "Saturday", SUNDAY: "Sunday" },
     dayShort: { MONDAY: "Mon", TUESDAY: "Tue", WEDNESDAY: "Wed", THURSDAY: "Thu", FRIDAY: "Fri", SATURDAY: "Sat", SUNDAY: "Sun" },
   },
@@ -227,11 +241,18 @@ const fr: Dictionary = {
     haveProjectInMind: "Vous avez un projet en tête ou voulez juste dire bonjour ? N'hésitez pas à nous contacter.",
     allRightsReserved: "Tous droits réservés.",
     map: "Carte",
+    findUs: "Nous trouver",
+    openInMaps: "Ouvrir dans Maps",
+    callUs: "Appelez-nous",
     instagram: "Instagram",
     tiktok: "TikTok",
   },
   hours: {
     closed: "Fermé",
+    openingHours: "Horaires d'ouverture",
+    openNow: "Ouvert",
+    closedNow: "Fermé",
+    today: "Aujourd'hui",
     dayFull: { MONDAY: "Lundi", TUESDAY: "Mardi", WEDNESDAY: "Mercredi", THURSDAY: "Jeudi", FRIDAY: "Vendredi", SATURDAY: "Samedi", SUNDAY: "Dimanche" },
     dayShort: { MONDAY: "Lun", TUESDAY: "Mar", WEDNESDAY: "Mer", THURSDAY: "Jeu", FRIDAY: "Ven", SATURDAY: "Sam", SUNDAY: "Dim" },
   },
@@ -306,11 +327,18 @@ const ar: Dictionary = {
     haveProjectInMind: "هل لديك مشروع في بالك أو تريد فقط أن تقول مرحباً؟ لا تتردد بالتواصل معنا.",
     allRightsReserved: "جميع الحقوق محفوظة.",
     map: "الخريطة",
+    findUs: "موقعنا",
+    openInMaps: "افتح في الخرائط",
+    callUs: "اتصل بنا",
     instagram: "إنستغرام",
     tiktok: "تيك توك",
   },
   hours: {
     closed: "مغلق",
+    openingHours: "ساعات العمل",
+    openNow: "مفتوح الآن",
+    closedNow: "مغلق الآن",
+    today: "اليوم",
     dayFull: { MONDAY: "الإثنين", TUESDAY: "الثلاثاء", WEDNESDAY: "الأربعاء", THURSDAY: "الخميس", FRIDAY: "الجمعة", SATURDAY: "السبت", SUNDAY: "الأحد" },
     dayShort: { MONDAY: "إثنين", TUESDAY: "ثلاثاء", WEDNESDAY: "أربعاء", THURSDAY: "خميس", FRIDAY: "جمعة", SATURDAY: "سبت", SUNDAY: "أحد" },
   },

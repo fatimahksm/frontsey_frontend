@@ -89,3 +89,14 @@ body {
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
+
+/* Horizontal strips (gallery, category chips) scroll by swipe or wheel. The
+   native bar is a heavy grey slab across the design on Windows, and these
+   strips are visibly scrollable from their overflowing content, so hide it. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

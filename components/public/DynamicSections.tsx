@@ -104,28 +104,47 @@ function TestimonialsBlock({ tone, data }: { tone: SectionTone; data: Testimonia
     );
   }
 
-  const cardClass =
-    tone === "hero"
-      ? "h-full rounded-2xl border border-white/10 bg-white/5 p-5"
-      : tone === "bold"
-        ? "h-full rounded-2xl border border-black/[.08] bg-surface p-5 shadow-soft dark:border-white/[.145]"
-        : "h-full rounded-xl border border-black/[.08] p-4 dark:border-white/[.145]";
+  const dark = tone === "hero";
+  const cardClass = dark
+    ? "border-white/10 bg-white/[.04] hover:border-white/20"
+    : "border-black/[.07] bg-surface hover:border-black/[.14] dark:border-white/[.1] dark:bg-white/[.03] dark:hover:border-white/25";
 
   return (
     <StaggerGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {data.items.map((item, i) => (
         <StaggerItem key={i}>
-          <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }} className={cardClass}>
-            <p className={`text-sm italic ${tone === "hero" ? "text-zinc-300" : "text-zinc-600 dark:text-zinc-400"}`}>
-              &ldquo;{item.quote}&rdquo;
-            </p>
-            <div className="mt-3 flex items-center gap-2">
-              {item.imageUrl && (
-                <SafeImage src={item.imageUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
+          <motion.figure
+            whileHover={{ y: -4 }}
+            transition={{ type: "spring", stiffness: 320, damping: 26 }}
+            className={`relative flex h-full flex-col gap-4 overflow-hidden rounded-2xl border p-6 shadow-soft transition-colors duration-200 ${cardClass}`}
+          >
+            {/* Oversized, clipped quote glyph as texture rather than punctuation -
+                the quote itself is not wrapped in quote marks, so this carries the
+                "testimonial" read on its own. aria-hidden: it is decoration. */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -top-6 right-3 select-none font-serif text-8xl leading-none text-[var(--accent-solid)] opacity-[0.12]"
+            >
+              &rdquo;
+            </span>
+            <blockquote className={`relative text-sm leading-relaxed ${dark ? "text-zinc-300" : "text-zinc-600 dark:text-zinc-300"}`}>
+              {item.quote}
+            </blockquote>
+            <figcaption className="mt-auto flex items-center gap-3">
+              {item.imageUrl ? (
+                <SafeImage
+                  src={item.imageUrl}
+                  alt=""
+                  className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-[var(--accent-solid)]/25"
+                />
+              ) : (
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-accent text-sm font-semibold text-white">
+                  {item.name.charAt(0).toUpperCase()}
+                </span>
               )}
-              <p className="text-xs font-semibold">{item.name}</p>
-            </div>
-          </motion.div>
+              <span className="text-sm font-semibold">{item.name}</span>
+            </figcaption>
+          </motion.figure>
         </StaggerItem>
       ))}
     </StaggerGroup>
@@ -133,20 +152,40 @@ function TestimonialsBlock({ tone, data }: { tone: SectionTone; data: Testimonia
 }
 
 function FaqBlock({ tone, data }: { tone: SectionTone; data: FaqSectionData }) {
-  const detailsClass =
-    tone === "hero"
-      ? "rounded-xl border border-white/10 bg-white/5 p-4"
-      : "rounded-xl border border-black/[.08] p-4 dark:border-white/[.145]";
-  const questionClass = tone === "hero" ? "cursor-pointer font-medium text-white" : "cursor-pointer font-medium";
-  const answerClass = tone === "hero" ? "mt-2 text-sm text-zinc-400" : "mt-2 text-sm text-zinc-500 dark:text-zinc-400";
+  const dark = tone === "hero";
+  const detailsClass = dark
+    ? "border-white/10 bg-white/[.04] hover:border-white/20 open:border-white/25 open:bg-white/[.06]"
+    : "border-black/[.07] bg-surface hover:border-black/[.14] open:border-black/[.16] dark:border-white/[.1] dark:bg-white/[.03] dark:hover:border-white/25 dark:open:border-white/30";
+  const answerClass = dark ? "text-zinc-400" : "text-zinc-500 dark:text-zinc-400";
 
   return (
     <StaggerGroup className="flex flex-col gap-3">
       {data.items.map((item, i) => (
         <StaggerItem key={i}>
-          <details className={detailsClass}>
-            <summary className={questionClass}>{item.question}</summary>
-            <p className={answerClass}>{item.answer}</p>
+          {/* <details> keeps this working without JS and gives the disclosure
+              semantics for free; the marker rules below strip the browser's
+              default triangle so the chevron can sit on the trailing edge. */}
+          <details className={`group rounded-2xl border transition-colors duration-200 ${detailsClass}`}>
+            <summary
+              className={`flex cursor-pointer list-none items-center justify-between gap-4 p-4 text-sm font-semibold [&::-webkit-details-marker]:hidden ${
+                dark ? "text-white" : ""
+              }`}
+            >
+              {item.question}
+              <svg
+                aria-hidden
+                viewBox="0 0 20 20"
+                className={`h-4 w-4 shrink-0 transition-transform duration-300 group-open:rotate-180 ${answerClass}`}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 7.5 10 12.5 15 7.5" />
+              </svg>
+            </summary>
+            <p className={`px-4 pb-4 text-sm leading-relaxed ${answerClass}`}>{item.answer}</p>
           </details>
         </StaggerItem>
       ))}
