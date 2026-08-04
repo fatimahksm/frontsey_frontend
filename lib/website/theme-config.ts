@@ -112,12 +112,32 @@ export function themeCssVars(theme: ThemeConfig, brandColorOverride?: string): C
     "--accent-from": accent,
     "--accent-to": accent,
     "--theme-secondary": theme.secondaryColor,
-    // The page's own palette. Layouts that paint themselves entirely from the
-    // theme (Classic) consume these; the others still use the app's global
-    // light/dark tokens, so exposing them here changes nothing for them.
     "--theme-background": theme.backgroundColor,
     "--theme-surface": theme.surfaceColor,
     "--theme-text": theme.textColor,
+
+    // The same palette, published under the app's own global token names.
+    //
+    // Those tokens are declared on :root and flipped by a
+    // prefers-color-scheme media query, and most layouts paint from them
+    // (bg-background, bg-surface, text-foreground) rather than from the
+    // --theme-* names above. Without this, a visitor whose device is in dark
+    // mode saw a near-black page whatever palette the owner had chosen, and
+    // editing the theme appeared to do nothing at all. Redeclaring them here
+    // scopes the owner's palette to their own site: an inline style on this
+    // element beats :root, and it beats the media query with it.
+    "--background": theme.backgroundColor,
+    "--surface": theme.surfaceColor,
+    // Nudged off the surface toward the text colour, so the "slightly recessed"
+    // shade stays recessed for a dark palette as well as a light one.
+    "--surface-muted": `color-mix(in srgb, ${theme.surfaceColor} 94%, ${theme.textColor})`,
+    "--foreground": theme.textColor,
+    "--border-subtle": `color-mix(in srgb, ${theme.textColor} 12%, transparent)`,
+
+    // body sets background/color from :root, and a descendant redeclaring the
+    // variables does not re-run that declaration - so paint them here too.
+    backgroundColor: theme.backgroundColor,
+    color: theme.textColor,
     // Derived from the text color rather than fixed greys, so secondary text
     // and hairlines stay legible whether the client picked a light or a dark
     // palette - no per-theme "is this dark?" branch anywhere in the renderer.
