@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { ThemeConfigForm } from "@/components/admin/ThemeConfigForm";
+import { ThemeConfigForm } from "@/components/theme/ThemeConfigForm";
 import { ScaledPreviewFrame } from "@/components/dashboard/ScaledPreviewFrame";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { PublicSiteRenderer } from "@/components/public/PublicSiteRenderer";

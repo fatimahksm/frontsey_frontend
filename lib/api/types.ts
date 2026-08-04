@@ -81,6 +81,8 @@ export interface WebsiteResponse {
   publishedContent: string | null;
   publishedAt: string | null;
   themeId: string | null;
+  /** This website's own theme overrides, or null when it inherits the selected preset. */
+  themeConfig: string | null;
   /** Null on action-response endpoints that don't resolve it; always set on GET /websites/{id} and /websites/accessible. */
   role: AccessRole | null;
   /** For role="MANAGER", exactly the granted permissions; empty for role="OWNER" (an owner implicitly has all of them). */
