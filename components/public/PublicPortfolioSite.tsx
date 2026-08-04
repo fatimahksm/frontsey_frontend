@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionSafeImage, SafeImage } from "@/components/public/SafeImage";
 import { motion } from "framer-motion";
 
 import { Reveal } from "@/components/motion/Reveal";
@@ -240,8 +241,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
                   >
                     <div className="flex h-32 items-center justify-center bg-gradient-accent">
                       {service.imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-                        <img src={service.imageUrl} alt="" className="h-full w-full object-cover" />
+                        <SafeImage src={service.imageUrl} alt="" className="h-full w-full object-cover" />
                       ) : (
                         <span className="text-3xl font-bold text-white/70">{service.name.charAt(0).toUpperCase()}</span>
                       )}
@@ -273,7 +273,7 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
             <StaggerGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               {site.galleryImageUrls.map((url) => (
                 <StaggerItem key={url}>
-                  <motion.img
+                  <MotionSafeImage
                     whileHover={{ scale: 1.03 }}
                     transition={{ duration: 0.3 }}
                     src={url}

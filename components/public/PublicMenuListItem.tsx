@@ -1,5 +1,6 @@
 "use client";
 
+import { SafeImage } from "@/components/public/SafeImage";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 
@@ -69,8 +70,7 @@ export function PublicMenuListItem({
           className="h-[88px] w-[88px] shrink-0 overflow-hidden"
           style={{ borderRadius: "var(--theme-radius)", background: "var(--theme-surface)" }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL */}
-          <img src={item.imageUrl} alt="" className="h-full w-full object-cover" />
+          <SafeImage src={item.imageUrl} alt="" className="h-full w-full object-cover" />
         </div>
       )}
 

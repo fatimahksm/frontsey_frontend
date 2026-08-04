@@ -1,189 +1,134 @@
 /**
- * Sample artwork for the preview/template gallery, drawn as inline SVG.
+ * Real photographs for the sample sites behind the design gallery.
  *
- * The gallery has to look like a real, photographed menu for an owner to
- * judge a layout - but a preview must not depend on the network (there is
- * none at render time, and a broken <img> would misrepresent the design) and
- * must not ship someone else's photographs. So these are flat illustrations
- * built from shapes only: no external requests, no font dependency (nothing
- * here renders text or emoji, which vary per device inside an <img>), and
- * nothing to license.
+ * An owner picking a layout is really judging whether their own business would
+ * look good in it, and flat illustrations do not answer that question - food
+ * photography and a salon interior do. These are Unsplash photos, served from
+ * Unsplash's CDN under the Unsplash License, which permits commercial use with
+ * no attribution required.
  *
- * They are deliberately illustrations rather than fake photographs, so no
- * one mistakes sample data for a real business's content.
+ * Everything renders through `SafeImage`, so a link that rots shows a neutral
+ * drawn frame rather than a broken-image glyph. That makes each entry below
+ * independently replaceable: to swap a picture, change one URL and nothing
+ * else. Keep the `photo-...` id only - `unsplashPhoto` adds the sizing.
  */
 
-function svgDataUri(svg: string): string {
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg.replace(/\s+/g, " ").trim())}`;
+/**
+ * Unsplash serves through imgix, so sizing is a query parameter rather than a
+ * separate asset. `fit=crop` matters: every consumer of these renders with
+ * `object-cover` at a fixed aspect, so cropping server-side keeps the bytes
+ * down instead of shipping a large image the browser then crops anyway.
+ */
+function unsplashPhoto(id: string, width: number, height: number): string {
+  return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&h=${height}&q=80`;
 }
 
-/** Warm, food-friendly backdrops - one per dish so a menu page doesn't look monotone. */
-const PLATE_TONES = {
-  amber: ["#f6c453", "#e08b1e"],
-  ember: ["#f0a05a", "#c2521f"],
-  olive: ["#bcd67f", "#6f9a3a"],
-  cocoa: ["#d8a273", "#8a5127"],
-  cream: ["#f3ddb4", "#d1a35e"],
-  berry: ["#f0999b", "#b93f52"],
+/** Square dish photos, sized for the menu item cards and gallery tiles. */
+const DISH_PHOTOS = {
+  friesBox: "photo-1573080496219-bb080dd4f877", // paper box of fries
+  onionRings: "photo-1639024471283-03518883512d", // stacked onion rings
+  nuggets: "photo-1562967914-608f82629710", // fried chicken pieces
+  mozzarellaSticks: "photo-1531749668029-2db88e4276c7", // breaded sticks with dip
+  cheeseburger: "photo-1568901346375-23c9450c58cd", // cheeseburger, close crop
+  doubleBurger: "photo-1550547660-d9450f859349", // double patty with fries
+  chilliBurger: "photo-1571091718767-18b5b1457add", // tall stacked burger
+  crispyChicken: "photo-1606755962773-d324e0a13086", // crispy chicken sandwich
+  honeyChicken: "photo-1513185158878-8d8c2a2a3da3", // glazed chicken burger
+  cappuccino: "photo-1572442388796-11668a67e53d", // cappuccino with latte art
+  icedLatte: "photo-1461023058943-07fcbe16d735", // iced coffee in a glass
+  avocadoToast: "photo-1541519227354-08fa5d50c44d", // avocado toast on sourdough
+  brunchBox: "photo-1499636136210-6f4ee915583e", // cookies / sweet bake
+  saladBowl: "photo-1512621776951-a57141f2eefd", // fresh salad bowl
+  pancakes: "photo-1567620905732-2d1ec7ab7445", // stacked pancakes
 } as const;
 
-export type PlateTone = keyof typeof PLATE_TONES;
-
-function plate(tone: PlateTone, art: string): string {
-  const [from, to] = PLATE_TONES[tone];
-  return svgDataUri(`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
-      <defs>
-        <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="${from}"/>
-          <stop offset="1" stop-color="${to}"/>
-        </linearGradient>
-        <radialGradient id="l" cx="0.35" cy="0.28" r="0.75">
-          <stop offset="0" stop-color="#ffffff" stop-opacity="0.45"/>
-          <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-        </radialGradient>
-      </defs>
-      <rect width="120" height="120" fill="url(#g)"/>
-      <rect width="120" height="120" fill="url(#l)"/>
-      ${art}
-    </svg>`);
-}
-
-// --- Dish illustrations, drawn on a 120x120 plate ---
-
-const BURGER = `
-  <path d="M28 46c0-16 14-26 32-26s32 10 32 26z" fill="#e8a75c"/>
-  <circle cx="48" cy="34" r="2.4" fill="#fff3dd"/><circle cx="62" cy="29" r="2.4" fill="#fff3dd"/>
-  <circle cx="75" cy="35" r="2.4" fill="#fff3dd"/>
-  <rect x="26" y="46" width="68" height="9" rx="4.5" fill="#8fbf4d"/>
-  <rect x="28" y="55" width="64" height="12" rx="5" fill="#7b4425"/>
-  <rect x="26" y="67" width="68" height="8" rx="4" fill="#ffd166"/>
-  <path d="M28 75h64c0 12-10 19-32 19s-32-7-32-19z" fill="#dd9a4e"/>`;
-
-const FRIES = `
-  <g fill="#ffd166">
-    <rect x="45" y="26" width="7" height="44" rx="3"/><rect x="56" y="20" width="7" height="50" rx="3"/>
-    <rect x="67" y="28" width="7" height="42" rx="3"/><rect x="35" y="34" width="7" height="36" rx="3"/>
-    <rect x="77" y="36" width="7" height="34" rx="3"/>
-  </g>
-  <path d="M33 62h54l-6 34H39z" fill="#d9463c"/>
-  <rect x="42" y="70" width="36" height="7" rx="3.5" fill="#f2f2f2" opacity="0.85"/>`;
-
-const CHICKEN = `
-  <g fill="#e8b465" stroke="#bd7f2e" stroke-width="2.5">
-    <path d="M30 54c5-11 21-14 29-6 7 7 3 18-6 21-11 4-28-3-23-15z"/>
-    <path d="M57 34c7-9 22-8 27 1 5 8-2 17-11 18-10 1-22-9-16-19z"/>
-    <path d="M45 78c7-10 24-10 31-1 6 8-1 17-11 18-11 1-26-7-20-17z"/>
-  </g>`;
-
-const RINGS = `
-  <g fill="none" stroke="#e8b465" stroke-width="9">
-    <circle cx="47" cy="50" r="20"/><circle cx="74" cy="70" r="15"/>
-  </g>
-  <g fill="none" stroke="#c98a34" stroke-width="2">
-    <circle cx="47" cy="50" r="24.5"/><circle cx="47" cy="50" r="15.5"/>
-    <circle cx="74" cy="70" r="19.5"/><circle cx="74" cy="70" r="10.5"/>
-  </g>`;
-
-const STICKS = `
-  <g transform="rotate(-24 60 60)">
-    <rect x="30" y="38" width="60" height="15" rx="7.5" fill="#e8b465" stroke="#bd7f2e" stroke-width="2.5"/>
-    <rect x="30" y="57" width="60" height="15" rx="7.5" fill="#e8b465" stroke="#bd7f2e" stroke-width="2.5"/>
-    <rect x="30" y="76" width="60" height="15" rx="7.5" fill="#e8b465" stroke="#bd7f2e" stroke-width="2.5"/>
-  </g>`;
-
-const CUP = `
-  <path d="M40 34h40l-5 54a6 6 0 0 1-6 5H51a6 6 0 0 1-6-5z" fill="#f6f1e7"/>
-  <rect x="36" y="26" width="48" height="10" rx="5" fill="#c0562a"/>
-  <path d="M80 46h8a10 10 0 0 1 0 20h-6" stroke="#f6f1e7" stroke-width="6" fill="none" stroke-linecap="round"/>
-  <rect x="50" y="48" width="20" height="30" rx="4" fill="#c8a37a" opacity="0.6"/>`;
-
-const SALAD = `
-  <path d="M26 58h68a34 34 0 0 1-68 0z" fill="#f6f1e7"/>
-  <circle cx="46" cy="50" r="12" fill="#8fbf4d"/><circle cx="66" cy="46" r="14" fill="#6f9a3a"/>
-  <circle cx="80" cy="54" r="9" fill="#a9d162"/><circle cx="34" cy="54" r="8" fill="#a9d162"/>
-  <circle cx="58" cy="56" r="6" fill="#d9463c"/>`;
-
-const SWEET = `
-  <circle cx="60" cy="60" r="30" fill="#d8a273"/>
-  <circle cx="50" cy="52" r="5" fill="#5b3418"/><circle cx="70" cy="56" r="4.5" fill="#5b3418"/>
-  <circle cx="58" cy="72" r="4.5" fill="#5b3418"/><circle cx="72" cy="72" r="3.5" fill="#5b3418"/>
-  <circle cx="45" cy="68" r="3.5" fill="#5b3418"/>`;
-
-const DISHES = {
-  burger: BURGER,
-  fries: FRIES,
-  chicken: CHICKEN,
-  rings: RINGS,
-  sticks: STICKS,
-  cup: CUP,
-  salad: SALAD,
-  sweet: SWEET,
-} as const;
-
-export type DishArt = keyof typeof DISHES;
+export type DishPhoto = keyof typeof DISH_PHOTOS;
 
 /** A square sample photo for one menu item. */
-export function sampleItemImage(dish: DishArt, tone: PlateTone): string {
-  return plate(tone, DISHES[dish]);
-}
-
-/** One dish placed on the cover, centred on (x, y) at the given scale. */
-function coverDish(art: string, x: number, y: number, scale: number, opacity: number, rotate = 0): string {
-  return `<g opacity="${opacity}" transform="translate(${x} ${y}) rotate(${rotate}) scale(${scale}) translate(-60 -60)">${art}</g>`;
+export function sampleItemImage(dish: DishPhoto): string {
+  return unsplashPhoto(DISH_PHOTOS[dish], 600, 600);
 }
 
 /**
- * Wide, dark sample cover for the hero. Deliberately a scattered, low-contrast
- * backdrop rather than one big centred dish: the layout lays a headline and
- * logo over the middle of this, and a single large illustration there would
- * compete with them.
+ * Wide restaurant cover for the hero. A room rather than a dish: the layouts
+ * lay a headline and logo over the middle of this, and a single large plate
+ * there would compete with them.
  */
 export function sampleCoverImage(): string {
-  return svgDataUri(`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
-      <defs>
-        <linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1">
-          <stop offset="0" stop-color="#43290f"/><stop offset="1" stop-color="#0a0806"/>
-        </linearGradient>
-        <radialGradient id="vig" cx="0.5" cy="0.45" r="0.62">
-          <stop offset="0" stop-color="#000000" stop-opacity="0.55"/>
-          <stop offset="1" stop-color="#000000" stop-opacity="0.05"/>
-        </radialGradient>
-      </defs>
-      <rect width="1200" height="800" fill="url(#bg)"/>
-      ${/* Kept within roughly x 380-820 and clear of the vertical middle: a
-            portrait viewport object-covers this wide image down to its centre
-            band, so dishes parked in the corners would never be seen on a
-            phone, and anything mid-height would sit under the headline. */ ""}
-      ${coverDish(BURGER, 415, 185, 2.1, 0.55, -12)}
-      ${coverDish(FRIES, 795, 165, 1.8, 0.48, 10)}
-      ${coverDish(CHICKEN, 785, 625, 2.0, 0.45, -8)}
-      ${coverDish(CUP, 420, 640, 1.7, 0.45, 8)}
-      ${coverDish(RINGS, 600, 95, 1.4, 0.3)}
-      ${coverDish(SALAD, 600, 725, 1.4, 0.3)}
-      <rect width="1200" height="800" fill="url(#vig)"/>
-    </svg>`);
+  return unsplashPhoto("photo-1517248135467-4c7edcad34c4", 1600, 900); // warm restaurant interior
 }
 
-/** Round sample logo. */
+/** Square sample logo - a tight crop reads as a mark at 80px. */
 export function sampleLogoImage(): string {
-  return svgDataUri(`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
-      <circle cx="60" cy="60" r="60" fill="#1c1408"/>
-      <circle cx="60" cy="60" r="46" fill="none" stroke="#f6c453" stroke-width="4"/>
-      <g transform="translate(60 62) scale(0.62) translate(-60 -60)">${BURGER}</g>
-    </svg>`);
+  return unsplashPhoto("photo-1550547660-d9450f859349", 200, 200);
 }
 
-/** Gallery strip tiles - the same illustration family, so the page reads as one set. */
+/** Gallery strip tiles for the restaurant. */
 export function sampleGalleryImages(): string[] {
   return [
-    sampleItemImage("burger", "ember"),
-    sampleItemImage("fries", "amber"),
-    sampleItemImage("chicken", "cocoa"),
-    sampleItemImage("rings", "olive"),
-    sampleItemImage("cup", "cream"),
-    sampleItemImage("sweet", "berry"),
+    sampleItemImage("cheeseburger"),
+    sampleItemImage("friesBox"),
+    sampleItemImage("crispyChicken"),
+    sampleItemImage("cappuccino"),
+    sampleItemImage("pancakes"),
+    sampleItemImage("saladBowl"),
+  ];
+}
+
+// --- People (testimonial authors, team members) ---
+
+/** Head-and-shoulders crops - these render small and round, so tight framing matters. */
+const PORTRAIT_PHOTOS = {
+  maya: "photo-1494790108377-be9c29b29330",
+  karim: "photo-1500648767791-00dcc994a43e",
+  rana: "photo-1544005313-94ddf0286df2",
+  layla: "photo-1580489944761-15a19d654956",
+  nour: "photo-1487412720507-e7ab37603c6f",
+} as const;
+
+export type PortraitPhoto = keyof typeof PORTRAIT_PHOTOS;
+
+/** A square portrait for a testimonial author or team member. */
+export function samplePortraitImage(person: PortraitPhoto): string {
+  return unsplashPhoto(PORTRAIT_PHOTOS[person], 200, 200);
+}
+
+// --- Salon sample (the portfolio layouts) ---
+
+const SALON_PHOTOS = {
+  haircut: "photo-1560066984-138dadb4c035", // stylist cutting hair
+  color: "photo-1522337360788-8b13dee7a37e", // colour being applied
+  manicure: "photo-1604654894610-df63bc536371", // manicure in progress
+  blowdry: "photo-1519699047748-de8e457a634e", // finished blow-dry
+  treatment: "photo-1595476108010-b4d1f102b1b1", // hair wash / treatment
+  interior: "photo-1521590832167-7bcbfaa6381f", // salon interior, wide
+} as const;
+
+export type SalonPhoto = keyof typeof SALON_PHOTOS;
+
+/** A square sample photo for one salon service or team member. */
+export function sampleSalonImage(photo: SalonPhoto): string {
+  return unsplashPhoto(SALON_PHOTOS[photo], 600, 600);
+}
+
+/** Wide salon cover for the portfolio hero. */
+export function sampleSalonCoverImage(): string {
+  return unsplashPhoto(SALON_PHOTOS.interior, 1600, 900);
+}
+
+/** Square salon logo. */
+export function sampleSalonLogoImage(): string {
+  return unsplashPhoto(SALON_PHOTOS.blowdry, 200, 200);
+}
+
+/** Gallery strip tiles for the salon. */
+export function sampleSalonGalleryImages(): string[] {
+  return [
+    sampleSalonImage("blowdry"),
+    sampleSalonImage("color"),
+    sampleSalonImage("haircut"),
+    sampleSalonImage("manicure"),
+    sampleSalonImage("treatment"),
+    sampleSalonImage("interior"),
   ];
 }

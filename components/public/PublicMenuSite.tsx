@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionSafeImage, SafeImage } from "@/components/public/SafeImage";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
@@ -110,8 +111,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
       >
         {hasCover && (
           <>
-            {/* eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL */}
-            <img src={site.profile!.coverImageUrl!} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <SafeImage src={site.profile!.coverImageUrl!} alt="" className="absolute inset-0 h-full w-full object-cover" />
             <div className="absolute inset-0 bg-black/45" aria-hidden />
           </>
         )}
@@ -145,8 +145,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
           className={`relative z-10 flex flex-col items-center gap-4 ${hasCover ? "my-auto" : ""}`}
         >
           {site.profile?.logoUrl && (
-            // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-            <img src={site.profile.logoUrl} alt="" className="h-24 w-24 rounded-full object-cover shadow-lift" />
+            <SafeImage src={site.profile.logoUrl} alt="" className="h-24 w-24 rounded-full object-cover shadow-lift" />
           )}
           <h1
             className={`max-w-3xl text-4xl font-semibold leading-tight tracking-tight sm:text-6xl ${heroText}`}
@@ -255,7 +254,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
       {site.galleryImageUrls.length > 0 && (
         <div className="mx-auto grid w-full max-w-3xl grid-cols-2 gap-3 px-5 py-6 sm:grid-cols-3">
           {site.galleryImageUrls.map((url) => (
-            <motion.img
+            <MotionSafeImage
               key={url}
               whileHover={{ scale: 1.03 }}
               transition={{ duration: 0.25 }}

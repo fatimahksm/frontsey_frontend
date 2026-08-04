@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionSafeImage, SafeImage } from "@/components/public/SafeImage";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
@@ -73,15 +74,13 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
           menu fast, not a dramatic intro. */}
       <div className="relative h-40 w-full overflow-hidden bg-surface-muted sm:h-52">
         {site.profile?.coverImageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-          <img src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
+          <SafeImage src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
         )}
       </div>
       <div className="mx-auto w-full max-w-6xl px-4 pb-4">
         <div className="-mt-10 flex items-end gap-4 sm:-mt-12">
           {site.profile?.logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-            <img
+            <SafeImage
               src={site.profile.logoUrl}
               alt=""
               className="h-20 w-20 shrink-0 rounded-2xl border-4 border-background object-cover shadow-lift sm:h-24 sm:w-24"
@@ -127,7 +126,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
         {site.galleryImageUrls.length > 0 && (
           <div className="mb-10 flex gap-3 overflow-x-auto pb-2">
             {site.galleryImageUrls.map((url) => (
-              <motion.img
+              <MotionSafeImage
                 key={url}
                 whileHover={{ scale: 1.03 }}
                 transition={{ duration: 0.25 }}

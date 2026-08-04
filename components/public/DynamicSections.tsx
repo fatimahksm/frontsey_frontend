@@ -1,5 +1,6 @@
 "use client";
 
+import { SafeImage } from "@/components/public/SafeImage";
 import { motion } from "framer-motion";
 
 import { Reveal } from "@/components/motion/Reveal";
@@ -78,8 +79,7 @@ function AboutBlock({ tone, data }: { tone: SectionTone; data: AboutSectionData 
   return (
     <div className={centered ? "flex flex-col items-center text-center" : "flex flex-col gap-4 sm:flex-row sm:items-center"}>
       {data.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-        <img
+        <SafeImage
           src={data.imageUrl}
           alt=""
           className={centered ? "mb-4 h-24 w-24 rounded-full object-cover shadow-soft" : "h-32 w-32 shrink-0 rounded-2xl object-cover shadow-soft"}
@@ -121,8 +121,7 @@ function TestimonialsBlock({ tone, data }: { tone: SectionTone; data: Testimonia
             </p>
             <div className="mt-3 flex items-center gap-2">
               {item.imageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-                <img src={item.imageUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
+                <SafeImage src={item.imageUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
               )}
               <p className="text-xs font-semibold">{item.name}</p>
             </div>
@@ -162,8 +161,7 @@ function TeamBlock({ tone, data }: { tone: SectionTone; data: TeamSectionData })
         <StaggerItem key={i}>
           <div className="flex flex-col items-center gap-2 text-center">
             {item.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-              <img src={item.imageUrl} alt="" className="h-20 w-20 rounded-full object-cover shadow-soft" />
+              <SafeImage src={item.imageUrl} alt="" className="h-20 w-20 rounded-full object-cover shadow-soft" />
             ) : (
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-accent text-xl font-semibold text-white">
                 {item.name.charAt(0).toUpperCase()}

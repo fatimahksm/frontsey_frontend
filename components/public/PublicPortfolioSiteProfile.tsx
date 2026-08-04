@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionSafeImage, SafeImage } from "@/components/public/SafeImage";
 import { motion } from "framer-motion";
 
 import { Reveal } from "@/components/motion/Reveal";
@@ -101,8 +102,7 @@ export function PublicPortfolioSiteProfile({ site }: { site: PublicWebsiteRespon
           >
             <div className="aspect-[4/5] w-full overflow-hidden rounded-3xl bg-[var(--theme-secondary,#f4f0fb)]">
               {site.profile?.coverImageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-                <img src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
+                <SafeImage src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
               )}
             </div>
             {content.heroBadge && (
@@ -139,8 +139,7 @@ export function PublicPortfolioSiteProfile({ site }: { site: PublicWebsiteRespon
             </Reveal>
             {site.profile?.logoUrl && (
               <Reveal delay={0.1} className="aspect-square w-full max-w-sm overflow-hidden rounded-2xl bg-[var(--theme-secondary,#f4f0fb)] sm:justify-self-end">
-                {/* eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL */}
-                <img src={site.profile.logoUrl} alt="" className="h-full w-full object-cover" />
+                <SafeImage src={site.profile.logoUrl} alt="" className="h-full w-full object-cover" />
               </Reveal>
             )}
           </div>
@@ -160,8 +159,7 @@ export function PublicPortfolioSiteProfile({ site }: { site: PublicWebsiteRespon
                   <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} style={themeCardStyle()} className="overflow-hidden bg-white dark:bg-zinc-900">
                     <div className="aspect-[4/3] w-full overflow-hidden bg-[var(--theme-secondary,#f4f0fb)]">
                       {service.imageUrl && (
-                        // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-                        <img src={service.imageUrl} alt="" className="h-full w-full object-cover" />
+                        <SafeImage src={service.imageUrl} alt="" className="h-full w-full object-cover" />
                       )}
                     </div>
                     <div className="p-4">
@@ -175,7 +173,7 @@ export function PublicPortfolioSiteProfile({ site }: { site: PublicWebsiteRespon
               ))}
               {site.galleryImageUrls.map((url) => (
                 <StaggerItem key={url}>
-                  <motion.img
+                  <MotionSafeImage
                     whileHover={{ scale: 1.02 }}
                     transition={{ duration: 0.2 }}
                     src={url}

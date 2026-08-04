@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionSafeImage, SafeImage } from "@/components/public/SafeImage";
 import { motion } from "framer-motion";
 
 import { Reveal } from "@/components/motion/Reveal";
@@ -31,7 +32,7 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
         <div aria-hidden className="absolute -right-16 top-32 h-56 w-56 -rotate-12 rounded-full bg-gradient-accent opacity-10 blur-2xl" />
 
         {site.profile?.logoUrl ? (
-          <motion.img
+          <MotionSafeImage
             initial={{ opacity: 0, rotate: -8, scale: 0.8 }}
             animate={{ opacity: 1, rotate: -4, scale: 1 }}
             transition={{ duration: 0.5 }}
@@ -108,8 +109,7 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
                     }`}
                   >
                     {service.imageUrl && (
-                      // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-                      <img src={service.imageUrl} alt="" className="mb-4 h-40 w-full rounded-2xl object-cover" />
+                      <SafeImage src={service.imageUrl} alt="" className="mb-4 h-40 w-full rounded-2xl object-cover" />
                     )}
                     <p className="text-lg font-bold">{service.name}</p>
                     {service.description && (
@@ -138,7 +138,7 @@ export function PublicPortfolioSiteBold({ site }: { site: PublicWebsiteResponse 
             <StaggerGroup className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               {site.galleryImageUrls.map((url, i) => (
                 <StaggerItem key={url} className={i % 5 === 0 ? "col-span-2 row-span-2" : ""}>
-                  <motion.img
+                  <MotionSafeImage
                     whileHover={{ scale: 1.03 }}
                     transition={{ duration: 0.3 }}
                     src={url}

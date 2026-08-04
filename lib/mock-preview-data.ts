@@ -1,14 +1,24 @@
 import type { LayoutVariant, PublicMenuItem, PublicWebsiteResponse } from "@/lib/api/types";
-import type { DishArt, PlateTone } from "@/lib/mock-preview-images";
-import { sampleCoverImage, sampleGalleryImages, sampleItemImage, sampleLogoImage } from "@/lib/mock-preview-images";
+import type { DishPhoto } from "@/lib/mock-preview-images";
+import {
+  sampleCoverImage,
+  sampleGalleryImages,
+  sampleItemImage,
+  sampleLogoImage,
+  samplePortraitImage,
+  sampleSalonCoverImage,
+  sampleSalonGalleryImages,
+  sampleSalonImage,
+  sampleSalonLogoImage,
+} from "@/lib/mock-preview-images";
 import { DEFAULT_THEME_CONFIG } from "@/lib/website/theme-config";
 
 /**
  * A complete sample restaurant - cover, logo, gallery, categories with
- * sub-categories, and priced items with pictures - so an owner previewing a
+ * sub-categories, and priced items with photographs - so an owner previewing a
  * layout sees what their own finished website would look like, rather than a
- * skeleton. Entirely invented content and locally drawn artwork (see
- * mock-preview-images.ts); no real business's data.
+ * skeleton. Invented business and content; the photography is licensed stock
+ * (see mock-preview-images.ts). No real business's data.
  */
 export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU_ELEGANT" | "MENU_BISTRO"): PublicWebsiteResponse {
   const item = (
@@ -16,8 +26,7 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
     name: string,
     description: string,
     price: number,
-    dish: DishArt,
-    tone: PlateTone,
+    dish: DishPhoto,
     extra: Partial<PublicMenuItem> = {},
   ): PublicMenuItem => ({
     id,
@@ -26,7 +35,7 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
     ingredients: null,
     price,
     discountPrice: null,
-    imageUrl: sampleItemImage(dish, tone),
+    imageUrl: sampleItemImage(dish),
     availability: "AVAILABLE",
     maxOrderQuantity: null,
     fixedBoxItem: false,
@@ -35,6 +44,19 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
     boxVariants: [],
     ...extra,
   });
+
+  /** Reused across the burgers so the preview shows a realistic add-on step. */
+  const burgerExtras = {
+    id: "ag1",
+    name: "Add extras",
+    maxSelections: 3,
+    options: [
+      { id: "ao1", name: "Extra cheddar", extraPrice: 1 },
+      { id: "ao2", name: "Crispy bacon", extraPrice: 1.75 },
+      { id: "ao3", name: "Fried egg", extraPrice: 1.25 },
+      { id: "ao4", name: "Jalapenos", extraPrice: 0.75 },
+    ],
+  };
 
   return {
     businessName: "Sunny Side Kitchen",
@@ -48,14 +70,14 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
     primaryLanguage: "en",
     currency: "USD",
     publishedContent: JSON.stringify({
-      heroHeading: "Fresh, fast, and friendly",
-      heroSubtitle: "Burgers, fried chicken, and all-day breakfast.",
+      heroHeading: "Hand-pressed burgers, all day long",
+      heroSubtitle: "Fried chicken, proper coffee, and breakfast until closing.",
       brandColor: "#171717",
-      heroBadge: "Fresh Everyday",
+      heroBadge: "Open until 11pm",
     }),
     profile: {
       description:
-        "A neighborhood kitchen serving hand-pressed burgers, crispy chicken, and proper coffee since 2020. Everything is made to order.",
+        "A neighbourhood kitchen on Hamra Street serving hand-pressed burgers, buttermilk-brined chicken, and single-origin coffee since 2020. Every order is cooked when you ask for it - nothing sits under a lamp.",
       logoUrl: sampleLogoImage(),
       coverImageUrl: sampleCoverImage(),
       phone: "+961 70 123 456",
@@ -82,10 +104,17 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
         name: "Appetizers",
         subcategories: [],
         items: [
-          item("i1", "French Fries Box", "Golden fries served with our homemade special sauce.", 2.78, "fries", "amber"),
-          item("i2", "Onion Rings", "Six crispy rings with honey mustard dip.", 3.6, "rings", "cream"),
-          item("i3", "Chicken Nuggets", "Five pieces served with fries and ketchup.", 4.44, "chicken", "cocoa"),
-          item("i4", "Mozzarella Sticks", "Five breaded sticks with a sweet chilli dip.", 5.0, "sticks", "ember"),
+          item("i1", "Loaded Fries Box", "Thick-cut fries under melted cheddar, spring onion, and our house garlic sauce.", 4.5, "friesBox", {
+            sizes: [
+              { id: "s3", label: "Regular", price: 4.5 },
+              { id: "s4", label: "Sharing", price: 7.5 },
+            ],
+          }),
+          item("i2", "Onion Rings", "Six beer-battered rings, hand-cut daily, with honey mustard for dipping.", 3.6, "onionRings"),
+          item("i3", "Chicken Nuggets", "Five buttermilk-brined pieces with fries and your choice of dip.", 5.5, "nuggets", {
+            discountPrice: 4.25,
+          }),
+          item("i4", "Mozzarella Sticks", "Five breaded sticks, pulled straight from the fryer, with sweet chilli.", 5.0, "mozzarellaSticks"),
         ],
       },
       {
@@ -99,9 +128,15 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
             name: "Beef",
             subcategories: [],
             items: [
-              item("i5", "Classic Cheeseburger", "Beef patty, cheddar, iceberg, tomato, pickles, house sauce.", 6.5, "burger", "ember"),
-              item("i6", "Smokehouse Double", "Two patties, smoked cheese, caramelised onion, BBQ sauce.", 10.56, "burger", "cocoa"),
-              item("i7", "Chilli Stack", "Triple patty, jalapenos, pepper jack, chipotle mayo.", 12.4, "burger", "berry"),
+              item("i5", "Classic Cheeseburger", "180g patty, aged cheddar, iceberg, tomato, pickles, and house sauce in a toasted brioche bun.", 6.5, "cheeseburger", {
+                addonGroups: [burgerExtras],
+              }),
+              item("i6", "Smokehouse Double", "Two patties, smoked cheese, slow-caramelised onion, and bourbon BBQ sauce.", 10.5, "doubleBurger", {
+                addonGroups: [burgerExtras],
+              }),
+              item("i7", "Chilli Stack", "Triple patty for a serious appetite - pickled jalapenos, pepper jack, chipotle mayo.", 12.4, "chilliBurger", {
+                addonGroups: [burgerExtras],
+              }),
             ],
           },
           {
@@ -109,8 +144,10 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
             name: "Chicken",
             subcategories: [],
             items: [
-              item("i8", "Crispy Chicken", "Fried chicken breast, melted cheddar, iceberg, cocktail sauce.", 6.6, "chicken", "amber"),
-              item("i9", "Honey Mustard Chicken", "Dipped in honey mustard with chips sticks and cheddar.", 7.2, "chicken", "cream"),
+              item("i8", "Crispy Chicken", "Buttermilk-brined breast fried to order, melted cheddar, iceberg, and cocktail sauce.", 6.6, "crispyChicken", {
+                addonGroups: [burgerExtras],
+              }),
+              item("i9", "Honey Mustard Chicken", "Glazed in honey mustard with crunchy chip sticks and a slice of cheddar.", 7.2, "honeyChicken"),
             ],
           },
         ],
@@ -125,7 +162,7 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
             name: "Hot",
             subcategories: [],
             items: [
-              item("i10", "Cappuccino", "Espresso, steamed milk, foam.", 3.5, "cup", "cocoa", {
+              item("i10", "Cappuccino", "Double shot of our single-origin house blend, steamed milk, and a proper foam cap.", 3.5, "cappuccino", {
                 sizes: [
                   { id: "s1", label: "Small", price: 3.5 },
                   { id: "s2", label: "Large", price: 4.5 },
@@ -137,7 +174,14 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
             id: "c3b",
             name: "Iced",
             subcategories: [],
-            items: [item("i11", "Iced Latte", "Espresso over ice with cold milk.", 4, "cup", "cream")],
+            items: [
+              item("i11", "Iced Latte", "Espresso poured over ice with cold whole milk. Oat milk on request.", 4, "icedLatte", {
+                sizes: [
+                  { id: "s5", label: "Regular", price: 4 },
+                  { id: "s6", label: "Large", price: 5 },
+                ],
+              }),
+            ],
           },
         ],
       },
@@ -146,8 +190,12 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
         name: "Breakfast",
         subcategories: [],
         items: [
-          item("i12", "Avocado Toast", "Sourdough, smashed avocado, chilli flakes, lemon.", 6.5, "salad", "olive"),
-          item("i13", "Brunch Box", "Sandwich, cold brew, and a cookie.", 9.99, "sweet", "cream", {
+          item("i12", "Avocado Toast", "Toasted sourdough, smashed avocado, chilli flakes, and a squeeze of lemon.", 6.5, "avocadoToast"),
+          item("i14", "Buttermilk Pancakes", "Three stacked pancakes with maple syrup and a knob of salted butter.", 7.25, "pancakes"),
+          item("i15", "Garden Bowl", "Leaves, cherry tomato, cucumber, avocado, and a lemon-tahini dressing.", 8.0, "saladBowl", {
+            availability: "UNAVAILABLE",
+          }),
+          item("i13", "Brunch Box", "A sandwich, a cold brew, and a cookie - packed to go.", 9.99, "brunchBox", {
             fixedBoxItem: true,
             boxVariants: [
               { id: "bv1", label: "For one", unitCount: 1, price: 9.99 },
@@ -187,8 +235,21 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
         data: JSON.stringify({
           heading: "What our customers say",
           items: [
-            { name: "Maya K.", quote: "Best burger in Hamra, hands down.", imageUrl: null },
-            { name: "Karim H.", quote: "Cozy spot, super friendly staff.", imageUrl: null },
+            {
+              name: "Maya K.",
+              quote: "Best burger in Hamra, hands down. The loaded fries are worth the trip on their own.",
+              imageUrl: samplePortraitImage("maya"),
+            },
+            {
+              name: "Karim H.",
+              quote: "Cosy spot, genuinely friendly staff, and my order is always ready when they say it will be.",
+              imageUrl: samplePortraitImage("karim"),
+            },
+            {
+              name: "Rana S.",
+              quote: "I come for the coffee and end up staying for breakfast. The pancakes are dangerous.",
+              imageUrl: samplePortraitImage("rana"),
+            },
           ],
         }),
       },
@@ -198,8 +259,10 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
         data: JSON.stringify({
           heading: "Frequently asked questions",
           items: [
-            { question: "Do you take reservations?", answer: "Walk-ins only, but we rarely have a wait." },
-            { question: "Is there parking nearby?", answer: "Street parking is available on Hamra Street." },
+            { question: "Do you take reservations?", answer: "Walk-ins only, but we rarely have a wait outside Friday evenings." },
+            { question: "Is there parking nearby?", answer: "Street parking on Hamra Street, and the public car park is a two-minute walk." },
+            { question: "Do you deliver?", answer: "Send your order on WhatsApp and we deliver anywhere within Beirut in about 30 minutes." },
+            { question: "Do you have vegetarian options?", answer: "Yes - the Garden Bowl and avocado toast, and any burger can be made with a halloumi patty." },
           ],
         }),
       },
@@ -221,32 +284,73 @@ export function mockPortfolioSite(
     currency: "USD",
     publishedContent: JSON.stringify({
       heroHeading: "Hair and beauty, done right",
-      heroSubtitle: "Book your appointment on WhatsApp.",
+      heroSubtitle: "Book your appointment on WhatsApp - most weeks we have same-day slots.",
       brandColor: "#171717",
-      heroBadge: "3+ Years Experience",
+      heroBadge: "Open 6 days a week",
     }),
     profile: {
-      description: "A boutique salon focused on modern cuts and color.",
-      logoUrl: null,
-      coverImageUrl: null,
+      description:
+        "A boutique salon in Achrafieh focused on modern cuts, lived-in colour, and hair that still looks right a month later. Two chairs, no rush, and honest advice about what will actually suit you.",
+      logoUrl: sampleSalonLogoImage(),
+      coverImageUrl: sampleSalonCoverImage(),
       phone: "+961 70 123 456",
       whatsappNumber: "+961 70 123 456",
-      email: null,
-      address: "Achrafieh, Beirut",
-      googleMapsUrl: null,
-      instagramUrl: null,
+      email: "hello@glowstudio.example",
+      address: "Sassine Square, Achrafieh, Beirut",
+      googleMapsUrl: "https://maps.google.com",
+      instagramUrl: "https://instagram.com",
       tiktokUrl: null,
       policies: {},
     },
-    openingHours: [],
+    openingHours: [
+      { dayOfWeek: "MONDAY", open: false, opensAt: null, closesAt: null },
+      { dayOfWeek: "TUESDAY", open: true, opensAt: "10:00", closesAt: "19:00" },
+      { dayOfWeek: "WEDNESDAY", open: true, opensAt: "10:00", closesAt: "19:00" },
+      { dayOfWeek: "THURSDAY", open: true, opensAt: "10:00", closesAt: "20:00" },
+      { dayOfWeek: "FRIDAY", open: true, opensAt: "10:00", closesAt: "20:00" },
+      { dayOfWeek: "SATURDAY", open: true, opensAt: "09:00", closesAt: "18:00" },
+      { dayOfWeek: "SUNDAY", open: true, opensAt: "11:00", closesAt: "16:00" },
+    ],
     categories: [],
     deliveryAreas: [],
     services: [
-      { id: "s1", name: "Haircut & Style", description: "Includes wash and blow-dry.", price: 25, imageUrl: null },
-      { id: "s2", name: "Color", description: "Full color, root touch-up, or balayage.", price: 60, imageUrl: null },
-      { id: "s3", name: "Manicure", description: null, price: 15, imageUrl: null },
+      {
+        id: "s1",
+        name: "Haircut & Style",
+        description: "Consultation, wash, cut, and a blow-dry finish. About 60 minutes.",
+        price: 25,
+        imageUrl: sampleSalonImage("haircut"),
+      },
+      {
+        id: "s2",
+        name: "Colour",
+        description: "Full colour, root touch-up, or a hand-painted balayage. Patch test 48 hours before.",
+        price: 60,
+        imageUrl: sampleSalonImage("color"),
+      },
+      {
+        id: "s3",
+        name: "Blow-dry & Waves",
+        description: "Wash and styling for an event, holds all evening.",
+        price: 20,
+        imageUrl: sampleSalonImage("blowdry"),
+      },
+      {
+        id: "s4",
+        name: "Keratin Treatment",
+        description: "Smoothing treatment for frizz-prone hair. Lasts up to three months.",
+        price: 90,
+        imageUrl: sampleSalonImage("treatment"),
+      },
+      {
+        id: "s5",
+        name: "Manicure",
+        description: "Shape, cuticle work, and a colour or clear finish.",
+        price: 15,
+        imageUrl: sampleSalonImage("manicure"),
+      },
     ],
-    galleryImageUrls: [],
+    galleryImageUrls: sampleSalonGalleryImages(),
     seo: null,
     sections: [
       {
@@ -254,8 +358,9 @@ export function mockPortfolioSite(
         type: "ABOUT",
         data: JSON.stringify({
           heading: "Our story",
-          body: "Founded in 2019, Glow Studio has been helping clients look and feel their best with modern techniques and a warm, welcoming space.",
-          imageUrl: null,
+          body:
+            "Layla opened Glow Studio in 2019 with one chair and a waiting list. Six years later it is still a small room by choice - we would rather take four clients a day and get every one of them right than run a conveyor belt.",
+          imageUrl: sampleSalonImage("interior"),
         }),
       },
       {
@@ -264,8 +369,27 @@ export function mockPortfolioSite(
         data: JSON.stringify({
           heading: "Meet the team",
           items: [
-            { name: "Layla", role: "Senior Stylist", imageUrl: null },
-            { name: "Nour", role: "Colorist", imageUrl: null },
+            { name: "Layla", role: "Founder & Senior Stylist", imageUrl: samplePortraitImage("layla") },
+            { name: "Nour", role: "Colour Specialist", imageUrl: samplePortraitImage("nour") },
+          ],
+        }),
+      },
+      {
+        id: "sec3",
+        type: "TESTIMONIALS",
+        data: JSON.stringify({
+          heading: "What our clients say",
+          items: [
+            {
+              name: "Maya K.",
+              quote: "Nour talked me out of the colour I asked for and gave me a better one. Still getting compliments.",
+              imageUrl: samplePortraitImage("maya"),
+            },
+            {
+              name: "Rana S.",
+              quote: "The only place I have been where a blow-dry actually survives Beirut humidity.",
+              imageUrl: samplePortraitImage("rana"),
+            },
           ],
         }),
       },

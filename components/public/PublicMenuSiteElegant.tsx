@@ -1,5 +1,6 @@
 "use client";
 
+import { SafeImage } from "@/components/public/SafeImage";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
@@ -69,8 +70,7 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
           className="mb-12 flex flex-col items-center text-center"
         >
           {site.profile?.logoUrl && (
-            // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-            <img src={site.profile.logoUrl} alt="" className="mb-4 h-16 w-16 rounded-full object-cover shadow-soft" />
+            <SafeImage src={site.profile.logoUrl} alt="" className="mb-4 h-16 w-16 rounded-full object-cover shadow-soft" />
           )}
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl" style={themeHeadingStyle()}>{site.businessName}</h1>
           {content.heroHeading && <p className="mt-2 text-base text-[var(--accent-solid)]">{content.heroHeading}</p>}

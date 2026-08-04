@@ -1,5 +1,6 @@
 "use client";
 
+import { SafeImage } from "@/components/public/SafeImage";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
@@ -156,8 +157,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
         <>
           {item.imageUrl && (
             <div className="aspect-[4/3] w-full overflow-hidden bg-black/[.04] dark:bg-white/[.06]">
-              {/* eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL */}
-              <img src={item.imageUrl} alt="" className="h-full w-full object-cover" />
+              <SafeImage src={item.imageUrl} alt="" className="h-full w-full object-cover" />
             </div>
           )}
           <button type="button" onClick={handleExpand} className="flex w-full items-start justify-between gap-4 p-4 text-left">

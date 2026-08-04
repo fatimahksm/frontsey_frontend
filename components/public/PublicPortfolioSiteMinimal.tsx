@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionSafeImage, SafeImage } from "@/components/public/SafeImage";
 import { motion } from "framer-motion";
 
 import { Reveal } from "@/components/motion/Reveal";
@@ -67,8 +68,7 @@ export function PublicPortfolioSiteMinimal({ site }: { site: PublicWebsiteRespon
             className="aspect-[4/3] w-full overflow-hidden rounded-2xl bg-[#ece4d8]"
           >
             {site.profile?.coverImageUrl && (
-              // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-              <img src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
+              <SafeImage src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
             )}
           </motion.div>
         </div>
@@ -79,8 +79,7 @@ export function PublicPortfolioSiteMinimal({ site }: { site: PublicWebsiteRespon
           <div className="mx-auto grid w-full max-w-6xl gap-10 sm:grid-cols-2 sm:items-center">
             <Reveal className="aspect-square w-full max-w-sm overflow-hidden rounded-2xl bg-[#ece4d8]">
               {site.profile?.logoUrl && (
-                // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-                <img src={site.profile.logoUrl} alt="" className="h-full w-full object-cover" />
+                <SafeImage src={site.profile.logoUrl} alt="" className="h-full w-full object-cover" />
               )}
             </Reveal>
             <Reveal delay={0.1}>
@@ -104,8 +103,7 @@ export function PublicPortfolioSiteMinimal({ site }: { site: PublicWebsiteRespon
                   <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
                     <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl bg-[#ece4d8]">
                       {service.imageUrl && (
-                        // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-                        <img src={service.imageUrl} alt="" className="h-full w-full object-cover" />
+                        <SafeImage src={service.imageUrl} alt="" className="h-full w-full object-cover" />
                       )}
                     </div>
                     <p className="mt-3 font-medium">{service.name}</p>
@@ -117,7 +115,7 @@ export function PublicPortfolioSiteMinimal({ site }: { site: PublicWebsiteRespon
               ))}
               {site.galleryImageUrls.map((url) => (
                 <StaggerItem key={url}>
-                  <motion.img
+                  <MotionSafeImage
                     whileHover={{ scale: 1.02 }}
                     transition={{ duration: 0.2 }}
                     src={url}

@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionSafeImage, SafeImage } from "@/components/public/SafeImage";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
@@ -83,8 +84,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-black/[.06] bg-white/80 px-6 py-4 backdrop-blur sm:px-12 dark:border-white/[.08] dark:bg-zinc-950/80">
         <div className="flex items-center gap-2">
           {site.profile?.logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-            <img src={site.profile.logoUrl} alt="" className="h-9 w-9 rounded-lg object-cover" />
+            <SafeImage src={site.profile.logoUrl} alt="" className="h-9 w-9 rounded-lg object-cover" />
           ) : (
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-accent text-sm font-semibold text-white">
               {site.businessName.charAt(0)}
@@ -140,8 +140,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
           >
             <div className="aspect-[4/3] w-full overflow-hidden rounded-3xl bg-[var(--theme-secondary,#f4f0fb)]">
               {site.profile?.coverImageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-                <img src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
+                <SafeImage src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
               )}
             </div>
             {content.heroBadge && (
@@ -162,7 +161,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
       {site.galleryImageUrls.length > 0 && (
         <div className="mx-auto mb-4 flex w-full max-w-6xl gap-3 overflow-x-auto px-6 pb-2 sm:px-12">
           {site.galleryImageUrls.map((url) => (
-            <motion.img
+            <MotionSafeImage
               key={url}
               whileHover={{ scale: 1.03 }}
               transition={{ duration: 0.25 }}
