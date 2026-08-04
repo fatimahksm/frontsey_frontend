@@ -14,7 +14,7 @@ import type { SeoMetadataRequest } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
 
 export default function SeoPage() {
-  const { website, accessToken } = useWebsite();
+  const { website, accessToken, notifyDraftChanged } = useWebsite();
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [ogImageUrl, setOgImageUrl] = useState("");
@@ -60,6 +60,7 @@ export default function SeoPage() {
       };
       await seoApi.update(accessToken, website.id, request);
       setMessage("SEO metadata updated.");
+      notifyDraftChanged();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to save SEO metadata.");
     } finally {

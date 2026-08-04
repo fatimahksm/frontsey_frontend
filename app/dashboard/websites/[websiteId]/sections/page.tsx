@@ -43,7 +43,7 @@ function summarize(section: PageSectionResponse): string {
 }
 
 export default function SectionsPage() {
-  const { website, accessToken } = useWebsite();
+  const { website, accessToken, notifyDraftChanged } = useWebsite();
   const [sections, setSections] = useState<PageSectionResponse[]>([]);
   const [mode, setMode] = useState<"list" | "pick-type" | "edit">("list");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -101,6 +101,7 @@ export default function SectionsPage() {
       }
       cancelEdit();
       await load();
+      notifyDraftChanged();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to save section.");
     } finally {
@@ -114,6 +115,7 @@ export default function SectionsPage() {
     try {
       await sectionsApi.delete(accessToken, website.id, id);
       await load();
+      notifyDraftChanged();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to delete section.");
     } finally {
@@ -131,6 +133,7 @@ export default function SectionsPage() {
     try {
       await sectionsApi.reorder(accessToken, website.id, reordered.map((s) => s.id));
       await load();
+      notifyDraftChanged();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to reorder sections.");
     } finally {

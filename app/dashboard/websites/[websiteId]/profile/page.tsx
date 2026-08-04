@@ -67,7 +67,7 @@ function defaultHours(): OpeningHoursEntry[] {
 }
 
 export default function BusinessProfilePage() {
-  const { website, accessToken } = useWebsite();
+  const { website, accessToken, notifyDraftChanged } = useWebsite();
 
   const [profile, setProfile] = useState<BusinessProfileRequest>(EMPTY_PROFILE);
   const [hours, setHours] = useState<OpeningHoursEntry[]>(defaultHours());
@@ -115,6 +115,7 @@ export default function BusinessProfilePage() {
       const updated = await profileApi.update(accessToken, website.id, profile);
       setProfile(updated);
       setMessage("Business profile updated.");
+      notifyDraftChanged();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to save business profile.");
     } finally {
@@ -130,6 +131,7 @@ export default function BusinessProfilePage() {
       const updated = await profileApi.updateOpeningHours(accessToken, website.id, hours);
       setHours(updated);
       setMessage("Opening hours updated.");
+      notifyDraftChanged();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to save opening hours.");
     } finally {

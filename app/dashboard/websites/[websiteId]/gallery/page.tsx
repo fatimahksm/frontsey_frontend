@@ -21,7 +21,7 @@ function moved<T>(list: T[], from: number, to: number): T[] {
 }
 
 export default function GalleryPage() {
-  const { website, accessToken } = useWebsite();
+  const { website, accessToken, notifyDraftChanged } = useWebsite();
   const [images, setImages] = useState<GalleryImageResponse[]>([]);
   const [imageUrl, setImageUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +52,7 @@ export default function GalleryPage() {
       await galleryApi.add(accessToken, website.id, imageUrl.trim());
       setImageUrl("");
       await load();
+      notifyDraftChanged();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to add image.");
     } finally {
@@ -66,6 +67,7 @@ export default function GalleryPage() {
       const { url } = await uploadsApi.uploadImage(accessToken, file);
       await galleryApi.add(accessToken, website.id, url);
       await load();
+      notifyDraftChanged();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to upload image.");
     } finally {
@@ -79,6 +81,7 @@ export default function GalleryPage() {
     try {
       await galleryApi.delete(accessToken, website.id, id);
       await load();
+      notifyDraftChanged();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to delete image.");
     } finally {
@@ -92,6 +95,7 @@ export default function GalleryPage() {
     try {
       await galleryApi.setCover(accessToken, website.id, id);
       await load();
+      notifyDraftChanged();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to set cover image.");
     } finally {
@@ -109,6 +113,7 @@ export default function GalleryPage() {
     try {
       await galleryApi.reorder(accessToken, website.id, reordered.map((i) => i.id));
       await load();
+      notifyDraftChanged();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to reorder gallery.");
     } finally {

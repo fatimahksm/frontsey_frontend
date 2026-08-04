@@ -14,7 +14,7 @@ import { formatMoney } from "@/lib/format";
 import { useWebsite } from "@/lib/website/website-context";
 
 export default function DeliveryAreasPage() {
-  const { website, accessToken } = useWebsite();
+  const { website, accessToken, notifyDraftChanged } = useWebsite();
   const [areas, setAreas] = useState<DeliveryAreaResponse[]>([]);
   const [name, setName] = useState("");
   const [fee, setFee] = useState("");
@@ -53,6 +53,7 @@ export default function DeliveryAreasPage() {
       setMinimumOrder("");
       setFreeThreshold("");
       await load();
+      notifyDraftChanged();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to add delivery area.");
     } finally {
@@ -66,6 +67,7 @@ export default function DeliveryAreasPage() {
     try {
       await deliveryApi.delete(accessToken, website.id, id);
       await load();
+      notifyDraftChanged();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to delete delivery area.");
     } finally {
