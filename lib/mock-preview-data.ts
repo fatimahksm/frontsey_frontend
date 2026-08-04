@@ -64,9 +64,10 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
     pageMode: "ONE_PAGE",
     templateType: "MENU_ORDERING",
     layoutVariant,
-    // Classic is a cart-less layout, so its preview must show the read-only
-    // menu a real Classic website renders - not an ordering flow it can't do.
-    orderingMode: layoutVariant === "MENU_CLASSIC" ? "DISPLAY_ONLY" : "WHATSAPP_ORDERING",
+    // Classic and Elegant are cart-less layouts, so their previews must show
+    // the read-only menu those websites actually render - not an ordering flow
+    // they can't do.
+    orderingMode: layoutVariant === "MENU_CLASSIC" || layoutVariant === "MENU_ELEGANT" ? "DISPLAY_ONLY" : "WHATSAPP_ORDERING",
     primaryLanguage: "en",
     currency: "USD",
     publishedContent: JSON.stringify({
