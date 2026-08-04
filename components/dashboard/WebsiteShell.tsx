@@ -14,7 +14,7 @@ import { subscriptionApi } from "@/lib/api/subscription";
 import { websitesApi } from "@/lib/api/websites";
 import type { Permission, WebsiteResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
-import { isDisplayOnlyLayout } from "@/lib/website/layout-options";
+import { isDisplayOnlyLayout, layoutRendersCustomSections, layoutRendersGallery } from "@/lib/website/layout-options";
 import { hasPermission } from "@/lib/website/permissions";
 import { WebsiteProvider } from "@/lib/website/website-context";
 
@@ -47,6 +47,11 @@ function navGroupsFor(website: WebsiteResponse, analyticsEnabled: boolean): NavG
   // A cart-less layout has nothing to deliver, so delivery areas would be a
   // setting with no effect on the published site.
   const showsDelivery = templateType === "MENU_ORDERING" && !isDisplayOnlyLayout(website.layoutVariant);
+  // Same reasoning as delivery: a layout that renders no gallery strip and no
+  // custom sections would leave those editors saving content that never
+  // appears anywhere on the published site.
+  const showsGallery = layoutRendersGallery(website.layoutVariant);
+  const showsCustomSections = layoutRendersCustomSections(website.layoutVariant);
   const contentItem: NavItem =
     templateType === "PORTFOLIO"
       ? { href: "/services", label: "Services", icon: "🛠️", permission: "MANAGE_MENU" }
@@ -64,8 +69,10 @@ function navGroupsFor(website: WebsiteResponse, analyticsEnabled: boolean): NavG
       label: "Content",
       items: [
         contentItem,
-        { href: "/gallery", label: "Gallery", icon: "🖼️", permission: "MANAGE_THEME_AND_CONTENT" },
-        { href: "/sections", label: "Custom sections", icon: "🧩", permission: "MANAGE_THEME_AND_CONTENT" },
+        ...(showsGallery ? [{ href: "/gallery", label: "Gallery", icon: "🖼️", permission: "MANAGE_THEME_AND_CONTENT" } as NavItem] : []),
+        ...(showsCustomSections
+          ? [{ href: "/sections", label: "Custom sections", icon: "🧩", permission: "MANAGE_THEME_AND_CONTENT" } as NavItem]
+          : []),
       ],
     },
     {
