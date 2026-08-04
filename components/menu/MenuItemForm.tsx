@@ -9,6 +9,7 @@ import { Select } from "@/components/ui/Select";
 import { TextField } from "@/components/ui/TextField";
 import { Textarea } from "@/components/ui/Textarea";
 import type { CategoryDto, MenuItemRequest } from "@/lib/api/types";
+import { categorySelectOptions } from "@/lib/menu/category-tree";
 import { useWebsite } from "@/lib/website/website-context";
 
 interface Props {
@@ -54,9 +55,9 @@ export function MenuItemForm({ categories, initial, submitLabel, isSubmitting, o
         <option value="" disabled>
           Choose a category…
         </option>
-        {categories.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.name}
+        {categorySelectOptions(categories).map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.label}
           </option>
         ))}
       </Select>

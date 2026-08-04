@@ -112,6 +112,17 @@ export function themeCssVars(theme: ThemeConfig, brandColorOverride?: string): C
     "--accent-from": accent,
     "--accent-to": accent,
     "--theme-secondary": theme.secondaryColor,
+    // The page's own palette. Layouts that paint themselves entirely from the
+    // theme (Classic) consume these; the others still use the app's global
+    // light/dark tokens, so exposing them here changes nothing for them.
+    "--theme-background": theme.backgroundColor,
+    "--theme-surface": theme.surfaceColor,
+    "--theme-text": theme.textColor,
+    // Derived from the text color rather than fixed greys, so secondary text
+    // and hairlines stay legible whether the client picked a light or a dark
+    // palette - no per-theme "is this dark?" branch anywhere in the renderer.
+    "--theme-text-muted": `color-mix(in srgb, ${theme.textColor} 62%, transparent)`,
+    "--theme-border": `color-mix(in srgb, ${theme.textColor} 16%, transparent)`,
     "--theme-radius": `${theme.borderRadius}px`,
     "--theme-button-radius": BUTTON_RADIUS[theme.buttonStyle],
     "--theme-card-shadow": CARD_TREATMENT[theme.cardStyle].boxShadow,

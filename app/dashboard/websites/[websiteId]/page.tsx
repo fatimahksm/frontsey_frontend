@@ -18,6 +18,7 @@ import { servicesApi } from "@/lib/api/services";
 import { websitesApi } from "@/lib/api/websites";
 import type { AnalyticsSummaryResponse, OrderingMode } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
+import { isDisplayOnlyLayout, templateLabel } from "@/lib/website/layout-options";
 import { parseDraftContent, serializeDraftContent } from "@/lib/website/draft-content";
 import { loadSetupStatus, readinessPercent, type ChecklistItem } from "@/lib/website/setup-checklist";
 
@@ -465,15 +466,23 @@ export default function WebsiteOverviewPage() {
               <span className="font-mono text-xs uppercase text-zinc-500 dark:text-zinc-400">{brandColor}</span>
             </div>
           </label>
-          <Select
-            id="orderingMode"
-            label="Ordering mode"
-            value={orderingMode}
-            onChange={(e) => setOrderingMode(e.target.value as OrderingMode)}
-          >
-            <option value="DISPLAY_ONLY">Display only (menu is informational)</option>
-            <option value="WHATSAPP_ORDERING">WhatsApp ordering (customers can add to cart and order)</option>
-          </Select>
+          {isDisplayOnlyLayout(website.layoutVariant) ? (
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              <span className="font-medium text-foreground">Display only.</span> The{" "}
+              {templateLabel(website.layoutVariant, website.templateType)} layout has no cart - visitors read the
+              prices and contact you directly. Switch layout under Design → Template to enable ordering.
+            </p>
+          ) : (
+            <Select
+              id="orderingMode"
+              label="Ordering mode"
+              value={orderingMode}
+              onChange={(e) => setOrderingMode(e.target.value as OrderingMode)}
+            >
+              <option value="DISPLAY_ONLY">Display only (menu is informational)</option>
+              <option value="WHATSAPP_ORDERING">WhatsApp ordering (customers can add to cart and order)</option>
+            </Select>
+          )}
           <Button onClick={handleSaveDraft} isLoading={isSaving} className="mt-2 w-auto px-5">
             Save draft
           </Button>

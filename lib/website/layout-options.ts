@@ -23,7 +23,7 @@ export const WEBSITE_TYPES: { value: TemplateType; icon: string; label: string; 
 
 export const TEMPLATE_OPTIONS: Record<TemplateType, { value: LayoutVariant; label: string; description: string }[]> = {
   MENU_ORDERING: [
-    { value: "MENU_CLASSIC", label: "Classic Menu", description: "Business-card header, gallery strip, categorized list, cart sidebar." },
+    { value: "MENU_CLASSIC", label: "Classic Menu", description: "A simple price list to read - business-card header, gallery strip, categories with sub-categories. No cart or ordering." },
     { value: "MENU_GRID", label: "Modern Grid", description: "Full-width cover, sticky category tabs, items as a card grid, cart drawer." },
     { value: "MENU_ELEGANT", label: "Elegant Restaurant", description: "Fine-dining style list with dotted price leaders and a minimal bottom cart bar." },
     { value: "MENU_BISTRO", label: "Bistro Menu", description: "Warm, photography-led cafe style - bold headline hero, combo box deals, and a sticky-filtered card-grid menu." },
@@ -35,6 +35,24 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, { value: LayoutVariant; labe
     { value: "PORTFOLIO_PROFILE", label: "Profile Portfolio", description: "Personal, photo-led homepage with a floating highlight badge and a featured-projects grid. Great for individual freelancers and consultants." },
   ],
 };
+
+/**
+ * Layouts that render no cart at all. Picking one is itself the "this is a
+ * read-only menu" decision: the backend pins such a website's OrderingMode to
+ * DISPLAY_ONLY (LayoutVariant.isDisplayOnly), so the dashboard must not offer
+ * an ordering choice that would be silently overridden.
+ */
+const DISPLAY_ONLY_LAYOUTS = new Set<LayoutVariant>([
+  "MENU_CLASSIC",
+  "PORTFOLIO_HERO",
+  "PORTFOLIO_MINIMAL",
+  "PORTFOLIO_BOLD",
+  "PORTFOLIO_PROFILE",
+]);
+
+export function isDisplayOnlyLayout(variant: LayoutVariant): boolean {
+  return DISPLAY_ONLY_LAYOUTS.has(variant);
+}
 
 export function defaultLayoutVariant(templateType: TemplateType): LayoutVariant {
   return TEMPLATE_OPTIONS[templateType][0].value;
