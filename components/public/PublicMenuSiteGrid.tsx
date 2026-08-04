@@ -37,6 +37,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
   const [query, setQuery] = useState("");
 
   const content = parseDraftContent(site.publishedContent);
+  const hasCover = !!site.profile?.coverImageUrl;
   const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
   const cartCount = cart.reduce((sum, l) => sum + l.quantity, 0);
   const visibleCategories = site.categories
@@ -73,48 +74,63 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
       {/* A practical, app-like header (cover strip + overlapping logo, left-aligned info) - deliberately not a
           cinematic full-bleed hero, which is Portfolio's signature move. Menu sites are about getting to the
           menu fast, not a dramatic intro. */}
-      <div className="relative h-44 w-full overflow-hidden bg-surface-muted sm:h-60">
-        {site.profile?.coverImageUrl && (
-          <SafeImage src={site.profile.coverImageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        )}
-        {/* Scrim along the bottom edge. The cover is an arbitrary owner photo,
-            so the logo that overlaps it needs a predictable tone to sit
-            against - without this it can land on a bright highlight and lose
-            its own border. */}
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent" />
-      </div>
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
-        className="mx-auto w-full max-w-6xl px-4 pb-5"
+      {/* One block, not a photo strip with a header pinned underneath it. The
+          logo used to straddle the boundary between the two, which read as a
+          seam rather than as a design, and left an empty band under the cover
+          on wide screens. Everything now sits inside the image, over a scrim
+          heavy enough that white text stays legible on any owner photo. */}
+      <header
+        className={`relative isolate w-full overflow-hidden ${
+          hasCover ? "min-h-[300px] sm:min-h-[400px]" : "bg-surface-muted"
+        }`}
       >
-        {/* Only the logo overlaps the cover. The name used to be pulled up
-            alongside it, which laid dark heading text over the photo and left
-            it half-legible on anything but a pale cover. */}
-        {site.profile?.logoUrl ? (
-          <SafeImage
-            src={site.profile.logoUrl}
-            alt=""
-            className="-mt-11 h-24 w-24 rounded-2xl border-4 border-background object-cover shadow-lift sm:-mt-14 sm:h-28 sm:w-28"
-          />
-        ) : (
-          <div className="-mt-11 flex h-24 w-24 items-center justify-center rounded-2xl border-4 border-background bg-gradient-accent text-2xl font-semibold text-white shadow-lift sm:-mt-14 sm:h-28 sm:w-28">
-            {site.businessName.charAt(0)}
-          </div>
+        {hasCover && (
+          <>
+            <SafeImage src={site.profile!.coverImageUrl!} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
+            <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/55 to-black/25" />
+          </>
         )}
-        <div className="mt-3 min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl" style={themeHeadingStyle()}>
-            {site.businessName}
-          </h1>
-          {content.heroHeading && (
-            <p className="mt-1 text-sm font-medium text-[var(--accent-solid)] sm:text-base">{content.heroHeading}</p>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className={`mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 pb-8 ${hasCover ? "pt-28 sm:pt-40" : "pt-8"}`}
+        >
+          {site.profile?.logoUrl ? (
+            <SafeImage
+              src={site.profile.logoUrl}
+              alt=""
+              className="h-16 w-16 rounded-2xl object-cover shadow-lift ring-1 ring-white/25 sm:h-20 sm:w-20"
+            />
+          ) : (
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-accent text-2xl font-semibold text-white shadow-lift sm:h-20 sm:w-20">
+              {site.businessName.charAt(0)}
+            </div>
           )}
-          {content.heroSubtitle && (
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">{content.heroSubtitle}</p>
-          )}
-        </div>
-      </motion.div>
+          <div className="min-w-0">
+            <h1
+              className={`text-3xl font-semibold tracking-tight sm:text-4xl ${hasCover ? "text-white" : ""}`}
+              style={themeHeadingStyle()}
+            >
+              {site.businessName}
+            </h1>
+            {content.heroHeading && (
+              <p className={`mt-1.5 text-base font-medium sm:text-lg ${hasCover ? "text-white/85" : "text-[var(--accent-solid)]"}`}>
+                {content.heroHeading}
+              </p>
+            )}
+            {content.heroSubtitle && (
+              <p
+                className={`mt-2 max-w-2xl text-sm leading-relaxed ${
+                  hasCover ? "text-white/70" : "text-zinc-500 dark:text-zinc-400"
+                }`}
+              >
+                {content.heroSubtitle}
+              </p>
+            )}
+          </div>
+        </motion.div>
+      </header>
 
       {site.categories.length > 0 && (
         <div className="sticky top-0 z-30 flex flex-col gap-3 border-b border-black/[.06] bg-surface/90 px-4 py-3 backdrop-blur-md dark:border-white/[.1]">
