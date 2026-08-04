@@ -9,7 +9,9 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
     pageMode: "ONE_PAGE",
     templateType: "MENU_ORDERING",
     layoutVariant,
-    orderingMode: "WHATSAPP_ORDERING",
+    // Classic is a cart-less layout, so its preview must show the read-only
+    // menu a real Classic website renders - not an ordering flow it can't do.
+    orderingMode: layoutVariant === "MENU_CLASSIC" ? "DISPLAY_ONLY" : "WHATSAPP_ORDERING",
     primaryLanguage: "en",
     currency: "USD",
     publishedContent: JSON.stringify({
@@ -36,42 +38,63 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
       {
         id: "c1",
         name: "Coffee",
-        items: [
+        items: [],
+        // Sample sub-categories, so the Classic preview shows how a menu with
+        // "Coffee -> Hot / Iced" actually reads.
+        subcategories: [
           {
-            id: "i1",
-            name: "Cappuccino",
-            description: "Espresso, steamed milk, foam.",
-            ingredients: null,
-            price: 3.5,
-            discountPrice: null,
-            imageUrl: null,
-            availability: "AVAILABLE",
-            maxOrderQuantity: null,
-            fixedBoxItem: false,
-            sizes: [],
-            addonGroups: [],
-            boxVariants: [],
+            id: "c1a",
+            name: "Hot",
+            subcategories: [],
+            items: [
+              {
+                id: "i1",
+                name: "Cappuccino",
+                description: "Espresso, steamed milk, foam.",
+                ingredients: null,
+                price: 3.5,
+                discountPrice: null,
+                imageUrl: null,
+                availability: "AVAILABLE",
+                maxOrderQuantity: null,
+                fixedBoxItem: false,
+                sizes: [
+                  { id: "s1", label: "Small", price: 3.5 },
+                  { id: "s2", label: "Large", price: 4.5 },
+                ],
+                addonGroups: [],
+                boxVariants: [],
+              },
+            ],
           },
           {
-            id: "i2",
-            name: "Iced Latte",
-            description: "Espresso over ice with cold milk.",
-            ingredients: null,
-            price: 4,
-            discountPrice: null,
-            imageUrl: null,
-            availability: "AVAILABLE",
-            maxOrderQuantity: null,
-            fixedBoxItem: false,
-            sizes: [],
-            addonGroups: [],
-            boxVariants: [],
+            id: "c1b",
+            name: "Iced",
+            subcategories: [],
+            items: [
+              {
+                id: "i2",
+                name: "Iced Latte",
+                description: "Espresso over ice with cold milk.",
+                ingredients: null,
+                price: 4,
+                discountPrice: null,
+                imageUrl: null,
+                availability: "AVAILABLE",
+                maxOrderQuantity: null,
+                fixedBoxItem: false,
+                sizes: [],
+                addonGroups: [],
+                boxVariants: [],
+              },
+            ],
           },
         ],
       },
       {
         id: "c2",
         name: "Breakfast",
+        subcategories: [],
         items: [
           {
             id: "i3",

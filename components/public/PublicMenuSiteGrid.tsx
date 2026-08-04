@@ -12,6 +12,7 @@ import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types"
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { itemsUnder } from "@/lib/site/menu-categories";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
@@ -37,7 +38,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
   const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
   const cartCount = cart.reduce((sum, l) => sum + l.quantity, 0);
   const visibleCategories = site.categories
-    .map((category) => ({ ...category, items: category.items.filter((item) => itemMatchesQuery(item, query)) }))
+    .map((category) => ({ ...category, items: itemsUnder(category).filter((item) => itemMatchesQuery(item, query)) }))
     .filter((category) => category.items.length > 0);
 
   function handleAddToCart(line: CartLine) {

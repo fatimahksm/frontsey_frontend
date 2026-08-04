@@ -9,10 +9,11 @@ import type {
 
 /** `/api/websites/{id}/menu/**` (BRD 9.6/9.9): categories, items, bulk actions. */
 export const menuApi = {
-  createCategory(accessToken: string, websiteId: string, name: string): Promise<CategoryDto> {
+  /** Omit `parentId` for a top-level category; pass one to create a sub-category under it. */
+  createCategory(accessToken: string, websiteId: string, name: string, parentId?: string): Promise<CategoryDto> {
     return apiFetch<CategoryDto>(`/websites/${websiteId}/menu/categories`, {
       method: "POST",
-      query: { name },
+      query: { name, parentId },
       accessToken,
     });
   },

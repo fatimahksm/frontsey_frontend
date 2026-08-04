@@ -13,6 +13,7 @@ import { ApiError } from "@/lib/api/client";
 import { menuApi } from "@/lib/api/menu";
 import type { CategoryDto, ItemAvailability, MenuItemResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
+import { categoryPathLabel, categorySelectOptions } from "@/lib/menu/category-tree";
 
 interface Props {
   accessToken: string;
@@ -33,8 +34,10 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
   const [isLoading, setIsLoading] = useState(true);
   const [isBusy, setIsBusy] = useState(false);
 
+  /** "Coffee › Iced" for a sub-category, so the list never shows an ambiguous bare child name. */
   function categoryName(id: string): string {
-    return categories.find((c) => c.id === id)?.name ?? "-";
+    const category = categories.find((c) => c.id === id);
+    return category ? categoryPathLabel(category, categories) : "-";
   }
 
   const visibleItems = availabilityFilter ? items.filter((item) => item.availability === availabilityFilter) : items;
@@ -108,9 +111,9 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
           <>
             <Select id="categoryFilter" label="Category" value={categoryFilter} onChange={(e) => { setCategoryFilter(e.target.value); }}>
               <option value="">All categories</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
+              {categorySelectOptions(categories).map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
                 </option>
               ))}
             </Select>
@@ -177,9 +180,9 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
             className="h-9"
           >
             <option value="">Move to category…</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
+            {categorySelectOptions(categories).map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
               </option>
             ))}
           </Select>

@@ -212,6 +212,8 @@ export interface PageSectionResponse {
 export interface CategoryDto {
   id: string;
   name: string;
+  /** Null for a top-level category; set for a sub-category. Nesting is capped at one level. */
+  parentId: string | null;
 }
 
 export type CategoryDeletionMode = "MOVE_ITEMS_TO_CATEGORY" | "DELETE_ITEMS" | "CANCEL";
@@ -571,6 +573,8 @@ export interface PublicCategory {
   id: string;
   name: string;
   items: PublicMenuItem[];
+  /** One level only - a sub-category's own `subcategories` is always empty. */
+  subcategories: PublicCategory[];
 }
 
 export interface PublicDeliveryArea {

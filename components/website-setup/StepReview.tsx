@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { ShareLinksPanel } from "@/components/dashboard/ShareLinksPanel";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/api/client";
@@ -17,6 +18,7 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
   const [checklist, setChecklist] = useState<ChecklistItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [hasPublished, setHasPublished] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -38,6 +40,7 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
     try {
       await websitesApi.publish(accessToken, website.id);
       await reload();
+      setHasPublished(true);
       onPublished();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to publish. Check the checklist below for what's missing.");
@@ -51,6 +54,9 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
   }
 
   const allComplete = checklist.every((item) => item.complete);
+  // Covers both "just published" and revisiting this step on an already-live
+  // website, so the links and QR code stay reachable from the wizard.
+  const isLive = hasPublished || website.status === "PUBLISHED";
 
   return (
     <div className="flex flex-col gap-6">
@@ -90,13 +96,22 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
         ))}
       </ul>
 
-      {!allComplete && (
-        <Alert tone="info">Finish the missing requirements above, then come back here to publish.</Alert>
-      )}
+      {isLive ? (
+        <div className="flex flex-col gap-4 rounded-xl border border-black/[.08] p-4 dark:border-white/[.145]">
+          <Alert tone="success">Your website is live. Here is everything you need to hand it to customers.</Alert>
+          <ShareLinksPanel website={website} />
+        </div>
+      ) : (
+        <>
+          {!allComplete && (
+            <Alert tone="info">Finish the missing requirements above, then come back here to publish.</Alert>
+          )}
 
-      <Button onClick={handlePublish} isLoading={isPublishing} disabled={!allComplete} className="w-auto self-start px-6">
-        Publish website
-      </Button>
+          <Button onClick={handlePublish} isLoading={isPublishing} disabled={!allComplete} className="w-auto self-start px-6">
+            Publish website
+          </Button>
+        </>
+      )}
     </div>
   );
 }

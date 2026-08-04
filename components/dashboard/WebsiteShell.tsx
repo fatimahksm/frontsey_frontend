@@ -12,8 +12,9 @@ import { ApiError } from "@/lib/api/client";
 import { plansApi } from "@/lib/api/plans";
 import { subscriptionApi } from "@/lib/api/subscription";
 import { websitesApi } from "@/lib/api/websites";
-import type { Permission, TemplateType, WebsiteResponse } from "@/lib/api/types";
+import type { Permission, WebsiteResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
+import { isDisplayOnlyLayout } from "@/lib/website/layout-options";
 import { hasPermission } from "@/lib/website/permissions";
 import { WebsiteProvider } from "@/lib/website/website-context";
 
@@ -41,14 +42,24 @@ interface NavGroup {
  * sees the items they've actually been granted permission for - mirrors
  * exactly what WebsiteAccessGuard.requirePermission enforces server-side.
  */
-function navGroupsFor(templateType: TemplateType, analyticsEnabled: boolean): NavGroup[] {
+function navGroupsFor(website: WebsiteResponse, analyticsEnabled: boolean): NavGroup[] {
+  const { templateType } = website;
+  // A cart-less layout has nothing to deliver, so delivery areas would be a
+  // setting with no effect on the published site.
+  const showsDelivery = templateType === "MENU_ORDERING" && !isDisplayOnlyLayout(website.layoutVariant);
   const contentItem: NavItem =
     templateType === "PORTFOLIO"
       ? { href: "/services", label: "Services", icon: "🛠️", permission: "MANAGE_MENU" }
       : { href: "/menu", label: "Menu", icon: "🍽️", permission: "MANAGE_MENU" };
 
   const groups: NavGroup[] = [
-    { label: null, items: [{ href: "", label: "Overview", icon: "🏠" }] },
+    {
+      label: null,
+      items: [
+        { href: "", label: "Overview", icon: "🏠" },
+        { href: "/share", label: "Share & QR", icon: "🔗" },
+      ],
+    },
     {
       label: "Content",
       items: [
@@ -68,7 +79,7 @@ function navGroupsFor(templateType: TemplateType, analyticsEnabled: boolean): Na
       label: "Website Settings",
       items: [
         { href: "/profile", label: "Business profile", icon: "🏢", permission: "MANAGE_BUSINESS_PROFILE" },
-        ...(templateType === "MENU_ORDERING"
+        ...(showsDelivery
           ? [{ href: "/delivery", label: "Delivery areas", icon: "🚚", permission: "MANAGE_DELIVERY_SETTINGS" } as NavItem]
           : []),
         { href: "/seo", label: "SEO", icon: "🔍", permission: "MANAGE_THEME_AND_CONTENT" },
@@ -180,7 +191,7 @@ export function WebsiteShell({ websiteId, children }: { websiteId: string; child
             </Badge>
           </div>
           <nav className="mt-4 flex flex-col gap-4">
-            {visibleFor(navGroupsFor(website.templateType, analyticsEnabled), website).map((group, groupIndex) => (
+            {visibleFor(navGroupsFor(website, analyticsEnabled), website).map((group, groupIndex) => (
               <div key={group.label ?? `group-${groupIndex}`} className="flex flex-col gap-0.5">
                 {group.label && (
                   <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">

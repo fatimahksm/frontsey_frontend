@@ -12,6 +12,7 @@ import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types"
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { itemsUnder } from "@/lib/site/menu-categories";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
@@ -41,14 +42,13 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
   const whatsappNumber = site.profile?.whatsappNumber;
   const inquiryMessage = `Hi ${site.businessName}, I'd like to place an order.`;
 
-  const comboItems = site.categories
-    .flatMap((c) => c.items)
-    .filter((item) => item.fixedBoxItem && itemMatchesQuery(item, query));
-  const comboIds = new Set(site.categories.flatMap((c) => c.items).filter((item) => item.fixedBoxItem).map((i) => i.id));
+  const allItems = site.categories.flatMap(itemsUnder);
+  const comboItems = allItems.filter((item) => item.fixedBoxItem && itemMatchesQuery(item, query));
+  const comboIds = new Set(allItems.filter((item) => item.fixedBoxItem).map((i) => i.id));
   const visibleCategories = site.categories
     .map((category) => ({
       ...category,
-      items: category.items.filter((item) => !comboIds.has(item.id) && itemMatchesQuery(item, query)),
+      items: itemsUnder(category).filter((item) => !comboIds.has(item.id) && itemMatchesQuery(item, query)),
     }))
     .filter((category) => category.items.length > 0);
   const hasNoResults = query.trim() !== "" && comboItems.length === 0 && visibleCategories.length === 0;

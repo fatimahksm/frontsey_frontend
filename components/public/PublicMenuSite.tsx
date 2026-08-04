@@ -5,54 +5,58 @@ import { useState } from "react";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
-import { CartPanel } from "@/components/public/CartPanel";
 import { DynamicSections } from "@/components/public/DynamicSections";
-import { PublicMenuItemCard } from "@/components/public/PublicMenuItemCard";
-import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types";
-import type { CartLine } from "@/lib/site/cart";
-import type { Customer } from "@/lib/site/whatsapp";
+import { PublicMenuListItem } from "@/components/public/PublicMenuListItem";
+import type { PublicMenuItem, PublicWebsiteResponse } from "@/lib/api/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { itemsUnder } from "@/lib/site/menu-categories";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
-import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
 
-/** The MENU_ORDERING template's public page: profile header, gallery, a filterable category-tab menu grid, and a WhatsApp cart. */
+/**
+ * The Classic menu layout: a business-card header, a gallery strip, and a
+ * categorized price list with one level of sub-categories.
+ *
+ * Deliberately display-only - customers read what is on offer and what it
+ * costs, and there is no cart, no quantity, and no ordering anywhere on the
+ * page. Owners who want WhatsApp ordering pick one of the other menu
+ * layouts; selecting this one pins the website to DISPLAY_ONLY (see
+ * LayoutVariant.isDisplayOnly on the backend).
+ */
 export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteResponse; onFirstView(itemId: string): void }) {
   const { t, dir } = useLocale();
-  const [cart, setCart] = useState<CartLine[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState(site.categories[0]?.id ?? "");
   const [query, setQuery] = useState("");
 
   const content = parseDraftContent(site.publishedContent);
-  const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
   const activeCategory = site.categories.find((c) => c.id === activeCategoryId) ?? site.categories[0];
-  const displayedItems = activeCategory ? activeCategory.items.filter((item) => itemMatchesQuery(item, query)) : [];
 
-  function handleAddToCart(line: CartLine) {
-    setCart((prev) => {
-      const existing = prev.find((l) => l.key === line.key);
-      if (existing) {
-        return prev.map((l) => (l.key === line.key ? { ...l, quantity: l.quantity + line.quantity } : l));
-      }
-      return [...prev, line];
-    });
-  }
+  const matching = (items: PublicMenuItem[]) => items.filter((item) => itemMatchesQuery(item, query));
+  const directMatches = activeCategory ? matching(activeCategory.items) : [];
+  const matchingSubcategories = activeCategory
+    ? activeCategory.subcategories
+        .map((sub) => ({ sub, items: matching(sub.items) }))
+        .filter((group) => group.items.length > 0)
+    : [];
+  const hasResults = directMatches.length > 0 || matchingSubcategories.length > 0;
 
-  function handleRemove(key: string) {
-    setCart((prev) => prev.filter((l) => l.key !== key));
-  }
-
-  function handleCheckout(customer: Customer, deliveryArea: PublicDeliveryArea | null, deliveryFee: number) {
-    if (!site.profile?.whatsappNumber) return;
-    const message = buildWhatsAppMessage(site.businessName, cart, site.currency, deliveryArea?.name ?? null, deliveryFee, customer);
-    window.open(whatsappUrl(site.profile.whatsappNumber, message), "_blank");
+  function itemGrid(items: PublicMenuItem[], key: string) {
+    return (
+      <StaggerGroup key={key} className="grid gap-4 sm:grid-cols-2">
+        {items.map((item) => (
+          <StaggerItem key={item.id}>
+            <PublicMenuListItem item={item} currency={site.currency} onFirstView={onFirstView} />
+          </StaggerItem>
+        ))}
+      </StaggerGroup>
+    );
   }
 
   return (
     <div
       dir={dir}
-      className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-10 lg:flex-row lg:items-start"
+      className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-10"
       style={themeCssVars(site.theme, content.brandColor)}
     >
       <div className="min-w-0 flex-1">
@@ -158,30 +162,32 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
                 }`}
               >
                 {category.name}
-                <span className={activeCategory?.id === category.id ? "text-white/70" : "text-zinc-400"}>{category.items.length}</span>
+                <span className={activeCategory?.id === category.id ? "text-white/70" : "text-zinc-400"}>
+                  {itemsUnder(category).length}
+                </span>
               </button>
             ))}
           </Reveal>
         )}
 
-        {activeCategory && displayedItems.length === 0 && (
+        {activeCategory && !hasResults && (
           <p className="text-sm text-zinc-500 dark:text-zinc-400">{t.filter.noResults}</p>
         )}
 
-        {activeCategory && displayedItems.length > 0 && (
-          <StaggerGroup key={activeCategory.id} className="grid gap-4 sm:grid-cols-2">
-            {displayedItems.map((item) => (
-              <StaggerItem key={item.id}>
-                <PublicMenuItemCard
-                  item={item}
-                  currency={site.currency}
-                  orderingEnabled={orderingEnabled}
-                  onAddToCart={handleAddToCart}
-                  onFirstView={onFirstView}
-                />
-              </StaggerItem>
+        {activeCategory && hasResults && (
+          <div key={activeCategory.id} className="flex flex-col gap-8">
+            {/* Items filed straight against the category, before any sub-category. */}
+            {directMatches.length > 0 && itemGrid(directMatches, `${activeCategory.id}-direct`)}
+
+            {matchingSubcategories.map(({ sub, items }) => (
+              <section key={sub.id} className="flex flex-col gap-3">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                  {sub.name}
+                </h2>
+                {itemGrid(items, sub.id)}
+              </section>
             ))}
-          </StaggerGroup>
+          </div>
         )}
 
         <div className="mt-8 flex flex-col gap-8">
@@ -199,12 +205,6 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
           </footer>
         )}
       </div>
-
-      {orderingEnabled && (
-        <aside className="w-full shrink-0 lg:sticky lg:top-6 lg:w-80">
-          <CartPanel lines={cart} currency={site.currency} deliveryAreas={site.deliveryAreas} onRemove={handleRemove} onCheckout={handleCheckout} />
-        </aside>
-      )}
     </div>
   );
 }
