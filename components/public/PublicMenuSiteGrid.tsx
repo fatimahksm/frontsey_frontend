@@ -70,7 +70,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
   }
 
   return (
-    <div dir={dir} className="flex flex-1 flex-col" style={themeCssVars(site.theme, content.brandColor)}>
+    <div dir={dir} className="flex flex-1 flex-col bg-background text-foreground" style={themeCssVars(site.theme, content.brandColor)}>
       {/* A practical, app-like header (cover strip + overlapping logo, left-aligned info) - deliberately not a
           cinematic full-bleed hero, which is Portfolio's signature move. Menu sites are about getting to the
           menu fast, not a dramatic intro. */}

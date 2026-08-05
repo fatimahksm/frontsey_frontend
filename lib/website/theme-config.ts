@@ -134,10 +134,12 @@ export function themeCssVars(theme: ThemeConfig, brandColorOverride?: string): C
     "--foreground": theme.textColor,
     "--border-subtle": `color-mix(in srgb, ${theme.textColor} 12%, transparent)`,
 
-    // body sets background/color from :root, and a descendant redeclaring the
-    // variables does not re-run that declaration - so paint them here too.
-    backgroundColor: theme.backgroundColor,
-    color: theme.textColor,
+    // Deliberately no backgroundColor/color here. An inline style outranks
+    // Tailwind classes, so painting them would override a layout that styles
+    // its own shell - PORTFOLIO_HERO is `bg-zinc-950 text-white` on purpose,
+    // and forcing it to a light palette left its white-on-dark text unreadable
+    // against a white page. Layouts that want the themed palette opt in with
+    // `bg-background text-foreground`, which reads the variables above.
     // Derived from the text color rather than fixed greys, so secondary text
     // and hairlines stay legible whether the client picked a light or a dark
     // palette - no per-theme "is this dark?" branch anywhere in the renderer.
