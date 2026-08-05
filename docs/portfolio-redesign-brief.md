@@ -113,3 +113,85 @@ rather than the visitor's device.
 Note that `images.unsplash.com` is blocked from the sandbox, so the sample
 photos fall back to the drawn placeholder there. That is expected and is not a
 bug to chase.
+
+---
+
+## Direction change: four professions, not four skins
+
+The owner's decision, and it supersedes the framing above. The four Portfolio
+variants are currently the same section list rearranged and recoloured, which
+is why they read as interchangeable. They should instead each target a
+different kind of professional, with genuinely different sections, ordering and
+emphasis:
+
+```
+Portfolio
+├── Minimal       — the general-purpose one (salon, tutor, consultant, trades)
+├── Creative      — designers, artists, agencies
+├── Developer     — software engineers
+└── Photographer  — photo and video
+```
+
+The test for whether this is done: someone should be able to tell which
+template they are looking at with the colours stripped out. If two of them
+differ only by palette and heading size, the job is not finished.
+
+### What differs per template
+
+Sketch, not settled - worth deciding deliberately before writing code, because
+each variant's section set drives its data needs.
+
+| Template | Leads with | Distinct sections | De-emphasised |
+| --- | --- | --- | --- |
+| Minimal | Who you are, what you do, how to book | Services with prices, hours, location | Long-form work showcase |
+| Creative | A visual showreel | Big-format work grid, process, clients | Price lists |
+| Developer | Projects and stack | Project cards with tech tags and repo/demo links, experience timeline, skills | Photo galleries, prices |
+| Photographer | The photographs themselves | Full-bleed masonry/lightbox gallery, packages, booking | Text-heavy about |
+
+Note that Developer needs data the model does not currently carry - a project's
+tech tags and its repo/live links have no home in `PublicService` or the
+gallery. Decide early whether to extend the content model or to express those
+through existing fields, because it is the one item here that reaches the
+backend.
+
+### Implementation implications
+
+- **`LayoutVariant` is persisted.** `business_websites.layout_variant` stores
+  the enum name as a string, and `LayoutVariant.java` is the source of truth
+  (it also carries the `displayOnly` flag). Renaming values therefore needs a
+  migration mapping old names to new, in the same commit as the enum change -
+  an unmapped row would fail to deserialise on read.
+- **Decide rename vs. reuse.** Either rename the four values to
+  `PORTFOLIO_MINIMAL` / `_CREATIVE` / `_DEVELOPER` / `_PHOTOGRAPHER` (clear
+  code, one migration), or keep `HERO`/`BOLD`/`PROFILE` and change only their
+  labels and designs (no migration, permanently confusing names). Renaming is
+  worth the migration; the names are read constantly.
+- **Frontend touch points for a rename:** the `LayoutVariant` union in
+  `lib/api/types.ts`, `TEMPLATE_OPTIONS` and `DISPLAY_ONLY_LAYOUTS` in
+  `lib/website/layout-options.ts`, `mockSiteFor()` in `lib/mock-preview-data.ts`,
+  and the `/preview/mock/[variant]` route.
+- **Each template needs its own sample business.** One salon cannot demonstrate
+  four professions - a developer template showing "Haircut & Style · $25" makes
+  the template look wrong rather than the data. `mockPortfolioSite()` currently
+  returns one salon for all four; it needs to branch per variant, with photos
+  to match (see `lib/mock-preview-images.ts`, which already has salon and food
+  sets and would need developer/photographer ones).
+- **The `tone` prop in `DynamicSections` is per-design, not per-template.** If
+  the four designs diverge properly, the existing tones (`hero`, `minimal`,
+  `bold`) will not map cleanly onto them and should be revisited alongside the
+  layouts rather than bent to fit.
+
+### Suggested sequencing
+
+1. Settle the section list per template on paper first. Everything else follows
+   from it, and it is cheap to change at this stage.
+2. Rename the enum plus migration, as one commit, while the layouts still look
+   as they do. A rename that changes no behaviour is easy to review and easy to
+   revert.
+3. Per-variant sample data, so each template can be judged against realistic
+   content.
+4. Then the designs, one template per commit.
+
+Booking reachability from the section above still applies to all four, and is
+still worth doing first - it is small, valuable on the current designs, and
+survives the restructure.
