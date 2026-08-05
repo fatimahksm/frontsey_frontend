@@ -32,7 +32,7 @@ const HEADING_CLASS: Record<SectionTone, string> = {
 
 const UNDERLINE_CLASS: Record<SectionTone, string> = {
   hero: "mx-auto mt-2 h-1 w-10 rounded-full bg-[var(--accent-solid)]",
-  minimal: "mx-auto w-full max-w-6xl",
+  minimal: "",
   bold: "",
   classic: "",
   grid: "",
@@ -70,7 +70,7 @@ const CONTAINER_CLASS: Record<SectionTone, string> = {
 
 const WRAP_CLASS: Record<SectionTone, string> = {
   hero: "mx-auto w-full max-w-5xl",
-  minimal: "",
+  minimal: "mx-auto w-full max-w-6xl",
   bold: "mb-16",
   classic: "",
   grid: "",
