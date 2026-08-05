@@ -10,7 +10,7 @@ import { PublicPortfolioSiteProfile } from "@/components/public/PublicPortfolioS
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
 
-function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string) => void) {
+function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string) => void, isSample: boolean) {
   switch (site.layoutVariant) {
     case "MENU_GRID":
       return <PublicMenuSiteGrid site={site} onFirstView={onFirstView} />;
@@ -25,7 +25,7 @@ function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string)
     case "PORTFOLIO_PROFILE":
       return <PublicPortfolioSiteProfile site={site} />;
     case "PORTFOLIO_HERO":
-      return <PublicPortfolioSiteDeveloper site={site} />;
+      return <PublicPortfolioSiteDeveloper site={site} isSample={isSample} />;
     case "MENU_CLASSIC":
     default:
       return <PublicMenuSite site={site} onFirstView={onFirstView} />;
@@ -40,10 +40,27 @@ function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string)
  * consumer (public site, draft preview, wizard mock preview, admin theme
  * preview) gets language switching for free.
  */
-export function PublicSiteRenderer({ site, onFirstView }: { site: PublicWebsiteResponse; onFirstView(itemId: string): void }) {
+export function PublicSiteRenderer({
+  site,
+  onFirstView,
+  isSample = false,
+}: {
+  site: PublicWebsiteResponse;
+  onFirstView(itemId: string): void;
+  /**
+   * True only where the caller knowingly passes fabricated content - the design
+   * gallery and the template pickers, which all render `mockSiteFor(...)`.
+   *
+   * It defaults to false and is never derived from the data, because every
+   * field in the response is user-editable: an owner who slugs their site
+   * "preview" must not have demo content appear on it. A published site can
+   * therefore only ever be treated as real.
+   */
+  isSample?: boolean;
+}) {
   return (
     <LocaleProvider defaultLocale={site.primaryLanguage}>
-      {renderLayout(site, onFirstView)}
+      {renderLayout(site, onFirstView, isSample)}
       <LanguageSwitcher />
     </LocaleProvider>
   );

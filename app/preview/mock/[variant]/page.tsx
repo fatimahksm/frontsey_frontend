@@ -27,7 +27,7 @@ export default function MockPreviewPage({ params }: Props) {
           Close
         </button>
       </div>
-      <PublicSiteRenderer site={site} onFirstView={() => {}} />
+      <PublicSiteRenderer site={site} onFirstView={() => {}} isSample />
     </div>
   );
 }

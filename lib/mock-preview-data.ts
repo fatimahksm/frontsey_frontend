@@ -10,9 +10,8 @@ import {
   sampleSalonGalleryImages,
   sampleSalonImage,
   sampleSalonLogoImage,
-  sampleDevImage,
-  sampleDevProjects,
 } from "@/lib/mock-preview-images";
+import { devArt, devAvatar, sampleDevProjectArt } from "@/lib/mock-preview-dev-art";
 import { DEFAULT_THEME_CONFIG } from "@/lib/website/theme-config";
 
 /**
@@ -303,7 +302,7 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteRespon
       description:
         "Eight years building web products, most of them small teams where the person writing the API also owns the UI. I care about the parts users never see: migrations that run clean, errors that say something useful, and pages that stay fast on a bad connection.",
       logoUrl: null,
-      coverImageUrl: sampleDevImage("workspace"),
+      coverImageUrl: null,
       phone: null,
       whatsappNumber: "+961 70 123 456",
       email: "adam@example.dev",
@@ -322,7 +321,7 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteRespon
       { id: "d3", name: "Platform work", description: "CI pipelines, observability, and the unglamorous work that keeps deploys boring.", price: null, imageUrl: null },
       { id: "d4", name: "Technical consulting", description: "Architecture reviews, code audits, and helping small teams choose what not to build.", price: null, imageUrl: null },
     ],
-    galleryImageUrls: sampleDevProjects(),
+    galleryImageUrls: sampleDevProjectArt(),
     seo: null,
     sections: [
       {
@@ -332,7 +331,7 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteRespon
           heading: "About",
           body:
             "I started out writing PHP for a print shop and never really stopped shipping. These days most of my work is product engineering for small teams - the kind where scope is decided in the same conversation as the schema. I like problems where the constraint is real: a slow network, a legacy table nobody wants to touch, a deadline that will not move.",
-          imageUrl: sampleDevImage("team"),
+          imageUrl: devArt("terminal"),
           // Extra keys the base schema ignores and the adapter surfaces under `extra`.
           stack: ["TypeScript", "React", "Next.js", "Node.js", "Java", "Spring Boot", "PostgreSQL", "Docker", "AWS", "Playwright"],
           experience: [
@@ -354,8 +353,8 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteRespon
         data: JSON.stringify({
           heading: "Recommendations",
           items: [
-            { name: "Karim H., CTO", quote: "Adam picked up a codebase nobody wanted and had it deploying cleanly in a fortnight. He writes the migration before he writes the feature.", imageUrl: samplePortraitImage("karim") },
-            { name: "Maya K., Product Lead", quote: "The rare engineer who pushes back on scope early rather than quietly absorbing it. Our estimates finally meant something.", imageUrl: samplePortraitImage("maya") },
+            { name: "Karim H., CTO", quote: "Adam picked up a codebase nobody wanted and had it deploying cleanly in a fortnight. He writes the migration before he writes the feature.", imageUrl: devAvatar("K") },
+            { name: "Maya K., Product Lead", quote: "The rare engineer who pushes back on scope early rather than quietly absorbing it. Our estimates finally meant something.", imageUrl: devAvatar("M") },
           ],
         }),
       },

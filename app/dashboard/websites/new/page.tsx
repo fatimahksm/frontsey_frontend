@@ -159,7 +159,7 @@ export default function NewWebsitePage() {
               >
                 <div className="flex justify-center overflow-hidden rounded-xl border border-black/[.08] dark:border-white/[.145]">
                   <ScaledPreviewFrame>
-                    <PublicSiteRenderer site={mockSiteFor(option.value)} onFirstView={() => {}} />
+                    <PublicSiteRenderer site={mockSiteFor(option.value)} onFirstView={() => {}} isSample />
                   </ScaledPreviewFrame>
                 </div>
                 <div className="mt-3 flex items-start justify-between gap-2">
@@ -188,7 +188,7 @@ export default function NewWebsitePage() {
         </p>
         <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
           <ScaledPreviewFrame width={820} height={520}>
-            <PublicSiteRenderer site={mockSiteFor(layoutVariant)} onFirstView={() => {}} />
+            <PublicSiteRenderer site={mockSiteFor(layoutVariant)} onFirstView={() => {}} isSample />
           </ScaledPreviewFrame>
         </div>
       </div>

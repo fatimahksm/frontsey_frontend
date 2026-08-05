@@ -76,7 +76,7 @@ export function WebsiteCard({ website, accessToken }: { website: WebsiteResponse
     <div className="flex flex-col gap-4 rounded-2xl border border-black/[.08] bg-surface p-5 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.1] sm:flex-row sm:gap-6">
       <div className="hidden shrink-0 sm:block">
         <ScaledPreviewFrame width={180} height={130}>
-          <PublicSiteRenderer site={mockSiteFor(website.layoutVariant)} onFirstView={() => {}} />
+          <PublicSiteRenderer site={mockSiteFor(website.layoutVariant)} onFirstView={() => {}} isSample />
         </ScaledPreviewFrame>
       </div>
 

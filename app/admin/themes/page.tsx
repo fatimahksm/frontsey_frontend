@@ -147,7 +147,7 @@ export default function AdminThemesPage() {
               <p className="mb-2 text-sm font-medium">Live preview</p>
               <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
                 <ScaledPreviewFrame width={480} height={340}>
-                  <PublicSiteRenderer site={{ ...mockSiteFor("MENU_CLASSIC"), theme: draft.config }} onFirstView={() => {}} />
+                  <PublicSiteRenderer site={{ ...mockSiteFor("MENU_CLASSIC"), theme: draft.config }} onFirstView={() => {}} isSample />
                 </ScaledPreviewFrame>
               </div>
             </div>

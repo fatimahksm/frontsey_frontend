@@ -69,7 +69,7 @@ export default function LayoutPage() {
                   }`}
                 >
                   <ScaledPreviewFrame>
-                    <PublicSiteRenderer site={mockSite} onFirstView={() => {}} />
+                    <PublicSiteRenderer site={mockSite} onFirstView={() => {}} isSample />
                   </ScaledPreviewFrame>
                 </div>
                 <div className="mt-4 flex items-start justify-between gap-3">
@@ -109,7 +109,7 @@ export default function LayoutPage() {
         </p>
         <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
           <ScaledPreviewFrame width={820} height={520}>
-            <PublicSiteRenderer site={mockSiteFor(previewVariant)} onFirstView={() => {}} />
+            <PublicSiteRenderer site={mockSiteFor(previewVariant)} onFirstView={() => {}} isSample />
           </ScaledPreviewFrame>
         </div>
       </div>

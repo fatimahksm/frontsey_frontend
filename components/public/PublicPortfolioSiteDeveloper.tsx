@@ -69,15 +69,23 @@ function SectionLabel({ index, children }: { index: string; children: React.Reac
   );
 }
 
-export function PublicPortfolioSiteDeveloper({ site }: { site: PublicWebsiteResponse }) {
+export function PublicPortfolioSiteDeveloper({
+  site,
+  isSample = false,
+}: {
+  site: PublicWebsiteResponse;
+  /** Passed by the design gallery only; a published site is always real. */
+  isSample?: boolean;
+}) {
   const { t, dir } = useLocale();
   const reduceMotion = useReducedMotion();
   const [openCapability, setOpenCapability] = useState<number | null>(null);
 
-  // The design gallery's sample uses this slug; a real published site never
-  // does. Nothing illustrative is rendered without it, so no statistic or
-  // achievement is ever invented on someone's real website.
-  const data = getDeveloperData(normalizePortfolioData(site, { isSample: site.slug === "preview" }));
+  // Sample mode arrives as a prop from the caller that chose to render mock
+  // content. It is never derived from the response, because every field there
+  // is user-editable - an owner who slugs their site "preview" must not start
+  // seeing demo content on it.
+  const data = getDeveloperData(normalizePortfolioData(site, { isSample }));
 
   const about = (data.extra.ABOUT ?? {}) as Record<string, unknown>;
   const stack = asStringArray(about.stack);
