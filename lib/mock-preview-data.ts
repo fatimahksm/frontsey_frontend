@@ -10,6 +10,8 @@ import {
   sampleSalonGalleryImages,
   sampleSalonImage,
   sampleSalonLogoImage,
+  sampleDevImage,
+  sampleDevProjects,
 } from "@/lib/mock-preview-images";
 import { DEFAULT_THEME_CONFIG } from "@/lib/website/theme-config";
 
@@ -271,9 +273,104 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
   };
 }
 
+/**
+ * The Developer sample, for PORTFOLIO_HERO.
+ *
+ * A separate business from the salon on purpose: a developer template
+ * demonstrating "Haircut & Style - $25" makes the template look broken rather
+ * than the data. Sections carry extra keys (tech tags, repo links, experience)
+ * which the section payload already allows as free-form JSON - the adapter
+ * surfaces them under `extra`, and the template treats every one as optional.
+ */
+function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteResponse {
+  return {
+    businessName: "Adam Haddad",
+    slug: "preview",
+    pageMode: "ONE_PAGE",
+    templateType: "PORTFOLIO",
+    layoutVariant,
+    orderingMode: "DISPLAY_ONLY",
+    primaryLanguage: "en",
+    currency: "USD",
+    publishedContent: JSON.stringify({
+      heroHeading: "Full-stack engineer",
+      heroSubtitle:
+        "I build products end to end - TypeScript on the front, Java and Postgres behind it. Currently taking on select contract work.",
+      brandColor: "#7c8cfa",
+      heroBadge: "Available for work",
+    }),
+    profile: {
+      description:
+        "Eight years building web products, most of them small teams where the person writing the API also owns the UI. I care about the parts users never see: migrations that run clean, errors that say something useful, and pages that stay fast on a bad connection.",
+      logoUrl: null,
+      coverImageUrl: sampleDevImage("workspace"),
+      phone: null,
+      whatsappNumber: "+961 70 123 456",
+      email: "adam@example.dev",
+      address: "Beirut, Lebanon - remote friendly",
+      googleMapsUrl: null,
+      instagramUrl: null,
+      tiktokUrl: null,
+      policies: {},
+    },
+    openingHours: [],
+    categories: [],
+    deliveryAreas: [],
+    services: [
+      { id: "d1", name: "Frontend engineering", description: "React and Next.js applications, design systems, accessibility, performance budgets.", price: null, imageUrl: null },
+      { id: "d2", name: "Backend & APIs", description: "Spring Boot and Node services, REST design, Postgres schema and migrations.", price: null, imageUrl: null },
+      { id: "d3", name: "Platform work", description: "CI pipelines, observability, and the unglamorous work that keeps deploys boring.", price: null, imageUrl: null },
+      { id: "d4", name: "Technical consulting", description: "Architecture reviews, code audits, and helping small teams choose what not to build.", price: null, imageUrl: null },
+    ],
+    galleryImageUrls: sampleDevProjects(),
+    seo: null,
+    sections: [
+      {
+        id: "dsec1",
+        type: "ABOUT",
+        data: JSON.stringify({
+          heading: "About",
+          body:
+            "I started out writing PHP for a print shop and never really stopped shipping. These days most of my work is product engineering for small teams - the kind where scope is decided in the same conversation as the schema. I like problems where the constraint is real: a slow network, a legacy table nobody wants to touch, a deadline that will not move.",
+          imageUrl: sampleDevImage("team"),
+          // Extra keys the base schema ignores and the adapter surfaces under `extra`.
+          stack: ["TypeScript", "React", "Next.js", "Node.js", "Java", "Spring Boot", "PostgreSQL", "Docker", "AWS", "Playwright"],
+          experience: [
+            { year: "2022 - now", role: "Senior Engineer", company: "Independent", detail: "Contract product work for startups across the EU and Gulf." },
+            { year: "2019 - 2022", role: "Full-stack Engineer", company: "Cedar Labs", detail: "Owned the billing rewrite; cut checkout errors by a third." },
+            { year: "2017 - 2019", role: "Frontend Developer", company: "Beirut Digital", detail: "Design systems and accessibility across six client products." },
+          ],
+          projectMeta: [
+            { name: "Ledger", role: "Design & build", tech: ["Next.js", "Postgres"], repo: "https://github.com", live: "https://example.dev" },
+            { name: "Fieldnote", role: "Mobile client", tech: ["React Native", "tRPC"], repo: "https://github.com", live: null },
+            { name: "Gateway", role: "Backend", tech: ["Spring Boot", "Redis"], repo: "https://github.com", live: null },
+            { name: "Deploybot", role: "Tooling", tech: ["Go", "Docker"], repo: "https://github.com", live: null },
+          ],
+        }),
+      },
+      {
+        id: "dsec2",
+        type: "TESTIMONIALS",
+        data: JSON.stringify({
+          heading: "Recommendations",
+          items: [
+            { name: "Karim H., CTO", quote: "Adam picked up a codebase nobody wanted and had it deploying cleanly in a fortnight. He writes the migration before he writes the feature.", imageUrl: samplePortraitImage("karim") },
+            { name: "Maya K., Product Lead", quote: "The rare engineer who pushes back on scope early rather than quietly absorbing it. Our estimates finally meant something.", imageUrl: samplePortraitImage("maya") },
+          ],
+        }),
+      },
+    ],
+    theme: DEFAULT_THEME_CONFIG,
+  };
+}
+
 export function mockPortfolioSite(
   layoutVariant: "PORTFOLIO_HERO" | "PORTFOLIO_MINIMAL" | "PORTFOLIO_BOLD" | "PORTFOLIO_PROFILE",
 ): PublicWebsiteResponse {
+  // PORTFOLIO_HERO is the Developer template, so its preview shows a developer
+  // rather than the salon the other three still use.
+  if (layoutVariant === "PORTFOLIO_HERO") return mockDeveloperSite(layoutVariant);
+
   return {
     businessName: "Glow Studio",
     slug: "preview",

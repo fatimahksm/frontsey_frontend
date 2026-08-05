@@ -132,3 +132,35 @@ export function sampleSalonGalleryImages(): string[] {
     sampleSalonImage("interior"),
   ];
 }
+
+// --- Developer sample (the Developer portfolio template) ---
+
+/**
+ * Screens and workspaces rather than people: a developer's portfolio shows
+ * what they shipped, so these stand in for project screenshots.
+ */
+const DEV_PHOTOS = {
+  workspace: "photo-1461749280684-dccba630e2f6", // code on a screen
+  dashboard: "photo-1551288049-bebda4e38f71", // analytics dashboard
+  mobile: "photo-1512941937669-90a1b58e7e9c", // mobile app in hand
+  terminal: "photo-1517180102446-f3ece451e9d8", // dark terminal
+  api: "photo-1518770660439-4636190af475", // circuit / infrastructure
+  team: "photo-1531482615713-2afd69097998", // pair programming
+} as const;
+
+export type DevPhoto = keyof typeof DEV_PHOTOS;
+
+/** A wide project screenshot for the Developer sample. */
+export function sampleDevImage(shot: DevPhoto): string {
+  return unsplashPhoto(DEV_PHOTOS[shot], 1200, 800);
+}
+
+/** Project shots in the order the sample presents them. */
+export function sampleDevProjects(): string[] {
+  return [
+    sampleDevImage("dashboard"),
+    sampleDevImage("mobile"),
+    sampleDevImage("api"),
+    sampleDevImage("terminal"),
+  ];
+}
