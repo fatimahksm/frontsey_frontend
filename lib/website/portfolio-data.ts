@@ -40,6 +40,12 @@ export interface PortfolioData {
   subheadline: string;
   /** Short highlight the owner set (e.g. "5+ years"). Empty when unset. */
   badge: string;
+  /**
+   * The owner's quick accent override, or empty when they never set one.
+   * Templates pass it to `themeCssVars` so a brand colour reaches the accent
+   * without the template having to re-parse the published content itself.
+   */
+  brandColor: string;
 
   /** Long-form description, from the profile or an About section. */
   bio: string;
@@ -144,6 +150,7 @@ export function normalizePortfolioData(site: PublicWebsiteResponse, options: { i
     headline: content.heroHeading ?? "",
     subheadline: content.heroSubtitle ?? "",
     badge: content.heroBadge ?? "",
+    brandColor: content.brandColor ?? "",
 
     // The About section is the longer, deliberately-written piece where it
     // exists; the profile description is the fallback every site has.

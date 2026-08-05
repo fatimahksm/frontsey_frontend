@@ -12,6 +12,7 @@ import {
   sampleSalonLogoImage,
 } from "@/lib/mock-preview-images";
 import { devArt, devAvatar, sampleDevProjectArt } from "@/lib/mock-preview-dev-art";
+import { designerArt, designerAvatar, sampleDesignerWork } from "@/lib/mock-preview-designer-art";
 import { DEFAULT_THEME_CONFIG } from "@/lib/website/theme-config";
 
 /**
@@ -363,12 +364,100 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteRespon
   };
 }
 
+/**
+ * The Designer sample, for PORTFOLIO_MINIMAL.
+ *
+ * A product/brand designer rather than the salon, for the same reason the
+ * Developer sample is a developer: a template demonstrating the wrong
+ * profession makes the template look broken rather than the data. Project
+ * metadata (discipline, year, link) rides in the ABOUT payload's free-form
+ * JSON, as it does for Developer, so no schema change is needed.
+ */
+function mockDesignerSite(layoutVariant: "PORTFOLIO_MINIMAL"): PublicWebsiteResponse {
+  return {
+    businessName: "Nadia Sarrouf",
+    slug: "preview",
+    pageMode: "ONE_PAGE",
+    templateType: "PORTFOLIO",
+    layoutVariant,
+    orderingMode: "DISPLAY_ONLY",
+    primaryLanguage: "en",
+    currency: "USD",
+    publishedContent: JSON.stringify({
+      heroHeading: "Product & brand designer",
+      heroSubtitle:
+        "I design identities and the interfaces that carry them - from the first mark to the component library it ships in.",
+      brandColor: "#c8553d",
+      heroBadge: "Taking projects for Q3",
+    }),
+    profile: {
+      description:
+        "Ten years between brand and product, mostly for teams small enough that the identity and the interface are decided in the same room. I work in systems: a typeface chosen for how it behaves at 13px, a palette that survives a dark mode, components that a developer can build without asking what happens at the edges.",
+      logoUrl: null,
+      coverImageUrl: designerArt("identity"),
+      phone: null,
+      whatsappNumber: "+961 70 123 456",
+      email: "studio@example.design",
+      address: "Beirut - working with teams anywhere",
+      googleMapsUrl: null,
+      instagramUrl: "https://instagram.com",
+      tiktokUrl: null,
+      policies: {},
+    },
+    openingHours: [],
+    categories: [],
+    deliveryAreas: [],
+    services: [
+      { id: "g1", name: "Brand identity", description: "Marks, wordmarks, palette and the rules that keep them coherent as a team grows.", price: null, imageUrl: null },
+      { id: "g2", name: "Product design", description: "End-to-end interface design for web and mobile, from flows to shipped screens.", price: null, imageUrl: null },
+      { id: "g3", name: "Design systems", description: "Component libraries and tokens built with the people who will implement them.", price: null, imageUrl: null },
+      { id: "g4", name: "Art direction", description: "Photography, layout and typographic direction for launches and campaigns.", price: null, imageUrl: null },
+    ],
+    galleryImageUrls: sampleDesignerWork(),
+    seo: null,
+    sections: [
+      {
+        id: "gsec1",
+        type: "ABOUT",
+        data: JSON.stringify({
+          heading: "Approach",
+          body:
+            "I start with the constraint nobody wants to name - the budget, the legacy screen, the word the founder will not give up - because that is usually where the real design problem is. Everything after that is craft: spacing that holds, type that reads, and a system the team can keep using once I am gone.",
+          imageUrl: designerArt("typeSpecimen"),
+          // Free-form extras, mirrored from the Developer sample's pattern.
+          tools: ["Figma", "After Effects", "Blender", "Illustrator", "Framer", "Webflow"],
+          workMeta: [
+            { name: "Meridian", discipline: "Brand identity", year: "2026", summary: "A mark and type system for an independent coffee roaster, built to survive packaging, signage and a 32px favicon.", tags: ["Identity", "Packaging"], live: "https://example.design" },
+            { name: "Halo", discipline: "Product design", year: "2025", summary: "Three flows for a habit-tracking app, designed around the one screen people actually open each morning.", tags: ["Mobile", "UX"], live: null },
+            { name: "Groundwork", discipline: "Design system", year: "2025", summary: "Tokens, components and documentation for a fintech team of nine, handed over as a living library rather than a file.", tags: ["Systems", "Tokens"], live: "https://example.design" },
+            { name: "Field Notes", discipline: "Art direction", year: "2024", summary: "Editorial direction and layout for a quarterly print and web publication.", tags: ["Editorial", "Web"], live: null },
+            { name: "Ascender", discipline: "Typography", year: "2024", summary: "A specimen and usage guide for a variable typeface licensed across a product suite.", tags: ["Type", "Guidelines"], live: null },
+          ],
+        }),
+      },
+      {
+        id: "gsec2",
+        type: "TESTIMONIALS",
+        data: JSON.stringify({
+          heading: "Words",
+          items: [
+            { name: "Rana S., Founder", quote: "Nadia asked better questions than our brief did. The identity we ended up with is the one we should have asked for.", imageUrl: designerAvatar("R") },
+            { name: "Omar T., Head of Product", quote: "She handed our engineers a system they actually wanted to build. Six months on, nothing has drifted.", imageUrl: designerAvatar("O") },
+          ],
+        }),
+      },
+    ],
+    theme: DEFAULT_THEME_CONFIG,
+  };
+}
+
 export function mockPortfolioSite(
   layoutVariant: "PORTFOLIO_HERO" | "PORTFOLIO_MINIMAL" | "PORTFOLIO_BOLD" | "PORTFOLIO_PROFILE",
 ): PublicWebsiteResponse {
   // PORTFOLIO_HERO is the Developer template, so its preview shows a developer
   // rather than the salon the other three still use.
   if (layoutVariant === "PORTFOLIO_HERO") return mockDeveloperSite(layoutVariant);
+  if (layoutVariant === "PORTFOLIO_MINIMAL") return mockDesignerSite(layoutVariant);
 
   return {
     businessName: "Glow Studio",

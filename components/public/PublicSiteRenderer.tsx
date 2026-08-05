@@ -5,7 +5,7 @@ import { PublicMenuSiteElegant } from "@/components/public/PublicMenuSiteElegant
 import { PublicMenuSiteGrid } from "@/components/public/PublicMenuSiteGrid";
 import { PublicPortfolioSiteDeveloper } from "@/components/public/PublicPortfolioSiteDeveloper";
 import { PublicPortfolioSiteBold } from "@/components/public/PublicPortfolioSiteBold";
-import { PublicPortfolioSiteMinimal } from "@/components/public/PublicPortfolioSiteMinimal";
+import { PublicPortfolioSiteDesigner } from "@/components/public/PublicPortfolioSiteDesigner";
 import { PublicPortfolioSiteProfile } from "@/components/public/PublicPortfolioSiteProfile";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
@@ -19,7 +19,7 @@ function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string)
     case "MENU_BISTRO":
       return <PublicMenuSiteBistro site={site} onFirstView={onFirstView} />;
     case "PORTFOLIO_MINIMAL":
-      return <PublicPortfolioSiteMinimal site={site} />;
+      return <PublicPortfolioSiteDesigner site={site} isSample={isSample} />;
     case "PORTFOLIO_BOLD":
       return <PublicPortfolioSiteBold site={site} />;
     case "PORTFOLIO_PROFILE":
