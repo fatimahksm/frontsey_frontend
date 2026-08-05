@@ -6,7 +6,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { accountApi } from "@/lib/api/account";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { useAuth } from "@/lib/auth/auth-context";
 
 export default function AccountPage() {
@@ -29,7 +29,7 @@ export default function AccountPage() {
       link.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to export your data.");
+      setError(friendlyMessage(err, "Failed to export your data."));
     } finally {
       setIsBusy(false);
     }
@@ -45,7 +45,7 @@ export default function AccountPage() {
       await accountApi.requestDeletion(session.accessToken);
       setMessage("Your account will be permanently deleted after the retention window unless you cancel.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to request deletion.");
+      setError(friendlyMessage(err, "Failed to request deletion."));
     } finally {
       setIsBusy(false);
     }
@@ -60,7 +60,7 @@ export default function AccountPage() {
       await accountApi.cancelDeletion(session.accessToken);
       setMessage("Account deletion cancelled.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to cancel deletion.");
+      setError(friendlyMessage(err, "Failed to cancel deletion."));
     } finally {
       setIsBusy(false);
     }

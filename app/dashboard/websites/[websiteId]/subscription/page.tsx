@@ -6,7 +6,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { plansApi } from "@/lib/api/plans";
 import { subscriptionApi } from "@/lib/api/subscription";
 import type { MockPaymentResponse, MockPaymentStatus, PlanResponse, SubscriptionResponse } from "@/lib/api/types";
@@ -42,7 +42,7 @@ export default function SubscriptionPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
     Promise.all([loadSubscription(), plansApi.list().then(setPlans)])
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load subscription info."))
+      .catch((err) => setError(friendlyMessage(err, "Failed to load subscription info.")))
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, website.id]);
@@ -59,7 +59,7 @@ export default function SubscriptionPage() {
       setPendingPayment(payment);
       await loadSubscription();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to start checkout.");
+      setError(friendlyMessage(err, "Failed to start checkout."));
     } finally {
       setIsBusy(false);
     }
@@ -76,7 +76,7 @@ export default function SubscriptionPage() {
       await loadSubscription();
       setMessage(`Payment marked as ${outcome.toLowerCase()}.`);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to simulate payment outcome.");
+      setError(friendlyMessage(err, "Failed to simulate payment outcome."));
     } finally {
       setIsBusy(false);
     }

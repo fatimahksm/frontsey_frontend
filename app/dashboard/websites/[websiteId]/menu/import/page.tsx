@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Select } from "@/components/ui/Select";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { menuImportApi } from "@/lib/api/menuImport";
 import type { DuplicateAction, ImportOutcomeResponse, ImportPreviewResponse } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
@@ -36,7 +36,7 @@ export default function MenuImportPage() {
       setPreview(result);
       setDecisions({});
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to preview the file.");
+      setError(friendlyMessage(err, "Failed to preview the file."));
     } finally {
       setIsBusy(false);
     }
@@ -57,7 +57,7 @@ export default function MenuImportPage() {
       setOutcome(result);
       setPreview(null);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to complete the import.");
+      setError(friendlyMessage(err, "Failed to complete the import."));
     } finally {
       setIsBusy(false);
     }

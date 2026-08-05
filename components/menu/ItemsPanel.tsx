@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { TextField } from "@/components/ui/TextField";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { menuApi } from "@/lib/api/menu";
 import type { CategoryDto, ItemAvailability, MenuItemResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
@@ -55,7 +55,7 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
       setItems(fetched);
       setSelected(new Set());
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to load menu items.");
+      setError(friendlyMessage(err, "Failed to load menu items."));
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +83,7 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
       await action();
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "That action failed.");
+      setError(friendlyMessage(err, "That action failed."));
     } finally {
       setIsBusy(false);
     }

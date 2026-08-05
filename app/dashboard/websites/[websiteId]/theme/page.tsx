@@ -6,7 +6,7 @@ import { ThemeConfigForm } from "@/components/theme/ThemeConfigForm";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { themeApi } from "@/lib/api/theme";
 import { websitesApi } from "@/lib/api/websites";
 import type { ThemeResponse } from "@/lib/api/types";
@@ -41,7 +41,7 @@ export default function ThemePage() {
     themeApi
       .list()
       .then(setThemes)
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load themes."));
+      .catch((err) => setError(friendlyMessage(err, "Failed to load themes.")));
   }, []);
 
   async function handleSelect(themeId: string | null) {
@@ -53,7 +53,7 @@ export default function ThemePage() {
       await reload();
       setMessage("Theme updated.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to update theme.");
+      setError(friendlyMessage(err, "Failed to update theme."));
     } finally {
       setIsBusy(false);
     }
@@ -69,7 +69,7 @@ export default function ThemePage() {
       setDraft(null);
       setMessage("Colours updated.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save colours.");
+      setError(friendlyMessage(err, "Failed to save colours."));
     } finally {
       setIsBusy(false);
     }
@@ -85,7 +85,7 @@ export default function ThemePage() {
       setDraft(null);
       setMessage("Reverted to the preset.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to reset colours.");
+      setError(friendlyMessage(err, "Failed to reset colours."));
     } finally {
       setIsBusy(false);
     }

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { ShareLinksPanel } from "@/components/dashboard/ShareLinksPanel";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { websitesApi } from "@/lib/api/websites";
 import type { ChecklistItem } from "@/lib/website/setup-checklist";
 import { loadSetupStatus } from "@/lib/website/setup-checklist";
@@ -27,7 +27,7 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
         if (!cancelled) setChecklist(result);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof ApiError ? err.message : "Failed to load your setup status.");
+        if (!cancelled) setError(friendlyMessage(err, "Failed to load your setup status."));
       });
     return () => {
       cancelled = true;
@@ -43,7 +43,7 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
       setHasPublished(true);
       onPublished();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to publish. Check the checklist below for what's missing.");
+      setError(friendlyMessage(err, "Failed to publish. Check the checklist below for what's missing."));
     } finally {
       setIsPublishing(false);
     }

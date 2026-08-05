@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { analyticsApi } from "@/lib/api/analytics";
 import type { AnalyticsSummaryResponse } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
@@ -37,7 +37,7 @@ export default function AnalyticsPage() {
       );
       setSummary(result);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to load analytics.");
+      setError(friendlyMessage(err, "Failed to load analytics."));
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +65,7 @@ export default function AnalyticsPage() {
       link.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to export analytics.");
+      setError(friendlyMessage(err, "Failed to export analytics."));
     } finally {
       setIsExporting(false);
     }

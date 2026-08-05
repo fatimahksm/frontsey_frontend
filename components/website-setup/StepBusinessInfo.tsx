@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { BusinessProfileForm } from "@/components/profile/BusinessProfileForm";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { profileApi } from "@/lib/api/profile";
 import type { BusinessProfileRequest } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
@@ -47,7 +47,7 @@ export function StepBusinessInfo({ onContinue }: { onContinue(): void }) {
         if (!cancelled) setProfile(fetched);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof ApiError ? err.message : "Failed to load business profile.");
+        if (!cancelled) setError(friendlyMessage(err, "Failed to load business profile."));
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -68,7 +68,7 @@ export function StepBusinessInfo({ onContinue }: { onContinue(): void }) {
       await profileApi.update(accessToken, website.id, profile);
       onContinue();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save business information.");
+      setError(friendlyMessage(err, "Failed to save business information."));
     } finally {
       setIsSaving(false);
     }

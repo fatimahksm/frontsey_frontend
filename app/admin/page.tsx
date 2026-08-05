@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Card } from "@/components/ui/Card";
 import { adminApi } from "@/lib/api/admin";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import type { AdminDashboardResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { formatMoney } from "@/lib/format";
@@ -20,7 +20,7 @@ export default function AdminDashboardPage() {
     adminApi
       .dashboard(session.accessToken)
       .then(setDashboard)
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load dashboard."));
+      .catch((err) => setError(friendlyMessage(err, "Failed to load dashboard.")));
   }, [session]);
 
   if (error) return <Alert tone="error">{error}</Alert>;

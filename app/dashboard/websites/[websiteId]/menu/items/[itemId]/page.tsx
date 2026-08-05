@@ -9,7 +9,7 @@ import { AddonGroupsManager } from "@/components/menu/AddonGroupsManager";
 import { BoxVariantsManager } from "@/components/menu/BoxVariantsManager";
 import { MenuItemForm } from "@/components/menu/MenuItemForm";
 import { SizesManager } from "@/components/menu/SizesManager";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { menuApi } from "@/lib/api/menu";
 import type { CategoryDto, MenuItemRequest, MenuItemResponse } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
@@ -36,7 +36,7 @@ export default function EditMenuItemPage() {
         }
         setItem(found);
       })
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load this item."));
+      .catch((err) => setError(friendlyMessage(err, "Failed to load this item.")));
   }, [accessToken, website.id, params.itemId]);
 
   async function handleUpdate(request: MenuItemRequest) {
@@ -49,7 +49,7 @@ export default function EditMenuItemPage() {
       setItem(updated);
       setMessage("Item updated.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to update item.");
+      setError(friendlyMessage(err, "Failed to update item."));
     } finally {
       setIsSubmitting(false);
     }

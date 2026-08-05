@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { themeApi } from "@/lib/api/theme";
 import { websitesApi } from "@/lib/api/websites";
 import type { ThemeResponse } from "@/lib/api/types";
@@ -36,7 +36,7 @@ export function StepDesign({ onContinue }: { onContinue(): void }) {
       await websitesApi.updateTheme(accessToken, website.id, themeId);
       await reload();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to update theme.");
+      setError(friendlyMessage(err, "Failed to update theme."));
     } finally {
       setIsBusy(false);
     }
@@ -54,7 +54,7 @@ export function StepDesign({ onContinue }: { onContinue(): void }) {
       await reload();
       onContinue();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save your design choices.");
+      setError(friendlyMessage(err, "Failed to save your design choices."));
     } finally {
       setIsBusy(false);
     }

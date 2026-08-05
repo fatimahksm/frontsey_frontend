@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { ImageUploadField } from "@/components/ui/ImageUploadField";
 import { TextField } from "@/components/ui/TextField";
 import { Textarea } from "@/components/ui/Textarea";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { sectionsApi } from "@/lib/api/sections";
 import type { PageSectionResponse, PageSectionType } from "@/lib/api/types";
 import {
@@ -61,7 +61,7 @@ export default function SectionsPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
     load()
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load sections."))
+      .catch((err) => setError(friendlyMessage(err, "Failed to load sections.")))
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, website.id]);
@@ -103,7 +103,7 @@ export default function SectionsPage() {
       await load();
       notifyDraftChanged();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save section.");
+      setError(friendlyMessage(err, "Failed to save section."));
     } finally {
       setIsBusy(false);
     }
@@ -117,7 +117,7 @@ export default function SectionsPage() {
       await load();
       notifyDraftChanged();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to delete section.");
+      setError(friendlyMessage(err, "Failed to delete section."));
     } finally {
       setIsBusy(false);
     }
@@ -135,7 +135,7 @@ export default function SectionsPage() {
       await load();
       notifyDraftChanged();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to reorder sections.");
+      setError(friendlyMessage(err, "Failed to reorder sections."));
     } finally {
       setIsBusy(false);
     }

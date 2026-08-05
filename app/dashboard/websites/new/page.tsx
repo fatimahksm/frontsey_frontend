@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { Stepper, type StepDefinition } from "@/components/ui/Stepper";
 import { TextField } from "@/components/ui/TextField";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { themeApi } from "@/lib/api/theme";
 import { websitesApi } from "@/lib/api/websites";
 import type { LayoutVariant, PageMode, TemplateType, ThemeResponse } from "@/lib/api/types";
@@ -73,7 +73,7 @@ export default function NewWebsitePage() {
       }
       router.push(`/dashboard/websites/${website.id}/setup`);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to create website.");
+      setError(friendlyMessage(err, "Failed to create website."));
       setIsSubmitting(false);
     }
   }

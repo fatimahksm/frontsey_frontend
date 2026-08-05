@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { TextField } from "@/components/ui/TextField";
 import { WebsiteStatusBadge } from "@/components/dashboard/WebsiteStatusBadge";
 import { adminApi } from "@/lib/api/admin";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import type { AdminWebsiteSummaryResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 
@@ -35,7 +35,7 @@ export default function AdminWebsitesPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
     load()
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load websites."))
+      .catch((err) => setError(friendlyMessage(err, "Failed to load websites.")))
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
@@ -55,7 +55,7 @@ export default function AdminWebsitesPage() {
       setReactivateAt("");
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to suspend website.");
+      setError(friendlyMessage(err, "Failed to suspend website."));
     } finally {
       setIsBusy(false);
     }
@@ -69,7 +69,7 @@ export default function AdminWebsitesPage() {
       await adminApi.reactivateWebsite(session.accessToken, id);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to reactivate website.");
+      setError(friendlyMessage(err, "Failed to reactivate website."));
     } finally {
       setIsBusy(false);
     }
@@ -84,7 +84,7 @@ export default function AdminWebsitesPage() {
       setEditingId(null);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to update website.");
+      setError(friendlyMessage(err, "Failed to update website."));
     } finally {
       setIsBusy(false);
     }
@@ -99,7 +99,7 @@ export default function AdminWebsitesPage() {
       await adminApi.deleteWebsite(session.accessToken, id);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to delete website.");
+      setError(friendlyMessage(err, "Failed to delete website."));
     } finally {
       setIsBusy(false);
     }

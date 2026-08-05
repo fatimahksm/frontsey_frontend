@@ -8,7 +8,7 @@ import { Alert } from "@/components/ui/Alert";
 import { AuthCard } from "@/components/ui/AuthCard";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { useAuth } from "@/lib/auth/auth-context";
 
 export default function LoginPage() {
@@ -28,7 +28,7 @@ export default function LoginPage() {
       await login({ email, password });
       router.push("/dashboard");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Login failed. Please try again.");
+      setError(friendlyMessage(err, "Login failed. Please try again."));
       setIsSubmitting(false);
     }
   }

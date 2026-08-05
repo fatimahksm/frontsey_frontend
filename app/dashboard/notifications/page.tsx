@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { notificationsApi } from "@/lib/api/notifications";
 import type { NotificationResponse } from "@/lib/api/types";
 import { formatDateTime } from "@/lib/format";
@@ -26,7 +26,7 @@ export default function NotificationsPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
     load()
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load notifications."))
+      .catch((err) => setError(friendlyMessage(err, "Failed to load notifications.")))
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);

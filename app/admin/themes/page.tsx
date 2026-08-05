@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { TextField } from "@/components/ui/TextField";
 import { Textarea } from "@/components/ui/Textarea";
 import { adminApi } from "@/lib/api/admin";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import type { ThemeResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { mockSiteFor } from "@/lib/mock-preview-data";
@@ -45,7 +45,7 @@ export default function AdminThemesPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
     load()
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load themes."))
+      .catch((err) => setError(friendlyMessage(err, "Failed to load themes.")))
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
@@ -71,7 +71,7 @@ export default function AdminThemesPage() {
       setEditingId(null);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save theme.");
+      setError(friendlyMessage(err, "Failed to save theme."));
     } finally {
       setIsBusy(false);
     }
@@ -85,7 +85,7 @@ export default function AdminThemesPage() {
       await adminApi.deleteTheme(session.accessToken, id);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to delete theme.");
+      setError(friendlyMessage(err, "Failed to delete theme."));
     } finally {
       setIsBusy(false);
     }

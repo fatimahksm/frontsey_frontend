@@ -6,7 +6,7 @@ import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { managerInvitationsApi } from "@/lib/api/managerInvitations";
 import type { ManagerInvitationResponse, Permission } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
@@ -35,7 +35,7 @@ export default function InvitationsPage() {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
-    load().catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load invitations."));
+    load().catch((err) => setError(friendlyMessage(err, "Failed to load invitations.")));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
@@ -47,7 +47,7 @@ export default function InvitationsPage() {
       await managerInvitationsApi.accept(session.accessToken, id);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to accept invitation.");
+      setError(friendlyMessage(err, "Failed to accept invitation."));
     } finally {
       setBusyId(null);
     }
@@ -61,7 +61,7 @@ export default function InvitationsPage() {
       await managerInvitationsApi.reject(session.accessToken, id);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to decline invitation.");
+      setError(friendlyMessage(err, "Failed to decline invitation."));
     } finally {
       setBusyId(null);
     }

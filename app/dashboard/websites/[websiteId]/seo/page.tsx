@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { SuggestButton } from "@/components/ui/SuggestButton";
 import { TextField } from "@/components/ui/TextField";
 import { Textarea } from "@/components/ui/Textarea";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { seoApi } from "@/lib/api/seo";
 import type { SeoMetadataRequest } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
@@ -37,7 +37,7 @@ export default function SeoPage() {
         setOgImageUrl(seo.ogImageUrl ?? "");
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof ApiError ? err.message : "Failed to load SEO metadata.");
+        if (!cancelled) setError(friendlyMessage(err, "Failed to load SEO metadata."));
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -62,7 +62,7 @@ export default function SeoPage() {
       setMessage("SEO metadata updated.");
       notifyDraftChanged();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save SEO metadata.");
+      setError(friendlyMessage(err, "Failed to save SEO metadata."));
     } finally {
       setIsSaving(false);
     }

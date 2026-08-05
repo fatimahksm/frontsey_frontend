@@ -7,7 +7,7 @@ import { Alert } from "@/components/ui/Alert";
 import { AuthCard } from "@/components/ui/AuthCard";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { authApi } from "@/lib/auth/api";
 
 export function ResetPasswordForm({ token }: { token: string | undefined }) {
@@ -28,7 +28,7 @@ function RequestResetForm() {
       await authApi.requestPasswordReset(email);
       setIsSent(true);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(friendlyMessage(err, "Something went wrong. Please try again."));
     } finally {
       setIsSubmitting(false);
     }
@@ -85,7 +85,7 @@ function ConfirmResetForm({ token }: { token: string }) {
       setIsDone(true);
       setTimeout(() => router.push("/login"), 2000);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Could not reset password.");
+      setError(friendlyMessage(err, "Could not reset password."));
     } finally {
       setIsSubmitting(false);
     }

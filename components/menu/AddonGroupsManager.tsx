@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { menuOptionsApi } from "@/lib/api/menuOptions";
 import type { AddonGroupResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
@@ -52,7 +52,7 @@ export function AddonGroupsManager({
       setMaxSelections("");
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to add add-on group.");
+      setError(friendlyMessage(err, "Failed to add add-on group."));
     } finally {
       setIsBusy(false);
     }
@@ -65,7 +65,7 @@ export function AddonGroupsManager({
       await menuOptionsApi.deleteAddonGroup(accessToken, websiteId, itemId, groupId);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to delete add-on group.");
+      setError(friendlyMessage(err, "Failed to delete add-on group."));
     } finally {
       setIsBusy(false);
     }
@@ -84,7 +84,7 @@ export function AddonGroupsManager({
       setAddonDrafts((prev) => ({ ...prev, [groupId]: { name: "", extraPrice: "" } }));
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to add add-on.");
+      setError(friendlyMessage(err, "Failed to add add-on."));
     } finally {
       setIsBusy(false);
     }
@@ -97,7 +97,7 @@ export function AddonGroupsManager({
       await menuOptionsApi.deleteAddon(accessToken, websiteId, itemId, groupId, addonId);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to delete add-on.");
+      setError(friendlyMessage(err, "Failed to delete add-on."));
     } finally {
       setIsBusy(false);
     }

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { TextField } from "@/components/ui/TextField";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { managersApi } from "@/lib/api/managers";
 import type { ManagerAccessResponse, Permission } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
@@ -62,7 +62,7 @@ export default function ManagersPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
     load()
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load managers."))
+      .catch((err) => setError(friendlyMessage(err, "Failed to load managers.")))
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, website.id]);
@@ -78,7 +78,7 @@ export default function ManagersPage() {
       setInvitePermissions(new Set());
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to send invitation.");
+      setError(friendlyMessage(err, "Failed to send invitation."));
     } finally {
       setIsBusy(false);
     }
@@ -94,7 +94,7 @@ export default function ManagersPage() {
       await managersApi.updatePermissions(accessToken, website.id, manager.id, [...next]);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to update permissions.");
+      setError(friendlyMessage(err, "Failed to update permissions."));
     } finally {
       setIsBusy(false);
     }
@@ -107,7 +107,7 @@ export default function ManagersPage() {
       await managersApi.revoke(accessToken, website.id, id);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to revoke access.");
+      setError(friendlyMessage(err, "Failed to revoke access."));
     } finally {
       setIsBusy(false);
     }

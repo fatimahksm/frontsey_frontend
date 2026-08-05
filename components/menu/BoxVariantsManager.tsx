@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { menuOptionsApi } from "@/lib/api/menuOptions";
 import type { BoxVariantResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
@@ -54,7 +54,7 @@ export function BoxVariantsManager({
       setPrice("");
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to add box variant.");
+      setError(friendlyMessage(err, "Failed to add box variant."));
     } finally {
       setIsBusy(false);
     }
@@ -67,7 +67,7 @@ export function BoxVariantsManager({
       await menuOptionsApi.deleteBoxVariant(accessToken, websiteId, itemId, variantId);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to delete box variant.");
+      setError(friendlyMessage(err, "Failed to delete box variant."));
     } finally {
       setIsBusy(false);
     }

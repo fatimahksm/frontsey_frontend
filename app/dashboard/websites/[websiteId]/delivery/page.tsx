@@ -7,7 +7,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { TextField } from "@/components/ui/TextField";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { deliveryApi } from "@/lib/api/delivery";
 import type { DeliveryAreaResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
@@ -31,7 +31,7 @@ export default function DeliveryAreasPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
     load()
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load delivery areas."))
+      .catch((err) => setError(friendlyMessage(err, "Failed to load delivery areas.")))
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, website.id]);
@@ -55,7 +55,7 @@ export default function DeliveryAreasPage() {
       await load();
       notifyDraftChanged();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to add delivery area.");
+      setError(friendlyMessage(err, "Failed to add delivery area."));
     } finally {
       setIsBusy(false);
     }
@@ -69,7 +69,7 @@ export default function DeliveryAreasPage() {
       await load();
       notifyDraftChanged();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to delete delivery area.");
+      setError(friendlyMessage(err, "Failed to delete delivery area."));
     } finally {
       setIsBusy(false);
     }

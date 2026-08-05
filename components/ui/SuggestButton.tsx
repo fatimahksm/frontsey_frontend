@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { aiApi } from "@/lib/api/ai";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import type { AiSuggestionFieldType, TemplateType } from "@/lib/api/types";
 
 interface Props {
@@ -32,7 +32,7 @@ export function SuggestButton({ accessToken, businessName, templateType, fieldTy
       });
       onSuggestion(suggestion);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to get a suggestion.");
+      setError(friendlyMessage(err, "Failed to get a suggestion."));
     } finally {
       setIsLoading(false);
     }

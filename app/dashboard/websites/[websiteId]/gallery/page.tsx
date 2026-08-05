@@ -7,7 +7,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { TextField } from "@/components/ui/TextField";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { galleryApi } from "@/lib/api/gallery";
 import type { GalleryImageResponse } from "@/lib/api/types";
 import { uploadsApi } from "@/lib/api/uploads";
@@ -38,7 +38,7 @@ export default function GalleryPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
     load()
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load the gallery."))
+      .catch((err) => setError(friendlyMessage(err, "Failed to load the gallery.")))
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, website.id]);
@@ -54,7 +54,7 @@ export default function GalleryPage() {
       await load();
       notifyDraftChanged();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to add image.");
+      setError(friendlyMessage(err, "Failed to add image."));
     } finally {
       setIsBusy(false);
     }
@@ -69,7 +69,7 @@ export default function GalleryPage() {
       await load();
       notifyDraftChanged();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to upload image.");
+      setError(friendlyMessage(err, "Failed to upload image."));
     } finally {
       setIsUploading(false);
     }
@@ -83,7 +83,7 @@ export default function GalleryPage() {
       await load();
       notifyDraftChanged();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to delete image.");
+      setError(friendlyMessage(err, "Failed to delete image."));
     } finally {
       setIsBusy(false);
     }
@@ -97,7 +97,7 @@ export default function GalleryPage() {
       await load();
       notifyDraftChanged();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to set cover image.");
+      setError(friendlyMessage(err, "Failed to set cover image."));
     } finally {
       setIsBusy(false);
     }
@@ -115,7 +115,7 @@ export default function GalleryPage() {
       await load();
       notifyDraftChanged();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to reorder gallery.");
+      setError(friendlyMessage(err, "Failed to reorder gallery."));
     } finally {
       setIsBusy(false);
     }

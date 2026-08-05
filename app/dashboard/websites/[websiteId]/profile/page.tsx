@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Textarea } from "@/components/ui/Textarea";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { profileApi } from "@/lib/api/profile";
 import type { BusinessProfileRequest, OpeningHoursEntry } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
@@ -93,7 +93,7 @@ export default function BusinessProfilePage() {
         }
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof ApiError ? err.message : "Failed to load business profile.");
+        if (!cancelled) setError(friendlyMessage(err, "Failed to load business profile."));
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -117,7 +117,7 @@ export default function BusinessProfilePage() {
       setMessage("Business profile updated.");
       notifyDraftChanged();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save business profile.");
+      setError(friendlyMessage(err, "Failed to save business profile."));
     } finally {
       setIsSavingProfile(false);
     }
@@ -133,7 +133,7 @@ export default function BusinessProfilePage() {
       setMessage("Opening hours updated.");
       notifyDraftChanged();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save opening hours.");
+      setError(friendlyMessage(err, "Failed to save opening hours."));
     } finally {
       setIsSavingHours(false);
     }

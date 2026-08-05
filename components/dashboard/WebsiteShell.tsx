@@ -8,7 +8,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { LivePreviewPanel } from "@/components/dashboard/LivePreviewPanel";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { plansApi } from "@/lib/api/plans";
 import { subscriptionApi } from "@/lib/api/subscription";
 import { websitesApi } from "@/lib/api/websites";
@@ -132,7 +132,7 @@ export function WebsiteShell({ websiteId, children }: { websiteId: string; child
         if (!cancelled) setWebsite(w);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof ApiError ? err.message : "Failed to load this website.");
+        if (!cancelled) setError(friendlyMessage(err, "Failed to load this website."));
       });
     return () => {
       cancelled = true;

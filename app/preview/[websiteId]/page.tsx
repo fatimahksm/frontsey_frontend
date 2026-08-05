@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 import { PublicSiteRenderer } from "@/components/public/PublicSiteRenderer";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { websitesApi } from "@/lib/api/websites";
 import { useAuth } from "@/lib/auth/auth-context";
@@ -36,7 +36,7 @@ export default function PreviewPage({ params }: Props) {
         if (!cancelled) setSite(response);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof ApiError ? err.message : "Failed to load preview.");
+        if (!cancelled) setError(friendlyMessage(err, "Failed to load preview."));
       });
     return () => {
       cancelled = true;

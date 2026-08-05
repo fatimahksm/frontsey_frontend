@@ -8,7 +8,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { managerInvitationsApi } from "@/lib/api/managerInvitations";
 import { websitesApi } from "@/lib/api/websites";
 import type { WebsiteResponse } from "@/lib/api/types";
@@ -25,7 +25,7 @@ export default function WebsitesPage() {
     websitesApi
       .listAccessible(session.accessToken)
       .then(setWebsites)
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load your websites."));
+      .catch((err) => setError(friendlyMessage(err, "Failed to load your websites.")));
     managerInvitationsApi
       .list(session.accessToken)
       .then((invitations) => setPendingInvitationCount(invitations.length))

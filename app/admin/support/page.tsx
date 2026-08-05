@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { adminApi } from "@/lib/api/admin";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import type { SupportTicketResponse, SupportTicketStatus } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { formatDateTime } from "@/lib/format";
@@ -30,7 +30,7 @@ export default function AdminSupportPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
     load()
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load support tickets."))
+      .catch((err) => setError(friendlyMessage(err, "Failed to load support tickets.")))
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
@@ -42,7 +42,7 @@ export default function AdminSupportPage() {
       await adminApi.updateSupportTicketStatus(session.accessToken, ticketId, status);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to update ticket status.");
+      setError(friendlyMessage(err, "Failed to update ticket status."));
     }
   }
 

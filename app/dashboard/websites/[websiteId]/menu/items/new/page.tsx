@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Alert } from "@/components/ui/Alert";
 import { MenuItemForm } from "@/components/menu/MenuItemForm";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { menuApi } from "@/lib/api/menu";
 import type { CategoryDto, MenuItemRequest } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
@@ -40,7 +40,7 @@ export default function NewMenuItemPage() {
       const item = await menuApi.createItem(accessToken, website.id, request);
       router.push(`/dashboard/websites/${website.id}/menu/items/${item.id}`);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to create item.");
+      setError(friendlyMessage(err, "Failed to create item."));
       setIsSubmitting(false);
     }
   }

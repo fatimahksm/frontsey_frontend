@@ -7,7 +7,7 @@ import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { PublicSiteRenderer } from "@/components/public/PublicSiteRenderer";
 import { Alert } from "@/components/ui/Alert";
 import { Card } from "@/components/ui/Card";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import type { LayoutVariant } from "@/lib/api/types";
 import { websitesApi } from "@/lib/api/websites";
 import { mockSiteFor } from "@/lib/mock-preview-data";
@@ -29,7 +29,7 @@ export default function LayoutPage() {
       await websitesApi.updateLayoutVariant(accessToken, website.id, variant);
       await reload();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to update layout.");
+      setError(friendlyMessage(err, "Failed to update layout."));
     } finally {
       setBusyVariant(null);
     }

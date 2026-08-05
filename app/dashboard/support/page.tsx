@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { TextField } from "@/components/ui/TextField";
 import { Textarea } from "@/components/ui/Textarea";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { supportApi } from "@/lib/api/support";
 import type { SupportCategory, SupportTicketResponse } from "@/lib/api/types";
 import { formatDateTime } from "@/lib/format";
@@ -46,7 +46,7 @@ export default function SupportPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
     load()
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load your support tickets."))
+      .catch((err) => setError(friendlyMessage(err, "Failed to load your support tickets.")))
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
@@ -70,7 +70,7 @@ export default function SupportPage() {
       setConfirmation("Your ticket was submitted. We'll get back to you soon.");
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to submit ticket.");
+      setError(friendlyMessage(err, "Failed to submit ticket."));
     } finally {
       setIsSubmitting(false);
     }

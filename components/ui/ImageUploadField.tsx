@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { uploadsApi } from "@/lib/api/uploads";
 
 interface Props {
@@ -29,7 +29,7 @@ export function ImageUploadField({ id, label, helperText, value, onChange, acces
       const { url } = await uploadsApi.uploadImage(accessToken, file);
       onChange(url);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to upload image.");
+      setError(friendlyMessage(err, "Failed to upload image."));
     } finally {
       setIsUploading(false);
     }

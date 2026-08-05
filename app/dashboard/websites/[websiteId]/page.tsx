@@ -12,7 +12,7 @@ import { TextField } from "@/components/ui/TextField";
 import { Textarea } from "@/components/ui/Textarea";
 import { WebsiteStatusBadge } from "@/components/dashboard/WebsiteStatusBadge";
 import { analyticsApi } from "@/lib/api/analytics";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { menuApi } from "@/lib/api/menu";
 import { servicesApi } from "@/lib/api/services";
 import { websitesApi } from "@/lib/api/websites";
@@ -195,7 +195,7 @@ export default function WebsiteOverviewPage() {
       await reload();
       setMessage("Draft saved.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save draft.");
+      setError(friendlyMessage(err, "Failed to save draft."));
     } finally {
       setIsSaving(false);
     }
@@ -210,7 +210,7 @@ export default function WebsiteOverviewPage() {
       await reload();
       setMessage("Website published.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to publish.");
+      setError(friendlyMessage(err, "Failed to publish."));
     } finally {
       setIsPublishing(false);
     }
@@ -225,7 +225,7 @@ export default function WebsiteOverviewPage() {
       await reload();
       setMessage("Previous published version restored.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to restore previous version.");
+      setError(friendlyMessage(err, "Failed to restore previous version."));
     } finally {
       setIsRestoring(false);
     }
