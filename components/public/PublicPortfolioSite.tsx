@@ -69,9 +69,12 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
 
   return (
     <div dir={dir} className="flex flex-1 flex-col bg-zinc-950 text-white" style={themeCssVars(site.theme, content.brandColor)}>
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-zinc-950/80 px-6 py-4 backdrop-blur">
-        <span className="font-semibold tracking-tight">{site.businessName}</span>
-        <nav className="hidden items-center gap-6 text-sm text-zinc-300 sm:flex">
+      {/* Three equal-weight columns rather than justify-between: the links stay
+          centred on the page whatever the business name's length, instead of
+          drifting as it grows. */}
+      <header className="sticky top-0 z-20 grid grid-cols-[1fr_auto_1fr] items-center gap-4 border-b border-white/10 bg-zinc-950/80 px-6 py-4 backdrop-blur">
+        <span className="truncate font-semibold tracking-tight">{site.businessName}</span>
+        <nav className="hidden items-center justify-center gap-6 text-sm text-zinc-300 sm:flex">
           {navLinks.map((link) => (
             <a key={link.href} href={link.href} className="transition-colors hover:text-white">
               {link.label}
@@ -83,16 +86,26 @@ export function PublicPortfolioSite({ site }: { site: PublicWebsiteResponse }) {
             href={whatsappUrl(whatsappNumber, inquiryMessage)}
             target="_blank"
             style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
-            className="bg-[var(--accent-solid)] px-4 py-2 text-xs font-medium text-white transition-transform hover:scale-105"
+            className="justify-self-end bg-[var(--accent-solid)] px-4 py-2 text-xs font-medium text-white transition-transform hover:scale-105"
           >
             {t.nav.contact}
           </a>
         )}
       </header>
 
-      <section id="home" className="relative flex min-h-[85vh] flex-col justify-center overflow-hidden px-6 py-20 sm:px-12">
+      <section id="home" className="relative flex min-h-[68vh] flex-col justify-center overflow-hidden px-6 py-16 sm:px-12">
+        {/* The owner's cover photo, which this layout previously ignored
+            entirely - leaving 85vh of empty near-black above the fold. The
+            scrim runs to solid at the bottom so the section still ends in the
+            page colour and the white text keeps its contrast over any photo. */}
+        {site.profile?.coverImageUrl && (
+          <>
+            <SafeImage src={site.profile.coverImageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/85 to-zinc-950/60" />
+          </>
+        )}
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(255,255,255,0.06),transparent)]" />
-        <div className="relative mx-auto flex w-full max-w-5xl flex-col items-start gap-10 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-start gap-10 sm:flex-row sm:items-center sm:justify-between">
           <div className="max-w-xl">
             {site.profile?.address && (
               <motion.span
