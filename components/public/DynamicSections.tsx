@@ -32,7 +32,7 @@ const HEADING_CLASS: Record<SectionTone, string> = {
 
 const UNDERLINE_CLASS: Record<SectionTone, string> = {
   hero: "mx-auto mt-2 h-1 w-10 rounded-full bg-[var(--accent-solid)]",
-  minimal: "",
+  minimal: "mx-auto w-full max-w-6xl",
   bold: "",
   classic: "",
   grid: "",
@@ -58,7 +58,10 @@ function Heading({ tone, children }: { tone: SectionTone; children: React.ReactN
 
 const CONTAINER_CLASS: Record<SectionTone, string> = {
   hero: "px-6 py-20 sm:px-12",
-  minimal: "mb-16",
+  // Matches the padding every other section in the Minimal layout uses.
+  // Without it the owner's custom sections ran flush to the viewport edge
+  // while the hero and services beside them sat in a centred column.
+  minimal: "mb-16 px-6 sm:px-12",
   bold: "",
   classic: "",
   grid: "mt-16 rounded-2xl border border-black/[.08] p-6 dark:border-white/[.145]",
