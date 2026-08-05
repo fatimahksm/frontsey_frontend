@@ -94,7 +94,7 @@ const FALLBACK_BY_KIND: Record<ApiErrorKind, string> = {
   validation: "Some details weren't accepted. Please check them and try again.",
   rate_limited: "Too many attempts. Please wait a moment and try again.",
   server: "Something went wrong on our side. Please try again in a moment.",
-  unknown: "Something went wrong. Please try again.",
+  unknown: "Something went wrong. Please try again \u2014 and if it keeps happening, refresh the page.",
 };
 
 /**
@@ -128,4 +128,28 @@ export function friendlyMessage(error: unknown, fallback?: string): string {
 /** True when the failure means the session is over and the user must sign in again. */
 export function isSessionExpired(error: unknown): boolean {
   return error instanceof ApiError && error.kind === "unauthorized";
+}
+
+/**
+ * Wording for an error that reached a boundary rather than a call site: an
+ * unhandled throw during render, or any failure type this module does not yet
+ * know about.
+ *
+ * Deliberately not friendlyMessage(): that treats a bare TypeError as a failed
+ * fetch, which is right at a call site wrapping a network request and wrong
+ * here, where a TypeError is far more likely to be a bug ("cannot read
+ * properties of undefined") than a dropped connection. Telling someone to
+ * check their wifi because of a null reference sends them off fixing the wrong
+ * thing.
+ *
+ * An ApiError that escaped this far still knows what it was, so it keeps its
+ * own wording. Everything else - including error types added later, which is
+ * the point of having this - gets the generic sentence rather than a raw
+ * technical string.
+ */
+export function unexpectedErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    return error.message || FALLBACK_BY_KIND[error.kind];
+  }
+  return FALLBACK_BY_KIND.unknown;
 }

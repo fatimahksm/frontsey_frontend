@@ -8,7 +8,7 @@ import { setStoredSession } from "@/lib/auth/token";
 // sites keep working now that the type itself lives with its taxonomy.
 export { ApiError } from "@/lib/api/errors";
 export type { ApiErrorKind } from "@/lib/api/errors";
-export { friendlyMessage, isSessionExpired } from "@/lib/api/errors";
+export { friendlyMessage, isSessionExpired, unexpectedErrorMessage } from "@/lib/api/errors";
 
 /** No request should hang forever; a dead connection must surface as an error the UI can show. */
 const REQUEST_TIMEOUT_MS = 30_000;
