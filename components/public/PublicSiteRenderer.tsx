@@ -4,9 +4,9 @@ import { PublicMenuSiteBistro } from "@/components/public/PublicMenuSiteBistro";
 import { PublicMenuSiteElegant } from "@/components/public/PublicMenuSiteElegant";
 import { PublicMenuSiteGrid } from "@/components/public/PublicMenuSiteGrid";
 import { PublicPortfolioSiteDeveloper } from "@/components/public/PublicPortfolioSiteDeveloper";
-import { PublicPortfolioSiteBold } from "@/components/public/PublicPortfolioSiteBold";
+import { PublicPortfolioSiteAgency } from "@/components/public/PublicPortfolioSiteAgency";
 import { PublicPortfolioSiteDesigner } from "@/components/public/PublicPortfolioSiteDesigner";
-import { PublicPortfolioSiteProfile } from "@/components/public/PublicPortfolioSiteProfile";
+import { PublicPortfolioSiteFreelancer } from "@/components/public/PublicPortfolioSiteFreelancer";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
 
@@ -21,9 +21,9 @@ function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string)
     case "PORTFOLIO_MINIMAL":
       return <PublicPortfolioSiteDesigner site={site} isSample={isSample} />;
     case "PORTFOLIO_BOLD":
-      return <PublicPortfolioSiteBold site={site} />;
+      return <PublicPortfolioSiteAgency site={site} isSample={isSample} />;
     case "PORTFOLIO_PROFILE":
-      return <PublicPortfolioSiteProfile site={site} />;
+      return <PublicPortfolioSiteFreelancer site={site} isSample={isSample} />;
     case "PORTFOLIO_HERO":
       return <PublicPortfolioSiteDeveloper site={site} isSample={isSample} />;
     case "MENU_CLASSIC":

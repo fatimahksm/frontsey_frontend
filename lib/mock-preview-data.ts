@@ -13,6 +13,7 @@ import {
 } from "@/lib/mock-preview-images";
 import { devArt, devAvatar, sampleDevProjectArt } from "@/lib/mock-preview-dev-art";
 import { designerArt, designerAvatar, sampleDesignerWork } from "@/lib/mock-preview-designer-art";
+import { agencyArt, freelancerArt, freelancerPortrait, sampleAgencyWork, sampleFreelancerWork, studioAvatar } from "@/lib/mock-preview-studio-art";
 import { DEFAULT_THEME_CONFIG } from "@/lib/website/theme-config";
 
 /**
@@ -451,6 +452,201 @@ function mockDesignerSite(layoutVariant: "PORTFOLIO_MINIMAL"): PublicWebsiteResp
   };
 }
 
+/**
+ * The Agency sample, for PORTFOLIO_BOLD. A studio selling outcomes, so the
+ * sample leads with services and case studies rather than a personal bio.
+ * Results shown here are invented and only ever reachable through sample
+ * mode - a real published site never receives them.
+ */
+function mockAgencySite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse {
+  return {
+    businessName: "Northbound Studio",
+    slug: "preview",
+    pageMode: "ONE_PAGE",
+    templateType: "PORTFOLIO",
+    layoutVariant,
+    orderingMode: "DISPLAY_ONLY",
+    primaryLanguage: "en",
+    currency: "USD",
+    publishedContent: JSON.stringify({
+      heroHeading: "Brand, product and the launch in between",
+      heroSubtitle: "A six-person studio that takes a positioning problem and hands back something shipped.",
+      brandColor: "#ff5c35",
+      heroBadge: "Booking from September",
+    }),
+    profile: {
+      description:
+        "We work in short, senior engagements - no junior bench, no discovery theatre. Most projects run eight to twelve weeks and end with something live, not a deck about what could be built.",
+      logoUrl: null,
+      coverImageUrl: agencyArt("campaign"),
+      phone: null,
+      whatsappNumber: "+961 70 123 456",
+      email: "hello@example.studio",
+      address: "Beirut & Amsterdam",
+      googleMapsUrl: null,
+      instagramUrl: "https://instagram.com",
+      tiktokUrl: null,
+      policies: {},
+    },
+    openingHours: [],
+    categories: [],
+    deliveryAreas: [],
+    services: [
+      { id: "a1", name: "Positioning", description: "Finding the sentence the whole company can say, then proving it holds.", price: null, imageUrl: null },
+      { id: "a2", name: "Brand identity", description: "Naming, marks, systems and the guidelines that survive a marketing hire.", price: null, imageUrl: null },
+      { id: "a3", name: "Product design", description: "Interfaces designed against real constraints, handed over build-ready.", price: null, imageUrl: null },
+      { id: "a4", name: "Launch", description: "Site, campaign and the assets to run it, delivered as one package.", price: null, imageUrl: null },
+    ],
+    galleryImageUrls: sampleAgencyWork(),
+    seo: null,
+    sections: [
+      {
+        id: "asec1",
+        type: "ABOUT",
+        data: JSON.stringify({
+          heading: "How we work",
+          body: "Every engagement starts with the same week: we read everything, talk to the people who actually use the thing, and come back with the problem restated. Half the time the brief changes. That week is why the rest of the project runs on time.",
+          imageUrl: agencyArt("posters"),
+          process: [
+            { step: "Frame", detail: "One week reading, interviewing and restating the problem." },
+            { step: "Direct", detail: "Two or three routes, argued rather than presented." },
+            { step: "Build", detail: "Design and build in the open, weekly and reviewable." },
+            { step: "Launch", detail: "Ship it, then stay a fortnight while it settles." },
+          ],
+          caseMeta: [
+            { name: "Meridian", client: "Coffee roaster", service: "Brand & packaging", result: "Rebrand shipped in nine weeks" },
+            { name: "Tallow", client: "B2B software", service: "Positioning & site", result: "Two-week sales cycle, down from six" },
+            { name: "Halcyon", client: "Hospitality group", service: "Identity & launch", result: "Four venues on one system" },
+          ],
+        }),
+      },
+      {
+        id: "asec2",
+        type: "TEAM",
+        data: JSON.stringify({
+          heading: "The studio",
+          items: [
+            { name: "Yara", role: "Partner, strategy", imageUrl: studioAvatar("Y") },
+            { name: "Tarek", role: "Partner, design", imageUrl: studioAvatar("T") },
+            { name: "Dana", role: "Design director", imageUrl: studioAvatar("D") },
+          ],
+        }),
+      },
+      {
+        id: "asec3",
+        type: "TESTIMONIALS",
+        data: JSON.stringify({
+          heading: "Clients",
+          items: [
+            { name: "Sami F., CEO", quote: "They rewrote our brief in week one and they were right. Everything after that was faster because of it.", imageUrl: studioAvatar("S") },
+            { name: "Lea M., Marketing Director", quote: "The only studio we have worked with that stayed after launch instead of sending an invoice.", imageUrl: studioAvatar("L") },
+          ],
+        }),
+      },
+    ],
+    theme: DEFAULT_THEME_CONFIG,
+  };
+}
+
+/**
+ * The Freelancer sample, for PORTFOLIO_PROFILE. One person, so the sample is
+ * written in the first person and leads with who they are before what they do.
+ */
+function mockFreelancerSite(layoutVariant: "PORTFOLIO_PROFILE"): PublicWebsiteResponse {
+  return {
+    businessName: "Karim Debbas",
+    slug: "preview",
+    pageMode: "ONE_PAGE",
+    templateType: "PORTFOLIO",
+    layoutVariant,
+    orderingMode: "DISPLAY_ONLY",
+    primaryLanguage: "en",
+    currency: "USD",
+    publishedContent: JSON.stringify({
+      heroHeading: "Independent product designer & builder",
+      heroSubtitle: "I help small teams turn a rough idea into something people can actually use - usually as the only designer in the room.",
+      brandColor: "#e8a33d",
+      heroBadge: "Available for select projects",
+    }),
+    profile: {
+      description:
+        "I started freelancing in 2018 after six years in-house, and I have stayed independent because the work is better when I can say no to the wrong project. I take two clients at a time, which is why I answer email the same day.",
+      logoUrl: null,
+      coverImageUrl: freelancerPortrait("K"),
+      phone: "+961 70 123 456",
+      whatsappNumber: "+961 70 123 456",
+      email: "karim@example.work",
+      address: "Beirut - remote, most timezones",
+      googleMapsUrl: null,
+      instagramUrl: "https://instagram.com",
+      tiktokUrl: null,
+      policies: {},
+    },
+    openingHours: [],
+    categories: [],
+    deliveryAreas: [],
+    services: [
+      { id: "f1", name: "Product design", description: "Flows, screens and the decisions behind them, from first sketch to handover.", price: null, imageUrl: null },
+      { id: "f2", name: "Design & build", description: "Design plus a working front end, when a prototype is not enough.", price: null, imageUrl: null },
+      { id: "f3", name: "Design review", description: "A short engagement auditing an existing product and prioritising what to fix.", price: null, imageUrl: null },
+    ],
+    galleryImageUrls: sampleFreelancerWork(),
+    seo: null,
+    sections: [
+      {
+        id: "fsec1",
+        type: "ABOUT",
+        data: JSON.stringify({
+          heading: "My story",
+          body: "I design the way I was taught to write - draft badly, cut hard, then make it obvious. Most of my clients come back not because a project went perfectly but because they knew where it stood every week.",
+          imageUrl: freelancerArt("content"),
+          experience: [
+            { year: "2018 - now", role: "Independent designer", company: "Freelance", detail: "Two clients at a time, mostly early-stage product teams." },
+            { year: "2015 - 2018", role: "Senior Product Designer", company: "In-house SaaS", detail: "Owned onboarding and billing for a team of forty." },
+            { year: "2012 - 2015", role: "Designer", company: "Studio work", detail: "Brand and web across a dozen client projects a year." },
+          ],
+          process: [
+            { step: "Understand", detail: "A call, then a written summary of what I think the problem is." },
+            { step: "Plan", detail: "Scope, timeline and what is deliberately out of it." },
+            { step: "Build", detail: "Weekly progress you can click, not a reveal at the end." },
+            { step: "Hand over", detail: "Files, rationale, and a fortnight of questions included." },
+          ],
+          projectMeta: [
+            { name: "Ferry", role: "Booking flow", summary: "Rebuilt a five-step booking into two, for a regional ferry operator." },
+            { name: "Almanac", role: "Editorial product", summary: "A reading experience for a long-form publisher, designed for slow connections." },
+            { name: "Console", role: "Internal tool", summary: "An operations dashboard the support team stopped complaining about." },
+          ],
+        }),
+      },
+      {
+        id: "fsec2",
+        type: "FAQ",
+        data: JSON.stringify({
+          heading: "Before you write",
+          items: [
+            { question: "What does a project usually cost?", answer: "Most engagements land between four and ten weeks, priced per project rather than hourly. I send a fixed number after the first call." },
+            { question: "How soon can you start?", answer: "Usually two to four weeks out. If it is urgent, say so - occasionally a slot opens." },
+            { question: "Do you work with developers?", answer: "Yes, and I prefer it. I hand over files your engineers can build from, and I stay reachable while they do." },
+            { question: "Do you take retainers?", answer: "Rarely. I would rather do a defined piece well and be available again later." },
+          ],
+        }),
+      },
+      {
+        id: "fsec3",
+        type: "TESTIMONIALS",
+        data: JSON.stringify({
+          heading: "Recommendations",
+          items: [
+            { name: "Nour A., Founder", quote: "Karim asked the question our whole team had been avoiding, in the first call. We changed the roadmap that week.", imageUrl: studioAvatar("N") },
+            { name: "Elie R., CTO", quote: "Handover was the cleanest I have seen from a freelancer. Nothing was left for us to guess at.", imageUrl: studioAvatar("E") },
+          ],
+        }),
+      },
+    ],
+    theme: DEFAULT_THEME_CONFIG,
+  };
+}
+
 export function mockPortfolioSite(
   layoutVariant: "PORTFOLIO_HERO" | "PORTFOLIO_MINIMAL" | "PORTFOLIO_BOLD" | "PORTFOLIO_PROFILE",
 ): PublicWebsiteResponse {
@@ -458,6 +654,8 @@ export function mockPortfolioSite(
   // rather than the salon the other three still use.
   if (layoutVariant === "PORTFOLIO_HERO") return mockDeveloperSite(layoutVariant);
   if (layoutVariant === "PORTFOLIO_MINIMAL") return mockDesignerSite(layoutVariant);
+  if (layoutVariant === "PORTFOLIO_BOLD") return mockAgencySite(layoutVariant);
+  if (layoutVariant === "PORTFOLIO_PROFILE") return mockFreelancerSite(layoutVariant);
 
   return {
     businessName: "Glow Studio",
