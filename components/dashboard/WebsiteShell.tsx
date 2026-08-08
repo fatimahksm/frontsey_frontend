@@ -68,6 +68,13 @@ function navGroupsFor(website: WebsiteResponse, analyticsEnabled: boolean): NavG
     {
       label: "Content",
       items: [
+        // Projects is where a portfolio's work actually gets its title, dates
+        // and links. Without it the templates could only show untitled gallery
+        // pictures, which is what made real sites look unfinished next to the
+        // samples.
+        ...(templateType === "PORTFOLIO"
+          ? [{ href: "/projects", label: "Projects", icon: "🗂️", permission: "MANAGE_THEME_AND_CONTENT" } as NavItem]
+          : []),
         contentItem,
         ...(showsGallery ? [{ href: "/gallery", label: "Gallery", icon: "🖼️", permission: "MANAGE_THEME_AND_CONTENT" } as NavItem] : []),
         ...(showsCustomSections

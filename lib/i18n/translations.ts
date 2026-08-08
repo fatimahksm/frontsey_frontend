@@ -37,6 +37,10 @@ export interface Dictionary {
     viewMenu: string;
     orderOnWhatsApp: string;
   };
+  work: {
+    viewProject: string;
+    moreDetails: string;
+  };
   section: {
     about: string;
     services: string;
@@ -146,6 +150,7 @@ const en: Dictionary = {
     viewMenu: "View menu",
     orderOnWhatsApp: "Order on WhatsApp",
   },
+  work: { viewProject: "View project", moreDetails: "More details" },
   section: { about: "About", services: "Services", work: "Work", projects: "Projects", featured: "Featured", selectedWork: "Selected work" },
   contact: {
     getInTouch: "Get in touch",
@@ -232,6 +237,7 @@ const fr: Dictionary = {
     viewMenu: "Voir le menu",
     orderOnWhatsApp: "Commander sur WhatsApp",
   },
+  work: { viewProject: "Voir le projet", moreDetails: "Plus de détails" },
   section: { about: "À propos", services: "Services", work: "Travaux", projects: "Projets", featured: "En vedette", selectedWork: "Travaux sélectionnés" },
   contact: {
     getInTouch: "Contactez-nous",
@@ -318,6 +324,7 @@ const ar: Dictionary = {
     viewMenu: "عرض القائمة",
     orderOnWhatsApp: "اطلب عبر واتساب",
   },
+  work: { viewProject: "عرض المشروع", moreDetails: "تفاصيل أكثر" },
   section: { about: "من نحن", services: "الخدمات", work: "أعمالنا", projects: "المشاريع", featured: "مميز", selectedWork: "أعمال مختارة" },
   contact: {
     getInTouch: "تواصل معنا",

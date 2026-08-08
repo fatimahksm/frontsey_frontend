@@ -212,6 +212,7 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
     deliveryAreas: [],
     services: [],
     galleryImageUrls: sampleGalleryImages(),
+    projects: [],
     seo: null,
     // Classic paints itself entirely from the theme, so its sample uses the
     // dark "Midnight Gold" preset to show the layout as an owner would
@@ -324,6 +325,19 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteRespon
       { id: "d4", name: "Technical consulting", description: "Architecture reviews, code audits, and helping small teams choose what not to build.", price: null, imageUrl: null },
     ],
     galleryImageUrls: sampleDevProjectArt(),
+    // The samples now carry their work in `projects`, the same store the
+    // owner's Projects editor writes to, so the preview exercises exactly the
+    // path a real site takes rather than a shape only the mock can produce.
+    projects: sampleDevProjectArt().map((imageUrl, i) => ({
+      id: `dev-p${i + 1}`,
+      imageUrl,
+      ...[
+        { name: "Ledger", discipline: "Design & build", year: "2026", summary: "A double-entry bookkeeping tool for small studios, from schema to shipped UI.", tags: ["Next.js", "Postgres"], liveUrl: "https://example.dev", repoUrl: "https://github.com" },
+        { name: "Fieldnote", discipline: "Mobile client", year: "2025", summary: "An offline-first field-survey app that syncs when it finds signal.", tags: ["React Native", "tRPC"], liveUrl: null, repoUrl: "https://github.com" },
+        { name: "Gateway", discipline: "Backend", year: "2025", summary: "An API gateway with per-tenant rate limiting and a cache that survives restarts.", tags: ["Spring Boot", "Redis"], liveUrl: null, repoUrl: "https://github.com" },
+        { name: "Deploybot", discipline: "Tooling", year: "2024", summary: "A release bot that opens the pull request, waits for CI, and merges itself.", tags: ["Go", "Docker"], liveUrl: null, repoUrl: "https://github.com" },
+      ][i],
+    })),
     seo: null,
     sections: [
       {
@@ -340,12 +354,6 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteRespon
             { year: "2022 - now", role: "Senior Engineer", company: "Independent", detail: "Contract product work for startups across the EU and Gulf." },
             { year: "2019 - 2022", role: "Full-stack Engineer", company: "Cedar Labs", detail: "Owned the billing rewrite; cut checkout errors by a third." },
             { year: "2017 - 2019", role: "Frontend Developer", company: "Beirut Digital", detail: "Design systems and accessibility across six client products." },
-          ],
-          projectMeta: [
-            { name: "Ledger", role: "Design & build", tech: ["Next.js", "Postgres"], repo: "https://github.com", live: "https://example.dev" },
-            { name: "Fieldnote", role: "Mobile client", tech: ["React Native", "tRPC"], repo: "https://github.com", live: null },
-            { name: "Gateway", role: "Backend", tech: ["Spring Boot", "Redis"], repo: "https://github.com", live: null },
-            { name: "Deploybot", role: "Tooling", tech: ["Go", "Docker"], repo: "https://github.com", live: null },
           ],
         }),
       },
@@ -415,6 +423,17 @@ function mockDesignerSite(layoutVariant: "PORTFOLIO_MINIMAL"): PublicWebsiteResp
       { id: "g4", name: "Art direction", description: "Photography, layout and typographic direction for launches and campaigns.", price: null, imageUrl: null },
     ],
     galleryImageUrls: sampleDesignerWork(),
+    projects: sampleDesignerWork().map((imageUrl, i) => ({
+      id: `des-p${i + 1}`,
+      imageUrl,
+      ...[
+        { name: "Meridian", discipline: "Brand identity", year: "2026", summary: "A mark and type system for an independent coffee roaster, built to survive packaging, signage and a 32px favicon.", tags: ["Identity", "Packaging"], liveUrl: "https://example.design", repoUrl: null },
+        { name: "Halo", discipline: "Product design", year: "2025", summary: "Three flows for a habit-tracking app, designed around the one screen people actually open each morning.", tags: ["Mobile", "UX"], liveUrl: null, repoUrl: null },
+        { name: "Groundwork", discipline: "Design system", year: "2025", summary: "Tokens, components and documentation for a fintech team of nine, handed over as a living library rather than a file.", tags: ["Systems", "Tokens"], liveUrl: "https://example.design", repoUrl: null },
+        { name: "Field Notes", discipline: "Art direction", year: "2024", summary: "Editorial direction and layout for a quarterly print and web publication.", tags: ["Editorial", "Web"], liveUrl: null, repoUrl: null },
+        { name: "Ascender", discipline: "Typography", year: "2024", summary: "A specimen and usage guide for a variable typeface licensed across a product suite.", tags: ["Type", "Guidelines"], liveUrl: null, repoUrl: null },
+      ][i],
+    })),
     seo: null,
     sections: [
       {
@@ -427,13 +446,6 @@ function mockDesignerSite(layoutVariant: "PORTFOLIO_MINIMAL"): PublicWebsiteResp
           imageUrl: designerArt("typeSpecimen"),
           // Free-form extras, mirrored from the Developer sample's pattern.
           tools: ["Figma", "After Effects", "Blender", "Illustrator", "Framer", "Webflow"],
-          workMeta: [
-            { name: "Meridian", discipline: "Brand identity", year: "2026", summary: "A mark and type system for an independent coffee roaster, built to survive packaging, signage and a 32px favicon.", tags: ["Identity", "Packaging"], live: "https://example.design" },
-            { name: "Halo", discipline: "Product design", year: "2025", summary: "Three flows for a habit-tracking app, designed around the one screen people actually open each morning.", tags: ["Mobile", "UX"], live: null },
-            { name: "Groundwork", discipline: "Design system", year: "2025", summary: "Tokens, components and documentation for a fintech team of nine, handed over as a living library rather than a file.", tags: ["Systems", "Tokens"], live: "https://example.design" },
-            { name: "Field Notes", discipline: "Art direction", year: "2024", summary: "Editorial direction and layout for a quarterly print and web publication.", tags: ["Editorial", "Web"], live: null },
-            { name: "Ascender", discipline: "Typography", year: "2024", summary: "A specimen and usage guide for a variable typeface licensed across a product suite.", tags: ["Type", "Guidelines"], live: null },
-          ],
         }),
       },
       {
@@ -498,6 +510,15 @@ function mockAgencySite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse 
       { id: "a4", name: "Launch", description: "Site, campaign and the assets to run it, delivered as one package.", price: null, imageUrl: null },
     ],
     galleryImageUrls: sampleAgencyWork(),
+    projects: sampleAgencyWork().map((imageUrl, i) => ({
+      id: `ag-p${i + 1}`,
+      imageUrl,
+      ...[
+        { name: "Meridian", discipline: "Brand & packaging", year: "2026", summary: "Rebrand shipped in nine weeks", tags: ["Coffee roaster"], liveUrl: null, repoUrl: null },
+        { name: "Tallow", discipline: "Positioning & site", year: "2025", summary: "Two-week sales cycle, down from six", tags: ["B2B software"], liveUrl: null, repoUrl: null },
+        { name: "Halcyon", discipline: "Identity & launch", year: "2025", summary: "Four venues on one system", tags: ["Hospitality group"], liveUrl: null, repoUrl: null },
+      ][i],
+    })),
     seo: null,
     sections: [
       {
@@ -512,11 +533,6 @@ function mockAgencySite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse 
             { step: "Direct", detail: "Two or three routes, argued rather than presented." },
             { step: "Build", detail: "Design and build in the open, weekly and reviewable." },
             { step: "Launch", detail: "Ship it, then stay a fortnight while it settles." },
-          ],
-          caseMeta: [
-            { name: "Meridian", client: "Coffee roaster", service: "Brand & packaging", result: "Rebrand shipped in nine weeks" },
-            { name: "Tallow", client: "B2B software", service: "Positioning & site", result: "Two-week sales cycle, down from six" },
-            { name: "Halcyon", client: "Hospitality group", service: "Identity & launch", result: "Four venues on one system" },
           ],
         }),
       },
@@ -591,6 +607,15 @@ function mockFreelancerSite(layoutVariant: "PORTFOLIO_PROFILE"): PublicWebsiteRe
       { id: "f3", name: "Design review", description: "A short engagement auditing an existing product and prioritising what to fix.", price: null, imageUrl: null },
     ],
     galleryImageUrls: sampleFreelancerWork(),
+    projects: sampleFreelancerWork().map((imageUrl, i) => ({
+      id: `fr-p${i + 1}`,
+      imageUrl,
+      ...[
+        { name: "Ferry", discipline: "Booking flow", year: "2026", summary: "Rebuilt a five-step booking into two, for a regional ferry operator.", tags: ["Product", "UX"], liveUrl: null, repoUrl: null },
+        { name: "Almanac", discipline: "Editorial product", year: "2025", summary: "A reading experience for a long-form publisher, designed for slow connections.", tags: ["Web", "Performance"], liveUrl: null, repoUrl: null },
+        { name: "Console", discipline: "Internal tool", year: "2024", summary: "An operations dashboard the support team stopped complaining about.", tags: ["Dashboard"], liveUrl: null, repoUrl: null },
+      ][i],
+    })),
     seo: null,
     sections: [
       {
@@ -610,11 +635,6 @@ function mockFreelancerSite(layoutVariant: "PORTFOLIO_PROFILE"): PublicWebsiteRe
             { step: "Plan", detail: "Scope, timeline and what is deliberately out of it." },
             { step: "Build", detail: "Weekly progress you can click, not a reveal at the end." },
             { step: "Hand over", detail: "Files, rationale, and a fortnight of questions included." },
-          ],
-          projectMeta: [
-            { name: "Ferry", role: "Booking flow", summary: "Rebuilt a five-step booking into two, for a regional ferry operator." },
-            { name: "Almanac", role: "Editorial product", summary: "A reading experience for a long-form publisher, designed for slow connections." },
-            { name: "Console", role: "Internal tool", summary: "An operations dashboard the support team stopped complaining about." },
           ],
         }),
       },
@@ -735,6 +755,7 @@ export function mockPortfolioSite(
       },
     ],
     galleryImageUrls: sampleSalonGalleryImages(),
+    projects: [],
     seo: null,
     sections: [
       {

@@ -179,6 +179,39 @@ export type ItemAvailability = "AVAILABLE" | "UNAVAILABLE";
 
 // --- Services (PORTFOLIO template) ---
 
+/**
+ * Create/update payload for a portfolio project.
+ *
+ * Only the name is required. Every template renders what is present and hides
+ * what is not, so an owner can add a project with just a title and a picture
+ * and come back to the detail later - which is the whole point of having this
+ * editor instead of hand-written JSON in a custom section.
+ */
+export interface PortfolioProjectRequest {
+  name: string;
+  discipline?: string | null;
+  year?: string | null;
+  summary?: string | null;
+  /** Comma-separated on the wire; the response splits it back into a list. */
+  tags?: string | null;
+  imageUrl?: string | null;
+  liveUrl?: string | null;
+  repoUrl?: string | null;
+}
+
+export interface PortfolioProjectResponse {
+  id: string;
+  name: string;
+  discipline: string | null;
+  year: string | null;
+  summary: string | null;
+  tags: string[];
+  imageUrl: string | null;
+  liveUrl: string | null;
+  repoUrl: string | null;
+  sortOrder: number;
+}
+
 export interface ServiceItemRequest {
   name: string;
   description?: string | null;
@@ -644,6 +677,25 @@ export interface PublicWebsiteResponse {
   sections: PublicPageSection[];
   /** Phase 3: the website's effective design system - see lib/website/theme-config.ts. */
   theme: ThemeConfig;
+  /**
+   * Portfolio projects, in the owner's order. Empty for MENU_ORDERING sites and
+   * for portfolio sites that predate the projects editor - templates fall back
+   * to the gallery in that case, so an older saved site is unaffected.
+   */
+  projects: PublicProject[];
+}
+
+/** One portfolio project as the public site sees it. Every field but the name may be blank. */
+export interface PublicProject {
+  id: string;
+  name: string;
+  discipline: string | null;
+  year: string | null;
+  summary: string | null;
+  tags: string[];
+  imageUrl: string | null;
+  liveUrl: string | null;
+  repoUrl: string | null;
 }
 
 export interface PublicPageSection {

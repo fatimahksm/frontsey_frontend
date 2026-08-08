@@ -7,7 +7,7 @@ import { SafeImage } from "@/components/public/SafeImage";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
-import { getAgencyData, normalizePortfolioData } from "@/lib/website/portfolio-data";
+import { getAgencyData, getCompleteness, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
 import { themeCssVars } from "@/lib/website/theme-config";
 
 /**
@@ -23,21 +23,9 @@ import { themeCssVars } from "@/lib/website/theme-config";
  * still resolves from the owner's brand colour.
  */
 
-interface CaseMeta {
-  name: string;
-  client?: string;
-  service?: string;
-  result?: string;
-}
-
 interface ProcessStep {
   step: string;
   detail?: string;
-}
-
-function asCaseMeta(value: unknown): CaseMeta[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((v): v is CaseMeta => !!v && typeof v === "object" && typeof (v as Record<string, unknown>).name === "string");
 }
 
 function asProcess(value: unknown): ProcessStep[] {
@@ -62,11 +50,14 @@ export function PublicPortfolioSiteAgency({
 
   const data = getAgencyData(normalizePortfolioData(site, { isSample }));
   const about = (data.extra.ABOUT ?? {}) as Record<string, unknown>;
-  const caseMeta = asCaseMeta(about.caseMeta);
   const process = asProcess(about.process);
 
   const hasServices = data.services.length > 0;
   const hasCases = data.caseStudies.length > 0;
+
+  // As in the other three templates: a barely-filled site fills the screen from
+  // the hero rather than trailing off into a short stub of a page.
+  const { isSparse } = getCompleteness(data);
   const hasTeam = data.team.length > 0;
   const hasReviews = data.reviews.length > 0;
 
@@ -85,11 +76,7 @@ export function PublicPortfolioSiteAgency({
           transition: { duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] as const },
         };
 
-  const contactHref = data.contact.email
-    ? `mailto:${data.contact.email}`
-    : data.contact.whatsappNumber
-      ? whatsappUrl(data.contact.whatsappNumber, "")
-      : null;
+  const contactHref = primaryContactHref(data);
 
   // The marquee repeats the owner's own services rather than invented words.
   const marqueeItems = data.services.map((s) => s.name);
@@ -123,7 +110,7 @@ export function PublicPortfolioSiteAgency({
       </header>
 
       {/* Hero: oversized uppercase claim, artwork as a flat block beside it. */}
-      <section id="top" className="px-6 pb-14 pt-16 sm:pb-20 sm:pt-24">
+      <section id="top" className={`px-6 pb-14 pt-16 sm:pb-20 sm:pt-24 ${isSparse ? "flex flex-1 items-center" : ""}`}>
         <div className="mx-auto w-full max-w-7xl">
           {data.badge && (
             <motion.p {...push(0)} className="mb-8 inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-[#0f0f12]" style={{ background: "var(--accent-solid)" }}>
@@ -213,46 +200,64 @@ export function PublicPortfolioSiteAgency({
           <div className="mx-auto w-full max-w-7xl">
             <h2 className="mb-10 text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.selectedWork}</h2>
             <div className="flex flex-col gap-16">
-              {data.caseStudies.map((image, i) => {
-                const meta = caseMeta[i];
-                return (
-                  <motion.article key={image} {...push(0)} className="grid gap-8 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
+              {data.caseStudies.map((item, i) => (
+                <motion.article
+                  key={item.id}
+                  {...push(0)}
+                  className={`grid gap-8 lg:items-end ${item.imageUrl ? "lg:grid-cols-[1.3fr_0.7fr]" : ""}`}
+                >
+                  {item.imageUrl && (
                     <figure className="overflow-hidden">
                       <SafeImage
-                        src={image}
-                        alt={meta?.name ? `${meta.name}${meta.service ? ` - ${meta.service}` : ""}` : `${t.section.work} ${i + 1}`}
+                        src={item.imageUrl}
+                        alt={item.title ? `${item.title}${item.subtitle ? ` - ${item.subtitle}` : ""}` : `${t.section.work} ${i + 1}`}
                         className={`aspect-[16/10] w-full object-cover transition-transform duration-700 ${reduceMotion ? "" : "hover:scale-[1.02]"}`}
                       />
                     </figure>
-                    <div>
-                      <h3 className="text-3xl font-extrabold uppercase tracking-tight sm:text-4xl">
-                        {meta?.name ?? `${t.section.work} ${i + 1}`}
-                      </h3>
-                      <dl className="mt-5 flex flex-col gap-3 text-sm">
-                        {meta?.client && (
-                          <div className="flex gap-3">
-                            <dt className="w-24 shrink-0 text-xs uppercase tracking-[0.16em] opacity-40">{t.nav.about}</dt>
-                            <dd className="opacity-80">{meta.client}</dd>
-                          </div>
-                        )}
-                        {meta?.service && (
-                          <div className="flex gap-3">
-                            <dt className="w-24 shrink-0 text-xs uppercase tracking-[0.16em] opacity-40">{t.nav.services}</dt>
-                            <dd className="opacity-80">{meta.service}</dd>
-                          </div>
-                        )}
+                  )}
+                  <div>
+                    <h3 className="text-3xl font-extrabold uppercase tracking-tight sm:text-4xl">
+                      {item.title || `${t.section.work} ${String(i + 1).padStart(2, "0")}`}
+                    </h3>
+                    {item.year && <p className="mt-2 text-sm opacity-45">{item.year}</p>}
+                    {item.subtitle && (
+                      <dl className="mt-5 flex gap-3 text-sm">
+                        <dt className="w-24 shrink-0 text-xs uppercase tracking-[0.16em] opacity-40">{t.nav.services}</dt>
+                        <dd className="opacity-80">{item.subtitle}</dd>
                       </dl>
-                      {/* The outcome is the point of an agency case study, so it
-                          gets the accent and the largest type in the block. */}
-                      {meta?.result && (
-                        <p className="mt-6 border-t-2 pt-4 text-xl font-extrabold uppercase leading-tight" style={{ borderColor: "var(--accent-solid)" }}>
-                          {meta.result}
-                        </p>
-                      )}
-                    </div>
-                  </motion.article>
-                );
-              })}
+                    )}
+                    {item.tags.length > 0 && (
+                      <ul className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs uppercase tracking-[0.16em] opacity-55">
+                        {item.tags.map((tag) => (
+                          <li key={tag}>{tag}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {/* The outcome is the point of an agency case study, so the
+                        owner's own summary gets the accent and the largest type
+                        in the block. Nothing is invented when it is blank. */}
+                    {item.summary && (
+                      <p
+                        className="mt-6 border-t-2 pt-4 text-xl font-extrabold uppercase leading-tight"
+                        style={{ borderColor: "var(--accent-solid)" }}
+                      >
+                        {item.summary}
+                      </p>
+                    )}
+                    {item.liveUrl && (
+                      <a
+                        href={item.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-6 inline-block text-sm font-bold uppercase tracking-[0.16em] underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]"
+                        style={{ color: "var(--accent-solid)" }}
+                      >
+                        {t.work.viewProject} ↗
+                      </a>
+                    )}
+                  </div>
+                </motion.article>
+              ))}
             </div>
           </div>
         </section>

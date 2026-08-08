@@ -6,7 +6,7 @@ import { SafeImage } from "@/components/public/SafeImage";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
-import { getFreelancerData, normalizePortfolioData } from "@/lib/website/portfolio-data";
+import { getCompleteness, getFreelancerData, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
 import { themeCssVars } from "@/lib/website/theme-config";
 
 /**
@@ -36,12 +36,6 @@ interface ProcessStep {
   detail?: string;
 }
 
-interface ProjectMeta {
-  name: string;
-  role?: string;
-  summary?: string;
-}
-
 function asExperience(value: unknown): ExperienceEntry[] {
   if (!Array.isArray(value)) return [];
   return value.filter((v): v is ExperienceEntry => {
@@ -54,11 +48,6 @@ function asExperience(value: unknown): ExperienceEntry[] {
 function asProcess(value: unknown): ProcessStep[] {
   if (!Array.isArray(value)) return [];
   return value.filter((v): v is ProcessStep => !!v && typeof v === "object" && typeof (v as Record<string, unknown>).step === "string");
-}
-
-function asProjectMeta(value: unknown): ProjectMeta[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((v): v is ProjectMeta => !!v && typeof v === "object" && typeof (v as Record<string, unknown>).name === "string");
 }
 
 const SHELL = "#14161a";
@@ -80,10 +69,13 @@ export function PublicPortfolioSiteFreelancer({
   const about = (data.extra.ABOUT ?? {}) as Record<string, unknown>;
   const experience = asExperience(about.experience);
   const process = asProcess(about.process);
-  const projectMeta = asProjectMeta(about.projectMeta);
 
   const hasExpertise = data.expertise.length > 0;
   const hasProjects = data.projects.length > 0;
+
+  // Same rule as the other three: too little content collapses to one screen
+  // instead of a page that stops a third of the way down.
+  const { isSparse } = getCompleteness(data);
   const hasFaq = data.faq.length > 0;
   const hasRecommendations = data.recommendations.length > 0;
 
@@ -102,11 +94,7 @@ export function PublicPortfolioSiteFreelancer({
           transition: { duration: 0.65, delay, ease: [0.25, 0.8, 0.35, 1] as const },
         };
 
-  const contactHref = data.contact.email
-    ? `mailto:${data.contact.email}`
-    : data.contact.whatsappNumber
-      ? whatsappUrl(data.contact.whatsappNumber, "")
-      : null;
+  const contactHref = primaryContactHref(data);
 
   // The rail only lists sections that actually exist, so it never points at
   // an anchor a sparse site does not render.
@@ -126,7 +114,7 @@ export function PublicPortfolioSiteFreelancer({
     >
       {/* Split hero: the portrait is held beside the introduction rather than
           used as a banner, which is what makes this read as a profile. */}
-      <section id="top" className="px-6 py-14 sm:px-10 sm:py-20">
+      <section id="top" className={`px-6 py-14 sm:px-10 sm:py-20 ${isSparse ? "flex flex-1 items-center" : ""}`}>
         <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
           <motion.div {...settle(0)} className="lg:sticky lg:top-10 lg:self-start">
             {data.coverImageUrl && (
@@ -257,30 +245,56 @@ export function PublicPortfolioSiteFreelancer({
           <div className="mx-auto w-full max-w-6xl">
             <h2 className="mb-8 text-xs uppercase tracking-[0.2em] opacity-45">{t.nav.projects}</h2>
             <div className="flex flex-col gap-8">
-              {data.projects.map((image, i) => {
-                const meta = projectMeta[i];
-                return (
-                  <motion.article
-                    key={image}
-                    {...settle(0)}
-                    className="overflow-hidden rounded-3xl lg:sticky lg:top-14"
-                    style={{ background: CARD, top: reduceMotion ? undefined : `${3.5 + i * 1.5}rem` }}
-                  >
+              {data.projects.map((item, i) => (
+                <motion.article
+                  key={item.id}
+                  {...settle(0)}
+                  className="overflow-hidden rounded-3xl lg:sticky lg:top-14"
+                  style={{ background: CARD, top: reduceMotion ? undefined : `${3.5 + i * 1.5}rem` }}
+                >
+                  {item.imageUrl && (
                     <SafeImage
-                      src={image}
-                      alt={meta?.name ? `${meta.name}${meta.role ? ` - ${meta.role}` : ""}` : `${t.nav.projects} ${i + 1}`}
+                      src={item.imageUrl}
+                      alt={item.title ? `${item.title}${item.subtitle ? ` - ${item.subtitle}` : ""}` : `${t.nav.projects} ${i + 1}`}
                       className="aspect-[16/10] w-full object-cover"
                     />
-                    <div className="p-6 sm:p-8">
-                      <div className="flex flex-wrap items-baseline gap-x-4">
-                        <h3 className="text-2xl font-semibold tracking-tight">{meta?.name ?? `${t.nav.projects} ${i + 1}`}</h3>
-                        {meta?.role && <span className="text-sm" style={{ color: "var(--accent-solid)" }}>{meta.role}</span>}
-                      </div>
-                      {meta?.summary && <p className="mt-3 max-w-2xl text-base leading-relaxed opacity-70">{meta.summary}</p>}
+                  )}
+                  <div className="p-6 sm:p-8">
+                    <div className="flex flex-wrap items-baseline gap-x-4">
+                      <h3 className="text-2xl font-semibold tracking-tight">
+                        {item.title || `${t.nav.projects} ${String(i + 1).padStart(2, "0")}`}
+                      </h3>
+                      {item.subtitle && (
+                        <span className="text-sm" style={{ color: "var(--accent-solid)" }}>
+                          {item.subtitle}
+                        </span>
+                      )}
+                      {item.year && <span className="text-sm opacity-45">{item.year}</span>}
                     </div>
-                  </motion.article>
-                );
-              })}
+                    {item.summary && <p className="mt-3 max-w-2xl text-base leading-relaxed opacity-70">{item.summary}</p>}
+                    {item.tags.length > 0 && (
+                      <ul className="mt-4 flex flex-wrap gap-2">
+                        {item.tags.map((tag) => (
+                          <li key={tag} className="rounded-full px-3 py-1 text-xs opacity-70" style={{ background: "rgba(255,255,255,0.06)" }}>
+                            {tag}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {item.liveUrl && (
+                      <a
+                        href={item.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-5 inline-block text-sm underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]"
+                        style={{ color: "var(--accent-solid)" }}
+                      >
+                        {t.work.viewProject} ↗
+                      </a>
+                    )}
+                  </div>
+                </motion.article>
+              ))}
             </div>
           </div>
         </section>

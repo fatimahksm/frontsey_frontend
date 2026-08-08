@@ -7,7 +7,7 @@ import { SafeImage } from "@/components/public/SafeImage";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
-import { getDeveloperData, normalizePortfolioData } from "@/lib/website/portfolio-data";
+import { getCompleteness, getDeveloperData, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
 import { themeCssVars } from "@/lib/website/theme-config";
 
 /**
@@ -33,14 +33,6 @@ interface ExperienceEntry {
   detail?: string;
 }
 
-interface ProjectMeta {
-  name: string;
-  role?: string;
-  tech?: string[];
-  repo?: string | null;
-  live?: string | null;
-}
-
 function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
 }
@@ -52,11 +44,6 @@ function asExperience(value: unknown): ExperienceEntry[] {
     const e = v as Record<string, unknown>;
     return typeof e.year === "string" && typeof e.role === "string" && typeof e.company === "string";
   });
-}
-
-function asProjectMeta(value: unknown): ProjectMeta[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((v): v is ProjectMeta => !!v && typeof v === "object" && typeof (v as Record<string, unknown>).name === "string");
 }
 
 /** The section marker used throughout: a monospace index and a rule. */
@@ -90,11 +77,17 @@ export function PublicPortfolioSiteDeveloper({
   const about = (data.extra.ABOUT ?? {}) as Record<string, unknown>;
   const stack = asStringArray(about.stack);
   const experience = asExperience(about.experience);
-  const projectMeta = asProjectMeta(about.projectMeta);
 
   const hasProjects = data.projects.length > 0;
   const hasCapabilities = data.expertise.length > 0;
   const hasRecommendations = data.recommendations.length > 0;
+
+  // A site with almost nothing in it should read as a deliberate one-screen
+  // card, not as a full page with the middle cut out. Letting the hero grow
+  // does that with no separate layout to maintain: the shell is a column, so
+  // the hero takes the slack and the footer settles at the bottom of the
+  // viewport instead of halfway up it.
+  const { isSparse } = getCompleteness(data);
 
   // One motion vocabulary for the page: a short rise on entry, no bounce, and
   // nothing at all when the visitor has asked for reduced motion.
@@ -107,11 +100,7 @@ export function PublicPortfolioSiteDeveloper({
         transition: { duration: 0.5 },
       };
 
-  const contactHref = data.contact.email
-    ? `mailto:${data.contact.email}`
-    : data.contact.whatsappNumber
-      ? whatsappUrl(data.contact.whatsappNumber, "")
-      : null;
+  const contactHref = primaryContactHref(data);
 
   const navLinks = [
     ...(hasProjects ? [{ href: "#work", label: t.nav.work }] : []),
@@ -156,7 +145,12 @@ export function PublicPortfolioSiteDeveloper({
       </header>
 
       {/* Type-led, left-aligned, over a faint technical grid. */}
-      <section id="top" className="relative overflow-hidden border-b border-white/10 px-6 py-20 sm:py-28">
+      <section
+        id="top"
+        className={`relative overflow-hidden border-b border-white/10 px-6 py-20 sm:py-28 ${
+          isSparse ? "flex flex-1 items-center" : ""
+        }`}
+      >
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-[0.18]"
@@ -245,38 +239,59 @@ export function PublicPortfolioSiteDeveloper({
           <div className="mx-auto w-full max-w-6xl">
             <SectionLabel index="01">{t.nav.work}</SectionLabel>
             <div className="flex flex-col gap-20">
-              {data.projects.map((image, i) => {
-                const meta = projectMeta[i];
+              {data.projects.map((item, i) => {
+                // A project with only a picture still has to look composed, so
+                // the text column carries the index and stays put whether or
+                // not the owner has written anything yet.
                 return (
-                  <motion.article key={image} {...rise} className="grid items-center gap-8 lg:grid-cols-2">
-                    <figure className={`overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] ${i % 2 === 1 ? "lg:order-2" : ""}`}>
-                      <SafeImage src={image} alt="" className="aspect-[16/10] w-full object-cover" />
-                    </figure>
-                    <div>
+                  <motion.article key={item.id} {...rise} className="grid items-center gap-8 lg:grid-cols-2">
+                    {item.imageUrl && (
+                      <figure
+                        className={`overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] ${i % 2 === 1 ? "lg:order-2" : ""}`}
+                      >
+                        <SafeImage src={item.imageUrl} alt={item.title} className="aspect-[16/10] w-full object-cover" />
+                      </figure>
+                    )}
+                    <div className={item.imageUrl ? "" : "lg:col-span-2"}>
                       <span className="font-mono text-xs text-[var(--accent-solid)]">{String(i + 1).padStart(2, "0")}</span>
-                      <h3 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-                        {meta?.name ?? `${t.nav.projects} ${i + 1}`}
-                      </h3>
-                      {meta?.role && <p className="mt-1 font-mono text-xs text-zinc-500">{meta.role}</p>}
-                      {meta?.tech && meta.tech.length > 0 && (
+                      {item.title && (
+                        <h3 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{item.title}</h3>
+                      )}
+                      {(item.subtitle || item.year) && (
+                        <p className="mt-1 font-mono text-xs text-zinc-500">
+                          {[item.subtitle, item.year].filter(Boolean).join(" · ")}
+                        </p>
+                      )}
+                      {item.summary && <p className="mt-4 max-w-xl text-sm leading-relaxed text-zinc-400">{item.summary}</p>}
+                      {item.tags.length > 0 && (
                         <ul className="mt-4 flex flex-wrap gap-2">
-                          {meta.tech.map((tech) => (
-                            <li key={tech} className="rounded border border-white/15 px-2 py-1 font-mono text-[11px] text-zinc-300">
-                              {tech}
+                          {item.tags.map((tag) => (
+                            <li key={tag} className="rounded border border-white/15 px-2 py-1 font-mono text-[11px] text-zinc-300">
+                              {tag}
                             </li>
                           ))}
                         </ul>
                       )}
-                      {(meta?.repo || meta?.live) && (
+                      {(item.repoUrl || item.liveUrl) && (
                         <div className="mt-5 flex flex-wrap gap-4 font-mono text-xs">
-                          {meta?.live && (
-                            <a href={meta.live} target="_blank" rel="noopener noreferrer" className="text-[var(--accent-solid)] underline-offset-4 hover:underline">
-                              Live ↗
+                          {item.liveUrl && (
+                            <a
+                              href={item.liveUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[var(--accent-solid)] underline-offset-4 hover:underline"
+                            >
+                              {t.work.viewProject} ↗
                             </a>
                           )}
-                          {meta?.repo && (
-                            <a href={meta.repo} target="_blank" rel="noopener noreferrer" className="text-zinc-400 underline-offset-4 hover:text-white hover:underline">
-                              Source ↗
+                          {item.repoUrl && (
+                            <a
+                              href={item.repoUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-zinc-400 underline-offset-4 hover:text-white hover:underline"
+                            >
+                              {t.work.moreDetails} ↗
                             </a>
                           )}
                         </div>

@@ -6,7 +6,7 @@ import { SafeImage } from "@/components/public/SafeImage";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
-import { getDesignerData, normalizePortfolioData } from "@/lib/website/portfolio-data";
+import { getCompleteness, getDesignerData, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
 import { themeCssVars } from "@/lib/website/theme-config";
 
 /**
@@ -26,22 +26,8 @@ import { themeCssVars } from "@/lib/website/theme-config";
  * or text, which is what lets a template opt out like this.
  */
 
-interface WorkMeta {
-  name: string;
-  discipline?: string;
-  year?: string;
-  summary?: string;
-  tags?: string[];
-  live?: string | null;
-}
-
 function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
-}
-
-function asWorkMeta(value: unknown): WorkMeta[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((v): v is WorkMeta => !!v && typeof v === "object" && typeof (v as Record<string, unknown>).name === "string");
 }
 
 /** Paper, ink and hairline - the template's own tokens, kept in one place. */
@@ -65,11 +51,15 @@ export function PublicPortfolioSiteDesigner({
 
   const about = (data.extra.ABOUT ?? {}) as Record<string, unknown>;
   const tools = asStringArray(about.tools);
-  const workMeta = asWorkMeta(about.workMeta);
 
   const hasWork = data.selectedWork.length > 0;
   const hasDisciplines = data.disciplines.length > 0;
   const hasWords = data.testimonials.length > 0;
+
+  // See the Developer template: a nearly-empty portfolio should read as a
+  // deliberate single screen rather than a page with its middle missing, so
+  // the hero takes the leftover height and the footer settles at the bottom.
+  const { isSparse } = getCompleteness(data);
 
   /**
    * The Designer motion language: artwork is uncovered rather than moved, and
@@ -96,11 +86,7 @@ export function PublicPortfolioSiteDesigner({
           transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] as const },
         };
 
-  const contactHref = data.contact.email
-    ? `mailto:${data.contact.email}`
-    : data.contact.whatsappNumber
-      ? whatsappUrl(data.contact.whatsappNumber, "")
-      : null;
+  const contactHref = primaryContactHref(data);
 
   return (
     <div
@@ -131,7 +117,10 @@ export function PublicPortfolioSiteDesigner({
       </header>
 
       {/* Asymmetric hero: type on the left, a tall piece of work on the right. */}
-      <section id="top" className="px-6 pb-16 pt-14 sm:px-12 sm:pb-24 sm:pt-20">
+      <section
+        id="top"
+        className={`px-6 pb-16 pt-14 sm:px-12 sm:pb-24 sm:pt-20 ${isSparse ? "flex flex-1 items-center" : ""}`}
+      >
         <div className="mx-auto grid w-full max-w-[92rem] items-end gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
           <div>
             {data.badge && (
@@ -184,49 +173,48 @@ export function PublicPortfolioSiteDesigner({
               {t.section.selectedWork}
             </h2>
             <div className="flex flex-col gap-24 sm:gap-36">
-              {data.selectedWork.map((image, i) => {
-                const meta = workMeta[i];
+              {data.selectedWork.map((item, i) => {
                 const composition = i % 3;
                 const caption = (
                   <div className={composition === 1 ? "lg:pt-10" : ""}>
                     <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                       <h3 className="text-3xl tracking-tight sm:text-4xl" style={{ fontFamily: SERIF }}>
-                        {meta?.name ?? `${t.section.work} ${i + 1}`}
+                        {item.title || `${t.section.work} ${String(i + 1).padStart(2, "0")}`}
                       </h3>
-                      {meta?.year && <span className="text-sm opacity-50">{meta.year}</span>}
+                      {item.year && <span className="text-sm opacity-50">{item.year}</span>}
                     </div>
-                    {meta?.discipline && (
+                    {item.subtitle && (
                       <p className="mt-2 text-xs uppercase tracking-[0.22em]" style={{ color: "var(--accent-solid)" }}>
-                        {meta.discipline}
+                        {item.subtitle}
                       </p>
                     )}
-                    {meta?.summary && <p className="mt-4 max-w-md text-base leading-relaxed opacity-75">{meta.summary}</p>}
-                    {meta?.tags && meta.tags.length > 0 && (
+                    {item.summary && <p className="mt-4 max-w-md text-base leading-relaxed opacity-75">{item.summary}</p>}
+                    {item.tags.length > 0 && (
                       <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs uppercase tracking-[0.18em] opacity-55">
-                        {meta.tags.map((tag) => (
+                        {item.tags.map((tag) => (
                           <li key={tag}>{tag}</li>
                         ))}
                       </ul>
                     )}
-                    {meta?.live && (
+                    {item.liveUrl && (
                       <a
-                        href={meta.live}
+                        href={item.liveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="mt-6 inline-block border-b pb-0.5 text-sm underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]"
                         style={{ borderColor: INK }}
                       >
-                        {t.hero.viewMyWork}
+                        {t.work.viewProject}
                       </a>
                     )}
                   </div>
                 );
 
-                const art = (
+                const art = item.imageUrl && (
                   <motion.figure {...uncover} className="group overflow-hidden">
                     <SafeImage
-                      src={image}
-                      alt={meta?.name ? `${meta.name}${meta.discipline ? ` - ${meta.discipline}` : ""}` : `Work by ${data.name}`}
+                      src={item.imageUrl}
+                      alt={item.title ? `${item.title}${item.subtitle ? ` - ${item.subtitle}` : ""}` : `Work by ${data.name}`}
                       className={`w-full object-cover transition-transform duration-[900ms] ease-out ${
                         reduceMotion ? "" : "group-hover:scale-[1.03]"
                       } ${composition === 0 ? "aspect-[16/10]" : composition === 1 ? "aspect-[4/5]" : "aspect-[3/2]"}`}
@@ -237,7 +225,7 @@ export function PublicPortfolioSiteDesigner({
                 // 0: full-bleed artwork, caption beneath in a narrow column.
                 if (composition === 0) {
                   return (
-                    <article key={image}>
+                    <article key={item.id}>
                       {art}
                       <div className="mt-8 lg:w-2/3">{caption}</div>
                     </article>
@@ -246,7 +234,7 @@ export function PublicPortfolioSiteDesigner({
                 // 1: tall artwork offset left, caption in the right column.
                 if (composition === 1) {
                   return (
-                    <article key={image} className="grid gap-10 lg:grid-cols-[0.55fr_0.45fr] lg:gap-16">
+                    <article key={item.id} className={`grid gap-10 lg:gap-16 ${art ? "lg:grid-cols-[0.55fr_0.45fr]" : ""}`}>
                       {art}
                       {caption}
                     </article>
@@ -254,7 +242,7 @@ export function PublicPortfolioSiteDesigner({
                 }
                 // 2: caption first, artwork wide to the right.
                 return (
-                  <article key={image} className="grid gap-10 lg:grid-cols-[0.4fr_0.6fr] lg:items-center lg:gap-16">
+                  <article key={item.id} className={`grid gap-10 lg:items-center lg:gap-16 ${art ? "lg:grid-cols-[0.4fr_0.6fr]" : ""}`}>
                     {caption}
                     {art}
                   </article>
