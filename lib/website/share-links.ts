@@ -15,6 +15,19 @@ export function adminPath(website: Pick<WebsiteResponse, "id">): string {
   return `/manage/${website.id}`;
 }
 
+/**
+ * The sign-in link for one website's admin.
+ *
+ * Bookmarking `adminPath` works, but a signed-out owner opening it lands on the
+ * platform's own login page, which greets them with somebody else's brand
+ * before letting them into their site. This carries the slug, so the login
+ * screen can wear their name and logo and send them straight to their console
+ * afterwards - the whole way in belongs to their business.
+ */
+export function adminSignInPath(website: Pick<WebsiteResponse, "slug">): string {
+  return `/login?site=${encodeURIComponent(website.slug)}`;
+}
+
 export function publicPath(website: Pick<WebsiteResponse, "slug">): string {
   return `/site/${website.slug}`;
 }

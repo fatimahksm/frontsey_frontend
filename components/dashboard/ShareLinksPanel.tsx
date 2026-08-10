@@ -6,7 +6,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import type { WebsiteResponse } from "@/lib/api/types";
-import { absoluteUrl, adminPath, publicPath } from "@/lib/website/share-links";
+import { absoluteUrl, adminPath, adminSignInPath, publicPath } from "@/lib/website/share-links";
 
 /** Rendered at 1024px so a downloaded code stays sharp when printed on a sign or table card. */
 const QR_DOWNLOAD_SIZE = 1024;
@@ -87,7 +87,11 @@ export function ShareLinksPanel({ website }: { website: WebsiteResponse }) {
   // The links are origin-dependent, so they only exist once mounted in a browser.
   const origin = useOrigin();
   const urls = origin
-    ? { admin: absoluteUrl(origin, adminPath(website)), publicSite: absoluteUrl(origin, publicPath(website)) }
+    ? {
+        admin: absoluteUrl(origin, adminPath(website)),
+        signIn: absoluteUrl(origin, adminSignInPath(website)),
+        publicSite: absoluteUrl(origin, publicPath(website)),
+      }
     : null;
 
   // Keyed off the URL string, not the `urls` object, which is rebuilt each render.
@@ -133,6 +137,12 @@ export function ShareLinksPanel({ website }: { website: WebsiteResponse }) {
         label="Admin link"
         description="Your private dashboard for this website. Keep it to yourself and your managers."
         url={urls.admin}
+      />
+
+      <CopyableLink
+        label="Sign-in link"
+        description="Bookmark this one. It opens a sign-in page with your own name and logo, and takes you straight here afterwards."
+        url={urls.signIn}
       />
 
       <CopyableLink

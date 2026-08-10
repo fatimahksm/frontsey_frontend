@@ -193,6 +193,18 @@ export function WebsiteShell({ websiteId, children }: { websiteId: string; child
     };
   }, [session, websiteId]);
 
+  // The browser tab is part of the console. The /manage layout sets a neutral
+  // server-rendered fallback; this refines it to the business's own name once
+  // the site has loaded. Deferred by a frame because Next streams its metadata
+  // in after the page commits and would otherwise overwrite the assignment.
+  useEffect(() => {
+    if (!website) return;
+    const id = setTimeout(() => {
+      document.title = website.businessName;
+    }, 0);
+    return () => clearTimeout(id);
+  }, [website]);
+
   useEffect(() => {
     if (!session) return;
     let cancelled = false;
