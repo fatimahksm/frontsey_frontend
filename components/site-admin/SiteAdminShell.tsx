@@ -4,6 +4,16 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
+import {
+  DashboardIcon,
+  DeliveryIcon,
+  GalleryIcon,
+  MenuIcon,
+  ProjectsIcon,
+  ReportsIcon,
+  ServicesIcon,
+  SettingsIcon,
+} from "@/components/site-admin/icons";
 import { Alert } from "@/components/ui/Alert";
 import { friendlyMessage } from "@/lib/api/client";
 import { profileApi } from "@/lib/api/profile";
@@ -28,7 +38,9 @@ import { useAuth } from "@/lib/auth/auth-context";
 interface NavItem {
   href: string;
   label: string;
-  icon: string;
+  Icon: (props: { className?: string }) => React.ReactElement;
+  /** One line under the label, so nobody has to guess what a section is for. */
+  hint: string;
 }
 
 /**
@@ -40,19 +52,19 @@ interface NavItem {
 function sectionsFor(templateType: TemplateType): NavItem[] {
   if (templateType === "PORTFOLIO") {
     return [
-      { href: "", label: "Dashboard", icon: "▤" },
-      { href: "/projects", label: "Projects", icon: "◫" },
-      { href: "/services", label: "Services", icon: "✦" },
-      { href: "/gallery", label: "Gallery", icon: "▣" },
-      { href: "/analytics", label: "Reports", icon: "◔" },
+      { href: "", label: "Dashboard", Icon: DashboardIcon, hint: "How your site is doing" },
+      { href: "/projects", label: "Projects", Icon: ProjectsIcon, hint: "The work your site shows" },
+      { href: "/services", label: "Services", Icon: ServicesIcon, hint: "What you offer, and prices" },
+      { href: "/gallery", label: "Gallery", Icon: GalleryIcon, hint: "Extra photos" },
+      { href: "/analytics", label: "Reports", Icon: ReportsIcon, hint: "Full visitor numbers" },
     ];
   }
   return [
-    { href: "", label: "Dashboard", icon: "▤" },
-    { href: "/menu", label: "Menu", icon: "☰" },
-    { href: "/gallery", label: "Gallery", icon: "▣" },
-    { href: "/delivery", label: "Delivery", icon: "⇢" },
-    { href: "/analytics", label: "Reports", icon: "◔" },
+    { href: "", label: "Dashboard", Icon: DashboardIcon, hint: "How your site is doing" },
+    { href: "/menu", label: "Menu", Icon: MenuIcon, hint: "Categories, items and prices" },
+    { href: "/gallery", label: "Gallery", Icon: GalleryIcon, hint: "Photos of the place" },
+    { href: "/delivery", label: "Delivery", Icon: DeliveryIcon, hint: "Zones and fees" },
+    { href: "/analytics", label: "Reports", Icon: ReportsIcon, hint: "Full visitor numbers" },
   ];
 }
 
@@ -192,9 +204,7 @@ export function SiteAdminShell({
                     : "text-zinc-600 hover:bg-black/[.04] hover:text-foreground dark:text-zinc-400 dark:hover:bg-white/[.06]"
                 }`}
               >
-                <span aria-hidden className="w-4 text-center">
-                  {item.icon}
-                </span>
+                <item.Icon />
                 {item.label}
               </Link>
             );
@@ -207,9 +217,7 @@ export function SiteAdminShell({
             href={`/manage/${website.id}`}
             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-zinc-600 transition-colors hover:bg-black/[.04] hover:text-foreground dark:text-zinc-400 dark:hover:bg-white/[.06]"
           >
-            <span aria-hidden className="w-4 text-center">
-              ⚙
-            </span>
+            <SettingsIcon />
             Setup &amp; settings
           </Link>
         </div>
@@ -219,7 +227,9 @@ export function SiteAdminShell({
         <header className="flex flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-8">
           <div className="min-w-0">
             <h1 className="truncate text-2xl font-semibold tracking-tight">{active?.label ?? "Dashboard"}</h1>
-            <p className="mt-0.5 truncate text-sm text-zinc-500 dark:text-zinc-400">{website.businessName}</p>
+            <p className="mt-0.5 truncate text-sm text-zinc-500 dark:text-zinc-400">
+              {active?.hint ?? website.businessName}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             {website.status === "PUBLISHED" && (

@@ -60,10 +60,10 @@ export function ShareDonut({ data }: { data: Record<string, number> }) {
         className="relative h-28 w-28 shrink-0 rounded-full"
         style={{ background: `conic-gradient(${stops.join(", ")})` }}
       >
-        <div className="absolute inset-[9px] flex flex-col items-center justify-center rounded-full bg-surface">
-          <span className="text-lg font-semibold tabular-nums">{total.toLocaleString()}</span>
-          <span className="text-[10px] text-zinc-500 dark:text-zinc-400">total</span>
-        </div>
+        {/* No number in the middle: it would be the total of this breakdown,
+            which is not always the visit count shown elsewhere on the page, and
+            two nearly-equal totals side by side read as a contradiction. */}
+        <div className="absolute inset-[9px] rounded-full bg-surface" />
       </div>
       <ul className="flex min-w-40 flex-1 flex-col gap-2 text-sm">
         {entries.map(([label, value], i) => (
