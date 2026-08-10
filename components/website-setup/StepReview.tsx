@@ -112,7 +112,7 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
             <span className={item.complete ? "" : "font-medium"}>{item.label}</span>
             {!item.complete && fixLink(item.key, website.templateType) && (
               <Link
-                href={`/dashboard/websites/${website.id}${fixLink(item.key, website.templateType)!.href}`}
+                href={`/manage/${website.id}${fixLink(item.key, website.templateType)!.href}`}
                 className="ml-auto shrink-0 text-xs font-medium text-[var(--accent-solid)] hover:underline"
               >
                 {fixLink(item.key, website.templateType)!.label} →

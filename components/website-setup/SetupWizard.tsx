@@ -46,7 +46,7 @@ export function SetupWizard() {
   const [step, setStep] = useState(() => (requestedStep >= FIRST_STEP && requestedStep <= LAST_STEP ? requestedStep : FIRST_STEP));
 
   useEffect(() => {
-    router.replace(`/dashboard/websites/${website.id}/setup?step=${step}`, { scroll: false });
+    router.replace(`/manage/${website.id}/setup?step=${step}`, { scroll: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
@@ -80,7 +80,7 @@ export function SetupWizard() {
       )}
 
       {step === 3 && <StepBusinessInfo onContinue={() => goTo(4)} />}
-      {step === 4 && <StepReview onPublished={() => router.push(`/dashboard/websites/${website.id}`)} />}
+      {step === 4 && <StepReview onPublished={() => router.push(`/manage/${website.id}`)} />}
     </div>
   );
 }

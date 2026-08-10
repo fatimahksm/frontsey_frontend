@@ -24,7 +24,7 @@ interface WebsiteContextValue {
 
 const WebsiteContext = createContext<WebsiteContextValue | null>(null);
 
-/** Provides the currently-open website (and a way to refresh it) to every page under /dashboard/websites/[websiteId]. */
+/** Provides the currently-open website (and a way to refresh it) to every page under /manage/[websiteId]. */
 export function WebsiteProvider({
   websiteId,
   accessToken,

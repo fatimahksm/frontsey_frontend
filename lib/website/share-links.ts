@@ -12,7 +12,7 @@ import type { WebsiteResponse } from "@/lib/api/types";
  */
 
 export function adminPath(website: Pick<WebsiteResponse, "id">): string {
-  return `/dashboard/websites/${website.id}`;
+  return `/manage/${website.id}`;
 }
 
 export function publicPath(website: Pick<WebsiteResponse, "slug">): string {

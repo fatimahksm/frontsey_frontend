@@ -106,7 +106,7 @@ export function WebsiteCard({ website, accessToken }: { website: WebsiteResponse
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Link href={`/dashboard/websites/${website.id}`}>
+          <Link href={`/manage/${website.id}`}>
             <Button variant="primary" className="w-auto px-4">
               Manage website
             </Button>
@@ -134,7 +134,7 @@ export function WebsiteCard({ website, accessToken }: { website: WebsiteResponse
           ) : (
             <>
               <span className="text-sm text-zinc-500 dark:text-zinc-400">Not published yet</span>
-              <Link href={`/dashboard/websites/${website.id}/setup`}>
+              <Link href={`/manage/${website.id}/setup`}>
                 <Button variant="secondary" className="w-auto px-4">
                   Continue setup
                 </Button>

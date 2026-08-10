@@ -167,7 +167,7 @@ export default function ProjectsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0 flex-1">
           <h1 className="text-xl font-semibold tracking-tight">Projects</h1>
           <p className="mt-1 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
             The work your website shows. Add a title and a picture to start - every other field is optional, and your
@@ -175,7 +175,7 @@ export default function ProjectsPage() {
           </p>
         </div>
         {!isFormOpen && (
-          <Button type="button" className="w-auto px-5" onClick={startAdding}>
+          <Button type="button" className="!w-auto shrink-0 px-5" onClick={startAdding}>
             Add project
           </Button>
         )}

@@ -38,7 +38,7 @@ export default function NewMenuItemPage() {
     setIsSubmitting(true);
     try {
       const item = await menuApi.createItem(accessToken, website.id, request);
-      router.push(`/dashboard/websites/${website.id}/menu/items/${item.id}`);
+      router.push(`/manage/${website.id}/menu/items/${item.id}`);
     } catch (err) {
       setError(friendlyMessage(err, "Failed to create item."));
       setIsSubmitting(false);

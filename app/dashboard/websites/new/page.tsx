@@ -63,7 +63,7 @@ export default function NewWebsitePage() {
       if (layoutVariant !== defaultLayoutVariant(templateType)) {
         await websitesApi.updateLayoutVariant(session.accessToken, website.id, layoutVariant);
       }
-      router.push(`/dashboard/websites/${website.id}/setup`);
+      router.push(`/manage/${website.id}/setup`);
     } catch (err) {
       setError(friendlyMessage(err, "Failed to create website."));
       setIsSubmitting(false);

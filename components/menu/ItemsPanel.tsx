@@ -134,10 +134,10 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
           </>
         )}
         <div className="ml-auto flex items-center gap-3">
-          <Link href={`/dashboard/websites/${websiteId}/menu/import`} className="text-sm font-medium hover:underline">
+          <Link href={`/manage/${websiteId}/menu/import`} className="text-sm font-medium hover:underline">
             Import CSV
           </Link>
-          <Link href={`/dashboard/websites/${websiteId}/menu/items/new`}>
+          <Link href={`/manage/${websiteId}/menu/items/new`}>
             <Button className="w-auto px-4">Add item</Button>
           </Link>
         </div>
@@ -224,7 +224,7 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <Link href={`/dashboard/websites/${websiteId}/menu/items/${item.id}`} className="truncate font-medium hover:underline">
+                  <Link href={`/manage/${websiteId}/menu/items/${item.id}`} className="truncate font-medium hover:underline">
                     {item.name}
                   </Link>
                   <Badge tone={item.availability === "AVAILABLE" ? "success" : "warning"}>

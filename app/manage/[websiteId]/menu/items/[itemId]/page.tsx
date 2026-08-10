@@ -58,7 +58,7 @@ export default function EditMenuItemPage() {
   async function handleTrash() {
     if (!item) return;
     await menuApi.trashItem(accessToken, website.id, item.id);
-    router.push(`/dashboard/websites/${website.id}/menu`);
+    router.push(`/manage/${website.id}/menu`);
   }
 
   if (error && !item) {
