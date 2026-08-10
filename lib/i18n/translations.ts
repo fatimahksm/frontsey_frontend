@@ -40,8 +40,19 @@ export interface Dictionary {
   work: {
     viewProject: string;
     moreDetails: string;
+    downloadCv: string;
+    skills: string;
+    packages: string;
+    bookNow: string;
+    followAlong: string;
+    story: string;
   };
   section: {
+    process: string;
+    team: string;
+    testimonials: string;
+    experience: string;
+    faq: string;
     about: string;
     services: string;
     work: string;
@@ -150,8 +161,8 @@ const en: Dictionary = {
     viewMenu: "View menu",
     orderOnWhatsApp: "Order on WhatsApp",
   },
-  work: { viewProject: "View project", moreDetails: "More details" },
-  section: { about: "About", services: "Services", work: "Work", projects: "Projects", featured: "Featured", selectedWork: "Selected work" },
+  work: { viewProject: "View project", moreDetails: "More details", downloadCv: "Download CV", skills: "Skills", packages: "Packages", bookNow: "Book now", followAlong: "Follow along", story: "Our story" },
+  section: { about: "About", services: "Services", work: "Work", projects: "Projects", featured: "Featured", selectedWork: "Selected work", process: "How it works", team: "The team", testimonials: "What people say", experience: "Experience", faq: "Questions" },
   contact: {
     getInTouch: "Get in touch",
     getInTouchArrow: "Get in touch →",
@@ -237,8 +248,8 @@ const fr: Dictionary = {
     viewMenu: "Voir le menu",
     orderOnWhatsApp: "Commander sur WhatsApp",
   },
-  work: { viewProject: "Voir le projet", moreDetails: "Plus de détails" },
-  section: { about: "À propos", services: "Services", work: "Travaux", projects: "Projets", featured: "En vedette", selectedWork: "Travaux sélectionnés" },
+  work: { viewProject: "Voir le projet", moreDetails: "Plus de détails", downloadCv: "Télécharger le CV", skills: "Compétences", packages: "Formules", bookNow: "Réserver", followAlong: "Nous suivre", story: "Notre histoire" },
+  section: { about: "À propos", services: "Services", work: "Travaux", projects: "Projets", featured: "En vedette", selectedWork: "Travaux sélectionnés", process: "Comment ça marche", team: "L'équipe", testimonials: "Ils en parlent", experience: "Expérience", faq: "Questions" },
   contact: {
     getInTouch: "Contactez-nous",
     getInTouchArrow: "Contactez-nous →",
@@ -324,8 +335,8 @@ const ar: Dictionary = {
     viewMenu: "عرض القائمة",
     orderOnWhatsApp: "اطلب عبر واتساب",
   },
-  work: { viewProject: "عرض المشروع", moreDetails: "تفاصيل أكثر" },
-  section: { about: "من نحن", services: "الخدمات", work: "أعمالنا", projects: "المشاريع", featured: "مميز", selectedWork: "أعمال مختارة" },
+  work: { viewProject: "عرض المشروع", moreDetails: "تفاصيل أكثر", downloadCv: "تحميل السيرة الذاتية", skills: "المهارات", packages: "الباقات", bookNow: "احجز الآن", followAlong: "تابعنا", story: "قصتنا" },
+  section: { about: "من نحن", services: "الخدمات", work: "أعمالنا", projects: "المشاريع", featured: "مميز", selectedWork: "أعمال مختارة", process: "كيف بنشتغل", team: "الفريق", testimonials: "شو بيقولوا عنّا", experience: "الخبرة", faq: "أسئلة" },
   contact: {
     getInTouch: "تواصل معنا",
     getInTouchArrow: "← تواصل معنا",

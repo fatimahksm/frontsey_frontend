@@ -3,10 +3,10 @@ import { PublicMenuSite } from "@/components/public/PublicMenuSite";
 import { PublicMenuSiteBistro } from "@/components/public/PublicMenuSiteBistro";
 import { PublicMenuSiteElegant } from "@/components/public/PublicMenuSiteElegant";
 import { PublicMenuSiteGrid } from "@/components/public/PublicMenuSiteGrid";
-import { PublicPortfolioSiteDeveloper } from "@/components/public/PublicPortfolioSiteDeveloper";
-import { PublicPortfolioSiteAgency } from "@/components/public/PublicPortfolioSiteAgency";
-import { PublicPortfolioSiteDesigner } from "@/components/public/PublicPortfolioSiteDesigner";
-import { PublicPortfolioSiteFreelancer } from "@/components/public/PublicPortfolioSiteFreelancer";
+import { PublicPortfolioSiteProfessional } from "@/components/public/PublicPortfolioSiteProfessional";
+import { PublicPortfolioSiteBrand } from "@/components/public/PublicPortfolioSiteBrand";
+import { PublicPortfolioSiteVisual } from "@/components/public/PublicPortfolioSiteVisual";
+import { PublicPortfolioSiteServices } from "@/components/public/PublicPortfolioSiteServices";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
 
@@ -19,13 +19,13 @@ function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string)
     case "MENU_BISTRO":
       return <PublicMenuSiteBistro site={site} onFirstView={onFirstView} />;
     case "PORTFOLIO_MINIMAL":
-      return <PublicPortfolioSiteDesigner site={site} isSample={isSample} />;
+      return <PublicPortfolioSiteVisual site={site} isSample={isSample} />;
     case "PORTFOLIO_BOLD":
-      return <PublicPortfolioSiteAgency site={site} isSample={isSample} />;
+      return <PublicPortfolioSiteBrand site={site} isSample={isSample} />;
     case "PORTFOLIO_PROFILE":
-      return <PublicPortfolioSiteFreelancer site={site} isSample={isSample} />;
+      return <PublicPortfolioSiteServices site={site} isSample={isSample} />;
     case "PORTFOLIO_HERO":
-      return <PublicPortfolioSiteDeveloper site={site} isSample={isSample} />;
+      return <PublicPortfolioSiteProfessional site={site} isSample={isSample} />;
     case "MENU_CLASSIC":
     default:
       return <PublicMenuSite site={site} onFirstView={onFirstView} />;

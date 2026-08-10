@@ -19,6 +19,7 @@ import { websitesApi } from "@/lib/api/websites";
 import type { LayoutVariant, PageMode, TemplateType, ThemeResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { mockSiteFor } from "@/lib/mock-preview-data";
+import { BestForChips } from "@/components/dashboard/BestForChips";
 import { TEMPLATE_OPTIONS, WEBSITE_TYPES, defaultLayoutVariant } from "@/lib/website/layout-options";
 
 const WIZARD_STEPS: StepDefinition[] = [
@@ -166,6 +167,7 @@ export default function NewWebsitePage() {
                   <div>
                     <p className="font-semibold">{option.label}</p>
                     <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{option.description}</p>
+                    <BestForChips items={option.bestFor} />
                   </div>
                   <a
                     href={`/preview/mock/${option.value}`}

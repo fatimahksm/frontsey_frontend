@@ -6,7 +6,7 @@ import { SafeImage } from "@/components/public/SafeImage";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
-import { getCompleteness, getDesignerData, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
+import { getCompleteness, getVisualData, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
 import { themeCssVars } from "@/lib/website/theme-config";
 
 /**
@@ -36,7 +36,7 @@ const INK = "#1c1a17";
 const RULE = "rgba(28,26,23,0.16)";
 const SERIF = 'Georgia, "Times New Roman", serif';
 
-export function PublicPortfolioSiteDesigner({
+export function PublicPortfolioSiteVisual({
   site,
   isSample = false,
 }: {
@@ -47,7 +47,7 @@ export function PublicPortfolioSiteDesigner({
   const { t, dir } = useLocale();
   const reduceMotion = useReducedMotion();
 
-  const data = getDesignerData(normalizePortfolioData(site, { isSample }));
+  const data = getVisualData(normalizePortfolioData(site, { isSample }));
 
   const about = (data.extra.ABOUT ?? {}) as Record<string, unknown>;
   const tools = asStringArray(about.tools);
@@ -312,7 +312,7 @@ export function PublicPortfolioSiteDesigner({
         <section className="px-6 py-16 sm:px-12 sm:py-24">
           <div className="mx-auto w-full max-w-[92rem]">
             <h2 className="mb-12 border-t pt-4 text-xs uppercase tracking-[0.28em] opacity-60" style={{ borderColor: RULE }}>
-              {t.section.about}
+              {t.section.testimonials}
             </h2>
             <div className="grid gap-14 lg:grid-cols-2 lg:gap-20">
               {data.testimonials.map((item, i) => (

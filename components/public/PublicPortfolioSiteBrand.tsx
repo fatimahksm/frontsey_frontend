@@ -5,18 +5,19 @@ import { useState } from "react";
 
 import { SafeImage } from "@/components/public/SafeImage";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
+import { formatMoney } from "@/lib/format";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
-import { getAgencyData, getCompleteness, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
+import { getBrandData, getCompleteness, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
 import { themeCssVars } from "@/lib/website/theme-config";
 
 /**
- * The Agency template (PORTFOLIO_BOLD).
+ * The Brand / Product template (PORTFOLIO_BOLD).
  *
- * A business selling outcomes, so the page argues rather than exhibits: what
- * we do, proof it worked, how we run it, who does it, then one way to start.
- * Developer leads with artefacts and Designer with artwork - this one leads
- * with services, and every case study ends on a result rather than a caption.
+ * For someone with something to sell and a story behind it - a small business,
+ * a maker, a personal brand. The page runs story, then offer, then the work
+ * itself, then where to follow along: what this is, what you can buy, what it
+ * looks like, where to find more of it.
  *
  * Loud on purpose: heavy uppercase display type, a running marquee, and blocks
  * of flat colour. The shell is near-black with its own palette; the accent
@@ -36,7 +37,7 @@ function asProcess(value: unknown): ProcessStep[] {
 const SHELL = "#0f0f12";
 const BONE = "#f2f0eb";
 
-export function PublicPortfolioSiteAgency({
+export function PublicPortfolioSiteBrand({
   site,
   isSample = false,
 }: {
@@ -48,7 +49,7 @@ export function PublicPortfolioSiteAgency({
   const reduceMotion = useReducedMotion();
   const [openService, setOpenService] = useState<number | null>(0);
 
-  const data = getAgencyData(normalizePortfolioData(site, { isSample }));
+  const data = getBrandData(normalizePortfolioData(site, { isSample }));
   const about = (data.extra.ABOUT ?? {}) as Record<string, unknown>;
   const process = asProcess(about.process);
 
@@ -62,9 +63,10 @@ export function PublicPortfolioSiteAgency({
   const hasReviews = data.reviews.length > 0;
 
   /**
-   * The Agency motion language: things arrive from the side with weight, and
-   * the marquee runs continuously. Deliberately not Developer's small rise or
-   * Designer's slow uncover - this template is meant to feel like it is moving.
+   * This template's motion language: things arrive from the side with weight,
+   * and the marquee runs continuously. Deliberately not the Professional
+   * template's small rise or the Visual one's slow uncover - this page is meant
+   * to feel like it is moving.
    */
   const push = (delay = 0) =>
     reduceMotion
@@ -140,7 +142,7 @@ export function PublicPortfolioSiteAgency({
         </div>
       </section>
 
-      {/* A running strip of the studio's own services. */}
+      {/* A running strip of the owner's own products or services. */}
       {marqueeItems.length > 0 && (
         <div className="overflow-hidden border-y-2 py-4" style={{ borderColor: BONE, background: "var(--accent-solid)" }} aria-hidden>
           <motion.div
@@ -155,6 +157,20 @@ export function PublicPortfolioSiteAgency({
             ))}
           </motion.div>
         </div>
+      )}
+
+      {/* Brand story. This template used to skip the About body entirely, which
+          is the one thing a brand or a maker most wants to say. It sits before
+          the offer on purpose: what this is, then what you can buy. */}
+      {data.bio && (
+        <section id="story" className="px-6 py-20">
+          <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[0.35fr_0.65fr] lg:gap-16">
+            <h2 className="text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.work.story}</h2>
+            <motion.p {...push(0)} className="max-w-3xl text-xl leading-relaxed sm:text-2xl">
+              {data.bio}
+            </motion.p>
+          </div>
+        </section>
       )}
 
       {/* Services as large expandable rows - the centrepiece of this template. */}
@@ -179,8 +195,15 @@ export function PublicPortfolioSiteAgency({
                           {item.name}
                         </span>
                       </span>
-                      <span aria-hidden className={`text-2xl transition-transform ${isOpen ? "rotate-45" : ""}`}>
-                        +
+                      <span className="flex shrink-0 items-baseline gap-5">
+                        {item.price !== null && item.price !== undefined && (
+                          <span className="text-lg font-bold" style={{ color: "var(--accent-solid)" }}>
+                            {formatMoney(item.price, site.currency)}
+                          </span>
+                        )}
+                        <span aria-hidden className={`text-2xl transition-transform ${isOpen ? "rotate-45" : ""}`}>
+                          +
+                        </span>
                       </span>
                     </button>
                     {isOpen && item.description && (
@@ -267,7 +290,7 @@ export function PublicPortfolioSiteAgency({
       {process.length > 0 && (
         <section className="px-6 py-20">
           <div className="mx-auto w-full max-w-7xl">
-            <h2 className="mb-10 text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.nav.about}</h2>
+            <h2 className="mb-10 text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.process}</h2>
             <ol className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
               {process.map((step, i) => (
                 <motion.li key={step.step} {...push(i * 0.06)} className="border-t-2 pt-5" style={{ borderColor: "var(--accent-solid)" }}>
@@ -284,7 +307,7 @@ export function PublicPortfolioSiteAgency({
       {hasTeam && (
         <section className="px-6 py-20">
           <div className="mx-auto w-full max-w-7xl">
-            <h2 className="mb-10 text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.about}</h2>
+            <h2 className="mb-10 text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.team}</h2>
             <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {data.team.map((member, i) => (
                 <motion.li key={i} {...push(i * 0.06)}>
@@ -303,7 +326,7 @@ export function PublicPortfolioSiteAgency({
       {hasReviews && (
         <section className="px-6 py-20">
           <div className="mx-auto w-full max-w-7xl">
-            <h2 className="mb-10 text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.nav.contact}</h2>
+            <h2 className="mb-10 text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.testimonials}</h2>
             <div className="grid gap-12 lg:grid-cols-2">
               {data.reviews.map((item, i) => (
                 <motion.figure key={i} {...push(i * 0.06)}>
@@ -345,6 +368,27 @@ export function PublicPortfolioSiteAgency({
               </a>
             )}
           </div>
+          {/* A brand lives on its socials, so they get real buttons here rather
+              than only the grey run of text in the footer. */}
+          {data.socials.length > 0 && (
+            <div className="mt-12 border-t-2 pt-8" style={{ borderColor: SHELL }}>
+              <p className="text-xs font-bold uppercase tracking-[0.24em] opacity-60">{t.work.followAlong}</p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                {data.socials.map((social) => (
+                  <a
+                    key={social.href}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="border-2 px-5 py-3 text-sm font-bold uppercase tracking-[0.14em] transition-colors hover:bg-black/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+                    style={{ borderColor: SHELL }}
+                  >
+                    {social.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

@@ -299,6 +299,7 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteRespon
       heroSubtitle:
         "I build products end to end - TypeScript on the front, Java and Postgres behind it. Currently taking on select contract work.",
       brandColor: "#7c8cfa",
+      cvUrl: "https://example.dev/cv.pdf",
       heroBadge: "Available for work",
     }),
     profile: {
@@ -470,9 +471,9 @@ function mockDesignerSite(layoutVariant: "PORTFOLIO_MINIMAL"): PublicWebsiteResp
  * Results shown here are invented and only ever reachable through sample
  * mode - a real published site never receives them.
  */
-function mockAgencySite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse {
+function mockBrandSite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse {
   return {
-    businessName: "Northbound Studio",
+    businessName: "Northbound Goods",
     slug: "preview",
     pageMode: "ONE_PAGE",
     templateType: "PORTFOLIO",
@@ -481,20 +482,20 @@ function mockAgencySite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse 
     primaryLanguage: "en",
     currency: "USD",
     publishedContent: JSON.stringify({
-      heroHeading: "Brand, product and the launch in between",
-      heroSubtitle: "A six-person studio that takes a positioning problem and hands back something shipped.",
+      heroHeading: "Things made to be used, not replaced",
+      heroSubtitle: "A small workshop making everyday objects in short runs - built to last, sold direct.",
       brandColor: "#ff5c35",
-      heroBadge: "Booking from September",
+      heroBadge: "Autumn run out now",
     }),
     profile: {
       description:
-        "We work in short, senior engagements - no junior bench, no discovery theatre. Most projects run eight to twelve weeks and end with something live, not a deck about what could be built.",
+        "We started in one room with a single press and a stubborn idea: make fewer things, better, and sell them without a middleman. Every run is small enough that we know where each piece went, and everything we make is built to be repaired rather than thrown out.",
       logoUrl: null,
       coverImageUrl: agencyArt("campaign"),
       phone: null,
       whatsappNumber: "+961 70 123 456",
       email: "hello@example.studio",
-      address: "Beirut & Amsterdam",
+      address: "Beirut",
       googleMapsUrl: null,
       instagramUrl: "https://instagram.com",
       tiktokUrl: null,
@@ -504,19 +505,19 @@ function mockAgencySite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse 
     categories: [],
     deliveryAreas: [],
     services: [
-      { id: "a1", name: "Positioning", description: "Finding the sentence the whole company can say, then proving it holds.", price: null, imageUrl: null },
-      { id: "a2", name: "Brand identity", description: "Naming, marks, systems and the guidelines that survive a marketing hire.", price: null, imageUrl: null },
-      { id: "a3", name: "Product design", description: "Interfaces designed against real constraints, handed over build-ready.", price: null, imageUrl: null },
-      { id: "a4", name: "Launch", description: "Site, campaign and the assets to run it, delivered as one package.", price: null, imageUrl: null },
+      { id: "a1", name: "The everyday tote", description: "Waxed canvas, riveted seams, one inside pocket. Gets better wet.", price: 45, imageUrl: null },
+      { id: "a2", name: "Field notebook", description: "Sewn binding that opens flat, 120 pages, refillable cover.", price: 18, imageUrl: null },
+      { id: "a3", name: "Enamel mug", description: "Steel core, double-dipped rim, made to be knocked about.", price: 22, imageUrl: null },
+      { id: "a4", name: "Repair kit", description: "Thread, needles, patches and instructions. Free with any bag.", price: null, imageUrl: null },
     ],
     galleryImageUrls: sampleAgencyWork(),
     projects: sampleAgencyWork().map((imageUrl, i) => ({
       id: `ag-p${i + 1}`,
       imageUrl,
       ...[
-        { name: "Meridian", discipline: "Brand & packaging", year: "2026", summary: "Rebrand shipped in nine weeks", tags: ["Coffee roaster"], liveUrl: null, repoUrl: null },
-        { name: "Tallow", discipline: "Positioning & site", year: "2025", summary: "Two-week sales cycle, down from six", tags: ["B2B software"], liveUrl: null, repoUrl: null },
-        { name: "Halcyon", discipline: "Identity & launch", year: "2025", summary: "Four venues on one system", tags: ["Hospitality group"], liveUrl: null, repoUrl: null },
+        { name: "Autumn run", discipline: "Waxed canvas", year: "2026", summary: "Forty totes, cut and stitched in one week", tags: ["Limited run"], liveUrl: null, repoUrl: null },
+        { name: "The paper series", discipline: "Print & binding", year: "2025", summary: "Three notebooks, one refillable cover", tags: ["Stationery"], liveUrl: null, repoUrl: null },
+        { name: "Enamelware", discipline: "Steel & enamel", year: "2025", summary: "Mugs and plates in four colourways", tags: ["Homeware"], liveUrl: null, repoUrl: null },
       ][i],
     })),
     seo: null,
@@ -525,14 +526,14 @@ function mockAgencySite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse 
         id: "asec1",
         type: "ABOUT",
         data: JSON.stringify({
-          heading: "How we work",
-          body: "Every engagement starts with the same week: we read everything, talk to the people who actually use the thing, and come back with the problem restated. Half the time the brief changes. That week is why the rest of the project runs on time.",
+          heading: "How we make it",
+          body: "Everything starts on the bench, not on a screen. We cut a sample, carry it around for a month, and only then decide whether it is worth making forty of. Nothing leaves the room until one of us has broken one on purpose.",
           imageUrl: agencyArt("posters"),
           process: [
-            { step: "Frame", detail: "One week reading, interviewing and restating the problem." },
-            { step: "Direct", detail: "Two or three routes, argued rather than presented." },
-            { step: "Build", detail: "Design and build in the open, weekly and reviewable." },
-            { step: "Launch", detail: "Ship it, then stay a fortnight while it settles." },
+            { step: "Draw", detail: "A sketch, then a paper pattern we can argue with." },
+            { step: "Sample", detail: "One made by hand and carried around for a month." },
+            { step: "Run", detail: "Forty at a time, cut and stitched in the workshop." },
+            { step: "Repair", detail: "Send it back when it wears out and we fix it." },
           ],
         }),
       },
@@ -540,11 +541,11 @@ function mockAgencySite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse 
         id: "asec2",
         type: "TEAM",
         data: JSON.stringify({
-          heading: "The studio",
+          heading: "The workshop",
           items: [
-            { name: "Yara", role: "Partner, strategy", imageUrl: studioAvatar("Y") },
-            { name: "Tarek", role: "Partner, design", imageUrl: studioAvatar("T") },
-            { name: "Dana", role: "Design director", imageUrl: studioAvatar("D") },
+            { name: "Yara", role: "Cutting & patterns", imageUrl: studioAvatar("Y") },
+            { name: "Tarek", role: "Stitching", imageUrl: studioAvatar("T") },
+            { name: "Dana", role: "Finishing & repairs", imageUrl: studioAvatar("D") },
           ],
         }),
       },
@@ -552,10 +553,10 @@ function mockAgencySite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse 
         id: "asec3",
         type: "TESTIMONIALS",
         data: JSON.stringify({
-          heading: "Clients",
+          heading: "What people say",
           items: [
-            { name: "Sami F., CEO", quote: "They rewrote our brief in week one and they were right. Everything after that was faster because of it.", imageUrl: studioAvatar("S") },
-            { name: "Lea M., Marketing Director", quote: "The only studio we have worked with that stayed after launch instead of sending an invoice.", imageUrl: studioAvatar("L") },
+            { name: "Sami F.", quote: "Three years of daily use and the only thing that has changed is the colour. They re-waxed it for free when I asked.", imageUrl: studioAvatar("S") },
+            { name: "Lea M.", quote: "I bought one as a gift and ended up keeping it. Ordered two more the same week.", imageUrl: studioAvatar("L") },
           ],
         }),
       },
@@ -602,9 +603,9 @@ function mockFreelancerSite(layoutVariant: "PORTFOLIO_PROFILE"): PublicWebsiteRe
     categories: [],
     deliveryAreas: [],
     services: [
-      { id: "f1", name: "Product design", description: "Flows, screens and the decisions behind them, from first sketch to handover.", price: null, imageUrl: null },
-      { id: "f2", name: "Design & build", description: "Design plus a working front end, when a prototype is not enough.", price: null, imageUrl: null },
-      { id: "f3", name: "Design review", description: "A short engagement auditing an existing product and prioritising what to fix.", price: null, imageUrl: null },
+      { id: "f1", name: "Full project", description: "Flows, screens and the decisions behind them, from first sketch to handover. Four to six weeks.", price: 4800, imageUrl: null },
+      { id: "f2", name: "Design & build", description: "Design plus a working front end, when a prototype is not enough.", price: 7500, imageUrl: null },
+      { id: "f3", name: "Design review", description: "A short engagement auditing an existing product and prioritising what to fix. One week.", price: 900, imageUrl: null },
     ],
     galleryImageUrls: sampleFreelancerWork(),
     projects: sampleFreelancerWork().map((imageUrl, i) => ({
@@ -674,7 +675,7 @@ export function mockPortfolioSite(
   // rather than the salon the other three still use.
   if (layoutVariant === "PORTFOLIO_HERO") return mockDeveloperSite(layoutVariant);
   if (layoutVariant === "PORTFOLIO_MINIMAL") return mockDesignerSite(layoutVariant);
-  if (layoutVariant === "PORTFOLIO_BOLD") return mockAgencySite(layoutVariant);
+  if (layoutVariant === "PORTFOLIO_BOLD") return mockBrandSite(layoutVariant);
   if (layoutVariant === "PORTFOLIO_PROFILE") return mockFreelancerSite(layoutVariant);
 
   return {

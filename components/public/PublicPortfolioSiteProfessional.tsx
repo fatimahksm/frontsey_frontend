@@ -7,7 +7,7 @@ import { SafeImage } from "@/components/public/SafeImage";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
-import { getCompleteness, getDeveloperData, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
+import { getCompleteness, getProfessionalData, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
 import { themeCssVars } from "@/lib/website/theme-config";
 
 /**
@@ -56,7 +56,7 @@ function SectionLabel({ index, children }: { index: string; children: React.Reac
   );
 }
 
-export function PublicPortfolioSiteDeveloper({
+export function PublicPortfolioSiteProfessional({
   site,
   isSample = false,
 }: {
@@ -72,7 +72,7 @@ export function PublicPortfolioSiteDeveloper({
   // content. It is never derived from the response, because every field there
   // is user-editable - an owner who slugs their site "preview" must not start
   // seeing demo content on it.
-  const data = getDeveloperData(normalizePortfolioData(site, { isSample }));
+  const data = getProfessionalData(normalizePortfolioData(site, { isSample }));
 
   const about = (data.extra.ABOUT ?? {}) as Record<string, unknown>;
   const stack = asStringArray(about.stack);
@@ -216,6 +216,18 @@ export function PublicPortfolioSiteDeveloper({
                 {t.hero.getInTouch}
               </a>
             )}
+            {/* The one thing this template exists for that the others do not
+                need: whoever is reading a CV site usually wants the file. */}
+            {data.cvUrl && (
+              <a
+                href={data.cvUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-md border border-white/20 px-5 py-3 font-mono text-sm text-zinc-300 transition-colors hover:border-[var(--accent-solid)] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
+              >
+                {t.work.downloadCv} ↓
+              </a>
+            )}
           </motion.div>
           {data.contact.address && <p className="mt-8 font-mono text-xs text-zinc-500">{data.contact.address}</p>}
         </div>
@@ -223,7 +235,7 @@ export function PublicPortfolioSiteDeveloper({
 
       {/* A dense inline run of labels, not one card per technology. */}
       {stack.length > 0 && (
-        <section aria-label="Technologies" className="border-b border-white/10 px-6 py-10">
+        <section aria-label={t.work.skills} className="border-b border-white/10 px-6 py-10">
           <ul className="mx-auto flex w-full max-w-6xl flex-wrap gap-x-6 gap-y-3 font-mono text-sm text-zinc-400">
             {stack.map((tech) => (
               <li key={tech} className="transition-colors hover:text-white">
@@ -375,7 +387,7 @@ export function PublicPortfolioSiteDeveloper({
       {hasRecommendations && (
         <section className="border-b border-white/10 px-6 py-20">
           <div className="mx-auto w-full max-w-6xl">
-            <SectionLabel index="05">{t.section.about}</SectionLabel>
+            <SectionLabel index="05">{t.section.testimonials}</SectionLabel>
             <div className="grid gap-10 sm:grid-cols-2">
               {data.recommendations.map((item, i) => (
                 <motion.figure key={i} {...rise} className="border-s-2 border-[var(--accent-solid)]/40 ps-5">

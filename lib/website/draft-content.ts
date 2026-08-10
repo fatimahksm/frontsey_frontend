@@ -11,6 +11,15 @@ export interface DraftContent {
   brandColor: string;
   /** Optional short highlight shown as a floating badge next to the hero photo (e.g. "3+ Years Experience"). Owner-entered; not rendered when blank. */
   heroBadge: string;
+  /**
+   * Link to a CV or resume, shown by the Professional / CV template.
+   *
+   * It lives here rather than in a new column because this blob is already
+   * declared opaque on the backend - which is what lets the CV button ship
+   * without a migration. Blank on every existing site, and a blank value
+   * renders nothing.
+   */
+  cvUrl: string;
 }
 
 export const EMPTY_DRAFT_CONTENT: DraftContent = {
@@ -18,6 +27,7 @@ export const EMPTY_DRAFT_CONTENT: DraftContent = {
   heroSubtitle: "",
   brandColor: "#171717",
   heroBadge: "",
+  cvUrl: "",
 };
 
 export function parseDraftContent(raw: string | null): DraftContent {

@@ -76,6 +76,8 @@ export interface PortfolioData {
   subheadline: string;
   /** Short highlight the owner set (e.g. "5+ years"). Empty when unset. */
   badge: string;
+  /** Link to a CV/resume, or empty. Only the Professional template shows it. */
+  cvUrl: string;
   /**
    * The owner's quick accent override, or empty when they never set one.
    * Templates pass it to `themeCssVars` so a brand colour reaches the accent
@@ -271,6 +273,7 @@ export function normalizePortfolioData(site: PublicWebsiteResponse, options: { i
     headline: content.heroHeading ?? "",
     subheadline: content.heroSubtitle ?? "",
     badge: content.heroBadge ?? "",
+    cvUrl: content.cvUrl ?? "",
     brandColor: content.brandColor ?? "",
 
     // The About section is the longer, deliberately-written piece where it
@@ -315,7 +318,7 @@ export function normalizePortfolioData(site: PublicWebsiteResponse, options: { i
  * here too, as an empty array rather than undefined.
  */
 
-export interface DeveloperData extends PortfolioData {
+export interface ProfessionalData extends PortfolioData {
   /** Selected projects, presented as alternating full-width rows. */
   projects: WorkItem[];
   /** Capabilities, from the owner's services. */
@@ -324,22 +327,22 @@ export interface DeveloperData extends PortfolioData {
   recommendations: TestimonialsSectionData["items"];
 }
 
-export function getDeveloperData(data: PortfolioData): DeveloperData {
+export function getProfessionalData(data: PortfolioData): ProfessionalData {
   return { ...data, projects: data.items, expertise: data.offerings, recommendations: data.testimonials };
 }
 
-export interface DesignerData extends PortfolioData {
+export interface VisualData extends PortfolioData {
   /** Selected work, shown as an index rather than cards. */
   selectedWork: WorkItem[];
   /** Disciplines, from the owner's services. */
   disciplines: PublicService[];
 }
 
-export function getDesignerData(data: PortfolioData): DesignerData {
+export function getVisualData(data: PortfolioData): VisualData {
   return { ...data, selectedWork: data.items, disciplines: data.offerings };
 }
 
-export interface AgencyData extends PortfolioData {
+export interface BrandData extends PortfolioData {
   /** Case studies, from the owner's projects. */
   caseStudies: WorkItem[];
   /** The agency's services - the centrepiece of this template. */
@@ -348,11 +351,11 @@ export interface AgencyData extends PortfolioData {
   reviews: TestimonialsSectionData["items"];
 }
 
-export function getAgencyData(data: PortfolioData): AgencyData {
+export function getBrandData(data: PortfolioData): BrandData {
   return { ...data, caseStudies: data.items, services: data.offerings, reviews: data.testimonials };
 }
 
-export interface FreelancerData extends PortfolioData {
+export interface ServicesData extends PortfolioData {
   /** Selected projects, presented as stacked panels. */
   projects: WorkItem[];
   /** What they do, from services. */
@@ -363,7 +366,7 @@ export interface FreelancerData extends PortfolioData {
   story: string;
 }
 
-export function getFreelancerData(data: PortfolioData): FreelancerData {
+export function getServicesData(data: PortfolioData): ServicesData {
   return {
     ...data,
     projects: data.items,

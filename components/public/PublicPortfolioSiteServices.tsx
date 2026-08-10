@@ -4,9 +4,10 @@ import { motion, useReducedMotion } from "framer-motion";
 
 import { SafeImage } from "@/components/public/SafeImage";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
+import { formatMoney } from "@/lib/format";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
-import { getCompleteness, getFreelancerData, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
+import { getCompleteness, getServicesData, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
 import { themeCssVars } from "@/lib/website/theme-config";
 
 /**
@@ -54,7 +55,7 @@ const SHELL = "#14161a";
 const CARD = "#1e2127";
 const LINE = "rgba(255,255,255,0.09)";
 
-export function PublicPortfolioSiteFreelancer({
+export function PublicPortfolioSiteServices({
   site,
   isSample = false,
 }: {
@@ -65,13 +66,14 @@ export function PublicPortfolioSiteFreelancer({
   const { t, dir } = useLocale();
   const reduceMotion = useReducedMotion();
 
-  const data = getFreelancerData(normalizePortfolioData(site, { isSample }));
+  const data = getServicesData(normalizePortfolioData(site, { isSample }));
   const about = (data.extra.ABOUT ?? {}) as Record<string, unknown>;
   const experience = asExperience(about.experience);
   const process = asProcess(about.process);
 
   const hasExpertise = data.expertise.length > 0;
   const hasProjects = data.projects.length > 0;
+  const hasPricing = data.expertise.some((item) => item.price !== null && item.price !== undefined);
 
   // Same rule as the other three: too little content collapses to one screen
   // instead of a page that stops a third of the way down.
@@ -205,12 +207,36 @@ export function PublicPortfolioSiteFreelancer({
       {hasExpertise && (
         <section id="expertise" className="scroll-mt-16 px-6 py-14 sm:px-10">
           <div className="mx-auto w-full max-w-6xl">
-            <h2 className="mb-8 text-xs uppercase tracking-[0.2em] opacity-45">{t.nav.services}</h2>
+            {/* Called Packages once any of them carries a price - this template
+                is for people selling a service, and a priced list is the thing
+                a visitor came to read. */}
+            <h2 className="mb-8 text-xs uppercase tracking-[0.2em] opacity-45">
+              {hasPricing ? t.work.packages : t.nav.services}
+            </h2>
             <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {data.expertise.map((item, i) => (
-                <motion.li key={item.id} {...settle(i * 0.05)} className="rounded-2xl p-6" style={{ background: CARD }}>
+                <motion.li
+                  key={item.id}
+                  {...settle(i * 0.05)}
+                  className="flex flex-col rounded-2xl p-6"
+                  style={{ background: CARD }}
+                >
                   <h3 className="text-lg font-semibold tracking-tight">{item.name}</h3>
+                  {item.price !== null && item.price !== undefined && (
+                    <p className="mt-1 text-xl font-semibold" style={{ color: "var(--accent-solid)" }}>
+                      {formatMoney(item.price, site.currency)}
+                    </p>
+                  )}
                   {item.description && <p className="mt-2 text-sm leading-relaxed opacity-65">{item.description}</p>}
+                  {contactHref && (
+                    <a
+                      href={contactHref}
+                      className="mt-5 inline-block self-start rounded-full px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
+                      style={{ background: "var(--accent-solid)", color: SHELL }}
+                    >
+                      {t.work.bookNow}
+                    </a>
+                  )}
                 </motion.li>
               ))}
             </ul>
@@ -221,7 +247,7 @@ export function PublicPortfolioSiteFreelancer({
       {experience.length > 0 && (
         <section id="experience" className="scroll-mt-16 px-6 py-14 sm:px-10">
           <div className="mx-auto w-full max-w-6xl">
-            <h2 className="mb-8 text-xs uppercase tracking-[0.2em] opacity-45">{t.section.work}</h2>
+            <h2 className="mb-8 text-xs uppercase tracking-[0.2em] opacity-45">{t.section.experience}</h2>
             <ol className="flex flex-col">
               {experience.map((entry) => (
                 <motion.li key={`${entry.year}-${entry.company}`} {...settle(0)} className="grid gap-2 border-t py-6 sm:grid-cols-[160px_1fr] sm:gap-8" style={{ borderColor: LINE }}>
@@ -303,7 +329,7 @@ export function PublicPortfolioSiteFreelancer({
       {process.length > 0 && (
         <section className="px-6 py-14 sm:px-10">
           <div className="mx-auto w-full max-w-6xl">
-            <h2 className="mb-8 text-xs uppercase tracking-[0.2em] opacity-45">{t.section.services}</h2>
+            <h2 className="mb-8 text-xs uppercase tracking-[0.2em] opacity-45">{t.section.process}</h2>
             <ol className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {process.map((step, i) => (
                 <motion.li key={step.step} {...settle(i * 0.05)}>
@@ -320,7 +346,7 @@ export function PublicPortfolioSiteFreelancer({
       {hasRecommendations && (
         <section className="px-6 py-14 sm:px-10">
           <div className="mx-auto w-full max-w-6xl">
-            <h2 className="mb-8 text-xs uppercase tracking-[0.2em] opacity-45">{t.section.about}</h2>
+            <h2 className="mb-8 text-xs uppercase tracking-[0.2em] opacity-45">{t.section.testimonials}</h2>
             <div className="grid gap-8 lg:grid-cols-2">
               {data.recommendations.map((item, i) => (
                 <motion.figure key={i} {...settle(i * 0.06)} className="rounded-2xl p-7" style={{ background: CARD }}>
@@ -340,7 +366,7 @@ export function PublicPortfolioSiteFreelancer({
       {hasFaq && (
         <section id="faq" className="scroll-mt-16 px-6 py-14 sm:px-10">
           <div className="mx-auto w-full max-w-6xl">
-            <h2 className="mb-8 text-xs uppercase tracking-[0.2em] opacity-45">{t.nav.contact}</h2>
+            <h2 className="mb-8 text-xs uppercase tracking-[0.2em] opacity-45">{t.section.faq}</h2>
             <div className="flex flex-col gap-3">
               {data.faq.map((item, i) => (
                 <details key={i} className="group rounded-2xl px-6 py-1" style={{ background: CARD }}>

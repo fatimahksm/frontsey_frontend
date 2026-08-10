@@ -11,6 +11,7 @@ import { friendlyMessage } from "@/lib/api/client";
 import type { LayoutVariant } from "@/lib/api/types";
 import { websitesApi } from "@/lib/api/websites";
 import { mockSiteFor } from "@/lib/mock-preview-data";
+import { BestForChips } from "@/components/dashboard/BestForChips";
 import { TEMPLATE_OPTIONS } from "@/lib/website/layout-options";
 import { useWebsite } from "@/lib/website/website-context";
 
@@ -76,6 +77,7 @@ export default function LayoutPage() {
                   <div>
                     <p className="font-semibold">{option.label}</p>
                     <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{option.description}</p>
+                    <BestForChips items={option.bestFor} />
                     <a
                       href={`/preview/mock/${option.value}`}
                       target="_blank"

@@ -122,6 +122,7 @@ export default function WebsiteOverviewPage() {
   const [heroSubtitle, setHeroSubtitle] = useState(initial.heroSubtitle);
   const [brandColor, setBrandColor] = useState(initial.brandColor);
   const [heroBadge, setHeroBadge] = useState(initial.heroBadge);
+  const [cvUrl, setCvUrl] = useState(initial.cvUrl);
   const [orderingMode, setOrderingMode] = useState<OrderingMode>(website.orderingMode);
   const [checklist, setChecklist] = useState<ChecklistItem[] | null>(null);
   const [contentCount, setContentCount] = useState<number | null>(null);
@@ -189,7 +190,7 @@ export default function WebsiteOverviewPage() {
     setIsSaving(true);
     try {
       await websitesApi.saveDraft(accessToken, website.id, {
-        content: serializeDraftContent({ heroHeading, heroSubtitle, brandColor, heroBadge }),
+        content: serializeDraftContent({ heroHeading, heroSubtitle, brandColor, heroBadge, cvUrl }),
         orderingMode,
       });
       await reload();
@@ -436,6 +437,20 @@ export default function WebsiteOverviewPage() {
               onSuggestion={setHeroSubtitle}
             />
           </div>
+          {website.layoutVariant === "PORTFOLIO_HERO" && (
+            <div className="flex flex-col gap-1.5">
+              <TextField
+                id="cvUrl"
+                label="CV / resume link (optional)"
+                placeholder="https://… a PDF or a Drive link"
+                value={cvUrl}
+                onChange={(e) => setCvUrl(e.target.value)}
+              />
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Shown as a Download CV button. Leave it blank and no button appears.
+              </p>
+            </div>
+          )}
           {(website.layoutVariant === "PORTFOLIO_PROFILE" || website.layoutVariant === "MENU_BISTRO") && (
             <div className="flex flex-col gap-1.5">
               <TextField
