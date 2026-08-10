@@ -105,10 +105,38 @@ const SECTION_GAP: Record<SectionSpacing, string> = {
  * draft-content.ts) still wins over the theme's own primaryColor when set,
  * preserving existing behavior.
  */
+/**
+ * A text colour that stays readable on top of `accent`.
+ *
+ * Owners pick brand colours across the whole range - a pale amber and a deep
+ * indigo are both reasonable choices - and a template that hard-codes white
+ * button text turns the first one into an unreadable button. Relative
+ * luminance decides; anything unparseable falls back to white, which is the
+ * safer default for the saturated colours people actually choose.
+ */
+function readableOn(accent: string): string {
+  const hex = accent.trim().replace("#", "");
+  const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex;
+  if (!/^[0-9a-fA-F]{6}$/.test(full)) return "#ffffff";
+  const channel = (value: number) => {
+    const c = value / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  const r = channel(parseInt(full.slice(0, 2), 16));
+  const g = channel(parseInt(full.slice(2, 4), 16));
+  const b = channel(parseInt(full.slice(4, 6), 16));
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  // Contrast against white is (1.05)/(L+0.05); against black it is
+  // (L+0.05)/0.05. They cross at L ~= 0.179, so that is the switch point.
+  return luminance > 0.179 ? "#16181d" : "#ffffff";
+}
+
 export function themeCssVars(theme: ThemeConfig, brandColorOverride?: string): CSSProperties {
   const accent = brandColorOverride && brandColorOverride.toLowerCase() !== "#171717" ? brandColorOverride : theme.primaryColor;
   return {
     "--accent-solid": accent,
+    /** Readable text on top of --accent-solid; see readableOn above. */
+    "--accent-contrast": readableOn(accent),
     "--accent-from": accent,
     "--accent-to": accent,
     "--theme-secondary": theme.secondaryColor,
