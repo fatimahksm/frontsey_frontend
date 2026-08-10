@@ -277,11 +277,21 @@ export default function WebsiteOverviewPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Overview</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          How {website.businessName} is doing, and everything left to set up.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Setup</h1>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Template, profile, theme and publishing for {website.businessName} - the things you set once.
+          </p>
+        </div>
+        {/* The day-to-day console is a separate place with a separate door;
+            this is the one link between them. */}
+        <Link
+          href={`/s/${website.slug}`}
+          className="shrink-0 rounded-full bg-gradient-accent px-5 py-2.5 text-sm font-medium text-white"
+        >
+          Open dashboard →
+        </Link>
       </div>
 
       {error && <Alert tone="error">{error}</Alert>}

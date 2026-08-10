@@ -15,6 +15,11 @@ export function adminPath(website: Pick<WebsiteResponse, "id">): string {
   return `/manage/${website.id}`;
 }
 
+/** The business's own admin console - the day-to-day one, separate from setup. */
+export function consolePath(website: Pick<WebsiteResponse, "slug">): string {
+  return `/s/${website.slug}`;
+}
+
 /**
  * The sign-in link for one website's admin.
  *
@@ -25,7 +30,7 @@ export function adminPath(website: Pick<WebsiteResponse, "id">): string {
  * afterwards - the whole way in belongs to their business.
  */
 export function adminSignInPath(website: Pick<WebsiteResponse, "slug">): string {
-  return `/login?site=${encodeURIComponent(website.slug)}`;
+  return `/s/${website.slug}/login`;
 }
 
 export function publicPath(website: Pick<WebsiteResponse, "slug">): string {

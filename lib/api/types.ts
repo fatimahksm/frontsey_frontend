@@ -519,6 +519,8 @@ export interface AnalyticsSummaryResponse {
   mostViewedItems: { itemId: string; itemName: string; views: number }[];
   visitsByReferralSource: Record<string, number>;
   visitsByDeviceType: Record<string, number>;
+  /** One entry per calendar day in the range, quiet days included, in order. */
+  visitsByDay: { date: string; visits: number }[];
 }
 
 // --- Admin (Super Admin console) ---
