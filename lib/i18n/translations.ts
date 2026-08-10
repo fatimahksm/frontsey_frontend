@@ -142,6 +142,7 @@ export interface Dictionary {
   filter: {
     searchPlaceholder: string;
     noResults: string;
+    all: string;
   };
 }
 
@@ -229,7 +230,7 @@ const en: Dictionary = {
   policy: { privacy: "Privacy policy", terms: "Terms and conditions", delivery: "Delivery policy", refund: "Refund policy" },
   bistro: { comboBoxesTitle: "Combo Boxes", comboBoxesSubtitle: "Curated meals, better value." },
   stats: { services: "Services", photos: "Photos", openDays: "Open days", booking: "Booking" },
-  filter: { searchPlaceholder: "Search menu…", noResults: "No items match your search." },
+  filter: { searchPlaceholder: "Search menu…", noResults: "No items match your search.", all: "All" },
 };
 
 const fr: Dictionary = {
@@ -316,7 +317,7 @@ const fr: Dictionary = {
   policy: { privacy: "Politique de confidentialité", terms: "Conditions générales", delivery: "Politique de livraison", refund: "Politique de remboursement" },
   bistro: { comboBoxesTitle: "Formules", comboBoxesSubtitle: "Des repas composés, un meilleur rapport qualité-prix." },
   stats: { services: "Services", photos: "Photos", openDays: "Jours ouverts", booking: "Réservation" },
-  filter: { searchPlaceholder: "Rechercher dans le menu…", noResults: "Aucun article ne correspond à votre recherche." },
+  filter: { searchPlaceholder: "Rechercher dans le menu…", noResults: "Aucun article ne correspond à votre recherche.", all: "Tous" },
 };
 
 const ar: Dictionary = {
@@ -403,7 +404,7 @@ const ar: Dictionary = {
   policy: { privacy: "سياسة الخصوصية", terms: "الشروط والأحكام", delivery: "سياسة التوصيل", refund: "سياسة الاسترجاع" },
   bistro: { comboBoxesTitle: "علب الكومبو", comboBoxesSubtitle: "وجبات مختارة بقيمة أفضل." },
   stats: { services: "الخدمات", photos: "الصور", openDays: "أيام العمل", booking: "الحجز" },
-  filter: { searchPlaceholder: "ابحث في القائمة…", noResults: "لا توجد عناصر مطابقة لبحثك." },
+  filter: { searchPlaceholder: "ابحث في القائمة…", noResults: "لا توجد عناصر مطابقة لبحثك.", all: "الكل" },
 };
 
 export const DICTIONARIES: Record<Locale, Dictionary> = { en, fr, ar };
