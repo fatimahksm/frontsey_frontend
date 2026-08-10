@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { useState } from "react";
 
 import { SafeImage } from "@/components/public/SafeImage";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
@@ -15,13 +14,20 @@ import { themeCssVars } from "@/lib/website/theme-config";
  * The Brand / Product template (PORTFOLIO_BOLD).
  *
  * For someone with something to sell and a story behind it - a small business,
- * a maker, a personal brand. The page runs story, then offer, then the work
- * itself, then where to follow along: what this is, what you can buy, what it
- * looks like, where to find more of it.
+ * a maker, a personal brand. The page runs like a shop front: a statement, the
+ * things themselves, what they cost, who made them, and where to follow along.
  *
- * Loud on purpose: heavy uppercase display type, a running marquee, and blocks
- * of flat colour. The shell is near-black with its own palette; the accent
- * still resolves from the owner's brand colour.
+ * The loud parts - heavy uppercase display type, a running marquee, flat blocks
+ * of colour - are what distinguishes this template, so they stay. What is gone
+ * is the scale: the previous version set the hero at 7.5vw and ran case studies
+ * as full-width rows, which on a wide screen produced a headline taller than a
+ * person and images that filled the viewport one at a time. Type is now capped,
+ * products are an even grid, and the widest column is 72rem instead of 80.
+ *
+ * The shell owns its palette - a brand page needs its own ground, not the
+ * visitor's colour scheme - while the accent resolves from the owner's brand
+ * colour, and `--accent-contrast` keeps text on that accent readable whatever
+ * they picked.
  */
 
 interface ProcessStep {
@@ -34,8 +40,10 @@ function asProcess(value: unknown): ProcessStep[] {
   return value.filter((v): v is ProcessStep => !!v && typeof v === "object" && typeof (v as Record<string, unknown>).step === "string");
 }
 
-const SHELL = "#0f0f12";
+const SHELL = "#101014";
+const PANEL = "#191920";
 const BONE = "#f2f0eb";
+const LINE = "rgba(242,240,235,0.14)";
 
 export function PublicPortfolioSiteBrand({
   site,
@@ -47,7 +55,6 @@ export function PublicPortfolioSiteBrand({
 }) {
   const { t, dir } = useLocale();
   const reduceMotion = useReducedMotion();
-  const [openService, setOpenService] = useState<number | null>(0);
 
   const data = getBrandData(normalizePortfolioData(site, { isSample }));
   const about = (data.extra.ABOUT ?? {}) as Record<string, unknown>;
@@ -55,33 +62,31 @@ export function PublicPortfolioSiteBrand({
 
   const hasServices = data.services.length > 0;
   const hasCases = data.caseStudies.length > 0;
-
-  // As in the other three templates: a barely-filled site fills the screen from
-  // the hero rather than trailing off into a short stub of a page.
-  const { isSparse } = getCompleteness(data);
   const hasTeam = data.team.length > 0;
   const hasReviews = data.reviews.length > 0;
 
-  /**
-   * This template's motion language: things arrive from the side with weight,
-   * and the marquee runs continuously. Deliberately not the Professional
-   * template's small rise or the Visual one's slow uncover - this page is meant
-   * to feel like it is moving.
-   */
+  // As in the other three templates: too little content collapses to one
+  // deliberate screen rather than a page with its middle missing.
+  const { isSparse } = getCompleteness(data);
+
+  /** Things arrive from the side with weight. This page is meant to move. */
   const push = (delay = 0) =>
     reduceMotion
       ? {}
       : {
-          initial: { opacity: 0, x: -28 },
+          initial: { opacity: 0, x: -24 },
           whileInView: { opacity: 1, x: 0 },
           viewport: { once: true, margin: "-70px" },
-          transition: { duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] as const },
+          transition: { duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] as const },
         };
 
   const contactHref = primaryContactHref(data);
+  const shopHref = data.contact.whatsappNumber ? whatsappUrl(data.contact.whatsappNumber, "") : contactHref;
 
-  // The marquee repeats the owner's own services rather than invented words.
+  // The marquee repeats the owner's own product names rather than invented words.
   const marqueeItems = data.services.map((s) => s.name);
+  // The hero picture: the cover if there is one, else the first piece of work.
+  const heroImage = data.coverImageUrl ?? data.caseStudies.find((item) => item.imageUrl)?.imageUrl ?? null;
 
   return (
     <div
@@ -89,21 +94,33 @@ export function PublicPortfolioSiteBrand({
       className="flex flex-1 flex-col"
       style={{ ...themeCssVars(site.theme, data.brandColor || undefined), background: SHELL, color: BONE }}
     >
-      <header className="sticky top-0 z-30 border-b border-white/10 backdrop-blur" style={{ background: `${SHELL}d9` }}>
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-6 py-4">
-          <a href="#top" className="text-lg font-extrabold uppercase tracking-tight">
+      <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: LINE, background: `${SHELL}e0` }}>
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-5 px-5 py-3.5 sm:px-8">
+          <a href="#top" className="truncate text-base font-extrabold uppercase tracking-tight">
             {data.name}
           </a>
-          <nav aria-label="Sections" className="hidden items-center gap-7 text-xs font-bold uppercase tracking-[0.16em] sm:flex">
-            {hasServices && <a href="#services" className="hover:text-[var(--accent-solid)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]">{t.nav.services}</a>}
-            {hasCases && <a href="#work" className="hover:text-[var(--accent-solid)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]">{t.nav.work}</a>}
-            <a href="#contact" className="hover:text-[var(--accent-solid)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]">{t.nav.contact}</a>
+          <nav aria-label="Sections" className="hidden items-center gap-6 text-xs font-bold uppercase tracking-[0.14em] sm:flex">
+            {hasServices && (
+              <a href="#shop" className="opacity-70 transition-opacity hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]">
+                {t.nav.services}
+              </a>
+            )}
+            {hasCases && (
+              <a href="#work" className="opacity-70 transition-opacity hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]">
+                {t.nav.work}
+              </a>
+            )}
+            {data.bio && (
+              <a href="#story" className="opacity-70 transition-opacity hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]">
+                {t.nav.about}
+              </a>
+            )}
           </nav>
-          {contactHref && (
+          {shopHref && (
             <a
-              href={contactHref}
-              className="shrink-0 px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-[#0f0f12] transition-transform hover:scale-[1.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-              style={{ background: "var(--accent-solid)" }}
+              href={shopHref}
+              className="shrink-0 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] transition-transform hover:scale-[1.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              style={{ background: "var(--accent-solid)", color: "var(--accent-contrast)" }}
             >
               {t.hero.letsTalk}
             </a>
@@ -111,47 +128,75 @@ export function PublicPortfolioSiteBrand({
         </div>
       </header>
 
-      {/* Hero: oversized uppercase claim, artwork as a flat block beside it. */}
-      <section id="top" className={`px-6 pb-14 pt-16 sm:pb-20 sm:pt-24 ${isSparse ? "flex flex-1 items-center" : ""}`}>
-        <div className="mx-auto w-full max-w-7xl">
-          {data.badge && (
-            <motion.p {...push(0)} className="mb-8 inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-[#0f0f12]" style={{ background: "var(--accent-solid)" }}>
-              {data.badge}
-            </motion.p>
-          )}
-          <motion.h1 {...push(0.05)} className="max-w-5xl text-[clamp(2.5rem,7.5vw,6.5rem)] font-extrabold uppercase leading-[0.92] tracking-[-0.02em]">
-            {data.headline || data.name}
-          </motion.h1>
-          {data.subheadline && (
-            <motion.p {...push(0.14)} className="mt-8 max-w-2xl text-lg leading-relaxed opacity-70">
-              {data.subheadline}
-            </motion.p>
-          )}
-          <motion.div {...push(0.22)} className="mt-10 flex flex-wrap items-center gap-3">
-            {hasCases && (
-              <a href="#work" className="px-6 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-[#0f0f12] transition-transform hover:scale-[1.03] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" style={{ background: BONE }}>
-                {t.hero.viewWork}
-              </a>
+      {/* Hero: a statement beside the thing itself, at a size that fits on a
+          screen rather than filling three of them. */}
+      <section id="top" className={`px-5 py-12 sm:px-8 sm:py-16 ${isSparse ? "flex flex-1 items-center" : ""}`}>
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
+          <div>
+            {data.badge && (
+              <motion.p
+                {...push(0)}
+                className="mb-6 inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em]"
+                style={{ background: "var(--accent-solid)", color: "var(--accent-contrast)" }}
+              >
+                {data.badge}
+              </motion.p>
             )}
-            {hasServices && (
-              <a href="#services" className="border-2 px-6 py-3.5 text-sm font-bold uppercase tracking-[0.14em] transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]" style={{ borderColor: BONE }}>
-                {t.hero.viewServices}
-              </a>
+            <motion.h1
+              {...push(0.05)}
+              className="text-[clamp(2rem,4.6vw,3.75rem)] font-extrabold uppercase leading-[0.95] tracking-[-0.02em]"
+            >
+              {data.headline || data.name}
+            </motion.h1>
+            {data.subheadline && (
+              <motion.p {...push(0.12)} className="mt-6 max-w-xl text-base leading-relaxed opacity-70 sm:text-lg">
+                {data.subheadline}
+              </motion.p>
             )}
-          </motion.div>
+            <motion.div {...push(0.18)} className="mt-8 flex flex-wrap items-center gap-3">
+              {hasServices && (
+                <a
+                  href="#shop"
+                  className="px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] transition-transform hover:scale-[1.03] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  style={{ background: BONE, color: SHELL }}
+                >
+                  {t.hero.viewServices}
+                </a>
+              )}
+              {hasCases && (
+                <a
+                  href="#work"
+                  className="border-2 px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
+                  style={{ borderColor: BONE }}
+                >
+                  {t.hero.viewWork}
+                </a>
+              )}
+            </motion.div>
+          </div>
+
+          {heroImage && (
+            <motion.figure {...push(0.1)} className="overflow-hidden" style={{ background: PANEL }}>
+              {/* A fixed, modest height rather than an aspect ratio - a ratio in
+                  a half-width column grows past the text beside it on a wide
+                  screen and leaves the hero mostly empty. */}
+              <SafeImage src={heroImage} alt="" className="h-56 w-full object-cover sm:h-72 lg:h-[24rem]" />
+            </motion.figure>
+          )}
         </div>
       </section>
 
-      {/* A running strip of the owner's own products or services. */}
+      {/* A running strip of the owner's own product names. */}
       {marqueeItems.length > 0 && (
-        <div className="overflow-hidden border-y-2 py-4" style={{ borderColor: BONE, background: "var(--accent-solid)" }} aria-hidden>
+        <div className="overflow-hidden border-y py-2.5" style={{ borderColor: LINE, background: "var(--accent-solid)" }} aria-hidden>
           <motion.div
-            className="flex w-max gap-10 whitespace-nowrap text-lg font-extrabold uppercase tracking-tight text-[#0f0f12]"
+            className="flex w-max gap-8 whitespace-nowrap text-sm font-extrabold uppercase tracking-tight"
+            style={{ color: "var(--accent-contrast)" }}
             animate={reduceMotion ? undefined : { x: ["0%", "-50%"] }}
             transition={reduceMotion ? undefined : { duration: 26, ease: "linear", repeat: Infinity }}
           >
             {[...marqueeItems, ...marqueeItems, ...marqueeItems, ...marqueeItems].map((item, i) => (
-              <span key={i} className="flex items-center gap-10">
+              <span key={i} className="flex items-center gap-8">
                 {item} <span className="opacity-50">✦</span>
               </span>
             ))}
@@ -159,163 +204,133 @@ export function PublicPortfolioSiteBrand({
         </div>
       )}
 
-      {/* Brand story. This template used to skip the About body entirely, which
-          is the one thing a brand or a maker most wants to say. It sits before
-          the offer on purpose: what this is, then what you can buy. */}
-      {data.bio && (
-        <section id="story" className="px-6 py-20">
-          <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[0.35fr_0.65fr] lg:gap-16">
-            <h2 className="text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.work.story}</h2>
-            <motion.p {...push(0)} className="max-w-3xl text-xl leading-relaxed sm:text-2xl">
-              {data.bio}
-            </motion.p>
-          </div>
-        </section>
-      )}
-
-      {/* Services as large expandable rows - the centrepiece of this template. */}
+      {/* The things themselves. A product grid, not an accordion: an accordion
+          hides everything a shop front exists to show. */}
       {hasServices && (
-        <section id="services" className="px-6 py-20">
-          <div className="mx-auto w-full max-w-7xl">
-            <h2 className="mb-10 text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.nav.services}</h2>
-            <ul>
-              {data.services.map((item, i) => {
-                const isOpen = openService === i;
-                return (
-                  <li key={item.id} className="border-t border-white/15 last:border-b">
-                    <button
-                      type="button"
-                      onClick={() => setOpenService(isOpen ? null : i)}
-                      aria-expanded={isOpen}
-                      className="group flex w-full items-center justify-between gap-6 py-7 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
-                    >
-                      <span className="flex items-baseline gap-5">
-                        <span className="text-xs font-bold opacity-40">{String(i + 1).padStart(2, "0")}</span>
-                        <span className="text-2xl font-extrabold uppercase tracking-tight transition-colors group-hover:text-[var(--accent-solid)] sm:text-4xl">
-                          {item.name}
-                        </span>
+        <section id="shop" className="scroll-mt-16 px-5 py-14 sm:px-8 sm:py-20">
+          <div className="mx-auto w-full max-w-6xl">
+            <h2 className="text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.nav.services}</h2>
+            <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {data.services.map((item, i) => (
+                <motion.li key={item.id} {...push(Math.min(i, 4) * 0.05)} className="flex flex-col">
+                  <span className="block overflow-hidden" style={{ background: PANEL }}>
+                    {item.imageUrl ? (
+                      <SafeImage src={item.imageUrl} alt={item.name} className="aspect-[4/3] w-full object-cover" />
+                    ) : (
+                      // No picture is a normal state for a young shop; a numbered
+                      // panel keeps the grid even instead of leaving a hole.
+                      <span className="flex aspect-[4/3] w-full items-center justify-center text-3xl font-extrabold opacity-20">
+                        {String(i + 1).padStart(2, "0")}
                       </span>
-                      <span className="flex shrink-0 items-baseline gap-5">
-                        {item.price !== null && item.price !== undefined && (
-                          <span className="text-lg font-bold" style={{ color: "var(--accent-solid)" }}>
-                            {formatMoney(item.price, site.currency)}
-                          </span>
-                        )}
-                        <span aria-hidden className={`text-2xl transition-transform ${isOpen ? "rotate-45" : ""}`}>
-                          +
-                        </span>
-                      </span>
-                    </button>
-                    {isOpen && item.description && (
-                      <p className="max-w-2xl pb-7 ps-12 text-base leading-relaxed opacity-70">{item.description}</p>
                     )}
-                  </li>
-                );
-              })}
+                  </span>
+                  <div className="mt-4 flex items-baseline justify-between gap-4">
+                    <h3 className="text-lg font-extrabold uppercase tracking-tight">{item.name}</h3>
+                    {item.price !== null && item.price !== undefined && (
+                      <span className="shrink-0 text-base font-bold" style={{ color: "var(--accent-solid)" }}>
+                        {formatMoney(item.price, site.currency)}
+                      </span>
+                    )}
+                  </div>
+                  {item.description && <p className="mt-2 flex-1 text-sm leading-relaxed opacity-65">{item.description}</p>}
+                  {shopHref && (
+                    <a
+                      href={shopHref}
+                      className="mt-4 inline-block self-start border-b-2 pb-0.5 text-xs font-bold uppercase tracking-[0.14em] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]"
+                      style={{ borderColor: "var(--accent-solid)" }}
+                    >
+                      {t.hero.getInTouch}
+                    </a>
+                  )}
+                </motion.li>
+              ))}
             </ul>
           </div>
         </section>
       )}
 
-      {/* Case studies: artwork, then client / service / result. */}
+      {/* Work: what has been made. Even tiles, after the shop. */}
       {hasCases && (
-        <section id="work" className="px-6 py-20">
-          <div className="mx-auto w-full max-w-7xl">
-            <h2 className="mb-10 text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.selectedWork}</h2>
-            <div className="flex flex-col gap-16">
+        <section id="work" className="scroll-mt-16 px-5 py-14 sm:px-8 sm:py-20" style={{ background: PANEL }}>
+          <div className="mx-auto w-full max-w-6xl">
+            <h2 className="text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.selectedWork}</h2>
+            <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {data.caseStudies.map((item, i) => (
-                <motion.article
-                  key={item.id}
-                  {...push(0)}
-                  className={`grid gap-8 lg:items-end ${item.imageUrl ? "lg:grid-cols-[1.3fr_0.7fr]" : ""}`}
-                >
+                <motion.li key={item.id} {...push(Math.min(i, 4) * 0.05)}>
                   {item.imageUrl && (
-                    <figure className="overflow-hidden">
-                      <SafeImage
-                        src={item.imageUrl}
-                        alt={item.title ? `${item.title}${item.subtitle ? ` - ${item.subtitle}` : ""}` : `${t.section.work} ${i + 1}`}
-                        className={`aspect-[16/10] w-full object-cover transition-transform duration-700 ${reduceMotion ? "" : "hover:scale-[1.02]"}`}
-                      />
-                    </figure>
+                    <span className="block overflow-hidden" style={{ background: SHELL }}>
+                      <SafeImage src={item.imageUrl} alt={item.title} className="aspect-[4/3] w-full object-cover" />
+                    </span>
                   )}
-                  <div>
-                    <h3 className="text-3xl font-extrabold uppercase tracking-tight sm:text-4xl">
+                  <div className="mt-4 flex items-baseline justify-between gap-4">
+                    <h3 className="text-lg font-extrabold uppercase tracking-tight">
                       {item.title || `${t.section.work} ${String(i + 1).padStart(2, "0")}`}
                     </h3>
-                    {item.year && <p className="mt-2 text-sm opacity-45">{item.year}</p>}
-                    {item.subtitle && (
-                      <dl className="mt-5 flex gap-3 text-sm">
-                        <dt className="w-24 shrink-0 text-xs uppercase tracking-[0.16em] opacity-40">{t.nav.services}</dt>
-                        <dd className="opacity-80">{item.subtitle}</dd>
-                      </dl>
-                    )}
-                    {item.tags.length > 0 && (
-                      <ul className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs uppercase tracking-[0.16em] opacity-55">
-                        {item.tags.map((tag) => (
-                          <li key={tag}>{tag}</li>
-                        ))}
-                      </ul>
-                    )}
-                    {/* The outcome is the point of an agency case study, so the
-                        owner's own summary gets the accent and the largest type
-                        in the block. Nothing is invented when it is blank. */}
-                    {item.summary && (
-                      <p
-                        className="mt-6 border-t-2 pt-4 text-xl font-extrabold uppercase leading-tight"
-                        style={{ borderColor: "var(--accent-solid)" }}
-                      >
-                        {item.summary}
-                      </p>
-                    )}
-                    {item.liveUrl && (
-                      <a
-                        href={item.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-6 inline-block text-sm font-bold uppercase tracking-[0.16em] underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]"
-                        style={{ color: "var(--accent-solid)" }}
-                      >
-                        {t.work.viewProject} ↗
-                      </a>
-                    )}
+                    {item.year && <span className="shrink-0 text-xs opacity-45">{item.year}</span>}
                   </div>
-                </motion.article>
+                  {item.subtitle && (
+                    <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em]" style={{ color: "var(--accent-solid)" }}>
+                      {item.subtitle}
+                    </p>
+                  )}
+                  {item.summary && <p className="mt-2.5 text-sm leading-relaxed opacity-65">{item.summary}</p>}
+                  {item.liveUrl && (
+                    <a
+                      href={item.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-block text-xs font-bold uppercase tracking-[0.14em] underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]"
+                      style={{ color: "var(--accent-solid)" }}
+                    >
+                      {t.work.viewProject} ↗
+                    </a>
+                  )}
+                </motion.li>
               ))}
-            </div>
+            </ul>
           </div>
         </section>
       )}
 
-      {/* Process: numbered steps across, not a vertical list. */}
-      {process.length > 0 && (
-        <section className="px-6 py-20">
-          <div className="mx-auto w-full max-w-7xl">
-            <h2 className="mb-10 text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.process}</h2>
-            <ol className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              {process.map((step, i) => (
-                <motion.li key={step.step} {...push(i * 0.06)} className="border-t-2 pt-5" style={{ borderColor: "var(--accent-solid)" }}>
-                  <span className="text-4xl font-extrabold opacity-25">{String(i + 1).padStart(2, "0")}</span>
-                  <h3 className="mt-2 text-xl font-extrabold uppercase tracking-tight">{step.step}</h3>
-                  {step.detail && <p className="mt-2 text-sm leading-relaxed opacity-65">{step.detail}</p>}
-                </motion.li>
-              ))}
-            </ol>
+      {/* The story, and how it gets made, in one band. */}
+      {(data.bio || process.length > 0) && (
+        <section id="story" className="scroll-mt-16 px-5 py-14 sm:px-8 sm:py-20">
+          <div className="mx-auto w-full max-w-6xl">
+            <h2 className="text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.work.story}</h2>
+            {data.bio && (
+              <motion.p {...push(0)} className="mt-6 max-w-3xl text-xl leading-relaxed sm:text-2xl">
+                {data.bio}
+              </motion.p>
+            )}
+            {process.length > 0 && (
+              <ol className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {process.map((step, i) => (
+                  <motion.li key={step.step} {...push(Math.min(i, 4) * 0.05)} className="border-t pt-4" style={{ borderColor: LINE }}>
+                    <span className="text-xs font-bold" style={{ color: "var(--accent-solid)" }}>
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <h3 className="mt-1.5 text-base font-extrabold uppercase tracking-tight">{step.step}</h3>
+                    {step.detail && <p className="mt-1.5 text-sm leading-relaxed opacity-60">{step.detail}</p>}
+                  </motion.li>
+                ))}
+              </ol>
+            )}
           </div>
         </section>
       )}
 
       {hasTeam && (
-        <section className="px-6 py-20">
-          <div className="mx-auto w-full max-w-7xl">
-            <h2 className="mb-10 text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.team}</h2>
-            <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="px-5 py-14 sm:px-8 sm:py-20" style={{ background: PANEL }}>
+          <div className="mx-auto w-full max-w-6xl">
+            <h2 className="text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.team}</h2>
+            <ul className="mt-8 flex flex-wrap gap-x-10 gap-y-6">
               {data.team.map((member, i) => (
-                <motion.li key={i} {...push(i * 0.06)}>
-                  {member.imageUrl && (
-                    <SafeImage src={member.imageUrl} alt="" className="mb-4 aspect-square w-full max-w-[220px] object-cover" />
-                  )}
-                  <p className="text-xl font-extrabold uppercase tracking-tight">{member.name}</p>
-                  {member.role && <p className="mt-1 text-sm opacity-60">{member.role}</p>}
+                <motion.li key={i} {...push(Math.min(i, 4) * 0.05)} className="flex items-center gap-3">
+                  {member.imageUrl && <SafeImage src={member.imageUrl} alt="" className="h-12 w-12 rounded-full object-cover" />}
+                  <span>
+                    <span className="block text-sm font-bold uppercase tracking-tight">{member.name}</span>
+                    {member.role && <span className="block text-xs opacity-55">{member.role}</span>}
+                  </span>
                 </motion.li>
               ))}
             </ul>
@@ -324,17 +339,17 @@ export function PublicPortfolioSiteBrand({
       )}
 
       {hasReviews && (
-        <section className="px-6 py-20">
-          <div className="mx-auto w-full max-w-7xl">
-            <h2 className="mb-10 text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.testimonials}</h2>
-            <div className="grid gap-12 lg:grid-cols-2">
+        <section className="px-5 py-14 sm:px-8 sm:py-20">
+          <div className="mx-auto w-full max-w-6xl">
+            <h2 className="text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.testimonials}</h2>
+            <div className="mt-8 grid gap-6 md:grid-cols-2">
               {data.reviews.map((item, i) => (
-                <motion.figure key={i} {...push(i * 0.06)}>
-                  <blockquote className="text-2xl font-bold leading-snug tracking-tight sm:text-3xl">
+                <motion.figure key={i} {...push(Math.min(i, 3) * 0.05)} className="border-t pt-5" style={{ borderColor: LINE }}>
+                  <blockquote className="text-lg font-bold leading-snug tracking-tight sm:text-xl">
                     &ldquo;{item.quote}&rdquo;
                   </blockquote>
-                  <figcaption className="mt-5 flex items-center gap-3 text-xs uppercase tracking-[0.16em] opacity-60">
-                    {item.imageUrl && <SafeImage src={item.imageUrl} alt="" className="h-9 w-9 rounded-full object-cover" />}
+                  <figcaption className="mt-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.14em] opacity-55">
+                    {item.imageUrl && <SafeImage src={item.imageUrl} alt="" className="h-8 w-8 rounded-full object-cover" />}
                     {item.name}
                   </figcaption>
                 </motion.figure>
@@ -344,15 +359,25 @@ export function PublicPortfolioSiteBrand({
         </section>
       )}
 
-      {/* Conversion finale: the whole block is the call to action. */}
-      <section id="contact" className="px-6 py-24" style={{ background: "var(--accent-solid)", color: SHELL }}>
-        <div className="mx-auto w-full max-w-7xl">
-          <h2 className="max-w-4xl text-[clamp(2.25rem,6vw,5rem)] font-extrabold uppercase leading-[0.94] tracking-[-0.02em]">
+      {/* Conversion finale: the whole block is the call to action, and a brand
+          lives on its socials, so those get real buttons rather than the grey
+          run of text in the footer. */}
+      <section
+        id="contact"
+        className="scroll-mt-16 px-5 py-16 sm:px-8 sm:py-20"
+        style={{ background: "var(--accent-solid)", color: "var(--accent-contrast)" }}
+      >
+        <div className="mx-auto w-full max-w-6xl">
+          <h2 className="max-w-3xl text-[clamp(1.875rem,4.2vw,3.5rem)] font-extrabold uppercase leading-[0.98] tracking-[-0.02em]">
             {t.contact.letsWorkTogether}
           </h2>
-          <div className="mt-10 flex flex-wrap items-center gap-3">
+          <div className="mt-8 flex flex-wrap items-center gap-3">
             {contactHref && (
-              <a href={contactHref} className="px-7 py-4 text-sm font-bold uppercase tracking-[0.14em] text-white transition-transform hover:scale-[1.03] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" style={{ background: SHELL }}>
+              <a
+                href={contactHref}
+                className="px-6 py-3.5 text-sm font-bold uppercase tracking-[0.14em] transition-transform hover:scale-[1.03] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                style={{ background: SHELL, color: BONE }}
+              >
                 {data.contact.email ?? t.contact.getInTouch}
               </a>
             )}
@@ -361,17 +386,16 @@ export function PublicPortfolioSiteBrand({
                 href={whatsappUrl(data.contact.whatsappNumber, "")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="border-2 px-7 py-4 text-sm font-bold uppercase tracking-[0.14em] transition-colors hover:bg-black/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
-                style={{ borderColor: SHELL }}
+                className="border-2 px-6 py-3.5 text-sm font-bold uppercase tracking-[0.14em] transition-colors hover:bg-black/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                style={{ borderColor: "currentColor" }}
               >
                 {t.contact.contactUsOnWhatsApp}
               </a>
             )}
           </div>
-          {/* A brand lives on its socials, so they get real buttons here rather
-              than only the grey run of text in the footer. */}
+
           {data.socials.length > 0 && (
-            <div className="mt-12 border-t-2 pt-8" style={{ borderColor: SHELL }}>
+            <div className="mt-12 border-t-2 pt-6" style={{ borderColor: "currentColor" }}>
               <p className="text-xs font-bold uppercase tracking-[0.24em] opacity-60">{t.work.followAlong}</p>
               <div className="mt-4 flex flex-wrap gap-3">
                 {data.socials.map((social) => (
@@ -380,8 +404,8 @@ export function PublicPortfolioSiteBrand({
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="border-2 px-5 py-3 text-sm font-bold uppercase tracking-[0.14em] transition-colors hover:bg-black/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
-                    style={{ borderColor: SHELL }}
+                    className="border-2 px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] transition-colors hover:bg-black/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                    style={{ borderColor: "currentColor" }}
                   >
                     {social.label}
                   </a>
@@ -392,16 +416,12 @@ export function PublicPortfolioSiteBrand({
         </div>
       </section>
 
-      <footer className="px-6 py-10">
-        <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 text-xs font-bold uppercase tracking-[0.16em] opacity-55">
+      <footer className="px-5 py-8 sm:px-8">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 text-xs font-bold uppercase tracking-[0.14em] opacity-55">
           <span>{data.name}</span>
-          <div className="flex flex-wrap items-center gap-6">
-            {data.socials.map((social) => (
-              <a key={social.href} href={social.href} target="_blank" rel="noopener noreferrer" className="hover:opacity-100">
-                {social.label}
-              </a>
-            ))}
+          <div className="flex flex-wrap items-center gap-5">
             {data.contact.address && <span>{data.contact.address}</span>}
+            {data.contact.phone && <span>{data.contact.phone}</span>}
           </div>
         </div>
       </footer>

@@ -505,9 +505,11 @@ function mockBrandSite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse {
     categories: [],
     deliveryAreas: [],
     services: [
-      { id: "a1", name: "The everyday tote", description: "Waxed canvas, riveted seams, one inside pocket. Gets better wet.", price: 45, imageUrl: null },
-      { id: "a2", name: "Field notebook", description: "Sewn binding that opens flat, 120 pages, refillable cover.", price: 18, imageUrl: null },
-      { id: "a3", name: "Enamel mug", description: "Steel core, double-dipped rim, made to be knocked about.", price: 22, imageUrl: null },
+      { id: "a1", name: "The everyday tote", description: "Waxed canvas, riveted seams, one inside pocket. Gets better wet.", price: 45, imageUrl: agencyArt("posters") },
+      { id: "a2", name: "Field notebook", description: "Sewn binding that opens flat, 120 pages, refillable cover.", price: 18, imageUrl: agencyArt("build") },
+      { id: "a3", name: "Enamel mug", description: "Steel core, double-dipped rim, made to be knocked about.", price: 22, imageUrl: agencyArt("campaign") },
+      // Left without a picture on purpose: a young shop always has one of
+      // these, and the grid has to stay even when it does.
       { id: "a4", name: "Repair kit", description: "Thread, needles, patches and instructions. Free with any bag.", price: null, imageUrl: null },
     ],
     galleryImageUrls: sampleAgencyWork(),
