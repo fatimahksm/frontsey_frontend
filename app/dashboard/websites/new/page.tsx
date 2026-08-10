@@ -11,7 +11,7 @@ import { PublicSiteRenderer } from "@/components/public/PublicSiteRenderer";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
-import { Stepper, type StepDefinition } from "@/components/ui/Stepper";
+import { Stepper } from "@/components/ui/Stepper";
 import { TextField } from "@/components/ui/TextField";
 import { friendlyMessage } from "@/lib/api/client";
 import { themeApi } from "@/lib/api/theme";
@@ -20,19 +20,10 @@ import type { LayoutVariant, PageMode, TemplateType, ThemeResponse } from "@/lib
 import { useAuth } from "@/lib/auth/auth-context";
 import { mockSiteFor } from "@/lib/mock-preview-data";
 import { BestForChips } from "@/components/dashboard/BestForChips";
+import { SETUP_STEPS } from "@/components/website-setup/SetupWizard";
 import { TEMPLATE_OPTIONS, WEBSITE_TYPES, defaultLayoutVariant } from "@/lib/website/layout-options";
 
-const WIZARD_STEPS: StepDefinition[] = [
-  { step: 1, label: "Website type" },
-  { step: 2, label: "Template" },
-  { step: 3, label: "Business info" },
-  { step: 4, label: "Content" },
-  { step: 5, label: "Design" },
-  { step: 6, label: "Preview" },
-  { step: 7, label: "Review & publish" },
-];
-
-/** BR-SITE-001..004: name, template type, page mode, and an optional theme (null = build from scratch). Steps 1-2 of the guided creation wizard - steps 3-7 continue at /dashboard/websites/{id}/setup once the website exists. */
+/** BR-SITE-001..004: name, template type, page mode, and an optional theme (null = build from scratch). Steps 1-2 of the guided creation wizard - steps 3-4 continue at /dashboard/websites/{id}/setup once the website exists. */
 export default function NewWebsitePage() {
   const router = useRouter();
   const { session } = useAuth();
@@ -86,7 +77,7 @@ export default function NewWebsitePage() {
           <h1 className="text-xl font-semibold tracking-tight">Create a website</h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Step 1 of 7 - What kind of site are you building?</p>
           <div className="mt-4">
-            <Stepper steps={WIZARD_STEPS} currentStep={1} completedSteps={new Set()} />
+            <Stepper steps={SETUP_STEPS} currentStep={1} completedSteps={new Set()} />
           </div>
         </Reveal>
 
@@ -135,7 +126,7 @@ export default function NewWebsitePage() {
           Step 2 of 7 - every template below has the exact same features, only the look changes. You can switch anytime later, too.
         </p>
         <div className="mt-4">
-          <Stepper steps={WIZARD_STEPS} currentStep={2} completedSteps={new Set([1])} />
+          <Stepper steps={SETUP_STEPS} currentStep={2} completedSteps={new Set([1])} />
         </div>
       </Reveal>
 

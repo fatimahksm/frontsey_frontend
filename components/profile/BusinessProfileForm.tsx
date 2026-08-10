@@ -13,6 +13,16 @@ interface Props {
   accessToken: string;
   profile: BusinessProfileRequest;
   onChange<K extends keyof BusinessProfileRequest>(key: K, value: BusinessProfileRequest[K]): void;
+  /**
+   * How much of the form to show.
+   *
+   * "essentials" is what the creation wizard uses: a logo, a line about the
+   * business, and one way to be reached. Everything else is real settings work
+   * that belongs in the dashboard, where it can be done at leisure and changed
+   * later - asking for nine fields before someone has even seen their own site
+   * is how a setup flow gets abandoned halfway.
+   */
+  fields?: "all" | "essentials";
 }
 
 /**
@@ -20,7 +30,8 @@ interface Props {
  * tab and Step 3 of the guided creation wizard. Policies and opening hours
  * stay tab-only - they aren't essential first-run information.
  */
-export function BusinessProfileForm({ businessName, templateType, accessToken, profile, onChange }: Props) {
+export function BusinessProfileForm({ businessName, templateType, accessToken, profile, onChange, fields = "all" }: Props) {
+  const showAll = fields === "all";
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
@@ -48,13 +59,15 @@ export function BusinessProfileForm({ businessName, templateType, accessToken, p
           onChange={(url) => onChange("logoUrl", url)}
           accessToken={accessToken}
         />
-        <ImageUploadField
-          id="coverImageUrl"
-          label="Cover image"
-          value={profile.coverImageUrl ?? ""}
-          onChange={(url) => onChange("coverImageUrl", url)}
-          accessToken={accessToken}
-        />
+        {showAll && (
+          <ImageUploadField
+            id="coverImageUrl"
+            label="Cover image"
+            value={profile.coverImageUrl ?? ""}
+            onChange={(url) => onChange("coverImageUrl", url)}
+            accessToken={accessToken}
+          />
+        )}
         <PhoneField id="phone" label="Phone number" value={profile.phone ?? ""} onChange={(v) => onChange("phone", v)} />
         <PhoneField
           id="whatsappNumber"
@@ -62,37 +75,41 @@ export function BusinessProfileForm({ businessName, templateType, accessToken, p
           value={profile.whatsappNumber ?? ""}
           onChange={(v) => onChange("whatsappNumber", v)}
         />
-        <TextField
-          id="email"
-          label="Email"
-          type="email"
-          value={profile.email ?? ""}
-          onChange={(e) => onChange("email", e.target.value)}
-        />
-        <TextField
-          id="address"
-          label="Address or location"
-          value={profile.address ?? ""}
-          onChange={(e) => onChange("address", e.target.value)}
-        />
-        <TextField
-          id="googleMapsUrl"
-          label="Google Maps link (optional)"
-          value={profile.googleMapsUrl ?? ""}
-          onChange={(e) => onChange("googleMapsUrl", e.target.value)}
-        />
-        <TextField
-          id="instagramUrl"
-          label="Instagram link (optional)"
-          value={profile.instagramUrl ?? ""}
-          onChange={(e) => onChange("instagramUrl", e.target.value)}
-        />
-        <TextField
-          id="tiktokUrl"
-          label="TikTok link (optional)"
-          value={profile.tiktokUrl ?? ""}
-          onChange={(e) => onChange("tiktokUrl", e.target.value)}
-        />
+        {showAll && (
+          <>
+            <TextField
+              id="email"
+              label="Email"
+              type="email"
+              value={profile.email ?? ""}
+              onChange={(e) => onChange("email", e.target.value)}
+            />
+            <TextField
+              id="address"
+              label="Address or location"
+              value={profile.address ?? ""}
+              onChange={(e) => onChange("address", e.target.value)}
+            />
+            <TextField
+              id="googleMapsUrl"
+              label="Google Maps link (optional)"
+              value={profile.googleMapsUrl ?? ""}
+              onChange={(e) => onChange("googleMapsUrl", e.target.value)}
+            />
+            <TextField
+              id="instagramUrl"
+              label="Instagram link (optional)"
+              value={profile.instagramUrl ?? ""}
+              onChange={(e) => onChange("instagramUrl", e.target.value)}
+            />
+            <TextField
+              id="tiktokUrl"
+              label="TikTok link (optional)"
+              value={profile.tiktokUrl ?? ""}
+              onChange={(e) => onChange("tiktokUrl", e.target.value)}
+            />
+          </>
+        )}
       </div>
     </div>
   );
