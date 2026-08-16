@@ -25,6 +25,40 @@ function slugifyId(value: string): string {
 }
 
 /**
+ * A category filter chip.
+ *
+ * The selected one is filled with the accent rather than merely outlined: this
+ * bar used to be a row of identical white pills that scrolled the page instead
+ * of filtering it, so nothing on screen ever said which one you had pressed.
+ */
+function FilterChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick(): void;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      whileTap={{ scale: 0.95 }}
+      aria-pressed={active}
+      className={`shrink-0 snap-start rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+        active
+          ? "text-[color:var(--accent-contrast)]"
+          : "border border-black/[.1] bg-surface hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-solid)] dark:border-white/[.14] dark:bg-white/[.04]"
+      }`}
+      style={active ? { background: "var(--accent-solid)" } : undefined}
+    >
+      {children}
+    </motion.button>
+  );
+}
+
+/**
  * The "Grid" layout for MENU_ORDERING: same data and ordering logic as the
  * Classic layout, arranged completely differently - a full-width cover
  * hero, sticky category pills, items as a card grid, and the cart as a
@@ -35,14 +69,28 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [query, setQuery] = useState("");
+  /** null = every category. The chips are a filter, not a scroll shortcut. */
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const content = parseDraftContent(site.publishedContent);
   const hasCover = !!site.profile?.coverImageUrl;
   const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
   const cartCount = cart.reduce((sum, l) => sum + l.quantity, 0);
-  const visibleCategories = site.categories
+  // Two independent narrowings: the chips choose a category, the box searches
+  // within whatever is showing. Both are applied here so the count under the
+  // bar and the sections below can never disagree.
+  const matchingCategories = site.categories
     .map((category) => ({ ...category, items: itemsUnder(category).filter((item) => itemMatchesQuery(item, query)) }))
     .filter((category) => category.items.length > 0);
+  const visibleCategories = activeCategory
+    ? matchingCategories.filter((category) => category.id === activeCategory)
+    : matchingCategories;
+  const visibleItemCount = visibleCategories.reduce((sum, category) => sum + category.items.length, 0);
+  // Chips list every category that still has a match, so a chip is never a
+  // dead end - plus whichever one is selected, so it cannot vanish under you.
+  const chipCategories = site.categories.filter(
+    (category) => category.id === activeCategory || matchingCategories.some((match) => match.id === category.id),
+  );
 
   function handleAddToCart(line: CartLine) {
     setCart((prev) => {
@@ -65,8 +113,11 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
     window.open(whatsappUrl(site.profile.whatsappNumber, message), "_blank");
   }
 
-  function scrollToCategory(id: string) {
-    document.getElementById(slugifyId(id))?.scrollIntoView({ behavior: "smooth", block: "start" });
+  function chooseCategory(id: string | null) {
+    setActiveCategory(id);
+    // Filtering shortens the page; without this the visitor can be left looking
+    // at the footer of a menu that no longer has anything below the fold.
+    document.getElementById("menu-top")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   return (
@@ -133,48 +184,108 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
       </header>
 
       {site.categories.length > 0 && (
-        <div className="sticky top-0 z-30 flex flex-col gap-3 border-b border-black/[.06] bg-surface/90 px-4 py-3 backdrop-blur-md dark:border-white/[.1]">
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t.filter.searchPlaceholder}
-            className="mx-auto h-10 w-full max-w-6xl rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
-          />
-          <div className="no-scrollbar mx-auto flex max-w-6xl snap-x snap-mandatory gap-2 overflow-x-auto">
-            {visibleCategories.map((category) => (
-              <motion.button
-                key={category.id}
-                type="button"
-                onClick={() => scrollToCategory(category.id)}
-                whileTap={{ scale: 0.95 }}
-                className="shrink-0 snap-start rounded-full border border-black/[.08] bg-surface px-4 py-2 text-sm font-medium shadow-soft transition-colors duration-200 hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-solid)] dark:border-white/[.12] dark:bg-white/[.04]"
+        <div
+          id="menu-top"
+          className="sticky top-0 z-30 scroll-mt-0 border-b border-black/[.06] bg-surface/95 backdrop-blur-md dark:border-white/[.1]"
+        >
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-2.5 px-4 py-3 lg:flex-row lg:items-center lg:gap-5">
+            {/* One row on a wide screen. Stacked, this bar was two thirds the
+                height of a phone's viewport before a single dish appeared. */}
+            <label className="relative shrink-0 lg:w-72">
+              <span className="sr-only">{t.filter.searchPlaceholder}</span>
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-45"
               >
-                {category.name}
-              </motion.button>
-            ))}
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.6-3.6" />
+              </svg>
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t.filter.searchPlaceholder}
+                className="h-10 w-full rounded-full border border-black/[.12] bg-surface ps-9 pe-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
+              />
+            </label>
+
+            <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0">
+              {/* "All" first, and always present: without it a visitor who taps a
+                  chip has no way back to the whole menu. */}
+              <FilterChip active={activeCategory === null} onClick={() => chooseCategory(null)}>
+                {t.filter.all}
+              </FilterChip>
+              {chipCategories.map((category) => (
+                <FilterChip
+                  key={category.id}
+                  active={activeCategory === category.id}
+                  onClick={() => chooseCategory(category.id)}
+                >
+                  {category.name}
+                </FilterChip>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
       <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
         {site.galleryImageUrls.length > 0 && (
-          <div className="no-scrollbar mb-10 flex snap-x snap-mandatory gap-3 overflow-x-auto">
-            {site.galleryImageUrls.map((url) => (
-              <MotionSafeImage
-                key={url}
-                whileHover={{ scale: 1.04 }}
-                transition={{ type: "spring", stiffness: 300, damping: 24 }}
-                src={url}
-                alt=""
-                className="h-36 w-52 shrink-0 snap-start rounded-2xl object-cover shadow-soft"
-              />
-            ))}
+          <div className="relative mb-10">
+            {/* Labelled, so it reads as photos of the place rather than as the
+                menu itself - which is what an unexplained row of food pictures
+                directly above the menu looked like. */}
+            <p className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400">
+              {t.stats.photos}
+            </p>
+            <div className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto">
+              {site.galleryImageUrls.map((url) => (
+                <MotionSafeImage
+                  key={url}
+                  whileHover={{ scale: 1.04 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                  src={url}
+                  alt=""
+                  className="h-36 w-52 shrink-0 snap-start rounded-2xl object-cover shadow-soft"
+                />
+              ))}
+            </div>
+            {/* A fade at the trailing edge: the strip scrolls, and a photo cut
+                flat by the container edge reads as broken rather than as more. */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute bottom-0 end-0 top-8 w-12 bg-gradient-to-l from-background to-transparent"
+            />
           </div>
         )}
 
-        {visibleCategories.length === 0 && (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t.filter.noResults}</p>
+        {visibleCategories.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-black/[.12] py-14 text-center dark:border-white/[.16]">
+            <p className="text-sm font-medium">{t.filter.noResults}</p>
+            {(query || activeCategory) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  chooseCategory(null);
+                }}
+                className="mt-2 text-sm font-medium text-[var(--accent-solid)] hover:underline"
+              >
+                {t.filter.clearFilters}
+              </button>
+            )}
+          </div>
+        ) : (
+          (query || activeCategory) && (
+            <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
+              {visibleItemCount} {visibleItemCount === 1 ? t.filter.itemSingular : t.filter.itemPlural}
+            </p>
+          )
         )}
 
         <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 3rem)" }}>

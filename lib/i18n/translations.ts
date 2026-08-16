@@ -143,6 +143,9 @@ export interface Dictionary {
     searchPlaceholder: string;
     noResults: string;
     all: string;
+    clearFilters: string;
+    itemSingular: string;
+    itemPlural: string;
   };
 }
 
@@ -230,7 +233,7 @@ const en: Dictionary = {
   policy: { privacy: "Privacy policy", terms: "Terms and conditions", delivery: "Delivery policy", refund: "Refund policy" },
   bistro: { comboBoxesTitle: "Combo Boxes", comboBoxesSubtitle: "Curated meals, better value." },
   stats: { services: "Services", photos: "Photos", openDays: "Open days", booking: "Booking" },
-  filter: { searchPlaceholder: "Search menu…", noResults: "No items match your search.", all: "All" },
+  filter: { searchPlaceholder: "Search menu…", noResults: "No items match your search.", all: "All", clearFilters: "Show everything", itemSingular: "item", itemPlural: "items" },
 };
 
 const fr: Dictionary = {
@@ -317,7 +320,7 @@ const fr: Dictionary = {
   policy: { privacy: "Politique de confidentialité", terms: "Conditions générales", delivery: "Politique de livraison", refund: "Politique de remboursement" },
   bistro: { comboBoxesTitle: "Formules", comboBoxesSubtitle: "Des repas composés, un meilleur rapport qualité-prix." },
   stats: { services: "Services", photos: "Photos", openDays: "Jours ouverts", booking: "Réservation" },
-  filter: { searchPlaceholder: "Rechercher dans le menu…", noResults: "Aucun article ne correspond à votre recherche.", all: "Tous" },
+  filter: { searchPlaceholder: "Rechercher dans le menu…", noResults: "Aucun article ne correspond à votre recherche.", all: "Tous", clearFilters: "Tout afficher", itemSingular: "article", itemPlural: "articles" },
 };
 
 const ar: Dictionary = {
@@ -404,7 +407,7 @@ const ar: Dictionary = {
   policy: { privacy: "سياسة الخصوصية", terms: "الشروط والأحكام", delivery: "سياسة التوصيل", refund: "سياسة الاسترجاع" },
   bistro: { comboBoxesTitle: "علب الكومبو", comboBoxesSubtitle: "وجبات مختارة بقيمة أفضل." },
   stats: { services: "الخدمات", photos: "الصور", openDays: "أيام العمل", booking: "الحجز" },
-  filter: { searchPlaceholder: "ابحث في القائمة…", noResults: "لا توجد عناصر مطابقة لبحثك.", all: "الكل" },
+  filter: { searchPlaceholder: "ابحث في القائمة…", noResults: "لا توجد عناصر مطابقة لبحثك.", all: "الكل", clearFilters: "عرض الكل", itemSingular: "عنصر", itemPlural: "عناصر" },
 };
 
 export const DICTIONARIES: Record<Locale, Dictionary> = { en, fr, ar };
