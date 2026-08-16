@@ -53,9 +53,10 @@ type EditorKey = keyof typeof EDITORS;
  * Editors that exist for every website, whatever its template - the ones the
  * content plan does not speak for. Only the content stores vary by template.
  *
- * Template, theme and SEO are absent on purpose: they are first-build
- * decisions, made once in setup, and the console is for running the site rather
- * than rebuilding it. There is no route to them here, not just no link.
+ * Template and theme are absent on purpose: they are first-build decisions,
+ * made once in setup, and the console is for running the site rather than
+ * rebuilding it. There is no route to them here, not just no link. (SEO is
+ * absent from both surfaces now - the whole editor is gone.)
  */
 const ALWAYS_AVAILABLE = new Set<EditorKey>([
   "content",

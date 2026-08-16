@@ -93,7 +93,6 @@ function navGroupsFor(website: WebsiteResponse, analyticsEnabled: boolean): NavG
       label: "Website Settings",
       items: [
         { href: "/profile", label: "Business profile", icon: "🏢", permission: "MANAGE_BUSINESS_PROFILE" },
-        { href: "/seo", label: "SEO", icon: "🔍", permission: "MANAGE_THEME_AND_CONTENT" },
         { href: "/managers", label: "Managers", icon: "👥", ownerOnly: true },
       ],
     },
