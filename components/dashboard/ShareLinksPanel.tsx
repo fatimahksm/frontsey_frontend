@@ -122,7 +122,15 @@ export function ShareLinksPanel({ website }: { website: WebsiteResponse }) {
 
   if (!urls) return null;
 
-  const fileBase = `${website.slug}-menu-qr`;
+  // A portfolio has no menu. The label, the sentence under it and the
+  // downloaded filename all said one anyway, because this panel was written
+  // when a menu was the only kind of site there was.
+  const isMenu = website.templateType === "MENU_ORDERING";
+  const qrTitle = isMenu ? "Menu QR code" : "Website QR code";
+  const qrHint = isMenu
+    ? "Points at your public link. Print it on table cards, your window, or receipts."
+    : "Points at your public link. Print it on a card, your window, or add it to a flyer.";
+  const fileBase = `${website.slug}-${isMenu ? "menu-qr" : "qr"}`;
 
   return (
     <div className="flex flex-col gap-6">
@@ -153,9 +161,9 @@ export function ShareLinksPanel({ website }: { website: WebsiteResponse }) {
 
       <div className="flex flex-col gap-3">
         <div>
-          <p className="text-sm font-medium">Menu QR code</p>
+          <p className="text-sm font-medium">{qrTitle}</p>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Points at your public link. Print it on table cards, your window, or receipts.
+            {qrHint}
           </p>
         </div>
 
