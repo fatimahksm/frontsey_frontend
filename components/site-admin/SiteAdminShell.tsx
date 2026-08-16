@@ -11,6 +11,7 @@ import {
   MenuIcon,
   ProjectsIcon,
   ReportsIcon,
+  SectionsIcon,
   ServicesIcon,
   SettingsIcon,
 } from "@/components/site-admin/icons";
@@ -18,8 +19,9 @@ import { Alert } from "@/components/ui/Alert";
 import { friendlyMessage } from "@/lib/api/client";
 import { profileApi } from "@/lib/api/profile";
 import { websitesApi } from "@/lib/api/websites";
-import type { BusinessProfileResponse, TemplateType, WebsiteResponse } from "@/lib/api/types";
+import type { BusinessProfileResponse, WebsiteResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
+import { contentPlanFor, type ContentSection } from "@/lib/website/template-content";
 
 /**
  * The business's own admin console, at /s/<slug>.
@@ -44,26 +46,31 @@ interface NavItem {
 }
 
 /**
- * What a site's console is made of, which is not the same for a shop and a
- * portfolio: one has a menu and delivery areas, the other has projects and
- * services. Listing the same sections for both is how a portfolio owner ends
- * up staring at "Delivery areas".
+ * The console's sections, in this template's own vocabulary and order.
+ *
+ * Not just per website type - per template. The Services template leads with
+ * Packages because that is what its page leads with; the Brand template calls
+ * the same store Products. An editor that says "Services" while the page says
+ * "Packages" makes the owner translate between two names for one thing.
  */
-function sectionsFor(templateType: TemplateType): NavItem[] {
-  if (templateType === "PORTFOLIO") {
-    return [
-      { href: "", label: "Dashboard", Icon: DashboardIcon, hint: "How your site is doing" },
-      { href: "/projects", label: "Projects", Icon: ProjectsIcon, hint: "The work your site shows" },
-      { href: "/services", label: "Services", Icon: ServicesIcon, hint: "What you offer, and prices" },
-      { href: "/gallery", label: "Gallery", Icon: GalleryIcon, hint: "Extra photos" },
-      { href: "/analytics", label: "Reports", Icon: ReportsIcon, hint: "Full visitor numbers" },
-    ];
-  }
+const ICONS: Record<ContentSection["key"], (props: { className?: string }) => React.ReactElement> = {
+  projects: ProjectsIcon,
+  services: ServicesIcon,
+  menu: MenuIcon,
+  gallery: GalleryIcon,
+  delivery: DeliveryIcon,
+  sections: SectionsIcon,
+};
+
+function sectionsFor(website: WebsiteResponse): NavItem[] {
   return [
     { href: "", label: "Dashboard", Icon: DashboardIcon, hint: "How your site is doing" },
-    { href: "/menu", label: "Menu", Icon: MenuIcon, hint: "Categories, items and prices" },
-    { href: "/gallery", label: "Gallery", Icon: GalleryIcon, hint: "Photos of the place" },
-    { href: "/delivery", label: "Delivery", Icon: DeliveryIcon, hint: "Zones and fees" },
+    ...contentPlanFor(website.layoutVariant).sections.map((section) => ({
+      href: `/${section.key}`,
+      label: section.label,
+      Icon: ICONS[section.key],
+      hint: section.hint,
+    })),
     { href: "/analytics", label: "Reports", Icon: ReportsIcon, hint: "Full visitor numbers" },
   ];
 }
@@ -169,7 +176,7 @@ export function SiteAdminShell({
   }
 
   const base = `/s/${slug}`;
-  const sections = sectionsFor(website.templateType);
+  const sections = sectionsFor(website);
   const active = sections.find((item) => `${base}${item.href}` === pathname);
 
   return (

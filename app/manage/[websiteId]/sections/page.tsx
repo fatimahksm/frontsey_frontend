@@ -23,6 +23,7 @@ import {
   type TeamSectionData,
   type TestimonialsSectionData,
 } from "@/lib/website/page-sections";
+import { contentPlanFor, rendersSectionType, sectionLabel } from "@/lib/website/template-content";
 import { useWebsite } from "@/lib/website/website-context";
 
 const SECTION_TYPES: PageSectionType[] = ["ABOUT", "TESTIMONIALS", "FAQ", "TEAM"];
@@ -44,6 +45,13 @@ function summarize(section: PageSectionResponse): string {
 
 export default function SectionsPage() {
   const { website, accessToken, notifyDraftChanged } = useWebsite();
+
+  // The heading and the blurb both come from the template's plan, so this page
+  // calls the same thing what the site calls it - "About, reviews & FAQ" on the
+  // Services template, "Story, team & reviews" on Brand.
+  const planLabel = sectionLabel(website.layoutVariant, "sections", "Sections");
+  const shownTypes = contentPlanFor(website.layoutVariant)
+    .rendersSectionTypes.map((type) => SECTION_TYPE_LABELS[type].toLowerCase());
   const [sections, setSections] = useState<PageSectionResponse[]>([]);
   const [mode, setMode] = useState<"list" | "pick-type" | "edit">("list");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -144,10 +152,10 @@ export default function SectionsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">Sections</h1>
+        <h1 className="text-xl font-semibold tracking-tight">{planLabel}</h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Add extra sections beyond your core content - About, Testimonials, FAQ, or Team. Add as many as you like, in
-          any order.
+          Extra sections beyond your core content. Your template shows {shownTypes.join(", ")} - add as many as you
+          like, in any order.
         </p>
       </div>
       {error && <Alert tone="error">{error}</Alert>}
@@ -164,8 +172,13 @@ export default function SectionsPage() {
                 className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]"
               >
                 <div className="min-w-0">
-                  <span className="rounded-full bg-black/[.05] px-2 py-0.5 text-xs font-medium dark:bg-white/[.08]">
-                    {SECTION_TYPE_LABELS[section.type]}
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-black/[.05] px-2 py-0.5 text-xs font-medium dark:bg-white/[.08]">
+                      {SECTION_TYPE_LABELS[section.type]}
+                    </span>
+                    {!rendersSectionType(website.layoutVariant, section.type) && (
+                      <span className="text-xs text-amber-700 dark:text-amber-400">Not shown by your template</span>
+                    )}
                   </span>
                   <p className="mt-1 truncate font-medium">{summarize(section)}</p>
                 </div>
@@ -204,18 +217,34 @@ export default function SectionsPage() {
       {mode === "pick-type" && (
         <Card title="Pick a section type">
           <StaggerGroup className="grid gap-4 sm:grid-cols-2">
-            {SECTION_TYPES.map((type) => (
-              <StaggerItem key={type}>
-                <button
-                  type="button"
-                  onClick={() => startAdd(type)}
-                  className="flex h-full w-full flex-col gap-1 rounded-xl border border-black/[.08] p-4 text-left text-sm shadow-soft transition-colors duration-200 hover:bg-black/[.02] dark:border-white/[.145] dark:hover:bg-white/[.04]"
-                >
-                  <span className="font-semibold">{SECTION_TYPE_LABELS[type]}</span>
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">{SECTION_TYPE_DESCRIPTIONS[type]}</span>
-                </button>
-              </StaggerItem>
-            ))}
+            {SECTION_TYPES.map((type) => {
+              // Writing an FAQ that the chosen template never renders is work
+              // thrown away, and the owner would only find out by looking at
+              // their live site. Say it here instead - without removing the
+              // option, since switching template later would bring it back.
+              const shown = rendersSectionType(website.layoutVariant, type);
+              return (
+                <StaggerItem key={type}>
+                  <button
+                    type="button"
+                    onClick={() => startAdd(type)}
+                    className={`flex h-full w-full flex-col gap-1 rounded-xl border p-4 text-left text-sm shadow-soft transition-colors duration-200 ${
+                      shown
+                        ? "border-black/[.08] hover:bg-black/[.02] dark:border-white/[.145] dark:hover:bg-white/[.04]"
+                        : "border-dashed border-black/[.12] opacity-60 hover:opacity-100 dark:border-white/[.18]"
+                    }`}
+                  >
+                    <span className="font-semibold">{SECTION_TYPE_LABELS[type]}</span>
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400">{SECTION_TYPE_DESCRIPTIONS[type]}</span>
+                    {!shown && (
+                      <span className="mt-1 text-xs font-medium text-amber-700 dark:text-amber-400">
+                        Your current template doesn&apos;t show this
+                      </span>
+                    )}
+                  </button>
+                </StaggerItem>
+              );
+            })}
           </StaggerGroup>
           <Button variant="secondary" className="mt-4 w-auto px-5" onClick={() => setMode("list")}>
             Cancel

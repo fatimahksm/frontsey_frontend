@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { friendlyMessage } from "@/lib/api/client";
 import { projectsApi } from "@/lib/api/projects";
 import type { PortfolioProjectRequest, PortfolioProjectResponse } from "@/lib/api/types";
+import { sectionLabel } from "@/lib/website/template-content";
 import { useWebsite } from "@/lib/website/website-context";
 
 /**
@@ -63,6 +64,9 @@ function moved<T>(list: T[], from: number, to: number): T[] {
 
 export default function ProjectsPage() {
   const { website, accessToken, notifyDraftChanged } = useWebsite();
+  // "Projects" on the CV template, "Work" on the gallery one, "Recent work" on
+  // the services one - the same store under the name the site itself uses.
+  const label = sectionLabel(website.layoutVariant, "projects", "Projects");
   const [projects, setProjects] = useState<PortfolioProjectResponse[]>([]);
   const [form, setForm] = useState<PortfolioProjectRequest>(BLANK);
   /** null = the form is adding; an id = the form is editing that project. */
@@ -168,7 +172,7 @@ export default function ProjectsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl font-semibold tracking-tight">Projects</h1>
+          <h1 className="text-xl font-semibold tracking-tight">{label}</h1>
           <p className="mt-1 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
             The work your website shows. Add a title and a picture to start - every other field is optional, and your
             template simply leaves out whatever you have not filled in.
@@ -176,7 +180,7 @@ export default function ProjectsPage() {
         </div>
         {!isFormOpen && (
           <Button type="button" className="!w-auto shrink-0 px-5" onClick={startAdding}>
-            Add project
+            Add
           </Button>
         )}
       </div>
@@ -263,7 +267,7 @@ export default function ProjectsPage() {
         </Card>
       )}
 
-      <Card title="Your projects" description="Drag order with the arrows - visitors see them top to bottom.">
+      <Card title={`Your ${label.toLowerCase()}`} description="Reorder with the arrows - visitors see them top to bottom.">
         {isLoading ? (
           <p className="text-sm text-zinc-500">Loading…</p>
         ) : projects.length === 0 ? (

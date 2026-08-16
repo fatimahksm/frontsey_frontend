@@ -91,26 +91,6 @@ export function isDisplayOnlyLayout(variant: LayoutVariant): boolean {
   return DISPLAY_ONLY_LAYOUTS.has(variant);
 }
 
-/**
- * Layouts that render neither the gallery strip nor the owner's custom
- * sections, so editors for them are settings with no effect on the published
- * site and the dashboard hides them.
- *
- * Elegant is the only one: it is deliberately just a masthead, a search field
- * and the dishes. Every other layout renders both. Keep this in step with the
- * components themselves - a layout listed here must not reference
- * `galleryImageUrls` or render `DynamicSections`.
- */
-const MENU_ONLY_LAYOUTS = new Set<LayoutVariant>(["MENU_ELEGANT"]);
-
-export function layoutRendersGallery(variant: LayoutVariant): boolean {
-  return !MENU_ONLY_LAYOUTS.has(variant);
-}
-
-export function layoutRendersCustomSections(variant: LayoutVariant): boolean {
-  return !MENU_ONLY_LAYOUTS.has(variant);
-}
-
 export function defaultLayoutVariant(templateType: TemplateType): LayoutVariant {
   return TEMPLATE_OPTIONS[templateType][0].value;
 }

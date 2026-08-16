@@ -10,7 +10,9 @@ import DeliveryPage from "@/app/manage/[websiteId]/delivery/page";
 import GalleryPage from "@/app/manage/[websiteId]/gallery/page";
 import MenuPage from "@/app/manage/[websiteId]/menu/page";
 import ProjectsPage from "@/app/manage/[websiteId]/projects/page";
+import SectionsPage from "@/app/manage/[websiteId]/sections/page";
 import ServicesPage from "@/app/manage/[websiteId]/services/page";
+import { contentPlanFor } from "@/lib/website/template-content";
 import { WebsiteProvider } from "@/lib/website/website-context";
 
 /**
@@ -18,25 +20,30 @@ import { WebsiteProvider } from "@/lib/website/website-context";
  *
  * They mount the same editors the setup area uses rather than a second copy:
  * one Projects screen, one Menu screen, reachable from wherever an owner
- * happens to be. Only the frame around them differs - here it is the business's
- * console, there it is the setup flow.
+ * happens to be. Only the frame around them differs.
  *
- * Which sections exist depends on the website's type, and the map is checked
- * against it: a portfolio has no menu, and asking for one should be a 404
- * rather than an editor saving into a table its site never renders.
+ * Which sections exist comes from the template's own content plan, not from a
+ * list kept here - so a portfolio has no menu, the Elegant menu layout has only
+ * a menu, and asking for anything else is a 404 rather than an editor saving
+ * into a store the site never renders.
  */
-const SECTIONS = {
-  projects: { component: ProjectsPage, templateType: "PORTFOLIO" },
-  services: { component: ServicesPage, templateType: "PORTFOLIO" },
-  menu: { component: MenuPage, templateType: "MENU_ORDERING" },
-  delivery: { component: DeliveryPage, templateType: "MENU_ORDERING" },
-  gallery: { component: GalleryPage, templateType: null },
-  analytics: { component: AnalyticsPage, templateType: null },
+const EDITORS = {
+  projects: ProjectsPage,
+  services: ServicesPage,
+  menu: MenuPage,
+  delivery: DeliveryPage,
+  gallery: GalleryPage,
+  sections: SectionsPage,
+  analytics: AnalyticsPage,
 } as const;
 
-function Section({ context, section }: { context: SiteAdminContext; section: keyof typeof SECTIONS }) {
-  const entry = SECTIONS[section];
-  if (entry.templateType && entry.templateType !== context.website.templateType) {
+type EditorKey = keyof typeof EDITORS;
+
+function Section({ context, section }: { context: SiteAdminContext; section: EditorKey }) {
+  const allowed =
+    section === "analytics" ||
+    contentPlanFor(context.website.layoutVariant).sections.some((entry) => entry.key === section);
+  if (!allowed) {
     return (
       <div className="rounded-2xl border border-black/[.07] bg-surface p-8 text-center dark:border-white/[.09]">
         <p className="text-sm font-medium">This section isn&apos;t part of this kind of website.</p>
@@ -46,7 +53,7 @@ function Section({ context, section }: { context: SiteAdminContext; section: key
       </div>
     );
   }
-  const Component = entry.component;
+  const Component = EDITORS[section];
   return (
     <WebsiteProvider websiteId={context.website.id} accessToken={context.accessToken} initialWebsite={context.website}>
       <Component />
@@ -56,10 +63,10 @@ function Section({ context, section }: { context: SiteAdminContext; section: key
 
 export default function SiteAdminSectionPage({ params }: { params: Promise<{ slug: string; section: string }> }) {
   const { slug, section } = use(params);
-  if (!(section in SECTIONS)) notFound();
+  if (!(section in EDITORS)) notFound();
   return (
     <SiteAdminShell slug={slug}>
-      {(context) => <Section context={context} section={section as keyof typeof SECTIONS} />}
+      {(context) => <Section context={context} section={section as EditorKey} />}
     </SiteAdminShell>
   );
 }

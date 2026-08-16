@@ -97,6 +97,16 @@ export function ReportsIcon(props: IconProps) {
   );
 }
 
+export function SectionsIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="4" width="18" height="6" rx="1.5" />
+      <rect x="3" y="14" width="8" height="6" rx="1.5" />
+      <rect x="14" y="14" width="7" height="6" rx="1.5" />
+    </Icon>
+  );
+}
+
 export function SettingsIcon(props: IconProps) {
   return (
     <Icon {...props}>

@@ -16,8 +16,8 @@ import { subscriptionApi } from "@/lib/api/subscription";
 import { websitesApi } from "@/lib/api/websites";
 import type { Permission, WebsiteResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
-import { isDisplayOnlyLayout, layoutRendersCustomSections, layoutRendersGallery } from "@/lib/website/layout-options";
 import { hasPermission } from "@/lib/website/permissions";
+import { contentPlanFor, type ContentSection } from "@/lib/website/template-content";
 import { publicPath } from "@/lib/website/share-links";
 import { WebsiteProvider } from "@/lib/website/website-context";
 
@@ -37,29 +37,34 @@ interface NavGroup {
 }
 
 /**
- * Reduced, grouped navigation (Phase 2): Overview / Content / Design /
- * Website Settings / Analytics / Subscription, instead of one flat list of
- * 11+ top-level tabs. Only shows what's relevant to this website's type -
- * Delivery areas never appears for a Portfolio site, Analytics is hidden
- * when the active plan doesn't include it, and (Phase 4) a Manager only
- * sees the items they've actually been granted permission for - mirrors
- * exactly what WebsiteAccessGuard.requirePermission enforces server-side.
+ * Grouped navigation for the setup area: Overview / Content / Design / Website
+ * Settings / Analytics / Subscription, instead of one flat list of 11+ tabs.
+ *
+ * The Content group comes from the template's own content plan, so this list
+ * and the console's use one source: the same editors, in the same order, under
+ * the same names the template itself uses. A Manager only sees what they have
+ * been granted, mirroring what WebsiteAccessGuard enforces server-side.
  */
-function navGroupsFor(website: WebsiteResponse, analyticsEnabled: boolean): NavGroup[] {
-  const { templateType } = website;
-  // A cart-less layout has nothing to deliver, so delivery areas would be a
-  // setting with no effect on the published site.
-  const showsDelivery = templateType === "MENU_ORDERING" && !isDisplayOnlyLayout(website.layoutVariant);
-  // Same reasoning as delivery: a layout that renders no gallery strip and no
-  // custom sections would leave those editors saving content that never
-  // appears anywhere on the published site.
-  const showsGallery = layoutRendersGallery(website.layoutVariant);
-  const showsCustomSections = layoutRendersCustomSections(website.layoutVariant);
-  const contentItem: NavItem =
-    templateType === "PORTFOLIO"
-      ? { href: "/services", label: "Services", icon: "🛠️", permission: "MANAGE_MENU" }
-      : { href: "/menu", label: "Menu", icon: "🍽️", permission: "MANAGE_MENU" };
+const CONTENT_ICONS: Record<ContentSection["key"], string> = {
+  projects: "🗂️",
+  services: "🛠️",
+  menu: "🍽️",
+  gallery: "🖼️",
+  delivery: "🚚",
+  sections: "🧩",
+};
 
+/** Editing a content store needs the permission that governs it, not one blanket grant. */
+const CONTENT_PERMISSIONS: Record<ContentSection["key"], Permission> = {
+  projects: "MANAGE_THEME_AND_CONTENT",
+  services: "MANAGE_MENU",
+  menu: "MANAGE_MENU",
+  gallery: "MANAGE_THEME_AND_CONTENT",
+  delivery: "MANAGE_DELIVERY_SETTINGS",
+  sections: "MANAGE_THEME_AND_CONTENT",
+};
+
+function navGroupsFor(website: WebsiteResponse, analyticsEnabled: boolean): NavGroup[] {
   const groups: NavGroup[] = [
     {
       label: null,
@@ -70,20 +75,12 @@ function navGroupsFor(website: WebsiteResponse, analyticsEnabled: boolean): NavG
     },
     {
       label: "Content",
-      items: [
-        // Projects is where a portfolio's work actually gets its title, dates
-        // and links. Without it the templates could only show untitled gallery
-        // pictures, which is what made real sites look unfinished next to the
-        // samples.
-        ...(templateType === "PORTFOLIO"
-          ? [{ href: "/projects", label: "Projects", icon: "🗂️", permission: "MANAGE_THEME_AND_CONTENT" } as NavItem]
-          : []),
-        contentItem,
-        ...(showsGallery ? [{ href: "/gallery", label: "Gallery", icon: "🖼️", permission: "MANAGE_THEME_AND_CONTENT" } as NavItem] : []),
-        ...(showsCustomSections
-          ? [{ href: "/sections", label: "Custom sections", icon: "🧩", permission: "MANAGE_THEME_AND_CONTENT" } as NavItem]
-          : []),
-      ],
+      items: contentPlanFor(website.layoutVariant).sections.map((section) => ({
+        href: `/${section.key}`,
+        label: section.label,
+        icon: CONTENT_ICONS[section.key],
+        permission: CONTENT_PERMISSIONS[section.key],
+      })),
     },
     {
       label: "Design",
@@ -96,9 +93,6 @@ function navGroupsFor(website: WebsiteResponse, analyticsEnabled: boolean): NavG
       label: "Website Settings",
       items: [
         { href: "/profile", label: "Business profile", icon: "🏢", permission: "MANAGE_BUSINESS_PROFILE" },
-        ...(showsDelivery
-          ? [{ href: "/delivery", label: "Delivery areas", icon: "🚚", permission: "MANAGE_DELIVERY_SETTINGS" } as NavItem]
-          : []),
         { href: "/seo", label: "SEO", icon: "🔍", permission: "MANAGE_THEME_AND_CONTENT" },
         { href: "/managers", label: "Managers", icon: "👥", ownerOnly: true },
       ],

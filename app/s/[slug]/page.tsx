@@ -13,6 +13,7 @@ import { projectsApi } from "@/lib/api/projects";
 import { servicesApi } from "@/lib/api/services";
 import type { AnalyticsSummaryResponse } from "@/lib/api/types";
 import { loadSetupStatus, type ChecklistItem } from "@/lib/website/setup-checklist";
+import { sectionLabel } from "@/lib/website/template-content";
 
 /**
  * The business's dashboard.
@@ -170,6 +171,9 @@ function Dashboard({ website, accessToken }: SiteAdminContext) {
   const [previousVisits, setPreviousVisits] = useState<number | null>(null);
   const [analyticsUnavailable, setAnalyticsUnavailable] = useState(false);
   const [checklist, setChecklist] = useState<ChecklistItem[] | null>(null);
+  // `== null` at the render sites below, not `=== null`: a response that is not
+  // the array we expect leaves these undefined, and an admin page must degrade
+  // to a dash rather than throw the whole console away.
   const [counts, setCounts] = useState<{ primary: number | null; secondary: number | null }>({
     primary: null,
     secondary: null,
@@ -240,6 +244,15 @@ function Dashboard({ website, accessToken }: SiteAdminContext) {
   const isPortfolio = website.templateType === "PORTFOLIO";
   const base = `/s/${website.slug}`;
   const manageBase = `/manage/${website.id}`;
+  // The same words the sidebar and the site itself use - "Packages" on the
+  // Services template, "Products" on Brand. Two names for one store on one
+  // screen is exactly what this is meant to stop.
+  const primaryLabel = isPortfolio
+    ? sectionLabel(website.layoutVariant, "projects", "Projects")
+    : sectionLabel(website.layoutVariant, "menu", "Menu");
+  const secondaryLabel = isPortfolio
+    ? sectionLabel(website.layoutVariant, "services", "Services")
+    : sectionLabel(website.layoutVariant, "gallery", "Gallery");
   const range = RANGES.find((r) => r.days === rangeDays) ?? RANGES[1];
 
   const topItems = summary?.mostViewedItems ?? [];
@@ -314,14 +327,14 @@ function Dashboard({ website, accessToken }: SiteAdminContext) {
         />
         <Kpi
           href={isPortfolio ? `${base}/projects` : `${base}/menu`}
-          label={isPortfolio ? "Projects" : "Menu items"}
-          value={counts.primary === null ? "…" : counts.primary.toLocaleString()}
+          label={primaryLabel}
+          value={counts.primary == null ? "…" : counts.primary.toLocaleString()}
           hint={counts.primary === 0 ? "Add your first one →" : "Manage →"}
         />
         <Kpi
           href={isPortfolio ? `${base}/services` : `${base}/gallery`}
-          label={isPortfolio ? "Services" : "Photos"}
-          value={counts.secondary === null ? "…" : counts.secondary.toLocaleString()}
+          label={secondaryLabel}
+          value={counts.secondary == null ? "…" : counts.secondary.toLocaleString()}
           hint={counts.secondary === 0 ? "Add your first one →" : "Manage →"}
         />
         <Kpi
@@ -397,7 +410,7 @@ function Dashboard({ website, accessToken }: SiteAdminContext) {
 
       <div className="grid gap-5 xl:grid-cols-2">
         <Panel
-          title={isPortfolio ? "Most looked at" : "Most looked at on the menu"}
+          title="Most looked at"
           description="What visitors opened the most."
           action={
             <Link href={`${base}/analytics`} className="shrink-0 text-xs font-medium text-[var(--accent-solid)] hover:underline">
