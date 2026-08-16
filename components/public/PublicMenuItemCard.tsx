@@ -131,7 +131,11 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
 
   const containerClassName =
     variant === "elegant"
-      ? `border-b border-black/[.06] py-4 dark:border-white/[.1] ${isUnavailable ? "opacity-60" : ""}`
+      // Hairlines and muted type from the site's own palette, not from
+      // black/white + a dark: variant: the Elegant layout paints the owner's
+      // chosen background, so a divider keyed to the *visitor's* OS theme
+      // disappears on half the palettes an owner can pick.
+      ? `border-b border-[var(--theme-border)] py-4 ${isUnavailable ? "opacity-60" : ""}`
       : `overflow-hidden transition-shadow duration-300 ${isUnavailable ? "opacity-60" : ""}`;
 
   return (
@@ -145,11 +149,11 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
       {variant === "elegant" ? (
         <button type="button" onClick={handleExpand} className="flex w-full items-baseline gap-3 text-left">
           <span className="font-medium">{item.name}</span>
-          <span className="h-px flex-1 border-b border-dotted border-black/[.2] dark:border-white/[.25]" aria-hidden />
+          <span className="h-px flex-1 border-b border-dotted border-[var(--theme-border)]" aria-hidden />
           <span className="shrink-0 font-medium">
             {formatMoney(item.discountPrice ?? item.price, currency)}
             {item.discountPrice != null && (
-              <span className="ml-2 text-zinc-400 line-through">{formatMoney(item.price, currency)}</span>
+              <span className="ml-2 text-[var(--theme-text-muted)] line-through">{formatMoney(item.price, currency)}</span>
             )}
           </span>
         </button>
@@ -187,7 +191,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
         </>
       )}
       {variant === "elegant" && item.description && (
-        <p className="mt-1 text-sm italic text-zinc-500 dark:text-zinc-400">{item.description}</p>
+        <p className="mt-1 text-sm italic text-[var(--theme-text-muted)]">{item.description}</p>
       )}
 
       {isUnavailable && <p className={`text-xs font-medium text-amber-600 ${variant === "elegant" ? "mt-2" : "px-4 pb-3"}`}>{t.item.currentlyUnavailable}</p>}

@@ -37,7 +37,13 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
     .filter((category) => category.items.length > 0);
 
   return (
-    <div dir={dir} className="flex flex-1 flex-col bg-surface-muted" style={themeCssVars(site.theme, content.brandColor)}>
+    // `text-foreground` is not decoration. themeCssVars redeclares --foreground
+    // to the owner's text colour but deliberately sets no `color`, so a layout
+    // that names no text colour inherits body's, which the app's own
+    // prefers-color-scheme rule turns near-white on a visitor in dark mode -
+    // near-white type on this layout's light paper. Every other public layout
+    // states its text colour on the shell; this one had not.
+    <div dir={dir} className="flex flex-1 flex-col bg-background text-foreground" style={themeCssVars(site.theme, content.brandColor)}>
       <div className="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -50,7 +56,7 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
           )}
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl" style={themeHeadingStyle()}>{site.businessName}</h1>
           {content.heroHeading && <p className="mt-2 text-base text-[var(--accent-solid)]">{content.heroHeading}</p>}
-          {content.heroSubtitle && <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{content.heroSubtitle}</p>}
+          {content.heroSubtitle && <p className="mt-1 text-sm text-[var(--theme-text-muted)]">{content.heroSubtitle}</p>}
         </motion.div>
 
         {site.categories.length > 0 && (
@@ -59,19 +65,19 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.filter.searchPlaceholder}
-            className="mb-8 h-11 w-full rounded-xl border border-black/[.12] bg-surface px-3.5 text-center text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
+            className="mb-8 h-11 w-full rounded-xl border border-[var(--theme-border)] bg-surface px-3.5 text-center text-sm text-foreground outline-none transition-all duration-200 placeholder:text-[var(--theme-text-muted)] focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40"
           />
         )}
 
         {site.categories.length > 0 && visibleCategories.length === 0 && (
-          <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">{t.filter.noResults}</p>
+          <p className="text-center text-sm text-[var(--theme-text-muted)]">{t.filter.noResults}</p>
         )}
 
         <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 2.5rem)" }}>
           {visibleCategories.map((category) => (
             <section key={category.id}>
               <Reveal as="div">
-                <h2 className="mb-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">{category.name}</h2>
+                <h2 className="mb-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[var(--theme-text-muted)]">{category.name}</h2>
               </Reveal>
               <div className="flex flex-col">
                 {category.items.map((item) => (
