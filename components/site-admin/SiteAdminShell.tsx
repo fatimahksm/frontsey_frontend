@@ -19,9 +19,7 @@ import {
   ServicesIcon,
   SettingsIcon,
   ShareIcon,
-  TemplateIcon,
   TextIcon,
-  ThemeIcon,
 } from "@/components/site-admin/icons";
 import { Alert } from "@/components/ui/Alert";
 import { friendlyMessage } from "@/lib/api/client";
@@ -61,14 +59,16 @@ interface NavGroup {
 }
 
 /**
- * Everything an owner can change, grouped, in this template's own vocabulary.
+ * The console's sections: this website's own data, and nothing else.
  *
- * The console used to hold only the day-to-day content and send anyone wanting
- * a new logo or a different colour back to the setup area - which meant the
- * place they visit weekly could not change their own logo. Setup is the wizard
- * you run once; this is the whole back office, so every editor lives here.
+ * The split is deliberate. Template and theme are first-build decisions - what
+ * kind of site this is and what it looks like - and they are made once, in
+ * setup. This console is where the business is run afterwards: the things it
+ * sells, the work it shows, its logo and contact details, its links, its
+ * numbers. Putting "Template" in a sidebar somebody opens weekly invites them
+ * to rebuild their site instead of running it.
  *
- * Content section names and order come from the template's plan, so the Services
+ * Section names and order come from the template's own plan, so the Services
  * template leads with Packages and Brand calls the same store Products.
  */
 const ICONS: Record<ContentSection["key"], (props: { className?: string }) => React.ReactElement> = {
@@ -96,13 +96,6 @@ function navGroupsFor(website: WebsiteResponse): NavGroup[] {
           hint: section.hint,
         })),
         { href: "/content", label: "Page content", Icon: TextIcon, hint: "Your tagline, and publishing" },
-      ],
-    },
-    {
-      label: "Design",
-      items: [
-        { href: "/layout", label: "Template", Icon: TemplateIcon, hint: "The overall look and arrangement" },
-        { href: "/theme", label: "Theme", Icon: ThemeIcon, hint: "Colours and fonts" },
       ],
     },
     {

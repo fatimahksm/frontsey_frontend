@@ -9,14 +9,12 @@ import AnalyticsPage from "@/app/manage/[websiteId]/analytics/page";
 import PageContentPage from "@/app/manage/[websiteId]/content/page";
 import DeliveryPage from "@/app/manage/[websiteId]/delivery/page";
 import GalleryPage from "@/app/manage/[websiteId]/gallery/page";
-import LayoutPage from "@/app/manage/[websiteId]/layout/page";
 import ManagersPage from "@/app/manage/[websiteId]/managers/page";
 import MenuPage from "@/app/manage/[websiteId]/menu/page";
 import ProfilePage from "@/app/manage/[websiteId]/profile/page";
 import SeoPage from "@/app/manage/[websiteId]/seo/page";
 import SharePage from "@/app/manage/[websiteId]/share/page";
 import SubscriptionPage from "@/app/manage/[websiteId]/subscription/page";
-import ThemePage from "@/app/manage/[websiteId]/theme/page";
 import ProjectsPage from "@/app/manage/[websiteId]/projects/page";
 import SectionsPage from "@/app/manage/[websiteId]/sections/page";
 import ServicesPage from "@/app/manage/[websiteId]/services/page";
@@ -43,8 +41,6 @@ const EDITORS = {
   gallery: GalleryPage,
   sections: SectionsPage,
   content: PageContentPage,
-  layout: LayoutPage,
-  theme: ThemePage,
   profile: ProfilePage,
   share: SharePage,
   seo: SeoPage,
@@ -58,11 +54,13 @@ type EditorKey = keyof typeof EDITORS;
 /**
  * Editors that exist for every website, whatever its template - the ones the
  * content plan does not speak for. Only the content stores vary by template.
+ *
+ * Template and theme are absent on purpose: they are first-build decisions,
+ * made once in setup, and the console is for running the site rather than
+ * rebuilding it. There is no route to them here, not just no link.
  */
 const ALWAYS_AVAILABLE = new Set<EditorKey>([
   "content",
-  "layout",
-  "theme",
   "profile",
   "share",
   "seo",
