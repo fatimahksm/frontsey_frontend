@@ -16,6 +16,7 @@ import { loadSetupStatus, readinessPercent } from "@/lib/website/setup-checklist
 
 const SUBSCRIPTION_TONE = {
   PENDING: "warning",
+  TRIAL: "success",
   ACTIVE: "success",
   GRACE: "warning",
   EXPIRED: "danger",
@@ -24,6 +25,7 @@ const SUBSCRIPTION_TONE = {
 
 const SUBSCRIPTION_LABEL = {
   PENDING: "Pending",
+  TRIAL: "Free trial",
   ACTIVE: "Active",
   GRACE: "Grace period",
   EXPIRED: "Expired",

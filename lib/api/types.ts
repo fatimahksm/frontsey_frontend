@@ -431,7 +431,7 @@ export interface PlanUpdateRequest {
   active: boolean;
 }
 
-export type SubscriptionStatus = "PENDING" | "ACTIVE" | "GRACE" | "EXPIRED" | "CANCELED";
+export type SubscriptionStatus = "PENDING" | "TRIAL" | "ACTIVE" | "GRACE" | "EXPIRED" | "CANCELED";
 export type MockPaymentStatus = "PENDING" | "SUCCESS" | "FAILED";
 
 export interface SubscriptionResponse {
@@ -443,6 +443,8 @@ export interface SubscriptionResponse {
   startDate: string | null;
   endDate: string | null;
   graceEndsAt: string | null;
+  /** The server's own reading of BR-SUB-010: false while a paid plan is still running. */
+  canChangePlan: boolean;
 }
 
 export interface CheckoutRequest {
