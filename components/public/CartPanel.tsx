@@ -1,6 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+
+import { SafeImage } from "@/components/public/SafeImage";
 import { useMemo, useState } from "react";
 
 import { Alert } from "@/components/ui/Alert";
@@ -59,18 +61,26 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-black/[.12] p-8 text-center dark:border-white/[.18]"
+        className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-[var(--theme-border)] p-8 text-center"
       >
         <span aria-hidden className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--accent-solid)]/10 text-2xl">
           🛒
         </span>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">{t.cart.cartIsEmptyBody}</p>
+        <p className="text-sm text-[var(--theme-text-muted)]">{t.cart.cartIsEmptyBody}</p>
       </motion.div>
     );
   }
 
   return (
-    <motion.div layout className="flex flex-col gap-5 rounded-2xl border border-black/[.08] bg-surface p-5 shadow-lift dark:border-white/[.145]">
+    // Background *and* text colour, both from the site's palette. This panel is
+    // hosted by three different layouts, and it used to name only a background:
+    // on a layout whose shell keys its text off the visitor's OS instead of the
+    // theme, a white panel inherited near-white type and the order became
+    // invisible - item name, prices and total all gone.
+    <motion.div
+      layout
+      className="flex flex-col gap-5 rounded-2xl border border-[var(--theme-border)] bg-surface p-5 text-foreground shadow-lift"
+    >
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold tracking-tight">{t.cart.yourOrder}</h3>
         <span className="rounded-full bg-[var(--accent-solid)]/10 px-2.5 py-1 text-xs font-medium text-[var(--accent-solid)]">
@@ -91,20 +101,37 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="flex items-start gap-3 rounded-xl bg-black/[.02] p-3 dark:bg-white/[.04]">
-                <span
-                  aria-hidden
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-solid)] text-xs font-semibold text-white"
-                >
-                  {line.quantity}
-                </span>
+              <div className="flex items-start gap-3 rounded-xl bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] p-3">
+                {/* The dish you picked, so the order reads back as the menu
+                    showed it. Falls back to the quantity badge alone when the
+                    item has no photo. */}
+                {line.imageUrl ? (
+                  <span className="relative shrink-0">
+                    <SafeImage src={line.imageUrl} alt="" className="h-12 w-12 rounded-lg object-cover" />
+                    <span
+                      aria-hidden
+                      className="absolute -end-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--accent-solid)] px-1 text-[11px] font-semibold text-[var(--accent-contrast)]"
+                    >
+                      {line.quantity}
+                    </span>
+                  </span>
+                ) : (
+                  <span
+                    aria-hidden
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-solid)] text-xs font-semibold text-[var(--accent-contrast)]"
+                  >
+                    {line.quantity}
+                  </span>
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
                     {line.itemName}
-                    {line.variantLabel && <span className="font-normal text-zinc-500"> ({line.variantLabel})</span>}
+                    {line.variantLabel && (
+                      <span className="font-normal text-[var(--theme-text-muted)]"> ({line.variantLabel})</span>
+                    )}
                   </p>
                   {line.addons.length > 0 && (
-                    <p className="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">+ {line.addons.map((a) => a.name).join(", ")}</p>
+                    <p className="mt-0.5 truncate text-xs text-[var(--theme-text-muted)]">+ {line.addons.map((a) => a.name).join(", ")}</p>
                   )}
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
@@ -112,7 +139,7 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
                   <button
                     type="button"
                     aria-label={t.cart.removeAria(line.itemName)}
-                    className="text-xs text-zinc-400 hover:text-red-600"
+                    className="text-xs text-[var(--theme-text-muted)] hover:text-red-600"
                     onClick={() => onRemove(line.key)}
                   >
                     {t.cart.remove}
@@ -136,12 +163,12 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
       )}
 
       <div className="flex flex-col gap-1.5 rounded-xl bg-[var(--accent-solid)]/5 p-3.5 text-sm">
-        <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
+        <div className="flex justify-between text-[var(--theme-text-muted)]">
           <span>{t.cart.subtotal}</span>
           <span>{formatMoney(subtotal, currency)}</span>
         </div>
         {deliveryArea && (
-          <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
+          <div className="flex justify-between text-[var(--theme-text-muted)]">
             <span>{t.cart.delivery}</span>
             <span>{formatMoney(deliveryFee, currency)}</span>
           </div>
@@ -152,7 +179,7 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-black/[.06] pt-4 dark:border-white/[.1]">
+      <div className="flex flex-col gap-3 border-t border-[var(--theme-border)] pt-4">
         <TextField id="customerName" label={t.cart.yourName} value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" />
         <TextField id="customerPhone" label={t.cart.phoneNumber} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+961 70 123 456" />
         <TextField

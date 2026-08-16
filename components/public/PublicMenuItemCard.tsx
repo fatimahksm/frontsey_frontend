@@ -119,6 +119,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
       key: `${item.id}:${sizeId}:${boxVariantId}:${[...addonIds].sort().join(",")}`,
       itemId: item.id,
       itemName: item.name,
+      imageUrl: item.imageUrl,
       variantLabel: variantLabel(),
       unitPrice: basePrice(),
       addons: selectedAddons(),

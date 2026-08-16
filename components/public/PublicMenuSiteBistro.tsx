@@ -80,8 +80,8 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
   }
 
   return (
-    <div dir={dir} className="flex flex-1 flex-col bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50" style={themeCssVars(site.theme, content.brandColor)}>
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-black/[.06] bg-white/80 px-6 py-4 backdrop-blur sm:px-12 dark:border-white/[.08] dark:bg-zinc-950/80">
+    <div dir={dir} className="flex flex-1 flex-col bg-background text-foreground" style={themeCssVars(site.theme, content.brandColor)}>
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[var(--theme-border)] bg-[color-mix(in_srgb,var(--background)_80%,transparent)] px-6 py-4 backdrop-blur sm:px-12">
         <div className="flex items-center gap-2">
           {site.profile?.logoUrl ? (
             <SafeImage src={site.profile.logoUrl} alt="" className="h-9 w-9 rounded-lg object-cover" />
@@ -107,7 +107,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
               <p className="mt-3 text-2xl font-semibold italic text-[var(--accent-solid)]">{content.heroHeading}</p>
             )}
             {(content.heroSubtitle || site.profile?.description) && (
-              <p className="mt-4 max-w-md text-sm text-zinc-500 dark:text-zinc-400">{content.heroSubtitle || site.profile?.description}</p>
+              <p className="mt-4 max-w-md text-sm text-[var(--theme-text-muted)]">{content.heroSubtitle || site.profile?.description}</p>
             )}
             <div className="mt-8 flex flex-wrap gap-3">
               {site.categories.length > 0 && (
@@ -149,7 +149,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.4 }}
                 style={themeCardStyle()}
-                className="absolute right-4 top-4 max-w-[70%] bg-white px-4 py-3 dark:bg-zinc-900"
+                className="absolute right-4 top-4 max-w-[70%] bg-surface px-4 py-3 text-foreground"
               >
                 <p className="text-sm font-semibold">{content.heroBadge}</p>
               </motion.div>
@@ -178,7 +178,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
           <div className="mx-auto w-full max-w-6xl">
             <Reveal>
               <h2 className="text-2xl font-bold">{t.bistro.comboBoxesTitle}</h2>
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{t.bistro.comboBoxesSubtitle}</p>
+              <p className="mt-1 text-sm text-[var(--theme-text-muted)]">{t.bistro.comboBoxesSubtitle}</p>
             </Reveal>
             <StaggerGroup className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {comboItems.map((item) => (
@@ -198,13 +198,13 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
       )}
 
       {site.categories.length > 0 && (
-        <div className="sticky top-[65px] z-20 flex flex-col gap-3 border-b border-black/[.06] bg-white/90 px-6 py-3 backdrop-blur-md sm:px-12 dark:border-white/[.08] dark:bg-zinc-950/90">
+        <div className="sticky top-[65px] z-20 flex flex-col gap-3 border-b border-[var(--theme-border)] bg-[color-mix(in_srgb,var(--background)_90%,transparent)] px-6 py-3 backdrop-blur-md sm:px-12">
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.filter.searchPlaceholder}
-            className="mx-auto h-10 w-full max-w-6xl rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
+            className="mx-auto h-10 w-full max-w-6xl rounded-xl border border-[var(--theme-border)] bg-surface px-3.5 text-sm text-foreground outline-none transition-all duration-200 placeholder:text-[var(--theme-text-muted)] focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40"
           />
           {visibleCategories.length > 0 && (
             <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto">
@@ -213,7 +213,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                   key={category.id}
                   type="button"
                   onClick={() => scrollToCategory(category.id)}
-                  className="shrink-0 rounded-full border border-black/[.1] px-4 py-1.5 text-sm font-medium hover:bg-black/[.04] dark:border-white/[.16] dark:hover:bg-white/[.06]"
+                  className="shrink-0 rounded-full border border-[var(--theme-border)] px-4 py-1.5 text-sm font-medium transition-colors hover:border-[var(--accent-solid)] hover:text-[var(--accent-solid)]"
                 >
                   {category.name}
                 </button>
@@ -224,7 +224,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
       )}
 
       <div id="menu" className="mx-auto w-full max-w-6xl flex-1 scroll-mt-24 px-6 py-10 sm:px-12">
-        {hasNoResults && <p className="text-sm text-zinc-500 dark:text-zinc-400">{t.filter.noResults}</p>}
+        {hasNoResults && <p className="text-sm text-[var(--theme-text-muted)]">{t.filter.noResults}</p>}
 
         <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 3rem)" }}>
           {visibleCategories.map((category) => {
@@ -257,8 +257,8 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
           site.openingHours.length > 0) && (
           <Reveal as="section" className="mt-16">
             <div className="p-6 text-sm" style={themeCardStyle()}>
-              {site.profile?.description && <p className="mb-3 text-zinc-600 dark:text-zinc-400">{site.profile.description}</p>}
-              <div className="flex flex-wrap gap-3 text-zinc-600 dark:text-zinc-400">
+              {site.profile?.description && <p className="mb-3 text-[var(--theme-text-muted)]">{site.profile.description}</p>}
+              <div className="flex flex-wrap gap-3 text-[var(--theme-text-muted)]">
                 {site.profile?.phone && <span>{site.profile.phone}</span>}
                 {site.profile?.address && <span>{site.profile.address}</span>}
                 {site.profile?.googleMapsUrl && (
@@ -293,7 +293,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
         <DynamicSections sections={site.sections} tone="grid" />
 
         {(site.profile?.policies.PRIVACY || site.profile?.policies.TERMS || site.profile?.policies.DELIVERY || site.profile?.policies.REFUND) && (
-          <footer className="mt-10 flex flex-col gap-4 border-t border-black/[.06] pt-6 text-xs text-zinc-500 dark:border-white/[.1]">
+          <footer className="mt-10 flex flex-col gap-4 border-t border-[var(--theme-border)] pt-6 text-xs text-[var(--theme-text-muted)]">
             {Object.entries(site.profile?.policies ?? {}).map(([key, policyContent]) => (
               <details key={key}>
                 <summary className="cursor-pointer font-medium">{t.policy[key.toLowerCase() as keyof typeof t.policy]}</summary>
