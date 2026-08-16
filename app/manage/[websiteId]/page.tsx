@@ -6,20 +6,12 @@ import { useEffect, useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Select } from "@/components/ui/Select";
-import { SuggestButton } from "@/components/ui/SuggestButton";
-import { TextField } from "@/components/ui/TextField";
-import { Textarea } from "@/components/ui/Textarea";
 import { analyticsApi } from "@/lib/api/analytics";
-import { friendlyMessage } from "@/lib/api/client";
 import { menuApi } from "@/lib/api/menu";
 import { projectsApi } from "@/lib/api/projects";
 import { servicesApi } from "@/lib/api/services";
-import { websitesApi } from "@/lib/api/websites";
-import type { AnalyticsSummaryResponse, OrderingMode, TemplateType } from "@/lib/api/types";
+import type { AnalyticsSummaryResponse, TemplateType } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
-import { isDisplayOnlyLayout, templateLabel } from "@/lib/website/layout-options";
-import { parseDraftContent, serializeDraftContent } from "@/lib/website/draft-content";
 import { loadSetupStatus, readinessPercent, type ChecklistItem } from "@/lib/website/setup-checklist";
 
 const TILE_TONES = {
@@ -138,25 +130,12 @@ function quickActionsFor(templateType: TemplateType): { href: string; label: str
 }
 
 export default function WebsiteOverviewPage() {
-  const { website, accessToken, reload } = useWebsite();
-  const initial = parseDraftContent(website.draftContent);
-
-  const [heroHeading, setHeroHeading] = useState(initial.heroHeading);
-  const [heroSubtitle, setHeroSubtitle] = useState(initial.heroSubtitle);
-  const [brandColor, setBrandColor] = useState(initial.brandColor);
-  const [heroBadge, setHeroBadge] = useState(initial.heroBadge);
-  const [cvUrl, setCvUrl] = useState(initial.cvUrl);
-  const [orderingMode, setOrderingMode] = useState<OrderingMode>(website.orderingMode);
+  const { website, accessToken } = useWebsite();
   const [checklist, setChecklist] = useState<ChecklistItem[] | null>(null);
   const [contentCount, setContentCount] = useState<number | null>(null);
   const [projectCount, setProjectCount] = useState<number | null>(null);
   const [analyticsSummary, setAnalyticsSummary] = useState<AnalyticsSummaryResponse | null>(null);
 
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [isRestoring, setIsRestoring] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -227,53 +206,8 @@ export default function WebsiteOverviewPage() {
     };
   }, [accessToken, website]);
 
-  async function handleSaveDraft() {
-    setError(null);
-    setMessage(null);
-    setIsSaving(true);
-    try {
-      await websitesApi.saveDraft(accessToken, website.id, {
-        content: serializeDraftContent({ heroHeading, heroSubtitle, brandColor, heroBadge, cvUrl }),
-        orderingMode,
-      });
-      await reload();
-      setMessage("Draft saved.");
-    } catch (err) {
-      setError(friendlyMessage(err, "Failed to save draft."));
-    } finally {
-      setIsSaving(false);
-    }
-  }
 
-  async function handlePublish() {
-    setError(null);
-    setMessage(null);
-    setIsPublishing(true);
-    try {
-      await websitesApi.publish(accessToken, website.id);
-      await reload();
-      setMessage("Website published.");
-    } catch (err) {
-      setError(friendlyMessage(err, "Failed to publish."));
-    } finally {
-      setIsPublishing(false);
-    }
-  }
 
-  async function handleRestore() {
-    setError(null);
-    setMessage(null);
-    setIsRestoring(true);
-    try {
-      await websitesApi.restorePreviousVersion(accessToken, website.id);
-      await reload();
-      setMessage("Previous published version restored.");
-    } catch (err) {
-      setError(friendlyMessage(err, "Failed to restore previous version."));
-    } finally {
-      setIsRestoring(false);
-    }
-  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -294,8 +228,6 @@ export default function WebsiteOverviewPage() {
         </Link>
       </div>
 
-      {error && <Alert tone="error">{error}</Alert>}
-      {message && <Alert tone="success">{message}</Alert>}
 
       {(website.status === "SUSPENDED_TEMPORARY" || website.status === "SUSPENDED_PERMANENT") && (
         <Alert tone="error">
@@ -438,127 +370,15 @@ export default function WebsiteOverviewPage() {
         </div>
       </Card>
 
-      <Card
-        title="Page content"
-        description="A short tagline shown right under your business name on your public site, plus your brand's accent color. Save the draft, then publish when ready."
-      >
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <TextField
-              id="heroHeading"
-              label="Tagline"
-              placeholder="e.g. Fresh coffee, made your way"
-              value={heroHeading}
-              onChange={(e) => setHeroHeading(e.target.value)}
-            />
-            <SuggestButton
-              accessToken={accessToken}
-              businessName={website.businessName}
-              templateType={website.templateType}
-              fieldType="HERO_HEADING"
-              currentText={heroHeading}
-              onSuggestion={setHeroHeading}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Textarea
-              id="heroSubtitle"
-              label="Supporting line"
-              placeholder="A sentence or two shown just below the tagline"
-              value={heroSubtitle}
-              onChange={(e) => setHeroSubtitle(e.target.value)}
-            />
-            <SuggestButton
-              accessToken={accessToken}
-              businessName={website.businessName}
-              templateType={website.templateType}
-              fieldType="HERO_SUBTITLE"
-              currentText={heroSubtitle}
-              onSuggestion={setHeroSubtitle}
-            />
-          </div>
-          {website.layoutVariant === "PORTFOLIO_HERO" && (
-            <div className="flex flex-col gap-1.5">
-              <TextField
-                id="cvUrl"
-                label="CV / resume link (optional)"
-                placeholder="https://… a PDF or a Drive link"
-                value={cvUrl}
-                onChange={(e) => setCvUrl(e.target.value)}
-              />
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Shown as a Download CV button. Leave it blank and no button appears.
-              </p>
-            </div>
-          )}
-          {(website.layoutVariant === "PORTFOLIO_PROFILE" || website.layoutVariant === "MENU_BISTRO") && (
-            <div className="flex flex-col gap-1.5">
-              <TextField
-                id="heroBadge"
-                label="Highlight badge (optional)"
-                placeholder={website.templateType === "PORTFOLIO" ? "e.g. 3+ Years Experience" : "e.g. Fresh Everyday"}
-                value={heroBadge}
-                onChange={(e) => setHeroBadge(e.target.value)}
-              />
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Shown as a small floating badge next to your hero photo. Leave blank to hide it.
-              </p>
-            </div>
-          )}
-          <label htmlFor="brandColor" className="flex flex-col gap-1.5 text-sm">
-            <span className="font-medium text-foreground">Brand color</span>
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">Used for buttons and accents across your public site.</span>
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border-2 border-black/[.15] bg-surface p-1 dark:border-white/[.3]">
-                <input
-                  id="brandColor"
-                  type="color"
-                  value={brandColor}
-                  onChange={(e) => setBrandColor(e.target.value)}
-                  className="h-full w-full cursor-pointer rounded border-0 bg-transparent p-0"
-                />
-              </div>
-              <span className="font-mono text-xs uppercase text-zinc-500 dark:text-zinc-400">{brandColor}</span>
-            </div>
-          </label>
-          {isDisplayOnlyLayout(website.layoutVariant) ? (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              <span className="font-medium text-foreground">Display only.</span> The{" "}
-              {templateLabel(website.layoutVariant, website.templateType)} layout has no cart - visitors read the
-              prices and contact you directly. Switch layout under Design → Template to enable ordering.
-            </p>
-          ) : (
-            <Select
-              id="orderingMode"
-              label="Ordering mode"
-              value={orderingMode}
-              onChange={(e) => setOrderingMode(e.target.value as OrderingMode)}
-            >
-              <option value="DISPLAY_ONLY">Display only (menu is informational)</option>
-              <option value="WHATSAPP_ORDERING">WhatsApp ordering (customers can add to cart and order)</option>
-            </Select>
-          )}
-          <Button onClick={handleSaveDraft} isLoading={isSaving} className="mt-2 w-auto px-5">
-            Save draft
-          </Button>
-        </div>
+      <Card title="Page content and publishing" description="Your tagline, accent colour and the Publish button now live in the console.">
+        <Link
+          href={`/s/${website.slug}/content`}
+          className="inline-block rounded-full bg-gradient-accent px-5 py-2.5 text-sm font-medium text-white"
+        >
+          Open page content →
+        </Link>
       </Card>
 
-      <Card title="Publish" description="Publishing makes your draft live at your public URL.">
-        <div className="flex items-center gap-3">
-          <Link href={`/preview/${website.id}`} target="_blank">
-            <Button variant="secondary" className="w-auto px-5">
-              Preview draft
-            </Button>
-          </Link>
-          <Button onClick={handlePublish} isLoading={isPublishing} className="w-auto px-5">
-            Publish
-          </Button>
-          <Button variant="secondary" onClick={handleRestore} isLoading={isRestoring} className="w-auto px-5">
-            Restore previous version
-          </Button>
-        </div>
-      </Card>
     </div>
   );
 }

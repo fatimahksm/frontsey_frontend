@@ -6,9 +6,17 @@ import { use } from "react";
 
 import { SiteAdminShell, type SiteAdminContext } from "@/components/site-admin/SiteAdminShell";
 import AnalyticsPage from "@/app/manage/[websiteId]/analytics/page";
+import PageContentPage from "@/app/manage/[websiteId]/content/page";
 import DeliveryPage from "@/app/manage/[websiteId]/delivery/page";
 import GalleryPage from "@/app/manage/[websiteId]/gallery/page";
+import LayoutPage from "@/app/manage/[websiteId]/layout/page";
+import ManagersPage from "@/app/manage/[websiteId]/managers/page";
 import MenuPage from "@/app/manage/[websiteId]/menu/page";
+import ProfilePage from "@/app/manage/[websiteId]/profile/page";
+import SeoPage from "@/app/manage/[websiteId]/seo/page";
+import SharePage from "@/app/manage/[websiteId]/share/page";
+import SubscriptionPage from "@/app/manage/[websiteId]/subscription/page";
+import ThemePage from "@/app/manage/[websiteId]/theme/page";
 import ProjectsPage from "@/app/manage/[websiteId]/projects/page";
 import SectionsPage from "@/app/manage/[websiteId]/sections/page";
 import ServicesPage from "@/app/manage/[websiteId]/services/page";
@@ -34,14 +42,38 @@ const EDITORS = {
   delivery: DeliveryPage,
   gallery: GalleryPage,
   sections: SectionsPage,
+  content: PageContentPage,
+  layout: LayoutPage,
+  theme: ThemePage,
+  profile: ProfilePage,
+  share: SharePage,
+  seo: SeoPage,
+  managers: ManagersPage,
+  subscription: SubscriptionPage,
   analytics: AnalyticsPage,
 } as const;
 
 type EditorKey = keyof typeof EDITORS;
 
+/**
+ * Editors that exist for every website, whatever its template - the ones the
+ * content plan does not speak for. Only the content stores vary by template.
+ */
+const ALWAYS_AVAILABLE = new Set<EditorKey>([
+  "content",
+  "layout",
+  "theme",
+  "profile",
+  "share",
+  "seo",
+  "managers",
+  "subscription",
+  "analytics",
+]);
+
 function Section({ context, section }: { context: SiteAdminContext; section: EditorKey }) {
   const allowed =
-    section === "analytics" ||
+    ALWAYS_AVAILABLE.has(section) ||
     contentPlanFor(context.website.layoutVariant).sections.some((entry) => entry.key === section);
   if (!allowed) {
     return (
@@ -55,8 +87,14 @@ function Section({ context, section }: { context: SiteAdminContext; section: Edi
   }
   const Component = EDITORS[section];
   return (
+    // The console's own header already names the section, and every editor
+    // opens with the same name as its own h1. Kept for screen readers, hidden
+    // for eyes - two identical titles stacked is the tell of a page embedded
+    // somewhere it was not designed for.
     <WebsiteProvider websiteId={context.website.id} accessToken={context.accessToken} initialWebsite={context.website}>
-      <Component />
+      <div className="[&>div>div>h1]:sr-only [&>div>h1]:sr-only">
+        <Component />
+      </div>
     </WebsiteProvider>
   );
 }

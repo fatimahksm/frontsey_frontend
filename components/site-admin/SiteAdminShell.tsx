@@ -5,15 +5,23 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 import {
+  BillingIcon,
+  BusinessIcon,
   DashboardIcon,
   DeliveryIcon,
   GalleryIcon,
   MenuIcon,
+  PeopleIcon,
   ProjectsIcon,
   ReportsIcon,
+  SearchIcon,
   SectionsIcon,
   ServicesIcon,
   SettingsIcon,
+  ShareIcon,
+  TemplateIcon,
+  TextIcon,
+  ThemeIcon,
 } from "@/components/site-admin/icons";
 import { Alert } from "@/components/ui/Alert";
 import { friendlyMessage } from "@/lib/api/client";
@@ -43,15 +51,25 @@ interface NavItem {
   Icon: (props: { className?: string }) => React.ReactElement;
   /** One line under the label, so nobody has to guess what a section is for. */
   hint: string;
+  /** Owner-only, mirroring what the server enforces. */
+  ownerOnly?: boolean;
+}
+
+interface NavGroup {
+  label: string | null;
+  items: NavItem[];
 }
 
 /**
- * The console's sections, in this template's own vocabulary and order.
+ * Everything an owner can change, grouped, in this template's own vocabulary.
  *
- * Not just per website type - per template. The Services template leads with
- * Packages because that is what its page leads with; the Brand template calls
- * the same store Products. An editor that says "Services" while the page says
- * "Packages" makes the owner translate between two names for one thing.
+ * The console used to hold only the day-to-day content and send anyone wanting
+ * a new logo or a different colour back to the setup area - which meant the
+ * place they visit weekly could not change their own logo. Setup is the wizard
+ * you run once; this is the whole back office, so every editor lives here.
+ *
+ * Content section names and order come from the template's plan, so the Services
+ * template leads with Packages and Brand calls the same store Products.
  */
 const ICONS: Record<ContentSection["key"], (props: { className?: string }) => React.ReactElement> = {
   projects: ProjectsIcon,
@@ -62,17 +80,57 @@ const ICONS: Record<ContentSection["key"], (props: { className?: string }) => Re
   sections: SectionsIcon,
 };
 
-function sectionsFor(website: WebsiteResponse): NavItem[] {
+function navGroupsFor(website: WebsiteResponse): NavGroup[] {
   return [
-    { href: "", label: "Dashboard", Icon: DashboardIcon, hint: "How your site is doing" },
-    ...contentPlanFor(website.layoutVariant).sections.map((section) => ({
-      href: `/${section.key}`,
-      label: section.label,
-      Icon: ICONS[section.key],
-      hint: section.hint,
-    })),
-    { href: "/analytics", label: "Reports", Icon: ReportsIcon, hint: "Full visitor numbers" },
+    {
+      label: null,
+      items: [{ href: "", label: "Dashboard", Icon: DashboardIcon, hint: "How your site is doing" }],
+    },
+    {
+      label: "Content",
+      items: [
+        ...contentPlanFor(website.layoutVariant).sections.map((section) => ({
+          href: `/${section.key}`,
+          label: section.label,
+          Icon: ICONS[section.key],
+          hint: section.hint,
+        })),
+        { href: "/content", label: "Page content", Icon: TextIcon, hint: "Your tagline, and publishing" },
+      ],
+    },
+    {
+      label: "Design",
+      items: [
+        { href: "/layout", label: "Template", Icon: TemplateIcon, hint: "The overall look and arrangement" },
+        { href: "/theme", label: "Theme", Icon: ThemeIcon, hint: "Colours and fonts" },
+      ],
+    },
+    {
+      label: "Business",
+      items: [
+        { href: "/profile", label: "Business profile", Icon: BusinessIcon, hint: "Logo, photos, contact details" },
+        { href: "/share", label: "Share & QR", Icon: ShareIcon, hint: "Your links and printable code" },
+        { href: "/seo", label: "Search & sharing", Icon: SearchIcon, hint: "How your site looks on Google" },
+      ],
+    },
+    {
+      label: null,
+      items: [
+        { href: "/analytics", label: "Reports", Icon: ReportsIcon, hint: "Full visitor numbers" },
+        { href: "/managers", label: "People", Icon: PeopleIcon, hint: "Who else can sign in here", ownerOnly: true },
+        { href: "/subscription", label: "Plan & billing", Icon: BillingIcon, hint: "Your plan and renewal", ownerOnly: true },
+      ],
+    },
   ];
+}
+
+function visibleFor(groups: NavGroup[], website: WebsiteResponse): NavGroup[] {
+  return groups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => !item.ownerOnly || website.role === "OWNER" || website.role === null),
+    }))
+    .filter((group) => group.items.length > 0);
 }
 
 function initialsOf(name: string): string {
@@ -176,7 +234,8 @@ export function SiteAdminShell({
   }
 
   const base = `/s/${slug}`;
-  const sections = sectionsFor(website);
+  const groups = visibleFor(navGroupsFor(website), website);
+  const sections = groups.flatMap((group) => group.items);
   const active = sections.find((item) => `${base}${item.href}` === pathname);
 
   return (
@@ -197,37 +256,50 @@ export function SiteAdminShell({
           <p className="min-w-0 truncate text-sm font-semibold">{website.businessName}</p>
         </div>
 
-        <nav className="flex flex-1 flex-col gap-1 px-3 py-2">
-          {sections.map((item) => {
-            const href = `${base}${item.href}`;
-            const isActive = pathname === href;
-            return (
-              <Link
-                key={item.href}
-                href={href}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
-                  isActive
-                    ? "bg-gradient-accent font-medium text-white"
-                    : "text-zinc-600 hover:bg-black/[.04] hover:text-foreground dark:text-zinc-400 dark:hover:bg-white/[.06]"
-                }`}
-              >
-                <item.Icon />
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="flex flex-1 flex-col gap-5 overflow-y-auto px-3 py-2">
+          {groups.map((group, groupIndex) => (
+            <div key={group.label ?? `group-${groupIndex}`} className="flex flex-col gap-1">
+              {group.label && (
+                <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                  {group.label}
+                </p>
+              )}
+              {group.items.map((item) => {
+                const href = `${base}${item.href}`;
+                const isActive = pathname === href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={href}
+                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
+                      isActive
+                        ? "bg-gradient-accent font-medium text-white"
+                        : "text-zinc-600 hover:bg-black/[.04] hover:text-foreground dark:text-zinc-400 dark:hover:bg-white/[.06]"
+                    }`}
+                  >
+                    <item.Icon />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
-        {/* Setup lives elsewhere on purpose: it is the thing you do once. */}
-        <div className="border-t border-black/[.08] px-3 py-3 dark:border-white/[.1]">
-          <Link
-            href={`/manage/${website.id}`}
-            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-zinc-600 transition-colors hover:bg-black/[.04] hover:text-foreground dark:text-zinc-400 dark:hover:bg-white/[.06]"
-          >
-            <SettingsIcon />
-            Setup &amp; settings
-          </Link>
-        </div>
+        {/* The guided wizard, only while there is still a reason to run it. A
+            finished site has no use for it, and every editor it walks through
+            is already in the groups above. */}
+        {website.status === "DRAFT" && (
+          <div className="border-t border-black/[.08] px-3 py-3 dark:border-white/[.1]">
+            <Link
+              href={`/manage/${website.id}`}
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-zinc-600 transition-colors hover:bg-black/[.04] hover:text-foreground dark:text-zinc-400 dark:hover:bg-white/[.06]"
+            >
+              <SettingsIcon />
+              Guided setup
+            </Link>
+          </div>
+        )}
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">

@@ -107,6 +107,90 @@ export function SectionsIcon(props: IconProps) {
   );
 }
 
+export function TextIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5 6V4h14v2" />
+      <path d="M12 4v16" />
+      <path d="M9 20h6" />
+    </Icon>
+  );
+}
+
+export function TemplateIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M3 9h18" />
+      <path d="M9 20V9" />
+    </Icon>
+  );
+}
+
+export function ThemeIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3a9 9 0 100 18h1.5a2 2 0 001.6-3.2 2 2 0 011.6-3.2H19a3 3 0 003-3A9 9 0 0012 3z" />
+      <circle cx="7.5" cy="11" r="1" />
+      <circle cx="11" cy="7.5" r="1" />
+      <circle cx="15.5" cy="9" r="1" />
+    </Icon>
+  );
+}
+
+export function BusinessIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 21V6l7-3v18" />
+      <path d="M11 9h6a2 2 0 012 2v10" />
+      <path d="M2 21h20" />
+      <path d="M7 9v.01M7 13v.01M15 13v.01M15 17v.01" />
+    </Icon>
+  );
+}
+
+export function ShareIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="18" cy="5" r="2.5" />
+      <circle cx="6" cy="12" r="2.5" />
+      <circle cx="18" cy="19" r="2.5" />
+      <path d="M8.3 10.8l7.4-4.3" />
+      <path d="M8.3 13.2l7.4 4.3" />
+    </Icon>
+  );
+}
+
+export function SearchIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M20 20l-3.6-3.6" />
+    </Icon>
+  );
+}
+
+export function PeopleIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="9" cy="8" r="3.2" />
+      <path d="M3 20a6 6 0 0112 0" />
+      <path d="M16 5.5a3.2 3.2 0 010 6" />
+      <path d="M17.5 14.5A6 6 0 0121 20" />
+    </Icon>
+  );
+}
+
+export function BillingIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
+      <path d="M2.5 10h19" />
+      <path d="M6 15h4" />
+    </Icon>
+  );
+}
+
 export function SettingsIcon(props: IconProps) {
   return (
     <Icon {...props}>
