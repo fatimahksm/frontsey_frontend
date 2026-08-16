@@ -16,50 +16,49 @@ import {
   emptySectionData,
   parseSectionData,
   serializeSectionData,
-  SECTION_TYPE_DESCRIPTIONS,
   SECTION_TYPE_LABELS,
   type AboutSectionData,
   type FaqSectionData,
   type TeamSectionData,
   type TestimonialsSectionData,
 } from "@/lib/website/page-sections";
-import { contentPlanFor, rendersSectionType, sectionLabel } from "@/lib/website/template-content";
+import { contentPlanFor, sectionLabel } from "@/lib/website/template-content";
 import { useWebsite } from "@/lib/website/website-context";
-
-const SECTION_TYPES: PageSectionType[] = ["ABOUT", "TESTIMONIALS", "FAQ", "TEAM"];
 
 type DraftData = AboutSectionData | TestimonialsSectionData | FaqSectionData | TeamSectionData;
 
-function moved<T>(list: T[], from: number, to: number): T[] {
-  const copy = [...list];
-  const [item] = copy.splice(from, 1);
-  copy.splice(to, 0, item);
-  return copy;
-}
-
+/** What is actually in a block, in one line, for the list. */
 function summarize(section: PageSectionResponse): string {
   const data = parseSectionData<{ heading: string; items?: unknown[]; body?: string }>(section.data, section.type);
-  const count = Array.isArray(data.items) ? ` (${data.items.length})` : "";
-  return `${data.heading}${count}`;
+  if (Array.isArray(data.items)) return `${data.items.length} ${data.items.length === 1 ? "entry" : "entries"}`;
+  const body = (data.body ?? "").trim();
+  return body ? `${body.slice(0, 80)}${body.length > 80 ? "…" : ""}` : "Empty";
 }
 
 export default function SectionsPage() {
   const { website, accessToken, notifyDraftChanged } = useWebsite();
 
-  // The heading and the blurb both come from the template's plan, so this page
-  // calls the same thing what the site calls it - "About, reviews & FAQ" on the
-  // Services template, "Story, team & reviews" on Brand.
+  // Every name on this page comes from the template's plan, so the editor calls
+  // each block what the site calls it.
   const planLabel = sectionLabel(website.layoutVariant, "sections", "Sections");
-  const shownTypes = contentPlanFor(website.layoutVariant)
-    .rendersSectionTypes.map((type) => SECTION_TYPE_LABELS[type].toLowerCase());
+  const blocks = contentPlanFor(website.layoutVariant).blocks;
   const [sections, setSections] = useState<PageSectionResponse[]>([]);
-  const [mode, setMode] = useState<"list" | "pick-type" | "edit">("list");
+  const [mode, setMode] = useState<"list" | "edit">("list");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingType, setEditingType] = useState<PageSectionType | null>(null);
   const [draft, setDraft] = useState<DraftData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isBusy, setIsBusy] = useState(false);
+
+  // A block the template does not define, or a second copy of one it does.
+  const blockTypes = new Set(blocks.map((block) => block.type));
+  const claimed = new Set<string>();
+  for (const block of blocks) {
+    const first = sections.find((section) => section.type === block.type);
+    if (first) claimed.add(first.id);
+  }
+  const leftovers = sections.filter((section) => !claimed.has(section.id) || !blockTypes.has(section.type));
 
   async function load() {
     const list = await sectionsApi.list(accessToken, website.id);
@@ -74,17 +73,16 @@ export default function SectionsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, website.id]);
 
-  function startAdd(type: PageSectionType) {
-    setEditingId(null);
+  /**
+   * Open a block for editing, whether or not it has been filled in yet.
+   *
+   * There is no "pick a type" step any more: the template decides which blocks
+   * its page has, so the only choice left is what goes in them.
+   */
+  function openBlock(type: PageSectionType, existing?: PageSectionResponse) {
+    setEditingId(existing?.id ?? null);
     setEditingType(type);
-    setDraft(emptySectionData(type));
-    setMode("edit");
-  }
-
-  function startEdit(section: PageSectionResponse) {
-    setEditingId(section.id);
-    setEditingType(section.type);
-    setDraft(parseSectionData(section.data, section.type));
+    setDraft(existing ? parseSectionData(existing.data, existing.type) : emptySectionData(type));
     setMode("edit");
   }
 
@@ -131,136 +129,114 @@ export default function SectionsPage() {
     }
   }
 
-  async function handleMove(index: number, direction: -1 | 1) {
-    const target = index + direction;
-    if (target < 0 || target >= sections.length) return;
-    const reordered = moved(sections, index, target);
-    setSections(reordered);
-    setError(null);
-    setIsBusy(true);
-    try {
-      await sectionsApi.reorder(accessToken, website.id, reordered.map((s) => s.id));
-      await load();
-      notifyDraftChanged();
-    } catch (err) {
-      setError(friendlyMessage(err, "Failed to reorder sections."));
-    } finally {
-      setIsBusy(false);
-    }
-  }
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold tracking-tight">{planLabel}</h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Extra sections beyond your core content. Your template shows {shownTypes.join(", ")} - add as many as you
-          like, in any order.
+          The blocks your template&apos;s page is made of. Fill in the ones you want; anything left empty is simply not
+          shown.
         </p>
       </div>
       {error && <Alert tone="error">{error}</Alert>}
 
-      <Card title="Your sections">
-        {isLoading ? (
-          <p className="text-sm text-zinc-500">Loading…</p>
-        ) : (
-          <StaggerGroup as="ul" className="flex flex-col gap-2">
-            {sections.map((section, index) => (
-              <StaggerItem
-                as="li"
-                key={section.id}
-                className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]"
-              >
-                <div className="min-w-0">
-                  <span className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-black/[.05] px-2 py-0.5 text-xs font-medium dark:bg-white/[.08]">
-                      {SECTION_TYPE_LABELS[section.type]}
-                    </span>
-                    {!rendersSectionType(website.layoutVariant, section.type) && (
-                      <span className="text-xs text-amber-700 dark:text-amber-400">Not shown by your template</span>
-                    )}
-                  </span>
-                  <p className="mt-1 truncate font-medium">{summarize(section)}</p>
-                </div>
-                <div className="flex shrink-0 items-center gap-3 text-xs">
-                  <button type="button" disabled={index === 0} onClick={() => handleMove(index, -1)} className="disabled:opacity-30">
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    disabled={index === sections.length - 1}
-                    onClick={() => handleMove(index, 1)}
-                    className="disabled:opacity-30"
-                  >
-                    ↓
-                  </button>
-                  <button type="button" className="hover:underline" onClick={() => startEdit(section)}>
-                    Edit
-                  </button>
-                  <button type="button" className="text-red-600 hover:underline" onClick={() => handleDelete(section.id)}>
-                    Delete
-                  </button>
-                </div>
-              </StaggerItem>
-            ))}
-            {sections.length === 0 && <p className="text-sm text-zinc-500">No extra sections yet.</p>}
-          </StaggerGroup>
-        )}
-      </Card>
-
       {mode === "list" && (
-        <Button className="w-auto px-5" onClick={() => setMode("pick-type")}>
-          Add a section
-        </Button>
-      )}
-
-      {mode === "pick-type" && (
-        <Card title="Pick a section type">
-          <StaggerGroup className="grid gap-4 sm:grid-cols-2">
-            {SECTION_TYPES.map((type) => {
-              // Writing an FAQ that the chosen template never renders is work
-              // thrown away, and the owner would only find out by looking at
-              // their live site. Say it here instead - without removing the
-              // option, since switching template later would bring it back.
-              const shown = rendersSectionType(website.layoutVariant, type);
-              return (
-                <StaggerItem key={type}>
-                  <button
-                    type="button"
-                    onClick={() => startAdd(type)}
-                    className={`flex h-full w-full flex-col gap-1 rounded-xl border p-4 text-left text-sm shadow-soft transition-colors duration-200 ${
-                      shown
-                        ? "border-black/[.08] hover:bg-black/[.02] dark:border-white/[.145] dark:hover:bg-white/[.04]"
-                        : "border-dashed border-black/[.12] opacity-60 hover:opacity-100 dark:border-white/[.18]"
-                    }`}
+        <>
+          {blocks.length === 0 ? (
+            <Card>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                This template is deliberately just your menu - it has no extra blocks.
+              </p>
+            </Card>
+          ) : isLoading ? (
+            <Card>
+              <p className="text-sm text-zinc-500">Loading…</p>
+            </Card>
+          ) : (
+            <StaggerGroup as="ul" className="flex flex-col gap-3">
+              {blocks.map((block) => {
+                const existing = sections.find((section) => section.type === block.type);
+                return (
+                  <StaggerItem
+                    as="li"
+                    key={block.type}
+                    className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-black/[.08] bg-surface p-4 dark:border-white/[.12]"
                   >
-                    <span className="font-semibold">{SECTION_TYPE_LABELS[type]}</span>
-                    <span className="text-xs text-zinc-500 dark:text-zinc-400">{SECTION_TYPE_DESCRIPTIONS[type]}</span>
-                    {!shown && (
-                      <span className="mt-1 text-xs font-medium text-amber-700 dark:text-amber-400">
-                        Your current template doesn&apos;t show this
-                      </span>
-                    )}
-                  </button>
-                </StaggerItem>
-              );
-            })}
-          </StaggerGroup>
-          <Button variant="secondary" className="mt-4 w-auto px-5" onClick={() => setMode("list")}>
-            Cancel
-          </Button>
-        </Card>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-medium">{block.label}</p>
+                        {!existing && (
+                          <span className="rounded-full bg-black/[.05] px-2 py-0.5 text-xs text-zinc-500 dark:bg-white/[.08] dark:text-zinc-400">
+                            Not shown yet
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                        {existing ? summarize(existing) : block.hint}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-3 text-sm">
+                      <button
+                        type="button"
+                        onClick={() => openBlock(block.type, existing)}
+                        className="rounded-full bg-foreground px-4 py-1.5 text-xs font-medium text-background"
+                      >
+                        {existing ? "Edit" : "Add"}
+                      </button>
+                      {existing && (
+                        <button type="button" className="text-red-600 hover:underline" onClick={() => handleDelete(existing.id)}>
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </StaggerItem>
+                );
+              })}
+            </StaggerGroup>
+          )}
+
+          {/* Content saved under a previous template, or duplicated before the
+              blocks were fixed. Never dropped silently - shown, labelled, and
+              removable, so switching template cannot lose someone's writing. */}
+          {leftovers.length > 0 && (
+            <Card
+              title="Not part of this template"
+              description="Written earlier, or under a different template. Your page doesn't show it."
+            >
+              <ul className="flex flex-col gap-2">
+                {leftovers.map((section) => (
+                  <li
+                    key={section.id}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed border-black/[.12] p-3 text-sm dark:border-white/[.18]"
+                  >
+                    <span className="min-w-0">
+                      <span className="font-medium">{SECTION_TYPE_LABELS[section.type]}</span>
+                      <span className="ms-2 text-zinc-500 dark:text-zinc-400">{summarize(section)}</span>
+                    </span>
+                    <button type="button" className="shrink-0 text-red-600 hover:underline" onClick={() => handleDelete(section.id)}>
+                      Delete
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+        </>
       )}
 
       {mode === "edit" && editingType && draft && (
-        <Card title={editingId ? `Edit ${SECTION_TYPE_LABELS[editingType]}` : `Add ${SECTION_TYPE_LABELS[editingType]}`}>
+        <Card
+          title={blocks.find((block) => block.type === editingType)?.label ?? SECTION_TYPE_LABELS[editingType]}
+          description={blocks.find((block) => block.type === editingType)?.hint}
+        >
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <SectionForm type={editingType} draft={draft} onChange={setDraft} accessToken={accessToken} />
             <div className="flex gap-3">
-              <Button type="submit" isLoading={isBusy} className="w-auto px-5">
-                {editingId ? "Save changes" : "Add section"}
+              <Button type="submit" isLoading={isBusy} className="!w-auto px-5">
+                Save
               </Button>
-              <Button type="button" variant="secondary" className="w-auto px-5" onClick={cancelEdit}>
+              <Button type="button" variant="secondary" className="!w-auto px-5" onClick={cancelEdit}>
                 Cancel
               </Button>
             </div>

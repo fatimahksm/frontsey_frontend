@@ -27,15 +27,31 @@ export interface ContentSection {
   hint: string;
 }
 
+/**
+ * One fixed block in a template's page, named as that template names it.
+ *
+ * These are the template's identity, not a menu of options. A Services page has
+ * a story, proof and an FAQ because that is what gets someone booked; a CV page
+ * has a background and recommendations and no FAQ at all. Letting an owner add
+ * whichever blocks they liked in whatever order is precisely what made all four
+ * templates the same site in four palettes.
+ */
+export interface TemplateBlock {
+  type: PageSectionType;
+  /** What this template calls this block. */
+  label: string;
+  /** What belongs in it, in this template's terms. */
+  hint: string;
+}
+
 export interface TemplateContentPlan {
   /** In the order this template leads with them. */
   sections: ContentSection[];
   /**
-   * The extra section types this template renders. Anything outside this set
-   * is content the owner can still write, but their current template will not
-   * show - which the editor says rather than letting them discover it.
+   * The blocks this template's page is made of, in the order it renders them.
+   * Exactly one of each - a page has an About, not a list of them.
    */
-  rendersSectionTypes: PageSectionType[];
+  blocks: TemplateBlock[];
 }
 
 const GALLERY_PORTFOLIO: ContentSection = {
@@ -53,7 +69,10 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
       GALLERY_PORTFOLIO,
       { key: "sections", label: "About & recommendations", hint: "Your background, and what people say" },
     ],
-    rendersSectionTypes: ["ABOUT", "TESTIMONIALS"],
+    blocks: [
+      { type: "ABOUT", label: "Background", hint: "A short paragraph on how you got here and what you work on." },
+      { type: "TESTIMONIALS", label: "Recommendations", hint: "What colleagues and clients say about working with you." },
+    ],
   },
 
   // Creative / Visual - a gallery.
@@ -64,7 +83,10 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
       GALLERY_PORTFOLIO,
       { key: "sections", label: "About & words", hint: "Your approach, and what clients say" },
     ],
-    rendersSectionTypes: ["ABOUT", "TESTIMONIALS"],
+    blocks: [
+      { type: "ABOUT", label: "Approach", hint: "How you work, in your own words. Kept short - the work speaks first." },
+      { type: "TESTIMONIALS", label: "Words", hint: "A line or two from the people you made it for." },
+    ],
   },
 
   // Freelancer / Services - built to get booked, so the priced list comes first.
@@ -75,7 +97,11 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
       GALLERY_PORTFOLIO,
       { key: "sections", label: "About, reviews & FAQ", hint: "Your story, proof, and the usual questions" },
     ],
-    rendersSectionTypes: ["ABOUT", "TESTIMONIALS", "FAQ"],
+    blocks: [
+      { type: "ABOUT", label: "About you", hint: "Who you are and who you work with. Two or three sentences." },
+      { type: "TESTIMONIALS", label: "Reviews", hint: "Proof from past clients - the thing that closes a booking." },
+      { type: "FAQ", label: "Questions", hint: "What it costs, how soon you can start, what happens next." },
+    ],
   },
 
   // Brand / Product - a shop front, so the things come first.
@@ -86,7 +112,11 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
       GALLERY_PORTFOLIO,
       { key: "sections", label: "Story, team & reviews", hint: "How it is made, who makes it, what people say" },
     ],
-    rendersSectionTypes: ["ABOUT", "TEAM", "TESTIMONIALS"],
+    blocks: [
+      { type: "ABOUT", label: "Story", hint: "How this started and how it gets made." },
+      { type: "TEAM", label: "The people", hint: "Who makes it. A name and a role each." },
+      { type: "TESTIMONIALS", label: "What people say", hint: "Short quotes from customers." },
+    ],
   },
 
   MENU_CLASSIC: {
@@ -95,7 +125,10 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
       { key: "gallery", label: "Gallery", hint: "Photos of the place" },
       { key: "sections", label: "About & reviews", hint: "Your story, and what customers say" },
     ],
-    rendersSectionTypes: ["ABOUT", "TESTIMONIALS", "FAQ", "TEAM"],
+    blocks: [
+      { type: "ABOUT", label: "About us", hint: "Your story, in a paragraph." },
+      { type: "TESTIMONIALS", label: "Reviews", hint: "What customers say." },
+    ],
   },
 
   MENU_GRID: {
@@ -105,13 +138,17 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
       { key: "delivery", label: "Delivery areas", hint: "Zones, fees and minimums" },
       { key: "sections", label: "About, reviews & FAQ", hint: "Your story, reviews, and the usual questions" },
     ],
-    rendersSectionTypes: ["ABOUT", "TESTIMONIALS", "FAQ", "TEAM"],
+    blocks: [
+      { type: "ABOUT", label: "About us", hint: "Your story, in a paragraph." },
+      { type: "TESTIMONIALS", label: "Reviews", hint: "What customers say." },
+      { type: "FAQ", label: "Questions", hint: "Parking, reservations, delivery, dietary options." },
+    ],
   },
 
   // Deliberately just a masthead, a search field and the dishes.
   MENU_ELEGANT: {
     sections: [{ key: "menu", label: "Menu", hint: "Categories, items and prices" }],
-    rendersSectionTypes: [],
+    blocks: [],
   },
 
   MENU_BISTRO: {
@@ -121,7 +158,12 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
       { key: "delivery", label: "Delivery areas", hint: "Zones, fees and minimums" },
       { key: "sections", label: "About, reviews & FAQ", hint: "Your story, reviews, and the usual questions" },
     ],
-    rendersSectionTypes: ["ABOUT", "TESTIMONIALS", "FAQ", "TEAM"],
+    blocks: [
+      { type: "ABOUT", label: "Our story", hint: "How the place started, and what it is about." },
+      { type: "TEAM", label: "The kitchen", hint: "Who cooks. A name and a role each." },
+      { type: "TESTIMONIALS", label: "Reviews", hint: "What customers say." },
+      { type: "FAQ", label: "Questions", hint: "Parking, reservations, delivery, dietary options." },
+    ],
   },
 };
 
@@ -134,7 +176,7 @@ export function sectionLabel(layoutVariant: LayoutVariant, key: ContentSection["
   return contentPlanFor(layoutVariant).sections.find((section) => section.key === key)?.label ?? fallback;
 }
 
-/** Whether content of this type would appear anywhere on the current template. */
+/** Whether this template's page has a block of this type at all. */
 export function rendersSectionType(layoutVariant: LayoutVariant, type: PageSectionType): boolean {
-  return contentPlanFor(layoutVariant).rendersSectionTypes.includes(type);
+  return contentPlanFor(layoutVariant).blocks.some((block) => block.type === type);
 }
