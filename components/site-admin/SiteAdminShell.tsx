@@ -14,7 +14,6 @@ import {
   PeopleIcon,
   ProjectsIcon,
   ReportsIcon,
-  SearchIcon,
   SectionsIcon,
   ServicesIcon,
   SettingsIcon,
@@ -103,7 +102,6 @@ function navGroupsFor(website: WebsiteResponse): NavGroup[] {
       items: [
         { href: "/profile", label: "Business profile", Icon: BusinessIcon, hint: "Logo, photos, contact details" },
         { href: "/share", label: "Share & QR", Icon: ShareIcon, hint: "Your links and printable code" },
-        { href: "/seo", label: "Search & sharing", Icon: SearchIcon, hint: "How your site looks on Google" },
       ],
     },
     {

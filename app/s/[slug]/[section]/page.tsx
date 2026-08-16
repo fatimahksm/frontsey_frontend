@@ -12,7 +12,6 @@ import GalleryPage from "@/app/manage/[websiteId]/gallery/page";
 import ManagersPage from "@/app/manage/[websiteId]/managers/page";
 import MenuPage from "@/app/manage/[websiteId]/menu/page";
 import ProfilePage from "@/app/manage/[websiteId]/profile/page";
-import SeoPage from "@/app/manage/[websiteId]/seo/page";
 import SharePage from "@/app/manage/[websiteId]/share/page";
 import SubscriptionPage from "@/app/manage/[websiteId]/subscription/page";
 import ProjectsPage from "@/app/manage/[websiteId]/projects/page";
@@ -43,7 +42,6 @@ const EDITORS = {
   content: PageContentPage,
   profile: ProfilePage,
   share: SharePage,
-  seo: SeoPage,
   managers: ManagersPage,
   subscription: SubscriptionPage,
   analytics: AnalyticsPage,
@@ -55,15 +53,14 @@ type EditorKey = keyof typeof EDITORS;
  * Editors that exist for every website, whatever its template - the ones the
  * content plan does not speak for. Only the content stores vary by template.
  *
- * Template and theme are absent on purpose: they are first-build decisions,
- * made once in setup, and the console is for running the site rather than
- * rebuilding it. There is no route to them here, not just no link.
+ * Template, theme and SEO are absent on purpose: they are first-build
+ * decisions, made once in setup, and the console is for running the site rather
+ * than rebuilding it. There is no route to them here, not just no link.
  */
 const ALWAYS_AVAILABLE = new Set<EditorKey>([
   "content",
   "profile",
   "share",
-  "seo",
   "managers",
   "subscription",
   "analytics",
