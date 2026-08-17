@@ -20,9 +20,11 @@ interface Props {
   deliveryAreas: PublicDeliveryArea[];
   onRemove(key: string): void;
   onCheckout(customer: Customer, deliveryArea: PublicDeliveryArea | null, deliveryFee: number): void;
+  /** Shops say "add something from the list"; kitchens say "from the menu". */
+  isShop?: boolean;
 }
 
-export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout }: Props) {
+export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout, isShop = false }: Props) {
   const { t } = useLocale();
   const [deliveryAreaId, setDeliveryAreaId] = useState("");
   const [name, setName] = useState("");
@@ -66,7 +68,7 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
         <span aria-hidden className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--accent-solid)]/10 text-2xl">
           🛒
         </span>
-        <p className="text-sm text-[var(--theme-text-muted)]">{t.cart.cartIsEmptyBody}</p>
+        <p className="text-sm text-[var(--theme-text-muted)]">{isShop ? t.cart.cartIsEmptyBodyShop : t.cart.cartIsEmptyBody}</p>
       </motion.div>
     );
   }

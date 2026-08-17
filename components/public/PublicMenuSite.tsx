@@ -124,7 +124,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
           } ${heroText}`}
         >
           <a href="#menu" className="hover:opacity-80">
-            {t.nav.menu}
+            {content.menuBusinessKind === "SHOP" ? t.nav.products : t.nav.menu}
           </a>
           {site.profile?.description && (
             <a href="#about" className="hover:opacity-80">
@@ -171,7 +171,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
       <section id="menu" className="mx-auto w-full max-w-3xl scroll-mt-4 px-5 py-14">
         <Reveal as="div" className="flex flex-col items-center">
           <h2 className="text-3xl font-semibold tracking-tight" style={themeHeadingStyle()}>
-            {t.nav.menu}
+            {content.menuBusinessKind === "SHOP" ? t.nav.products : t.nav.menu}
           </h2>
           <span className="mt-3 h-1 w-16 rounded-full" style={{ background: "var(--accent-solid)" }} aria-hidden />
         </Reveal>

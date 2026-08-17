@@ -38,6 +38,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
   const [query, setQuery] = useState("");
 
   const content = parseDraftContent(site.publishedContent);
+  const isShop = content.menuBusinessKind === "SHOP";
   const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
   const cartCount = cart.reduce((sum, l) => sum + l.quantity, 0);
   const whatsappNumber = site.profile?.whatsappNumber;
@@ -93,7 +94,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
           <span className="font-semibold tracking-tight">{site.businessName}</span>
         </div>
         <a href="#menu" className="hidden text-sm sm:inline">
-          {t.nav.menu}
+          {isShop ? t.nav.products : t.nav.menu}
         </a>
       </header>
 
@@ -116,7 +117,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                   style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
                   className="inline-flex items-center gap-2 bg-foreground px-6 py-3 text-sm font-medium text-background transition-transform hover:scale-105"
                 >
-                  {t.hero.viewMenu}
+                  {isShop ? t.hero.viewProducts : t.hero.viewMenu}
                 </a>
               )}
               {whatsappNumber && (
@@ -177,8 +178,12 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
         <section className="px-6 py-10 sm:px-12">
           <div className="mx-auto w-full max-w-6xl">
             <Reveal>
-              <h2 className="text-2xl font-bold">{t.bistro.comboBoxesTitle}</h2>
-              <p className="mt-1 text-sm text-[var(--theme-text-muted)]">{t.bistro.comboBoxesSubtitle}</p>
+              {/* One item sold in fixed bundles. A kitchen calls that a combo
+                  box of meals; a shop calls it a gift set. Same section. */}
+              <h2 className="text-2xl font-bold">{isShop ? t.bistro.bundlesTitle : t.bistro.comboBoxesTitle}</h2>
+              <p className="mt-1 text-sm text-[var(--theme-text-muted)]">
+                {isShop ? t.bistro.bundlesSubtitle : t.bistro.comboBoxesSubtitle}
+              </p>
             </Reveal>
             <StaggerGroup className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {comboItems.map((item) => (
@@ -340,6 +345,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                     {dir === "rtl" ? `${t.cart.close} →` : `← ${t.cart.close}`}
                   </button>
                   <CartPanel
+                    isShop={isShop}
                     lines={cart}
                     currency={site.currency}
                     deliveryAreas={site.deliveryAreas}

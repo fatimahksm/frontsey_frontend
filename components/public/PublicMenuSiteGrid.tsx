@@ -401,6 +401,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
                     {dir === "rtl" ? `${t.cart.close} →` : `← ${t.cart.close}`}
                   </button>
                   <CartPanel
+                    isShop={content.menuBusinessKind === "SHOP"}
                     lines={cart}
                     currency={site.currency}
                     deliveryAreas={site.deliveryAreas}

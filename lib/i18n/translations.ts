@@ -22,6 +22,8 @@ export interface Dictionary {
     services: string;
     contact: string;
     menu: string;
+    /** The same nav entry on a shop. */
+    products: string;
   };
   hero: {
     helloImA: string;
@@ -35,6 +37,8 @@ export interface Dictionary {
     letsTalk: string;
     getInTouch: string;
     viewMenu: string;
+    /** The same button on a shop. */
+    viewProducts: string;
     orderOnWhatsApp: string;
   };
   work: {
@@ -98,6 +102,8 @@ export interface Dictionary {
     itemsPlural: string;
     cartIsEmpty: string;
     cartIsEmptyBody: string;
+    /** The same line on a shop. */
+    cartIsEmptyBodyShop: string;
     remove: string;
     removeAria(itemName: string): string;
     deliveryArea: string;
@@ -132,6 +138,13 @@ export interface Dictionary {
   bistro: {
     comboBoxesTitle: string;
     comboBoxesSubtitle: string;
+    /**
+     * The same section on a shop. It is the identical feature - one item sold
+     * in fixed bundles - but calling a candle set a "combo box" of "curated
+     * meals" told a shop's visitors nothing and read as a mistake.
+     */
+    bundlesTitle: string;
+    bundlesSubtitle: string;
   };
   stats: {
     services: string;
@@ -152,7 +165,7 @@ export interface Dictionary {
 }
 
 const en: Dictionary = {
-  nav: { home: "Home", about: "About", work: "Work", projects: "Projects", services: "Services", contact: "Contact", menu: "Menu" },
+  nav: { home: "Home", about: "About", work: "Work", projects: "Projects", services: "Services", contact: "Contact", menu: "Menu", products: "Products" },
   hero: {
     helloImA: "Hello, I'm",
     viewMyWork: "View my work →",
@@ -165,6 +178,7 @@ const en: Dictionary = {
     letsTalk: "Let's talk",
     getInTouch: "Get in touch",
     viewMenu: "View menu",
+    viewProducts: "View products",
     orderOnWhatsApp: "Order on WhatsApp",
   },
   work: { viewProject: "View project", moreDetails: "More details", downloadCv: "Download CV", skills: "Skills", packages: "Packages", bookNow: "Book now", followAlong: "Follow along", story: "Our story" },
@@ -207,6 +221,7 @@ const en: Dictionary = {
     itemsPlural: "items",
     cartIsEmpty: "Your cart is empty.",
     cartIsEmptyBody: "Your cart is empty. Add items from the menu to get started.",
+    cartIsEmptyBodyShop: "Your cart is empty. Add something from the list to get started.",
     remove: "Remove",
     removeAria: (itemName) => `Remove ${itemName}`,
     deliveryArea: "Delivery area",
@@ -233,13 +248,13 @@ const en: Dictionary = {
     notAvailableRightNow: "This website isn't available right now. Please check back later.",
   },
   policy: { privacy: "Privacy policy", terms: "Terms and conditions", delivery: "Delivery policy", refund: "Refund policy" },
-  bistro: { comboBoxesTitle: "Combo Boxes", comboBoxesSubtitle: "Curated meals, better value." },
+  bistro: { comboBoxesTitle: "Combo Boxes", comboBoxesSubtitle: "Curated meals, better value.", bundlesTitle: "Gift Sets", bundlesSubtitle: "Chosen together, wrapped and ready." },
   stats: { services: "Services", photos: "Photos", openDays: "Open days", booking: "Booking" },
   filter: { searchPlaceholder: "Search menu…", searchProductsPlaceholder: "Search products…", noResults: "No items match your search.", all: "All", clearFilters: "Show everything", itemSingular: "item", itemPlural: "items" },
 };
 
 const fr: Dictionary = {
-  nav: { home: "Accueil", about: "À propos", work: "Travaux", projects: "Projets", services: "Services", contact: "Contact", menu: "Menu" },
+  nav: { home: "Accueil", about: "À propos", work: "Travaux", projects: "Projets", services: "Services", contact: "Contact", menu: "Menu", products: "Produits" },
   hero: {
     helloImA: "Bonjour, je suis",
     viewMyWork: "Voir mon travail →",
@@ -252,6 +267,7 @@ const fr: Dictionary = {
     letsTalk: "Discutons",
     getInTouch: "Contactez-nous",
     viewMenu: "Voir le menu",
+    viewProducts: "Voir les produits",
     orderOnWhatsApp: "Commander sur WhatsApp",
   },
   work: { viewProject: "Voir le projet", moreDetails: "Plus de détails", downloadCv: "Télécharger le CV", skills: "Compétences", packages: "Formules", bookNow: "Réserver", followAlong: "Nous suivre", story: "Notre histoire" },
@@ -294,6 +310,7 @@ const fr: Dictionary = {
     itemsPlural: "articles",
     cartIsEmpty: "Votre panier est vide.",
     cartIsEmptyBody: "Votre panier est vide. Ajoutez des articles du menu pour commencer.",
+    cartIsEmptyBodyShop: "Votre panier est vide. Ajoutez un produit de la liste pour commencer.",
     remove: "Retirer",
     removeAria: (itemName) => `Retirer ${itemName}`,
     deliveryArea: "Zone de livraison",
@@ -320,13 +337,13 @@ const fr: Dictionary = {
     notAvailableRightNow: "Ce site n'est pas disponible pour le moment. Veuillez revenir plus tard.",
   },
   policy: { privacy: "Politique de confidentialité", terms: "Conditions générales", delivery: "Politique de livraison", refund: "Politique de remboursement" },
-  bistro: { comboBoxesTitle: "Formules", comboBoxesSubtitle: "Des repas composés, un meilleur rapport qualité-prix." },
+  bistro: { comboBoxesTitle: "Formules", comboBoxesSubtitle: "Des repas composés, un meilleur rapport qualité-prix.", bundlesTitle: "Coffrets", bundlesSubtitle: "Choisis ensemble, emballés et prêts à offrir." },
   stats: { services: "Services", photos: "Photos", openDays: "Jours ouverts", booking: "Réservation" },
   filter: { searchPlaceholder: "Rechercher dans le menu…", searchProductsPlaceholder: "Rechercher un produit…", noResults: "Aucun article ne correspond à votre recherche.", all: "Tous", clearFilters: "Tout afficher", itemSingular: "article", itemPlural: "articles" },
 };
 
 const ar: Dictionary = {
-  nav: { home: "الرئيسية", about: "من نحن", work: "أعمالنا", projects: "المشاريع", services: "الخدمات", contact: "تواصل", menu: "القائمة" },
+  nav: { home: "الرئيسية", about: "من نحن", work: "أعمالنا", projects: "المشاريع", services: "الخدمات", contact: "تواصل", menu: "القائمة", products: "المنتجات" },
   hero: {
     helloImA: "مرحباً، أنا",
     viewMyWork: "← شاهد أعمالي",
@@ -339,6 +356,7 @@ const ar: Dictionary = {
     letsTalk: "لنتحدث",
     getInTouch: "تواصل معنا",
     viewMenu: "عرض القائمة",
+    viewProducts: "عرض المنتجات",
     orderOnWhatsApp: "اطلب عبر واتساب",
   },
   work: { viewProject: "عرض المشروع", moreDetails: "تفاصيل أكثر", downloadCv: "تحميل السيرة الذاتية", skills: "المهارات", packages: "الباقات", bookNow: "احجز الآن", followAlong: "تابعنا", story: "قصتنا" },
@@ -381,6 +399,7 @@ const ar: Dictionary = {
     itemsPlural: "عناصر",
     cartIsEmpty: "سلتك فارغة.",
     cartIsEmptyBody: "سلتك فارغة. أضف عناصر من القائمة للبدء.",
+    cartIsEmptyBodyShop: "سلتك فارغة. أضف منتجاً من القائمة للبدء.",
     remove: "إزالة",
     removeAria: (itemName) => `إزالة ${itemName}`,
     deliveryArea: "منطقة التوصيل",
@@ -407,7 +426,7 @@ const ar: Dictionary = {
     notAvailableRightNow: "هذا الموقع غير متاح حالياً. يرجى المحاولة لاحقاً.",
   },
   policy: { privacy: "سياسة الخصوصية", terms: "الشروط والأحكام", delivery: "سياسة التوصيل", refund: "سياسة الاسترجاع" },
-  bistro: { comboBoxesTitle: "علب الكومبو", comboBoxesSubtitle: "وجبات مختارة بقيمة أفضل." },
+  bistro: { comboBoxesTitle: "علب الكومبو", comboBoxesSubtitle: "وجبات مختارة بقيمة أفضل.", bundlesTitle: "علب الهدايا", bundlesSubtitle: "مختارة معاً، مغلّفة وجاهزة." },
   stats: { services: "الخدمات", photos: "الصور", openDays: "أيام العمل", booking: "الحجز" },
   filter: { searchPlaceholder: "ابحث في القائمة…", searchProductsPlaceholder: "ابحث عن منتج…", noResults: "لا توجد عناصر مطابقة لبحثك.", all: "الكل", clearFilters: "عرض الكل", itemSingular: "عنصر", itemPlural: "عناصر" },
 };
