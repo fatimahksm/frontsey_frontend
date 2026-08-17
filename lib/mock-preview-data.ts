@@ -139,7 +139,9 @@ export function mockMenuSite(
         product("si9", "Brass Earrings", "Light enough to forget you have them on.", 28, "earrings", {
           availability: "UNAVAILABLE",
         }),
-        product("si10", "Gift Box", "Pick the size and we will wrap a selection for you.", 35, "flowers", {
+        // Not the flowers photo: a gift box illustrated with a bouquet reads
+        // as a florist's order, which is not what this shop sells.
+        product("si10", "Gift Box", "Pick the size and we will wrap a selection for you.", 35, "scarf", {
           fixedBoxItem: true,
           boxVariants: [
             { id: "sbv1", label: "Small box", unitCount: 3, price: 35 },

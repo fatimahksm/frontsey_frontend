@@ -60,7 +60,6 @@ const PRODUCT_PHOTOS = {
   notebook: "photo-1531346878377-a5be20888e57", // stacked notebooks
   pen: "photo-1583485088034-697b5bc54ccd", // pens on a desk
   plant: "photo-1485955900006-10f4d324d411", // potted plant
-  flowers: "photo-1490750967868-88aa4486c946", // wrapped flowers
   tea: "photo-1564890369478-c89ca6d9cde9", // loose leaf tea
   honey: "photo-1587049352846-4a222e784d38", // jar of honey
   scarf: "photo-1601924994987-69e26d50dc26", // folded textile
@@ -87,12 +86,16 @@ export function sampleShopLogoImage(): string {
 
 /** Gallery strip tiles for the shop. */
 export function sampleShopGalleryImages(): string[] {
+  // Stock, not greenery. The strip led with wrapped flowers and a houseplant,
+  // which read as a florist rather than the homeware-and-stationery shop the
+  // categories describe - so the gallery said one thing and the products said
+  // another.
   return [
     sampleProductImage("storefront"),
-    sampleProductImage("flowers"),
     sampleProductImage("candle"),
     sampleProductImage("notebook"),
-    sampleProductImage("plant"),
+    sampleProductImage("mug"),
+    sampleProductImage("tote"),
   ];
 }
 
