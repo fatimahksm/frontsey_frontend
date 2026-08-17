@@ -21,6 +21,7 @@ import { useAuth } from "@/lib/auth/auth-context";
 import { mockSiteFor } from "@/lib/mock-preview-data";
 import { BestForChips } from "@/components/dashboard/BestForChips";
 import { SETUP_STEPS } from "@/components/website-setup/SetupWizard";
+import { MENU_BUSINESS_KINDS, serializeDraftContent, EMPTY_DRAFT_CONTENT, type MenuBusinessKind } from "@/lib/website/draft-content";
 import { TEMPLATE_OPTIONS, WEBSITE_TYPES, defaultLayoutVariant } from "@/lib/website/layout-options";
 
 /** BR-SITE-001..004: name, template type, page mode, and an optional theme (null = build from scratch). Steps 1-2 of the guided creation wizard - steps 3-4 continue at /dashboard/websites/{id}/setup once the website exists. */
@@ -32,6 +33,7 @@ export default function NewWebsitePage() {
   const [themes, setThemes] = useState<ThemeResponse[]>([]);
   const [businessName, setBusinessName] = useState("");
   const [templateType, setTemplateType] = useState<TemplateType>("MENU_ORDERING");
+  const [menuBusinessKind, setMenuBusinessKind] = useState<MenuBusinessKind>("FOOD");
   const [layoutVariant, setLayoutVariant] = useState<LayoutVariant>("MENU_CLASSIC");
   const [pageMode, setPageMode] = useState<PageMode>("ONE_PAGE");
   const [themeId, setThemeId] = useState("");
@@ -63,6 +65,16 @@ export default function NewWebsitePage() {
       if (layoutVariant !== defaultLayoutVariant(templateType)) {
         await websitesApi.updateLayoutVariant(session.accessToken, website.id, layoutVariant);
       }
+      // Saved as part of the draft blob, which is where the rest of the
+      // freeform page content already lives - no new column, no migration.
+      if (templateType === "MENU_ORDERING" && menuBusinessKind !== "FOOD") {
+        await websitesApi
+          .saveDraft(session.accessToken, website.id, {
+            content: serializeDraftContent({ ...EMPTY_DRAFT_CONTENT, menuBusinessKind }),
+            orderingMode: website.orderingMode,
+          })
+          .catch(() => undefined);
+      }
       router.push(`/manage/${website.id}/setup`);
     } catch (err) {
       setError(friendlyMessage(err, "Failed to create website."));
@@ -75,7 +87,7 @@ export default function NewWebsitePage() {
       <div className="mx-auto w-full max-w-lg flex-1 px-4 py-10">
         <Reveal>
           <h1 className="text-xl font-semibold tracking-tight">Create a website</h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Step 1 of 7 - What kind of site are you building?</p>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Step 1 of {SETUP_STEPS.length} - What kind of site are you building?</p>
           <div className="mt-4">
             <Stepper steps={SETUP_STEPS} currentStep={1} completedSteps={new Set()} />
           </div>
@@ -108,6 +120,36 @@ export default function NewWebsitePage() {
           })}
         </StaggerGroup>
 
+        {/* The menu layouts sell a shop's stock as readily as a kitchen's
+            menu, but everything about them - the samples, the labels - spoke
+            only to restaurants. Asking here costs one tap and changes the
+            wording and the previews from this point on. */}
+        {templateType === "MENU_ORDERING" && (
+          <div className="mt-6">
+            <p className="text-sm font-medium">What do you sell?</p>
+            <div className="mt-2 grid gap-3 sm:grid-cols-2">
+              {MENU_BUSINESS_KINDS.map((option) => {
+                const isSelected = menuBusinessKind === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setMenuBusinessKind(option.value)}
+                    className={`flex w-full cursor-pointer flex-col gap-1 rounded-2xl border p-4 text-left text-sm transition-colors duration-200 ${
+                      isSelected
+                        ? "border-[var(--accent-solid)] bg-[var(--accent-solid)]/8"
+                        : "border-black/[.08] bg-surface hover:bg-black/[.02] dark:border-white/[.145] dark:hover:bg-white/[.04]"
+                    }`}
+                  >
+                    <span className="font-semibold">{option.label}</span>
+                    <span className="text-zinc-500 dark:text-zinc-400">{option.description}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <Button className="mt-6" onClick={() => setStep(2)}>
           Next: choose a template
         </Button>
@@ -123,7 +165,7 @@ export default function NewWebsitePage() {
         </button>
         <h1 className="text-xl font-semibold tracking-tight">Choose a template</h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Step 2 of 7 - every template below has the exact same features, only the look changes. You can switch anytime later, too.
+          Step 2 of {SETUP_STEPS.length} - every template below has the exact same features, only the look changes. You can switch anytime later, too.
         </p>
         <div className="mt-4">
           <Stepper steps={SETUP_STEPS} currentStep={2} completedSteps={new Set([1])} />
@@ -151,7 +193,7 @@ export default function NewWebsitePage() {
               >
                 <div className="flex justify-center overflow-hidden rounded-xl border border-black/[.08] dark:border-white/[.145]">
                   <ScaledPreviewFrame>
-                    <PublicSiteRenderer site={mockSiteFor(option.value)} onFirstView={() => {}} isSample />
+                    <PublicSiteRenderer site={mockSiteFor(option.value, menuBusinessKind)} onFirstView={() => {}} isSample />
                   </ScaledPreviewFrame>
                 </div>
                 <div className="mt-3 flex items-start justify-between gap-2">
@@ -161,7 +203,7 @@ export default function NewWebsitePage() {
                     <BestForChips items={option.bestFor} />
                   </div>
                   <a
-                    href={`/preview/mock/${option.value}`}
+                    href={`/preview/mock/${option.value}${menuBusinessKind === "SHOP" ? "?kind=SHOP" : ""}`}
                     target="_blank"
                     onClick={(e) => e.stopPropagation()}
                     className="shrink-0 text-xs font-medium text-[var(--accent-solid)] hover:underline"
@@ -181,7 +223,7 @@ export default function NewWebsitePage() {
         </p>
         <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
           <ScaledPreviewFrame width={820} height={520}>
-            <PublicSiteRenderer site={mockSiteFor(layoutVariant)} onFirstView={() => {}} isSample />
+            <PublicSiteRenderer site={mockSiteFor(layoutVariant, menuBusinessKind)} onFirstView={() => {}} isSample />
           </ScaledPreviewFrame>
         </div>
       </div>

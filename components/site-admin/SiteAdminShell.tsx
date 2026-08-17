@@ -29,6 +29,7 @@ import { websitesApi } from "@/lib/api/websites";
 import type { BusinessProfileResponse, SubscriptionResponse, WebsiteResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { hasConsoleAccess, revokeConsoleAccess } from "@/lib/website/console-session";
+import { parseDraftContent } from "@/lib/website/draft-content";
 import { contentPlanFor, type ContentSection } from "@/lib/website/template-content";
 
 /**
@@ -91,7 +92,7 @@ function navGroupsFor(website: WebsiteResponse): NavGroup[] {
     {
       label: "Content",
       items: [
-        ...contentPlanFor(website.layoutVariant).sections.map((section) => ({
+        ...contentPlanFor(website.layoutVariant, parseDraftContent(website.draftContent).menuBusinessKind).sections.map((section) => ({
           href: `/${section.key}`,
           label: section.label,
           Icon: ICONS[section.key],

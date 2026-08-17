@@ -203,7 +203,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={t.filter.searchPlaceholder}
+            placeholder={(content.menuBusinessKind === "SHOP" ? t.filter.searchProductsPlaceholder : t.filter.searchPlaceholder)}
             className="mx-auto h-10 w-full max-w-6xl rounded-xl border border-[var(--theme-border)] bg-surface px-3.5 text-sm text-foreground outline-none transition-all duration-200 placeholder:text-[var(--theme-text-muted)] focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40"
           />
           {visibleCategories.length > 0 && (

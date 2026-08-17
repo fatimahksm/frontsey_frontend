@@ -192,7 +192,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
             {/* One row on a wide screen. Stacked, this bar was two thirds the
                 height of a phone's viewport before a single dish appeared. */}
             <label className="relative shrink-0 lg:w-72">
-              <span className="sr-only">{t.filter.searchPlaceholder}</span>
+              <span className="sr-only">{(content.menuBusinessKind === "SHOP" ? t.filter.searchProductsPlaceholder : t.filter.searchPlaceholder)}</span>
               <svg
                 aria-hidden
                 viewBox="0 0 24 24"
@@ -209,7 +209,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={t.filter.searchPlaceholder}
+                placeholder={(content.menuBusinessKind === "SHOP" ? t.filter.searchProductsPlaceholder : t.filter.searchPlaceholder)}
                 className="h-10 w-full rounded-full border border-black/[.12] bg-surface ps-9 pe-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
               />
             </label>

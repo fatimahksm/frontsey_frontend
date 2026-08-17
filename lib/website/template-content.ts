@@ -1,4 +1,5 @@
 import type { LayoutVariant, PageSectionType } from "@/lib/api/types";
+import type { MenuBusinessKind } from "@/lib/website/draft-content";
 
 /**
  * What each template actually asks its owner for, and what it calls it.
@@ -167,13 +168,39 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
   },
 };
 
-export function contentPlanFor(layoutVariant: LayoutVariant): TemplateContentPlan {
-  return PLANS[layoutVariant] ?? PLANS.MENU_CLASSIC;
+/**
+ * The menu templates in a shop's words rather than a kitchen's.
+ *
+ * Same stores, same order, same editors - only what they are called. A shop
+ * owner filling in "Menu" and reading hints about dishes had to translate
+ * every screen in their head to use a layout that suited them perfectly well.
+ */
+const SHOP_LABELS: Partial<Record<ContentSection["key"], { label: string; hint: string }>> = {
+  menu: { label: "Products", hint: "Categories, products and prices" },
+  gallery: { label: "Gallery", hint: "Photos of the shop" },
+  sections: { label: "About & reviews", hint: "Your story, and what customers say" },
+};
+
+export function contentPlanFor(layoutVariant: LayoutVariant, kind: MenuBusinessKind = "FOOD"): TemplateContentPlan {
+  const plan = PLANS[layoutVariant] ?? PLANS.MENU_CLASSIC;
+  if (kind !== "SHOP") return plan;
+  return {
+    ...plan,
+    sections: plan.sections.map((section) => ({ ...section, ...(SHOP_LABELS[section.key] ?? {}) })),
+    blocks: plan.blocks.map((block) =>
+      block.type === "ABOUT" ? { ...block, label: "About us", hint: "What you sell and who makes it." } : block,
+    ),
+  };
 }
 
 /** What this template calls one particular editor, for a page heading. */
-export function sectionLabel(layoutVariant: LayoutVariant, key: ContentSection["key"], fallback: string): string {
-  return contentPlanFor(layoutVariant).sections.find((section) => section.key === key)?.label ?? fallback;
+export function sectionLabel(
+  layoutVariant: LayoutVariant,
+  key: ContentSection["key"],
+  fallback: string,
+  kind: MenuBusinessKind = "FOOD",
+): string {
+  return contentPlanFor(layoutVariant, kind).sections.find((section) => section.key === key)?.label ?? fallback;
 }
 
 /** Whether this template's page has a block of this type at all. */

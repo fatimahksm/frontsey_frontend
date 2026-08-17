@@ -13,10 +13,14 @@ import { websitesApi } from "@/lib/api/websites";
 import { mockSiteFor } from "@/lib/mock-preview-data";
 import { BestForChips } from "@/components/dashboard/BestForChips";
 import { TEMPLATE_OPTIONS } from "@/lib/website/layout-options";
+import { parseDraftContent } from "@/lib/website/draft-content";
 import { useWebsite } from "@/lib/website/website-context";
 
 export default function LayoutPage() {
   const { website, accessToken, reload } = useWebsite();
+  // Which sample the design gallery should show: this owner's own kind of
+  // business, so a shop never has to judge a layout by looking at burgers.
+  const kind = parseDraftContent(website.draftContent).menuBusinessKind;
   const [error, setError] = useState<string | null>(null);
   const [busyVariant, setBusyVariant] = useState<LayoutVariant | null>(null);
   const [previewVariant, setPreviewVariant] = useState<LayoutVariant>(website.layoutVariant);
@@ -50,7 +54,7 @@ export default function LayoutPage() {
       <StaggerGroup className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {options.map((option) => {
           const isSelected = website.layoutVariant === option.value;
-          const mockSite = mockSiteFor(option.value);
+          const mockSite = mockSiteFor(option.value, kind);
 
           return (
             <StaggerItem key={option.value}>
@@ -79,7 +83,7 @@ export default function LayoutPage() {
                     <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{option.description}</p>
                     <BestForChips items={option.bestFor} />
                     <a
-                      href={`/preview/mock/${option.value}`}
+                      href={`/preview/mock/${option.value}${kind === "SHOP" ? "?kind=SHOP" : ""}`}
                       target="_blank"
                       className="mt-1 inline-block text-xs font-medium text-[var(--accent-solid)] hover:underline"
                     >
@@ -111,7 +115,7 @@ export default function LayoutPage() {
         </p>
         <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
           <ScaledPreviewFrame width={820} height={520}>
-            <PublicSiteRenderer site={mockSiteFor(previewVariant)} onFirstView={() => {}} isSample />
+            <PublicSiteRenderer site={mockSiteFor(previewVariant, kind)} onFirstView={() => {}} isSample />
           </ScaledPreviewFrame>
         </div>
       </div>

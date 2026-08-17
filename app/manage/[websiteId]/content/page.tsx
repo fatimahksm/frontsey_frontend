@@ -48,7 +48,10 @@ export default function PageContentPage() {
     setIsSaving(true);
     try {
       await websitesApi.saveDraft(accessToken, website.id, {
-        content: serializeDraftContent({ heroHeading, heroSubtitle, brandColor, heroBadge, cvUrl }),
+        // Carried through rather than rebuilt: this editor does not own the
+        // business kind, and dropping it here would silently turn a shop back
+        // into a restaurant every time somebody edited their tagline.
+        content: serializeDraftContent({ ...initial, heroHeading, heroSubtitle, brandColor, heroBadge, cvUrl }),
         orderingMode,
       });
       await reload();

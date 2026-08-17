@@ -4,6 +4,7 @@ import { profileApi } from "@/lib/api/profile";
 import { servicesApi } from "@/lib/api/services";
 import { subscriptionApi } from "@/lib/api/subscription";
 import type { BusinessProfileResponse, SubscriptionResponse, WebsiteResponse } from "@/lib/api/types";
+import { parseDraftContent } from "@/lib/website/draft-content";
 import { trialStillAvailable } from "@/lib/website/subscription-state";
 
 export interface ChecklistItem {
@@ -30,7 +31,13 @@ export function buildPublicationChecklist(input: {
   const hasContactInfo = Boolean(
     profile && (profile.phone || profile.whatsappNumber || profile.email || profile.address),
   );
-  const contentLabel = website.templateType === "PORTFOLIO" ? "At least one service added" : "At least one menu item added";
+  const isShop = parseDraftContent(website.draftContent).menuBusinessKind === "SHOP";
+  const contentLabel =
+    website.templateType === "PORTFOLIO"
+      ? "At least one service added"
+      : isShop
+        ? "At least one product added"
+        : "At least one menu item added";
 
   return [
     { key: "template", label: "Template selected", complete: true },

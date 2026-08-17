@@ -64,7 +64,7 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={t.filter.searchPlaceholder}
+            placeholder={(content.menuBusinessKind === "SHOP" ? t.filter.searchProductsPlaceholder : t.filter.searchPlaceholder)}
             className="mb-8 h-11 w-full rounded-xl border border-[var(--theme-border)] bg-surface px-3.5 text-center text-sm text-foreground outline-none transition-all duration-200 placeholder:text-[var(--theme-text-muted)] focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40"
           />
         )}

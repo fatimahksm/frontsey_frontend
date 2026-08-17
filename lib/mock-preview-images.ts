@@ -44,6 +44,58 @@ const DISH_PHOTOS = {
 
 export type DishPhoto = keyof typeof DISH_PHOTOS;
 
+/**
+ * Square product photos for the shop sample.
+ *
+ * The menu template works for any counter that sells things - a bakery, a
+ * florist, a phone accessories shop - but every sample behind it was burgers
+ * and coffee, so the only business an owner could picture in it was a
+ * restaurant. This is the same layout carrying stock instead of dishes.
+ */
+const PRODUCT_PHOTOS = {
+  candle: "photo-1602874801006-e26c4c5b5e8a", // poured candle
+  soap: "photo-1600857544200-b2f666a9a2ec", // stacked soap bars
+  mug: "photo-1514228742587-6b1558fcca3d", // ceramic mug
+  tote: "photo-1544816155-12df9643f363", // canvas tote bag
+  notebook: "photo-1531346878377-a5be20888e57", // stacked notebooks
+  pen: "photo-1583485088034-697b5bc54ccd", // pens on a desk
+  plant: "photo-1485955900006-10f4d324d411", // potted plant
+  flowers: "photo-1490750967868-88aa4486c946", // wrapped flowers
+  tea: "photo-1564890369478-c89ca6d9cde9", // loose leaf tea
+  honey: "photo-1587049352846-4a222e784d38", // jar of honey
+  scarf: "photo-1601924994987-69e26d50dc26", // folded textile
+  earrings: "photo-1535632066927-ab7c9ab60908", // jewellery on a surface
+  storefront: "photo-1441986300917-64674bd600d8", // shop interior, wide
+} as const;
+
+export type ProductPhoto = keyof typeof PRODUCT_PHOTOS;
+
+/** A square sample photo for one shop product. */
+export function sampleProductImage(product: ProductPhoto): string {
+  return unsplashPhoto(PRODUCT_PHOTOS[product], 600, 600);
+}
+
+/** Wide shop interior, for the cover on the layouts that show one. */
+export function sampleShopCoverImage(): string {
+  return unsplashPhoto(PRODUCT_PHOTOS.storefront, 1600, 900);
+}
+
+/** Square shop logo stand-in. */
+export function sampleShopLogoImage(): string {
+  return unsplashPhoto(PRODUCT_PHOTOS.candle, 200, 200);
+}
+
+/** Gallery strip tiles for the shop. */
+export function sampleShopGalleryImages(): string[] {
+  return [
+    sampleProductImage("storefront"),
+    sampleProductImage("flowers"),
+    sampleProductImage("candle"),
+    sampleProductImage("notebook"),
+    sampleProductImage("plant"),
+  ];
+}
+
 /** A square sample photo for one menu item. */
 export function sampleItemImage(dish: DishPhoto): string {
   return unsplashPhoto(DISH_PHOTOS[dish], 600, 600);

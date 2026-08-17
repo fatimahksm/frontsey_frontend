@@ -181,7 +181,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={t.filter.searchPlaceholder}
+            placeholder={(content.menuBusinessKind === "SHOP" ? t.filter.searchProductsPlaceholder : t.filter.searchPlaceholder)}
             className="mt-8 h-11 w-full border bg-transparent px-4 text-sm text-[var(--theme-text)] outline-none placeholder:text-[var(--theme-text-muted)] focus:border-[var(--accent-solid)]"
             style={{ borderColor: "var(--theme-border)", borderRadius: "var(--theme-radius)" }}
           />

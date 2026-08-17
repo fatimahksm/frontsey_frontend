@@ -9,9 +9,13 @@ import type { LayoutVariant, TemplateType } from "@/lib/api/types";
 export const WEBSITE_TYPES: { value: TemplateType; icon: string; label: string; description: string }[] = [
   {
     value: "MENU_ORDERING",
-    icon: "🍽️",
-    label: "Restaurant / Café Menu",
-    description: "Categories, items, sizes/add-ons, and optional WhatsApp ordering. For cafes, restaurants, shops.",
+    icon: "🧾",
+    // Was "Restaurant / Café Menu" with a plate icon, which read as
+    // food-only however the description ended. The same four layouts list a
+    // shop's stock exactly as well; step 1 asks which, and the samples,
+    // labels and previews follow that answer from there on.
+    label: "Menu or product list",
+    description: "Categories, items, sizes/add-ons, and optional WhatsApp ordering. For restaurants and cafes, and for shops of any kind.",
   },
   {
     value: "PORTFOLIO",

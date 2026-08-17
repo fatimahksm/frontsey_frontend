@@ -10,10 +10,16 @@ import {
   sampleSalonGalleryImages,
   sampleSalonImage,
   sampleSalonLogoImage,
+  sampleProductImage,
+  sampleShopCoverImage,
+  sampleShopGalleryImages,
+  sampleShopLogoImage,
+  type ProductPhoto,
 } from "@/lib/mock-preview-images";
 import { devArt, devAvatar, sampleDevProjectArt } from "@/lib/mock-preview-dev-art";
 import { designerArt, designerAvatar, sampleDesignerWork } from "@/lib/mock-preview-designer-art";
 import { agencyArt, freelancerArt, freelancerPortrait, sampleAgencyWork, sampleFreelancerWork, studioAvatar } from "@/lib/mock-preview-studio-art";
+import type { MenuBusinessKind } from "@/lib/website/draft-content";
 import { DEFAULT_THEME_CONFIG } from "@/lib/website/theme-config";
 
 /**
@@ -23,7 +29,15 @@ import { DEFAULT_THEME_CONFIG } from "@/lib/website/theme-config";
  * skeleton. Invented business and content; the photography is licensed stock
  * (see mock-preview-images.ts). No real business's data.
  */
-export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU_ELEGANT" | "MENU_BISTRO"): PublicWebsiteResponse {
+export function mockMenuSite(
+  layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU_ELEGANT" | "MENU_BISTRO",
+  kind: MenuBusinessKind = "FOOD",
+): PublicWebsiteResponse {
+  // The same four layouts sell a shop's stock as readily as a kitchen's menu,
+  // but every sample behind them was burgers and coffee - so the only business
+  // an owner could picture in one was a restaurant. `kind` swaps the sample,
+  // not the layout: identical structure, different goods.
+  const isShop = kind === "SHOP";
   const item = (
     id: string,
     name: string,
@@ -48,6 +62,103 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
     ...extra,
   });
 
+  const product = (
+    id: string,
+    name: string,
+    description: string,
+    price: number,
+    photo: ProductPhoto,
+    extra: Partial<PublicMenuItem> = {},
+  ): PublicMenuItem => ({
+    id,
+    name,
+    description,
+    ingredients: null,
+    price,
+    discountPrice: null,
+    imageUrl: sampleProductImage(photo),
+    availability: "AVAILABLE",
+    maxOrderQuantity: null,
+    fixedBoxItem: false,
+    sizes: [],
+    addonGroups: [],
+    boxVariants: [],
+    ...extra,
+  });
+
+  /** The shop's stock, arranged the way a small retailer would group it. */
+  const shopCategories = [
+    {
+      id: "sc1",
+      name: "Home",
+      subcategories: [],
+      items: [
+        product("si1", "Soy Candle", "Hand-poured in small batches, 40 hours of burn time. Fig and cedar.", 18, "candle", {
+          sizes: [
+            { id: "ss1", label: "Small", price: 18 },
+            { id: "ss2", label: "Large", price: 29 },
+          ],
+        }),
+        product("si2", "Olive Oil Soap", "Cold-pressed, unscented, and kind to hands that wash all day.", 6.5, "soap"),
+        product("si3", "Stoneware Mug", "Thrown and glazed by a potter down the road. No two are identical.", 22, "mug", {
+          discountPrice: 18,
+        }),
+        product("si4", "Potted Pothos", "Happy in a dim corner and hard to kill. Comes in a terracotta pot.", 15, "plant"),
+      ],
+    },
+    {
+      id: "sc2",
+      name: "Stationery",
+      items: [],
+      subcategories: [
+        {
+          id: "sc2a",
+          name: "Paper",
+          subcategories: [],
+          items: [
+            product("si5", "Lined Notebook", "A5, 160 pages, lies flat when open. Recycled cover stock.", 12, "notebook"),
+          ],
+        },
+        {
+          id: "sc2b",
+          name: "Pens",
+          subcategories: [],
+          items: [
+            product("si6", "Rollerball Pen", "Refillable brass body that gets better looking as it wears.", 24, "pen"),
+          ],
+        },
+      ],
+    },
+    {
+      id: "sc3",
+      name: "Gifts",
+      subcategories: [],
+      items: [
+        product("si7", "Canvas Tote", "Heavy 12oz cotton, screen-printed by hand, and big enough for a market run.", 16, "tote"),
+        product("si8", "Silk Scarf", "Hand-rolled edges, printed in a run of fifty.", 45, "scarf"),
+        product("si9", "Brass Earrings", "Light enough to forget you have them on.", 28, "earrings", {
+          availability: "UNAVAILABLE",
+        }),
+        product("si10", "Gift Box", "Pick the size and we will wrap a selection for you.", 35, "flowers", {
+          fixedBoxItem: true,
+          boxVariants: [
+            { id: "sbv1", label: "Small box", unitCount: 3, price: 35 },
+            { id: "sbv2", label: "Large box", unitCount: 6, price: 60 },
+          ],
+        }),
+      ],
+    },
+    {
+      id: "sc4",
+      name: "Pantry",
+      subcategories: [],
+      items: [
+        product("si11", "Loose Leaf Tea", "A house blend of assam and bergamot, packed in 100g tins.", 14, "tea"),
+        product("si12", "Wildflower Honey", "From hives an hour outside the city. Raw and unfiltered.", 11, "honey"),
+      ],
+    },
+  ];
+
   /** Reused across the burgers so the preview shows a realistic add-on step. */
   const burgerExtras = {
     id: "ag1",
@@ -62,7 +173,7 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
   };
 
   return {
-    businessName: "Sunny Side Kitchen",
+    businessName: isShop ? "Marrow & Co." : "Sunny Side Kitchen",
     slug: "preview",
     pageMode: "ONE_PAGE",
     templateType: "MENU_ORDERING",
@@ -74,16 +185,22 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
     primaryLanguage: "en",
     currency: "USD",
     publishedContent: JSON.stringify({
-      heroHeading: "Hand-pressed burgers, all day long",
-      heroSubtitle: "Fried chicken, proper coffee, and breakfast until closing.",
+      heroHeading: isShop ? "Small things, well made" : "Hand-pressed burgers, all day long",
+      heroSubtitle: isShop
+        ? "Homeware, stationery and gifts from makers we know by name."
+        : "Fried chicken, proper coffee, and breakfast until closing.",
       brandColor: "#171717",
-      heroBadge: "Open until 11pm",
+      heroBadge: isShop ? "Free local delivery" : "Open until 11pm",
+      // The sample has to carry the kind too, or the rendered page keeps
+      // asking a shop's visitors to "search the menu".
+      menuBusinessKind: kind,
     }),
     profile: {
-      description:
-        "A neighbourhood kitchen on Hamra Street serving hand-pressed burgers, buttermilk-brined chicken, and single-origin coffee since 2020. Every order is cooked when you ask for it - nothing sits under a lamp.",
-      logoUrl: sampleLogoImage(),
-      coverImageUrl: sampleCoverImage(),
+      description: isShop
+        ? "A small shop on Hamra Street stocking homeware, stationery and gifts from independent makers. Most of it is made within an hour of here, and we can tell you who made what."
+        : "A neighbourhood kitchen on Hamra Street serving hand-pressed burgers, buttermilk-brined chicken, and single-origin coffee since 2020. Every order is cooked when you ask for it - nothing sits under a lamp.",
+      logoUrl: isShop ? sampleShopLogoImage() : sampleLogoImage(),
+      coverImageUrl: isShop ? sampleShopCoverImage() : sampleCoverImage(),
       phone: "+961 70 123 456",
       whatsappNumber: "+961 70 123 456",
       email: null,
@@ -102,7 +219,7 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
       { dayOfWeek: "SATURDAY", open: true, opensAt: "10:00", closesAt: "01:00" },
       { dayOfWeek: "SUNDAY", open: false, opensAt: null, closesAt: null },
     ],
-    categories: [
+    categories: isShop ? shopCategories : [
       {
         id: "c1",
         name: "Appetizers",
@@ -211,7 +328,7 @@ export function mockMenuSite(layoutVariant: "MENU_CLASSIC" | "MENU_GRID" | "MENU
     ],
     deliveryAreas: [],
     services: [],
-    galleryImageUrls: sampleGalleryImages(),
+    galleryImageUrls: isShop ? sampleShopGalleryImages() : sampleGalleryImages(),
     projects: [],
     seo: null,
     // Classic paints itself entirely from the theme, so its sample uses the
@@ -806,14 +923,18 @@ export function mockPortfolioSite(
   };
 }
 
-/** Convenience for pages that just need "a mock site for this variant" without caring which template family it belongs to. */
-export function mockSiteFor(layoutVariant: LayoutVariant): PublicWebsiteResponse {
+/**
+ * Convenience for pages that just need "a mock site for this variant" without
+ * caring which template family it belongs to. `kind` only matters for the menu
+ * layouts, where it decides whether the sample is a kitchen or a shop.
+ */
+export function mockSiteFor(layoutVariant: LayoutVariant, kind: MenuBusinessKind = "FOOD"): PublicWebsiteResponse {
   switch (layoutVariant) {
     case "MENU_CLASSIC":
     case "MENU_GRID":
     case "MENU_ELEGANT":
     case "MENU_BISTRO":
-      return mockMenuSite(layoutVariant);
+      return mockMenuSite(layoutVariant, kind);
     case "PORTFOLIO_HERO":
     case "PORTFOLIO_MINIMAL":
     case "PORTFOLIO_BOLD":

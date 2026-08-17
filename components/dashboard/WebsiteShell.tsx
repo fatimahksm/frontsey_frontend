@@ -12,6 +12,7 @@ import { NotificationsBell } from "@/components/layout/NotificationsBell";
 import { Alert } from "@/components/ui/Alert";
 import { friendlyMessage } from "@/lib/api/client";
 import { plansApi } from "@/lib/api/plans";
+import { parseDraftContent } from "@/lib/website/draft-content";
 import { profileApi } from "@/lib/api/profile";
 import { subscriptionApi } from "@/lib/api/subscription";
 import { websitesApi } from "@/lib/api/websites";
@@ -78,7 +79,7 @@ function navGroupsFor(website: WebsiteResponse, analyticsEnabled: boolean): NavG
     },
     {
       label: "Content",
-      items: contentPlanFor(website.layoutVariant).sections.map((section) => ({
+      items: contentPlanFor(website.layoutVariant, parseDraftContent(website.draftContent).menuBusinessKind).sections.map((section) => ({
         href: `/${section.key}`,
         label: section.label,
         icon: CONTENT_ICONS[section.key],
