@@ -8,7 +8,7 @@ import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
 import { getCompleteness, getProfessionalData, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
-import { themeCssVars } from "@/lib/website/theme-config";
+import { effectiveTheme, themeCssVars } from "@/lib/website/theme-config";
 
 /**
  * The Developer template (PORTFOLIO_HERO).
@@ -49,9 +49,9 @@ function asExperience(value: unknown): ExperienceEntry[] {
 /** The section marker used throughout: a monospace index and a rule. */
 function SectionLabel({ index, children }: { index: string; children: React.ReactNode }) {
   return (
-    <div className="mb-10 flex items-baseline gap-3 border-b border-white/10 pb-3">
+    <div className="mb-10 flex items-baseline gap-3 border-b border-[var(--theme-border)] pb-3">
       <span className="font-mono text-xs text-[var(--accent-solid)]">{index}</span>
-      <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-400">{children}</h2>
+      <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--theme-text-muted)]">{children}</h2>
     </div>
   );
 }
@@ -112,22 +112,27 @@ export function PublicPortfolioSiteProfessional({
   return (
     <div
       dir={dir}
-      className="flex flex-1 flex-col bg-[#08090c] text-zinc-100 selection:bg-[var(--accent-solid)] selection:text-white"
-      style={themeCssVars(site.theme, undefined)}
+      // The palette is the owner's, not the file's. This template used to be
+      // #08090c with white type baked in, which made the theme editor a no-op
+      // on a portfolio: an owner picked colours, saved, and nothing moved.
+      // Everything below is now a mix of --background and --foreground, so the
+      // dense, monospaced, file-listing character survives any palette.
+      className="flex flex-1 flex-col bg-background text-foreground selection:bg-[var(--accent-solid)] selection:text-[var(--accent-contrast)]"
+      style={themeCssVars(effectiveTheme(site.theme, site.layoutVariant), data.brandColor || undefined)}
     >
       {/* Reads like a file listing rather than a marketing header. */}
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#08090c]/85 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-[var(--theme-border)] bg-[color-mix(in_srgb,var(--background)_85%,transparent)] backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-6 px-6 py-4">
-          <a href="#top" className="font-mono text-sm font-semibold tracking-tight text-white">
+          <a href="#top" className="font-mono text-sm font-semibold tracking-tight text-foreground">
             {data.name}
             <span className="text-[var(--accent-solid)]">.</span>
           </a>
-          <nav aria-label="Sections" className="hidden items-center gap-6 font-mono text-xs text-zinc-400 sm:flex">
+          <nav aria-label="Sections" className="hidden items-center gap-6 font-mono text-xs text-[var(--theme-text-muted)] sm:flex">
             {navLinks.map((link, i) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="rounded-sm transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]"
+                className="rounded-sm transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]"
               >
                 <span className="text-[var(--accent-solid)]">{String(i + 1).padStart(2, "0")}</span> {link.label}
               </a>
@@ -136,7 +141,7 @@ export function PublicPortfolioSiteProfessional({
           {contactHref && (
             <a
               href={contactHref}
-              className="shrink-0 rounded-md border border-white/20 px-3.5 py-1.5 font-mono text-xs text-white transition-colors hover:border-[var(--accent-solid)] hover:text-[var(--accent-solid)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
+              className="shrink-0 rounded-md border border-[color-mix(in_srgb,var(--foreground)_22%,transparent)] px-3.5 py-1.5 font-mono text-xs text-foreground transition-colors hover:border-[var(--accent-solid)] hover:text-[var(--accent-solid)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
             >
               {t.nav.contact}
             </a>
@@ -147,7 +152,7 @@ export function PublicPortfolioSiteProfessional({
       {/* Type-led, left-aligned, over a faint technical grid. */}
       <section
         id="top"
-        className={`relative overflow-hidden border-b border-white/10 px-6 py-20 sm:py-28 ${
+        className={`relative overflow-hidden border-b border-[var(--theme-border)] px-6 py-20 sm:py-28 ${
           isSparse ? "flex flex-1 items-center" : ""
         }`}
       >
@@ -164,7 +169,7 @@ export function PublicPortfolioSiteProfessional({
         />
         <div className="relative mx-auto w-full max-w-6xl">
           {data.badge && (
-            <motion.p {...rise} className="mb-6 inline-flex items-center gap-2 font-mono text-xs text-zinc-400">
+            <motion.p {...rise} className="mb-6 inline-flex items-center gap-2 font-mono text-xs text-[var(--theme-text-muted)]">
               <span className="relative flex h-2 w-2">
                 {!reduceMotion && (
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
@@ -174,7 +179,7 @@ export function PublicPortfolioSiteProfessional({
               {data.badge}
             </motion.p>
           )}
-          <motion.h1 {...rise} className="max-w-4xl text-4xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
+          <motion.h1 {...rise} className="max-w-4xl text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
             {data.name}
           </motion.h1>
           {data.headline && (
@@ -190,7 +195,7 @@ export function PublicPortfolioSiteProfessional({
             <motion.p
               {...rise}
               transition={reduceMotion ? undefined : { duration: 0.5, delay: 0.16 }}
-              className="mt-6 max-w-2xl text-base leading-relaxed text-zinc-400"
+              className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--theme-text-muted)]"
             >
               {data.subheadline}
             </motion.p>
@@ -203,7 +208,7 @@ export function PublicPortfolioSiteProfessional({
             {hasProjects && (
               <a
                 href="#work"
-                className="rounded-md bg-[var(--accent-solid)] px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="rounded-md bg-[var(--accent-solid)] px-5 py-3 text-sm font-medium text-foreground transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 {t.hero.viewWork}
               </a>
@@ -211,7 +216,7 @@ export function PublicPortfolioSiteProfessional({
             {contactHref && (
               <a
                 href={contactHref}
-                className="rounded-md border border-white/20 px-5 py-3 text-sm font-medium text-white transition-colors hover:border-white/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
+                className="rounded-md border border-[color-mix(in_srgb,var(--foreground)_22%,transparent)] px-5 py-3 text-sm font-medium text-foreground transition-colors hover:border-[color-mix(in_srgb,var(--foreground)_50%,transparent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
               >
                 {t.hero.getInTouch}
               </a>
@@ -223,22 +228,22 @@ export function PublicPortfolioSiteProfessional({
                 href={data.cvUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-md border border-white/20 px-5 py-3 font-mono text-sm text-zinc-300 transition-colors hover:border-[var(--accent-solid)] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
+                className="rounded-md border border-[color-mix(in_srgb,var(--foreground)_22%,transparent)] px-5 py-3 font-mono text-sm text-[color-mix(in_srgb,var(--foreground)_82%,transparent)] transition-colors hover:border-[var(--accent-solid)] hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
               >
                 {t.work.downloadCv} ↓
               </a>
             )}
           </motion.div>
-          {data.contact.address && <p className="mt-8 font-mono text-xs text-zinc-500">{data.contact.address}</p>}
+          {data.contact.address && <p className="mt-8 font-mono text-xs text-[color-mix(in_srgb,var(--foreground)_52%,transparent)]">{data.contact.address}</p>}
         </div>
       </section>
 
       {/* A dense inline run of labels, not one card per technology. */}
       {stack.length > 0 && (
-        <section aria-label={t.work.skills} className="border-b border-white/10 px-6 py-10">
-          <ul className="mx-auto flex w-full max-w-6xl flex-wrap gap-x-6 gap-y-3 font-mono text-sm text-zinc-400">
+        <section aria-label={t.work.skills} className="border-b border-[var(--theme-border)] px-6 py-10">
+          <ul className="mx-auto flex w-full max-w-6xl flex-wrap gap-x-6 gap-y-3 font-mono text-sm text-[var(--theme-text-muted)]">
             {stack.map((tech) => (
-              <li key={tech} className="transition-colors hover:text-white">
+              <li key={tech} className="transition-colors hover:text-foreground">
                 <span className="text-[var(--accent-solid)]">/</span> {tech}
               </li>
             ))}
@@ -247,7 +252,7 @@ export function PublicPortfolioSiteProfessional({
       )}
 
       {hasProjects && (
-        <section id="work" className="border-b border-white/10 px-6 py-20">
+        <section id="work" className="border-b border-[var(--theme-border)] px-6 py-20">
           <div className="mx-auto w-full max-w-6xl">
             <SectionLabel index="01">{t.nav.work}</SectionLabel>
             <div className="flex flex-col gap-20">
@@ -259,7 +264,7 @@ export function PublicPortfolioSiteProfessional({
                   <motion.article key={item.id} {...rise} className="grid items-center gap-8 lg:grid-cols-2">
                     {item.imageUrl && (
                       <figure
-                        className={`overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] ${i % 2 === 1 ? "lg:order-2" : ""}`}
+                        className={`overflow-hidden rounded-lg border border-[var(--theme-border)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] ${i % 2 === 1 ? "lg:order-2" : ""}`}
                       >
                         <SafeImage src={item.imageUrl} alt={item.title} className="aspect-[16/10] w-full object-cover" />
                       </figure>
@@ -267,18 +272,18 @@ export function PublicPortfolioSiteProfessional({
                     <div className={item.imageUrl ? "" : "lg:col-span-2"}>
                       <span className="font-mono text-xs text-[var(--accent-solid)]">{String(i + 1).padStart(2, "0")}</span>
                       {item.title && (
-                        <h3 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{item.title}</h3>
+                        <h3 className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{item.title}</h3>
                       )}
                       {(item.subtitle || item.year) && (
-                        <p className="mt-1 font-mono text-xs text-zinc-500">
+                        <p className="mt-1 font-mono text-xs text-[color-mix(in_srgb,var(--foreground)_52%,transparent)]">
                           {[item.subtitle, item.year].filter(Boolean).join(" · ")}
                         </p>
                       )}
-                      {item.summary && <p className="mt-4 max-w-xl text-sm leading-relaxed text-zinc-400">{item.summary}</p>}
+                      {item.summary && <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--theme-text-muted)]">{item.summary}</p>}
                       {item.tags.length > 0 && (
                         <ul className="mt-4 flex flex-wrap gap-2">
                           {item.tags.map((tag) => (
-                            <li key={tag} className="rounded border border-white/15 px-2 py-1 font-mono text-[11px] text-zinc-300">
+                            <li key={tag} className="rounded border border-[var(--theme-border)] px-2 py-1 font-mono text-[11px] text-[color-mix(in_srgb,var(--foreground)_82%,transparent)]">
                               {tag}
                             </li>
                           ))}
@@ -301,7 +306,7 @@ export function PublicPortfolioSiteProfessional({
                               href={item.repoUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-zinc-400 underline-offset-4 hover:text-white hover:underline"
+                              className="text-[var(--theme-text-muted)] underline-offset-4 hover:text-foreground hover:underline"
                             >
                               {t.work.moreDetails} ↗
                             </a>
@@ -319,14 +324,14 @@ export function PublicPortfolioSiteProfessional({
 
       {/* An expandable index rather than service cards. */}
       {hasCapabilities && (
-        <section id="capabilities" className="border-b border-white/10 px-6 py-20">
+        <section id="capabilities" className="border-b border-[var(--theme-border)] px-6 py-20">
           <div className="mx-auto w-full max-w-6xl">
             <SectionLabel index="02">{t.nav.services}</SectionLabel>
             <ul className="flex flex-col">
               {data.expertise.map((item, i) => {
                 const isOpen = openCapability === i;
                 return (
-                  <li key={item.id} className="border-b border-white/10 last:border-b-0">
+                  <li key={item.id} className="border-b border-[var(--theme-border)] last:border-b-0">
                     <button
                       type="button"
                       onClick={() => setOpenCapability(isOpen ? null : i)}
@@ -334,7 +339,7 @@ export function PublicPortfolioSiteProfessional({
                       className="flex w-full items-center justify-between gap-6 py-5 text-left transition-colors hover:text-[var(--accent-solid)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
                     >
                       <span className="flex items-baseline gap-4">
-                        <span className="font-mono text-xs text-zinc-600">{String(i + 1).padStart(2, "0")}</span>
+                        <span className="font-mono text-xs text-[color-mix(in_srgb,var(--foreground)_42%,transparent)]">{String(i + 1).padStart(2, "0")}</span>
                         <span className="text-lg font-medium sm:text-2xl">{item.name}</span>
                       </span>
                       <span aria-hidden className={`font-mono text-sm transition-transform ${isOpen ? "rotate-45" : ""}`}>
@@ -342,7 +347,7 @@ export function PublicPortfolioSiteProfessional({
                       </span>
                     </button>
                     {isOpen && item.description && (
-                      <p className="max-w-2xl pb-5 ps-10 text-sm leading-relaxed text-zinc-400">{item.description}</p>
+                      <p className="max-w-2xl pb-5 ps-10 text-sm leading-relaxed text-[var(--theme-text-muted)]">{item.description}</p>
                     )}
                   </li>
                 );
@@ -353,12 +358,12 @@ export function PublicPortfolioSiteProfessional({
       )}
 
       {(data.bio || experience.length > 0) && (
-        <section id="about" className="border-b border-white/10 px-6 py-20">
+        <section id="about" className="border-b border-[var(--theme-border)] px-6 py-20">
           <div className="mx-auto grid w-full max-w-6xl gap-14 lg:grid-cols-[1fr_1.1fr]">
             {data.bio && (
               <div>
                 <SectionLabel index="03">{t.nav.about}</SectionLabel>
-                <motion.p {...rise} className="max-w-xl text-lg leading-relaxed text-zinc-300">
+                <motion.p {...rise} className="max-w-xl text-lg leading-relaxed text-[color-mix(in_srgb,var(--foreground)_82%,transparent)]">
                   {data.bio}
                 </motion.p>
               </div>
@@ -366,15 +371,15 @@ export function PublicPortfolioSiteProfessional({
             {experience.length > 0 && (
               <div>
                 <SectionLabel index="04">{t.section.work}</SectionLabel>
-                <ol className="relative flex flex-col gap-8 border-s border-white/10 ps-6">
+                <ol className="relative flex flex-col gap-8 border-s border-[var(--theme-border)] ps-6">
                   {experience.map((entry) => (
                     <motion.li key={`${entry.year}-${entry.company}`} {...rise} className="relative">
                       <span aria-hidden className="absolute -start-[1.6rem] top-1.5 h-2 w-2 rounded-full bg-[var(--accent-solid)]" />
-                      <p className="font-mono text-xs text-zinc-500">{entry.year}</p>
-                      <p className="mt-1 text-base font-semibold text-white">
-                        {entry.role} <span className="text-zinc-600">·</span> <span className="text-zinc-400">{entry.company}</span>
+                      <p className="font-mono text-xs text-[color-mix(in_srgb,var(--foreground)_52%,transparent)]">{entry.year}</p>
+                      <p className="mt-1 text-base font-semibold text-foreground">
+                        {entry.role} <span className="text-[color-mix(in_srgb,var(--foreground)_42%,transparent)]">·</span> <span className="text-[var(--theme-text-muted)]">{entry.company}</span>
                       </p>
-                      {entry.detail && <p className="mt-1 text-sm leading-relaxed text-zinc-500">{entry.detail}</p>}
+                      {entry.detail && <p className="mt-1 text-sm leading-relaxed text-[color-mix(in_srgb,var(--foreground)_52%,transparent)]">{entry.detail}</p>}
                     </motion.li>
                   ))}
                 </ol>
@@ -385,16 +390,16 @@ export function PublicPortfolioSiteProfessional({
       )}
 
       {hasRecommendations && (
-        <section className="border-b border-white/10 px-6 py-20">
+        <section className="border-b border-[var(--theme-border)] px-6 py-20">
           <div className="mx-auto w-full max-w-6xl">
             <SectionLabel index="05">{t.section.testimonials}</SectionLabel>
             <div className="grid gap-10 sm:grid-cols-2">
               {data.recommendations.map((item, i) => (
                 <motion.figure key={i} {...rise} className="border-s-2 border-[var(--accent-solid)]/40 ps-5">
-                  <blockquote className="text-base leading-relaxed text-zinc-300">{item.quote}</blockquote>
+                  <blockquote className="text-base leading-relaxed text-[color-mix(in_srgb,var(--foreground)_82%,transparent)]">{item.quote}</blockquote>
                   <figcaption className="mt-4 flex items-center gap-3">
                     {item.imageUrl && <SafeImage src={item.imageUrl} alt="" className="h-8 w-8 rounded-full object-cover" />}
-                    <span className="font-mono text-xs text-zinc-500">{item.name}</span>
+                    <span className="font-mono text-xs text-[color-mix(in_srgb,var(--foreground)_52%,transparent)]">{item.name}</span>
                   </figcaption>
                 </motion.figure>
               ))}
@@ -405,14 +410,14 @@ export function PublicPortfolioSiteProfessional({
 
       <section id="contact" className="px-6 py-24">
         <div className="mx-auto w-full max-w-6xl">
-          <motion.h2 {...rise} className="max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl">
+          <motion.h2 {...rise} className="max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl">
             {t.contact.letsWorkTogether}
           </motion.h2>
           <div className="mt-10 flex flex-wrap items-center gap-3">
             {contactHref && (
               <a
                 href={contactHref}
-                className="rounded-md bg-[var(--accent-solid)] px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="rounded-md bg-[var(--accent-solid)] px-5 py-3 text-sm font-medium text-foreground transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 {t.contact.getInTouch}
               </a>
@@ -422,7 +427,7 @@ export function PublicPortfolioSiteProfessional({
                 href={whatsappUrl(data.contact.whatsappNumber, "")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-md border border-white/20 px-5 py-3 text-sm font-medium text-white transition-colors hover:border-white/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
+                className="rounded-md border border-[color-mix(in_srgb,var(--foreground)_22%,transparent)] px-5 py-3 text-sm font-medium text-foreground transition-colors hover:border-[color-mix(in_srgb,var(--foreground)_50%,transparent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
               >
                 {t.contact.contactUsOnWhatsApp}
               </a>
@@ -431,17 +436,17 @@ export function PublicPortfolioSiteProfessional({
         </div>
       </section>
 
-      <footer className="border-t border-white/10 px-6 py-10">
-        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 font-mono text-xs text-zinc-500">
+      <footer className="border-t border-[var(--theme-border)] px-6 py-10">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 font-mono text-xs text-[color-mix(in_srgb,var(--foreground)_52%,transparent)]">
           <span>{data.name}</span>
           <div className="flex flex-wrap items-center gap-5">
             {data.contact.email && (
-              <a href={`mailto:${data.contact.email}`} className="hover:text-white">
+              <a href={`mailto:${data.contact.email}`} className="hover:text-foreground">
                 {data.contact.email}
               </a>
             )}
             {data.socials.map((social) => (
-              <a key={social.href} href={social.href} target="_blank" rel="noopener noreferrer" className="hover:text-white">
+              <a key={social.href} href={social.href} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
                 {social.label}
               </a>
             ))}

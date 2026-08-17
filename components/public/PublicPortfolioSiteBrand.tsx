@@ -8,7 +8,7 @@ import { formatMoney } from "@/lib/format";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
 import { getBrandData, getCompleteness, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
-import { themeCssVars } from "@/lib/website/theme-config";
+import { effectiveTheme, themeCssVars } from "@/lib/website/theme-config";
 
 /**
  * The Brand / Product template (PORTFOLIO_BOLD).
@@ -40,9 +40,18 @@ function asProcess(value: unknown): ProcessStep[] {
   return value.filter((v): v is ProcessStep => !!v && typeof v === "object" && typeof (v as Record<string, unknown>).step === "string");
 }
 
-const SHELL = "#101014";
-const PANEL = "#191920";
-const BONE = "#f2f0eb";
+/**
+ * The template's own tokens, now read from the site's theme.
+ *
+ * Every portfolio template painted a fixed shell, so the theme editor did
+ * nothing at all on a portfolio - an owner saved a palette and the page stayed
+ * exactly as it was. These derive from the two colours the owner actually
+ * picks, so light and dark palettes both hold together with no per-theme
+ * branch below, while the template keeps its own type, weight and proportions.
+ */
+const SHELL = "var(--background)";
+const PANEL = "color-mix(in srgb, var(--foreground) 8%, var(--background))";
+const BONE = "var(--foreground)";
 const LINE = "rgba(242,240,235,0.14)";
 
 export function PublicPortfolioSiteBrand({
@@ -92,9 +101,9 @@ export function PublicPortfolioSiteBrand({
     <div
       dir={dir}
       className="flex flex-1 flex-col"
-      style={{ ...themeCssVars(site.theme, data.brandColor || undefined), background: SHELL, color: BONE }}
+      style={{ ...themeCssVars(effectiveTheme(site.theme, site.layoutVariant), data.brandColor || undefined), background: SHELL, color: BONE }}
     >
-      <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: LINE, background: `${SHELL}e0` }}>
+      <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: LINE, background: "color-mix(in srgb, var(--background) 88%, transparent)" }}>
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-5 px-5 py-3.5 sm:px-8">
           <a href="#top" className="truncate text-base font-extrabold uppercase tracking-tight">
             {data.name}
@@ -166,7 +175,7 @@ export function PublicPortfolioSiteBrand({
               {hasCases && (
                 <a
                   href="#work"
-                  className="border-2 px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
+                  className="border-2 px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] transition-colors hover:bg-current/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
                   style={{ borderColor: BONE }}
                 >
                   {t.hero.viewWork}
@@ -386,7 +395,7 @@ export function PublicPortfolioSiteBrand({
                 href={whatsappUrl(data.contact.whatsappNumber, "")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="border-2 px-6 py-3.5 text-sm font-bold uppercase tracking-[0.14em] transition-colors hover:bg-black/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                className="border-2 px-6 py-3.5 text-sm font-bold uppercase tracking-[0.14em] transition-colors hover:bg-current/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
                 style={{ borderColor: "currentColor" }}
               >
                 {t.contact.contactUsOnWhatsApp}
@@ -404,7 +413,7 @@ export function PublicPortfolioSiteBrand({
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="border-2 px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] transition-colors hover:bg-black/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                    className="border-2 px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] transition-colors hover:bg-current/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
                     style={{ borderColor: "currentColor" }}
                   >
                     {social.label}

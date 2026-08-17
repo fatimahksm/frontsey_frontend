@@ -17,7 +17,7 @@ import { itemsUnder } from "@/lib/site/menu-categories";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
-import { themeCardStyle, themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
+import { effectiveTheme, themeCardStyle, themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
 
 function slugifyId(value: string): string {
   return `category-${value}`;
@@ -80,7 +80,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
   }
 
   return (
-    <div dir={dir} className="flex flex-1 flex-col bg-background text-foreground" style={themeCssVars(site.theme, content.brandColor)}>
+    <div dir={dir} className="flex flex-1 flex-col bg-background text-foreground" style={themeCssVars(effectiveTheme(site.theme, site.layoutVariant), content.brandColor)}>
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[var(--theme-border)] bg-[color-mix(in_srgb,var(--background)_80%,transparent)] px-6 py-4 backdrop-blur sm:px-12">
         <div className="flex items-center gap-2">
           {site.profile?.logoUrl ? (

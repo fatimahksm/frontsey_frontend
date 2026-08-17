@@ -9,7 +9,7 @@ import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
 import { getCompleteness, getVisualData, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
 import type { WorkItem } from "@/lib/website/portfolio-data";
-import { themeCssVars } from "@/lib/website/theme-config";
+import { effectiveTheme, themeCssVars } from "@/lib/website/theme-config";
 
 /**
  * The Creative / Visual template (PORTFOLIO_MINIMAL).
@@ -36,11 +36,25 @@ function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
 }
 
-/** The template's own tokens, kept in one place. */
-const PAPER = "#f4f1ec";
-const CARD = "#e8e3db";
-const INK = "#1a1917";
-const RULE = "rgba(26,25,23,0.14)";
+/**
+ * The template's own tokens, kept in one place - and now read from the site's
+ * theme rather than frozen into the file.
+ *
+ * The four portfolio templates each painted a fixed shell, which meant the
+ * theme editor did nothing at all on a portfolio: an owner picked a palette,
+ * saved it, and their site stayed exactly as dark (or as cream) as before. The
+ * accent colour was the only thing that ever came through.
+ *
+ * These read from the variables themeCssVars puts on the shell, so the palette
+ * is the owner's while the template's identity - its type, its rules, its
+ * proportions - stays the template's. Every value is derived from the two the
+ * owner actually picks, so a light palette and a dark one both hold together
+ * without a per-theme branch anywhere below.
+ */
+const PAPER = "var(--background)";
+const CARD = "color-mix(in srgb, var(--foreground) 10%, var(--background))";
+const INK = "var(--foreground)";
+const RULE = "var(--theme-border)";
 const SERIF = 'Georgia, "Times New Roman", serif';
 
 /** The filter set, taken from whatever the owner called their kinds of work. */
@@ -99,7 +113,7 @@ function Lightbox({
       // Solid, not translucent: a gallery viewer exists to remove everything
       // else from view, and the page bleeding through a tinted layer is exactly
       // the distraction it is meant to prevent.
-      style={{ background: "#131211", color: PAPER }}
+      style={{ background: "color-mix(in srgb, var(--foreground) 92%, var(--background))", color: PAPER }}
     >
       <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <p className="min-w-0 truncate text-sm">
@@ -208,9 +222,9 @@ export function PublicPortfolioSiteVisual({
     <div
       dir={dir}
       className="flex flex-1 flex-col"
-      style={{ ...themeCssVars(site.theme, data.brandColor || undefined), background: PAPER, color: INK }}
+      style={{ ...themeCssVars(effectiveTheme(site.theme, site.layoutVariant), data.brandColor || undefined), background: PAPER, color: INK }}
     >
-      <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: RULE, background: `${PAPER}e6` }}>
+      <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: RULE, background: "color-mix(in srgb, var(--background) 90%, transparent)" }}>
         <div className="mx-auto flex w-full max-w-6xl items-baseline justify-between gap-6 px-5 py-4 sm:px-8">
           <a href="#top" className="truncate text-lg tracking-tight" style={{ fontFamily: SERIF }}>
             {data.name}

@@ -1,5 +1,7 @@
 import type { CSSProperties } from "react";
 
+import type { LayoutVariant } from "@/lib/api/types";
+
 /**
  * The single, strongly-typed schema for a template's design system - see
  * Theme.themeConfig on the backend, which is validated against this exact
@@ -217,4 +219,56 @@ export function parseThemeConfig(raw: string | null | undefined): ThemeConfig {
 /** Used by the Super Admin theme editor to write Theme.themeConfig back as JSON. */
 export function serializeThemeConfig(config: ThemeConfig): string {
   return JSON.stringify(config);
+}
+
+/**
+ * The palette a template paints when its owner has not chosen one.
+ *
+ * Making the templates read the theme fixed a real bug - the theme editor was
+ * a no-op on every portfolio - but on its own it cost something real too:
+ * every website resolves to DEFAULT_THEME_CONFIG until somebody picks a theme,
+ * so all four portfolios came out the same white. The dense CV template is
+ * meant to be near-black and the gallery template is meant to be warm paper;
+ * that is half of what makes them four templates rather than four layouts.
+ *
+ * So a template's own palette is its default, and the owner's choice replaces
+ * it. Fonts, radii and spacing are never touched here - only the three colours
+ * that decide whether the page reads light or dark.
+ */
+const SIGNATURE_PALETTES: Partial<Record<LayoutVariant, Pick<ThemeConfig, "backgroundColor" | "surfaceColor" | "textColor">>> = {
+  // Professional / CV - a terminal, deliberately.
+  PORTFOLIO_HERO: { backgroundColor: "#08090c", surfaceColor: "#101116", textColor: "#f4f4f5" },
+  // Creative / Visual - warm paper, so photographs sit on something.
+  PORTFOLIO_MINIMAL: { backgroundColor: "#f4f1ec", surfaceColor: "#e8e3db", textColor: "#1a1917" },
+  // Freelancer / Services - clean and bright, because it is a sales page.
+  PORTFOLIO_PROFILE: { backgroundColor: "#ffffff", surfaceColor: "#f6f6f7", textColor: "#16181d" },
+  // Brand / Product - loud, heavy, dark.
+  PORTFOLIO_BOLD: { backgroundColor: "#101014", surfaceColor: "#191920", textColor: "#f2f0eb" },
+  // Bistro - warm and photographic, but light.
+  MENU_BISTRO: { backgroundColor: "#ffffff", surfaceColor: "#ffffff", textColor: "#18181b" },
+};
+
+/**
+ * Whether this theme's colours are still the built-in defaults - i.e. nobody
+ * has picked a preset or saved an override, so the template should use its own.
+ *
+ * Only the three colours are compared. An owner who changed the font but not
+ * the palette has not chosen a palette, and should still get the template's.
+ */
+function hasDefaultPalette(theme: ThemeConfig): boolean {
+  return (
+    theme.backgroundColor === DEFAULT_THEME_CONFIG.backgroundColor &&
+    theme.surfaceColor === DEFAULT_THEME_CONFIG.surfaceColor &&
+    theme.textColor === DEFAULT_THEME_CONFIG.textColor
+  );
+}
+
+/**
+ * The theme a template should actually render with: the owner's if they chose
+ * one, the template's signature palette if they have not.
+ */
+export function effectiveTheme(theme: ThemeConfig, layoutVariant: LayoutVariant): ThemeConfig {
+  const signature = SIGNATURE_PALETTES[layoutVariant];
+  if (!signature || !hasDefaultPalette(theme)) return theme;
+  return { ...theme, ...signature };
 }

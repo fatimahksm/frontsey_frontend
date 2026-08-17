@@ -9,7 +9,7 @@ import { formatMoney } from "@/lib/format";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
 import { getCompleteness, getServicesData, normalizePortfolioData, primaryContactHref } from "@/lib/website/portfolio-data";
-import { themeCssVars } from "@/lib/website/theme-config";
+import { effectiveTheme, themeCssVars } from "@/lib/website/theme-config";
 
 /**
  * The Freelancer / Services template (PORTFOLIO_PROFILE).
@@ -57,10 +57,19 @@ function asProcess(value: unknown): ProcessStep[] {
 }
 
 /** The template's own tokens. Light, plain, high contrast. */
-const SHELL = "#ffffff";
-const TINT = "#f6f6f7";
-const INK = "#16181d";
-const MUTED = "#5c6270";
+/**
+ * The template's own tokens, now read from the site's theme.
+ *
+ * Every portfolio template painted a fixed shell, so the theme editor did
+ * nothing at all on a portfolio - an owner saved a palette and the page stayed
+ * exactly as it was. These derive from the two colours the owner actually
+ * picks, so light and dark palettes both hold together with no per-theme
+ * branch below, while the template keeps its own type, weight and proportions.
+ */
+const SHELL = "var(--background)";
+const TINT = "color-mix(in srgb, var(--foreground) 4%, var(--background))";
+const INK = "var(--foreground)";
+const MUTED = "var(--theme-text-muted)";
 const LINE = "rgba(22,24,29,0.10)";
 
 export function PublicPortfolioSiteServices({
@@ -118,7 +127,7 @@ export function PublicPortfolioSiteServices({
     <div
       dir={dir}
       className="flex flex-1 flex-col"
-      style={{ ...themeCssVars(site.theme, data.brandColor || undefined), background: SHELL, color: INK }}
+      style={{ ...themeCssVars(effectiveTheme(site.theme, site.layoutVariant), data.brandColor || undefined), background: SHELL, color: INK }}
     >
       <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: LINE, background: "rgba(255,255,255,0.88)" }}>
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-5 px-5 py-3.5 sm:px-8">
@@ -191,7 +200,7 @@ export function PublicPortfolioSiteServices({
               {hasExpertise && (
                 <a
                   href="#packages"
-                  className="rounded-full border px-5 py-3 text-sm font-medium transition-colors hover:bg-black/[0.03] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
+                  className="rounded-full border px-5 py-3 text-sm font-medium transition-colors hover:bg-current/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
                   style={{ borderColor: LINE }}
                 >
                   {hasPricing ? t.work.packages : t.hero.viewServices}
@@ -450,7 +459,7 @@ export function PublicPortfolioSiteServices({
             {contactHref && (
               <a
                 href={contactHref}
-                className="rounded-full border border-white/25 px-6 py-3 text-sm font-medium transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="rounded-full border border-current/25 px-6 py-3 text-sm font-medium transition-colors hover:bg-current/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
               >
                 {data.contact.email ?? t.contact.getInTouch}
               </a>
