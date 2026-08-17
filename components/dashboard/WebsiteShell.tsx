@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { LivePreviewPanel } from "@/components/dashboard/LivePreviewPanel";
+import { PlanLockBanner } from "@/components/dashboard/PlanLockBanner";
 import { WebsiteStatusBadge } from "@/components/dashboard/WebsiteStatusBadge";
 import { NotificationsBell } from "@/components/layout/NotificationsBell";
 import { Alert } from "@/components/ui/Alert";
@@ -14,7 +15,7 @@ import { plansApi } from "@/lib/api/plans";
 import { profileApi } from "@/lib/api/profile";
 import { subscriptionApi } from "@/lib/api/subscription";
 import { websitesApi } from "@/lib/api/websites";
-import type { Permission, WebsiteResponse } from "@/lib/api/types";
+import type { Permission, SubscriptionResponse, WebsiteResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { hasPermission } from "@/lib/website/permissions";
 import { contentPlanFor, type ContentSection } from "@/lib/website/template-content";
@@ -166,6 +167,7 @@ export function WebsiteShell({ websiteId, children }: { websiteId: string; child
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [analyticsEnabled, setAnalyticsEnabled] = useState(true);
+  const [subscription, setSubscription] = useState<SubscriptionResponse | null>(null);
 
   useEffect(() => {
     if (!session) return;
@@ -218,13 +220,17 @@ export function WebsiteShell({ websiteId, children }: { websiteId: string; child
     Promise.all([subscriptionApi.get(session.accessToken, websiteId), plansApi.list()])
       .then(([subscription, plans]) => {
         if (cancelled) return;
+        setSubscription(subscription);
         const plan = plans.find((p) => p.code === subscription.planCode && p.billingPeriod === subscription.billingPeriod);
         // No matching plan found just means we couldn't determine entitlement (e.g. plan list changed) - default to showing the tab rather than hiding a working feature.
         setAnalyticsEnabled(plan ? plan.analyticsEnabled : true);
       })
       .catch(() => {
         // No subscription yet, or the lookup failed - don't hide Analytics over a soft UX check.
-        if (!cancelled) setAnalyticsEnabled(true);
+        if (!cancelled) {
+          setAnalyticsEnabled(true);
+          setSubscription(null);
+        }
       });
     return () => {
       cancelled = true;
@@ -379,6 +385,8 @@ export function WebsiteShell({ websiteId, children }: { websiteId: string; child
               </button>
             </div>
           </header>
+
+          <PlanLockBanner subscription={subscription} subscriptionHref={`${base}/subscription`} />
 
           {/* Sections as a scrolling row where the sidebar is hidden. */}
           <nav className="flex gap-1 overflow-x-auto border-b border-black/[.08] px-3 py-2 lg:hidden dark:border-white/[.1]">

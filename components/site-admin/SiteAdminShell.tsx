@@ -20,11 +20,13 @@ import {
   ShareIcon,
   TextIcon,
 } from "@/components/site-admin/icons";
+import { PlanLockBanner } from "@/components/dashboard/PlanLockBanner";
 import { Alert } from "@/components/ui/Alert";
 import { friendlyMessage } from "@/lib/api/client";
 import { profileApi } from "@/lib/api/profile";
+import { subscriptionApi } from "@/lib/api/subscription";
 import { websitesApi } from "@/lib/api/websites";
-import type { BusinessProfileResponse, WebsiteResponse } from "@/lib/api/types";
+import type { BusinessProfileResponse, SubscriptionResponse, WebsiteResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { contentPlanFor, type ContentSection } from "@/lib/website/template-content";
 
@@ -149,6 +151,7 @@ export function SiteAdminShell({
 
   const [website, setWebsite] = useState<WebsiteResponse | null>(null);
   const [profile, setProfile] = useState<BusinessProfileResponse | null>(null);
+  const [subscription, setSubscription] = useState<SubscriptionResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDenied, setIsDenied] = useState(false);
 
@@ -174,6 +177,16 @@ export function SiteAdminShell({
           return;
         }
         setWebsite(match);
+        // Whether this website is frozen. A failure means no subscription row,
+        // which is not a lock - it is a site that has not published yet.
+        subscriptionApi
+          .get(session.accessToken, match.id)
+          .then((found) => {
+            if (!cancelled) setSubscription(found);
+          })
+          .catch(() => {
+            if (!cancelled) setSubscription(null);
+          });
         return profileApi
           .get(session.accessToken, match.id)
           .then((fetched) => {
@@ -324,6 +337,8 @@ export function SiteAdminShell({
             </button>
           </div>
         </header>
+
+        <PlanLockBanner subscription={subscription} subscriptionHref={`${base}/subscription`} />
 
         <nav className="flex gap-1 overflow-x-auto px-4 pb-2 lg:hidden">
           {sections.map((item) => {
