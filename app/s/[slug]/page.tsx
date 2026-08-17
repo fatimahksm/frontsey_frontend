@@ -157,7 +157,13 @@ function todoFor(
         ? { text: "You haven't listed what you offer", href: `${base}/services`, action: "Add a service" }
         : { text: "Your menu is empty", href: `${base}/menu`, action: "Add an item" };
     case "subscription":
-      return { text: "No active plan, so the site can't go live", href: `${manageBase}/subscription`, action: "Choose a plan" };
+      // Only ever reached when the checklist marks this incomplete, which since
+      // the free trial means a subscription that genuinely stopped - expired,
+      // canceled, or a checkout left unpaid. "No active plan" was the old
+      // wording from when any un-subscribed website was blocked from going
+      // live; a website with no subscription at all is fine now, and publishing
+      // opens its trial.
+      return { text: "Your plan has stopped, so the site can't go live", href: `${manageBase}/subscription`, action: "See plans" };
     case "businessName":
       return { text: "Your business has no name yet", href: `${manageBase}/profile`, action: "Add a name" };
     default:

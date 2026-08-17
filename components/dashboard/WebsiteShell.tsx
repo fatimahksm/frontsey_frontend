@@ -29,6 +29,8 @@ interface NavItem {
   permission?: Permission;
   /** Owner-only regardless of permissions (managing managers, the subscription). */
   ownerOnly?: boolean;
+  /** Present on this website but not included in its plan - shown, not hidden. */
+  locked?: boolean;
 }
 
 interface NavGroup {
@@ -98,9 +100,21 @@ function navGroupsFor(website: WebsiteResponse, analyticsEnabled: boolean): NavG
     },
   ];
 
-  if (analyticsEnabled) {
-    groups.push({ label: null, items: [{ href: "/analytics", label: "Analytics", icon: "📈", permission: "VIEW_ANALYTICS" }] });
-  }
+  // Always listed, even on a plan that does not include it. Removing the row
+  // outright meant an owner could not tell whether analytics did not exist,
+  // was broken, or was simply not on their plan - and any old link to it dead
+  // ended. It opens and explains itself instead; the page itself is what says
+  // the numbers are not included.
+  groups.push({
+    label: null,
+    items: [{
+      href: "/analytics",
+      label: "Analytics",
+      icon: "📈",
+      permission: "VIEW_ANALYTICS",
+      locked: !analyticsEnabled,
+    }],
+  });
   groups.push({ label: null, items: [{ href: "/subscription", label: "Subscription", icon: "💳", ownerOnly: true }] });
 
   return groups;
@@ -299,6 +313,18 @@ export function WebsiteShell({ websiteId, children }: { websiteId: string; child
                       <span className={`relative flex items-center gap-2 transition-colors ${isActive ? "text-white" : "text-zinc-600 hover:text-foreground dark:text-zinc-400"}`}>
                         <span aria-hidden>{item.icon}</span>
                         {item.label}
+                        {/* Not on this plan. The row still opens - the page
+                            explains and links to the plans - so this says
+                            "locked", never "missing". */}
+                        {item.locked && (
+                          <span
+                            title="Not included in your plan"
+                            aria-label="Not included in your plan"
+                            className={`ms-auto text-xs ${isActive ? "text-white/80" : "text-zinc-400 dark:text-zinc-500"}`}
+                          >
+                            🔒
+                          </span>
+                        )}
                       </span>
                     </Link>
                   );

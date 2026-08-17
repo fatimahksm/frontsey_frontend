@@ -42,6 +42,21 @@ function initialsOf(name: string): string {
   return (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
 }
 
+/**
+ * A readable name from the slug, for the case where there is none to fetch.
+ *
+ * The public endpoint only knows about published websites, so the door to a
+ * draft site's console had nothing to wear and printed the raw slug -
+ * "fatima-portfolio" - on a page that is meant to look like the business's own.
+ */
+function titleFromSlug(slug: string): string {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 export function SiteLoginForm({ slug }: { slug: string }) {
   const router = useRouter();
   const { login, session } = useAuth();
@@ -134,11 +149,11 @@ export function SiteLoginForm({ slug }: { slug: string }) {
               className="flex h-14 w-14 items-center justify-center rounded-2xl text-base font-semibold text-white"
               style={{ background: "var(--accent-solid, #7c3aed)" }}
             >
-              {initialsOf(brand?.name ?? slug)}
+              {initialsOf(brand?.name ?? titleFromSlug(slug))}
             </span>
           )}
           <div>
-            <h1 className="text-lg font-semibold tracking-tight">{brand?.name ?? slug}</h1>
+            <h1 className="text-lg font-semibold tracking-tight">{brand?.name ?? titleFromSlug(slug)}</h1>
             <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
               {brand?.tagline ?? "Sign in to your website's admin."}
             </p>

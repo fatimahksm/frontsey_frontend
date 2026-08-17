@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { use } from "react";
 
 import { SiteAdminShell, type SiteAdminContext } from "@/components/site-admin/SiteAdminShell";
@@ -28,9 +28,10 @@ import { WebsiteProvider } from "@/lib/website/website-context";
  * happens to be. Only the frame around them differs.
  *
  * Which sections exist comes from the template's own content plan, not from a
- * list kept here - so a portfolio has no menu, the Elegant menu layout has only
- * a menu, and asking for anything else is a 404 rather than an editor saving
- * into a store the site never renders.
+ * list kept here - so a portfolio has no menu, and the Elegant menu layout has
+ * only a menu. Asking for one this template does not have opens the console
+ * and says so, rather than an editor saving into a store the site never
+ * renders, and rather than a dead end.
  */
 const EDITORS = {
   projects: ProjectsPage,
@@ -97,7 +98,11 @@ function Section({ context, section }: { context: SiteAdminContext; section: Edi
 
 export default function SiteAdminSectionPage({ params }: { params: Promise<{ slug: string; section: string }> }) {
   const { slug, section } = use(params);
-  if (!(section in EDITORS)) notFound();
+  // An unknown section goes back to the console rather than to a 404. The
+  // sections a console shows depend on the template, so a link that was valid
+  // on one website is not on another - and a bookmark from before a change
+  // should land somewhere useful, not on "this page could not be found".
+  if (!(section in EDITORS)) redirect(`/s/${slug}`);
   return (
     <SiteAdminShell slug={slug}>
       {(context) => <Section context={context} section={section as EditorKey} />}
