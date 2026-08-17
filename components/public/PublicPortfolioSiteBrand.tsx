@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 
 import { SafeImage } from "@/components/public/SafeImage";
+import { PortfolioWordmark } from "@/components/public/PortfolioWordmark";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
 import { useLocale } from "@/lib/i18n/LocaleContext";
@@ -105,9 +106,13 @@ export function PublicPortfolioSiteBrand({
     >
       <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: LINE, background: "color-mix(in srgb, var(--background) 88%, transparent)" }}>
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-5 px-5 py-3.5 sm:px-8">
-          <a href="#top" className="truncate text-base font-extrabold uppercase tracking-tight">
-            {data.name}
-          </a>
+          <PortfolioWordmark
+            logoUrl={data.logoUrl}
+            name={data.name}
+            size="h-8 w-8"
+            rounding="rounded-none"
+            className="text-base font-extrabold uppercase tracking-tight"
+          />
           <nav aria-label="Sections" className="hidden items-center gap-6 text-xs font-bold uppercase tracking-[0.14em] sm:flex">
             {hasServices && (
               <a href="#shop" className="opacity-70 transition-opacity hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]">

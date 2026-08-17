@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 
 import { SafeImage } from "@/components/public/SafeImage";
+import { PortfolioWordmark } from "@/components/public/PortfolioWordmark";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
 import { useLocale } from "@/lib/i18n/LocaleContext";
@@ -115,7 +116,9 @@ export function PublicPortfolioSiteServices({
   // Logo, then cover, then the About image. A person selling a service leads
   // with their own face or mark; the About illustration is the last resort
   // because it is usually a picture of the work, not of them.
-  const portrait = data.logoUrl ?? data.coverImageUrl ?? data.bioImageUrl;
+  // A photo, not a logo. The logo has its own place in the header now, and a
+  // symbol blown up to portrait size never looked like one.
+  const portrait = data.bioImageUrl ?? data.coverImageUrl;
 
   const nav = [
     ...(hasExpertise ? [{ href: "#packages", label: hasPricing ? t.work.packages : t.nav.services }] : []),
@@ -129,11 +132,15 @@ export function PublicPortfolioSiteServices({
       className="flex flex-1 flex-col"
       style={{ ...themeCssVars(effectiveTheme(site.theme, site.layoutVariant), data.brandColor || undefined), background: SHELL, color: INK }}
     >
-      <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: LINE, background: "rgba(255,255,255,0.88)" }}>
+      <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: LINE, background: "color-mix(in srgb, var(--background) 88%, transparent)" }}>
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-5 px-5 py-3.5 sm:px-8">
-          <a href="#top" className="truncate text-sm font-semibold tracking-tight">
-            {data.name}
-          </a>
+          <PortfolioWordmark
+            logoUrl={data.logoUrl}
+            name={data.name}
+            size="h-8 w-8"
+            rounding="rounded-lg"
+            className="text-sm font-semibold tracking-tight"
+          />
           <nav aria-label="Sections" className="hidden items-center gap-6 text-sm sm:flex" style={{ color: MUTED }}>
             {nav.map((link) => (
               <a

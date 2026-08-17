@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 import { SafeImage } from "@/components/public/SafeImage";
+import { PortfolioWordmark } from "@/components/public/PortfolioWordmark";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
@@ -226,9 +227,14 @@ export function PublicPortfolioSiteVisual({
     >
       <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: RULE, background: "color-mix(in srgb, var(--background) 90%, transparent)" }}>
         <div className="mx-auto flex w-full max-w-6xl items-baseline justify-between gap-6 px-5 py-4 sm:px-8">
-          <a href="#top" className="truncate text-lg tracking-tight" style={{ fontFamily: SERIF }}>
-            {data.name}
-          </a>
+          <PortfolioWordmark
+            logoUrl={data.logoUrl}
+            name={data.name}
+            size="h-9 w-9"
+            rounding="rounded-full"
+            className="text-lg tracking-tight"
+            style={{ fontFamily: SERIF }}
+          />
           <nav aria-label="Sections" className="flex items-baseline gap-5 text-sm sm:gap-7">
             {hasWork && (
               <a href="#work" className="underline-offset-[6px] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]">

@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 
 import { SafeImage } from "@/components/public/SafeImage";
+import { PortfolioWordmark } from "@/components/public/PortfolioWordmark";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { whatsappUrl } from "@/lib/site/whatsapp";
@@ -123,10 +124,13 @@ export function PublicPortfolioSiteProfessional({
       {/* Reads like a file listing rather than a marketing header. */}
       <header className="sticky top-0 z-30 border-b border-[var(--theme-border)] bg-[color-mix(in_srgb,var(--background)_85%,transparent)] backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-6 px-6 py-4">
-          <a href="#top" className="font-mono text-sm font-semibold tracking-tight text-foreground">
-            {data.name}
-            <span className="text-[var(--accent-solid)]">.</span>
-          </a>
+          <PortfolioWordmark
+            logoUrl={data.logoUrl}
+            name={data.name}
+            size="h-7 w-7"
+            rounding="rounded-md"
+            className="font-mono text-sm font-semibold tracking-tight text-foreground"
+          />
           <nav aria-label="Sections" className="hidden items-center gap-6 font-mono text-xs text-[var(--theme-text-muted)] sm:flex">
             {navLinks.map((link, i) => (
               <a
