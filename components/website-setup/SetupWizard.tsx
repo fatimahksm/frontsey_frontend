@@ -6,17 +6,19 @@ import { useEffect, useMemo, useState } from "react";
 import { Stepper, type StepDefinition } from "@/components/ui/Stepper";
 import { StepBusinessInfo } from "@/components/website-setup/StepBusinessInfo";
 import { StepReview } from "@/components/website-setup/StepReview";
+import { StepTheme } from "@/components/website-setup/StepTheme";
 import { useWebsite } from "@/lib/website/website-context";
 
 export const SETUP_STEPS: StepDefinition[] = [
   { step: 1, label: "Website type" },
   { step: 2, label: "Template" },
   { step: 3, label: "Basics" },
-  { step: 4, label: "Publish" },
+  { step: 4, label: "Theme" },
+  { step: 5, label: "Publish" },
 ];
 
 const FIRST_STEP = 3;
-const LAST_STEP = 4;
+const LAST_STEP = 5;
 
 function clampStep(value: number): number {
   return Math.min(LAST_STEP, Math.max(FIRST_STEP, value));
@@ -30,12 +32,16 @@ function clampStep(value: number): number {
  * data so leaving and coming back never loses progress.
  *
  * It used to run to seven steps, walking the owner through the whole menu or
- * services manager, the theme editor and a preview before they could publish.
- * Every one of those is a dashboard page that does the same job better and can
- * be revisited, so the wizard now asks only for what a site cannot open
- * without - a logo, a line of description, a way to be contacted - and hands
- * over. The dashboard is where a website gets filled in; setup only has to get
- * someone to it.
+ * services manager and a preview before they could publish. Every one of those
+ * is a dashboard page that does the same job better and can be revisited, so
+ * the wizard now asks only for what a site cannot open without - a logo, a line
+ * of description, a way to be contacted - and hands over. The dashboard is
+ * where a website gets filled in; setup only has to get someone to it.
+ *
+ * Colours are the exception, and they are back. Template and theme are the two
+ * decisions the console deliberately does not carry, because they are made once
+ * at first build - which left the theme with nowhere at all to be chosen. It is
+ * a swatch picker here, not the full editor.
  */
 export function SetupWizard() {
   const { website } = useWebsite();
@@ -80,7 +86,8 @@ export function SetupWizard() {
       )}
 
       {step === 3 && <StepBusinessInfo onContinue={() => goTo(4)} />}
-      {step === 4 && <StepReview onPublished={() => router.push(`/manage/${website.id}`)} />}
+      {step === 4 && <StepTheme onContinue={() => goTo(5)} />}
+      {step === 5 && <StepReview onPublished={() => router.push(`/manage/${website.id}`)} />}
     </div>
   );
 }
