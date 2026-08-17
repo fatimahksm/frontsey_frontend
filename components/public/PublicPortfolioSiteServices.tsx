@@ -181,7 +181,7 @@ export function PublicPortfolioSiteServices({
               <motion.p
                 {...rise(0.04)}
                 className="mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium"
-                style={{ background: TINT, color: "var(--accent-solid)" }}
+                style={{ background: TINT, color: "var(--accent-ink)" }}
               >
                 {data.badge}
               </motion.p>
@@ -270,7 +270,7 @@ export function PublicPortfolioSiteServices({
             <ol className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {process.map((step, i) => (
                 <motion.li key={step.step} {...rise(Math.min(i, 4) * 0.05)}>
-                  <span className="text-sm font-semibold" style={{ color: "var(--accent-solid)" }}>
+                  <span className="text-sm font-semibold" style={{ color: "var(--accent-ink)" }}>
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <h3 className="mt-1.5 font-semibold tracking-tight">{step.step}</h3>
@@ -356,7 +356,7 @@ export function PublicPortfolioSiteServices({
                       )}
                     </div>
                     {item.subtitle && (
-                      <p className="mt-1 text-xs font-medium" style={{ color: "var(--accent-solid)" }}>
+                      <p className="mt-1 text-xs font-medium" style={{ color: "var(--accent-ink)" }}>
                         {item.subtitle}
                       </p>
                     )}
@@ -371,7 +371,7 @@ export function PublicPortfolioSiteServices({
                         target="_blank"
                         rel="noopener noreferrer"
                         className="mt-4 inline-block text-sm underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]"
-                        style={{ color: "var(--accent-solid)" }}
+                        style={{ color: "var(--accent-ink)" }}
                       >
                         {t.work.viewProject} ↗
                       </a>

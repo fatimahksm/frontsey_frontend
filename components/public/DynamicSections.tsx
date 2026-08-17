@@ -23,11 +23,11 @@ export type SectionTone = "hero" | "minimal" | "bold" | "classic" | "grid" | "el
 
 const HEADING_CLASS: Record<SectionTone, string> = {
   hero: "mb-10 text-center text-2xl font-bold tracking-tight text-white",
-  minimal: "mb-6 text-sm font-semibold uppercase tracking-widest text-zinc-500",
+  minimal: "mb-6 text-sm font-semibold uppercase tracking-widest text-[var(--theme-text-muted)]",
   bold: "mb-8 flex items-center justify-center gap-3 text-2xl font-extrabold tracking-tight",
   classic: "mb-3 text-lg font-semibold tracking-tight",
   grid: "mb-4 text-xl font-semibold tracking-tight",
-  elegant: "mb-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500",
+  elegant: "mb-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[var(--theme-text-muted)]",
 };
 
 const UNDERLINE_CLASS: Record<SectionTone, string> = {
@@ -64,7 +64,7 @@ const CONTAINER_CLASS: Record<SectionTone, string> = {
   minimal: "mb-16 px-6 sm:px-12",
   bold: "",
   classic: "",
-  grid: "mt-16 rounded-2xl border border-black/[.08] p-6 dark:border-white/[.145]",
+  grid: "mt-16 rounded-2xl border border-[var(--theme-border)] p-6",
   elegant: "mt-14",
 };
 
@@ -88,7 +88,7 @@ function AboutBlock({ tone, data }: { tone: SectionTone; data: AboutSectionData 
           className={centered ? "mb-4 h-24 w-24 rounded-full object-cover shadow-soft" : "h-32 w-32 shrink-0 rounded-2xl object-cover shadow-soft"}
         />
       )}
-      <p className={tone === "hero" ? "max-w-md text-zinc-400" : "max-w-xl text-sm text-zinc-500 dark:text-zinc-400"}>{data.body}</p>
+      <p className={tone === "hero" ? "max-w-md text-[var(--theme-text-muted)]" : "max-w-xl text-sm text-[var(--theme-text-muted)]"}>{data.body}</p>
     </div>
   );
 }
@@ -96,10 +96,10 @@ function AboutBlock({ tone, data }: { tone: SectionTone; data: AboutSectionData 
 function TestimonialsBlock({ tone, data }: { tone: SectionTone; data: TestimonialsSectionData }) {
   if (tone === "minimal" || tone === "elegant") {
     return (
-      <StaggerGroup as="ul" className="flex flex-col divide-y divide-black/[.06] dark:divide-white/[.1]">
+      <StaggerGroup as="ul" className="flex flex-col divide-y divide-[var(--theme-border)]">
         {data.items.map((item, i) => (
           <StaggerItem as="li" key={i} className="flex flex-col gap-1 py-4">
-            <p className="text-sm italic text-zinc-600 dark:text-zinc-400">&ldquo;{item.quote}&rdquo;</p>
+            <p className="text-sm italic text-[var(--theme-text-muted)]">&ldquo;{item.quote}&rdquo;</p>
             <p className="text-xs font-medium">{item.name}</p>
           </StaggerItem>
         ))}
@@ -110,7 +110,7 @@ function TestimonialsBlock({ tone, data }: { tone: SectionTone; data: Testimonia
   const dark = tone === "hero";
   const cardClass = dark
     ? "border-white/10 bg-white/[.04] hover:border-white/20"
-    : "border-black/[.07] bg-surface hover:border-black/[.14] dark:border-white/[.1] dark:bg-white/[.03] dark:hover:border-white/25";
+    : "border-[var(--theme-border)] bg-surface hover:border-[var(--accent-solid)]/40";
 
   return (
     <StaggerGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -126,11 +126,11 @@ function TestimonialsBlock({ tone, data }: { tone: SectionTone; data: Testimonia
                 "testimonial" read on its own. aria-hidden: it is decoration. */}
             <span
               aria-hidden
-              className="pointer-events-none absolute -top-6 right-3 select-none font-serif text-8xl leading-none text-[var(--accent-solid)] opacity-[0.12]"
+              className="pointer-events-none absolute -top-6 right-3 select-none font-serif text-8xl leading-none text-[var(--accent-ink)] opacity-[0.12]"
             >
               &rdquo;
             </span>
-            <blockquote className={`relative text-sm leading-relaxed ${dark ? "text-zinc-300" : "text-zinc-600 dark:text-zinc-300"}`}>
+            <blockquote className={`relative text-sm leading-relaxed ${dark ? "text-[var(--theme-text-muted)]" : "text-[var(--theme-text-muted)]"}`}>
               {item.quote}
             </blockquote>
             <figcaption className="mt-auto flex items-center gap-3">
@@ -141,7 +141,7 @@ function TestimonialsBlock({ tone, data }: { tone: SectionTone; data: Testimonia
                   className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-[var(--accent-solid)]/25"
                 />
               ) : (
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-accent text-sm font-semibold text-white">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-accent text-sm font-semibold text-[var(--accent-contrast)]">
                   {item.name.charAt(0).toUpperCase()}
                 </span>
               )}
@@ -158,8 +158,8 @@ function FaqBlock({ tone, data }: { tone: SectionTone; data: FaqSectionData }) {
   const dark = tone === "hero";
   const detailsClass = dark
     ? "border-white/10 bg-white/[.04] hover:border-white/20 open:border-white/25 open:bg-white/[.06]"
-    : "border-black/[.07] bg-surface hover:border-black/[.14] open:border-black/[.16] dark:border-white/[.1] dark:bg-white/[.03] dark:hover:border-white/25 dark:open:border-white/30";
-  const answerClass = dark ? "text-zinc-400" : "text-zinc-500 dark:text-zinc-400";
+    : "border-[var(--theme-border)] bg-surface hover:border-[var(--accent-solid)]/40 open:border-[var(--accent-solid)]/60";
+  const answerClass = dark ? "text-[var(--theme-text-muted)]" : "text-[var(--theme-text-muted)]";
 
   return (
     <StaggerGroup className="flex flex-col gap-3">
@@ -171,7 +171,7 @@ function FaqBlock({ tone, data }: { tone: SectionTone; data: FaqSectionData }) {
           <details className={`group rounded-2xl border transition-colors duration-200 ${detailsClass}`}>
             <summary
               className={`flex cursor-pointer list-none items-center justify-between gap-4 p-4 text-sm font-semibold [&::-webkit-details-marker]:hidden ${
-                dark ? "text-white" : ""
+                dark ? "text-foreground" : ""
               }`}
             >
               {item.question}
@@ -205,12 +205,12 @@ function TeamBlock({ tone, data }: { tone: SectionTone; data: TeamSectionData })
             {item.imageUrl ? (
               <SafeImage src={item.imageUrl} alt="" className="h-20 w-20 rounded-full object-cover shadow-soft" />
             ) : (
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-accent text-xl font-semibold text-white">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-accent text-xl font-semibold text-[var(--accent-contrast)]">
                 {item.name.charAt(0).toUpperCase()}
               </div>
             )}
             <p className={`text-sm font-semibold ${tone === "hero" ? "text-white" : ""}`}>{item.name}</p>
-            <p className={`text-xs ${tone === "hero" ? "text-zinc-400" : "text-zinc-500 dark:text-zinc-400"}`}>{item.role}</p>
+            <p className={`text-xs ${tone === "hero" ? "text-[var(--theme-text-muted)]" : "text-[var(--theme-text-muted)]"}`}>{item.role}</p>
           </div>
         </StaggerItem>
       ))}

@@ -241,7 +241,7 @@ export function PublicPortfolioSiteBrand({
                   <div className="mt-4 flex items-baseline justify-between gap-4">
                     <h3 className="text-lg font-extrabold uppercase tracking-tight">{item.name}</h3>
                     {item.price !== null && item.price !== undefined && (
-                      <span className="shrink-0 text-base font-bold" style={{ color: "var(--accent-solid)" }}>
+                      <span className="shrink-0 text-base font-bold" style={{ color: "var(--accent-ink)" }}>
                         {formatMoney(item.price, site.currency)}
                       </span>
                     )}
@@ -283,7 +283,7 @@ export function PublicPortfolioSiteBrand({
                     {item.year && <span className="shrink-0 text-xs opacity-45">{item.year}</span>}
                   </div>
                   {item.subtitle && (
-                    <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em]" style={{ color: "var(--accent-solid)" }}>
+                    <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em]" style={{ color: "var(--accent-ink)" }}>
                       {item.subtitle}
                     </p>
                   )}
@@ -294,7 +294,7 @@ export function PublicPortfolioSiteBrand({
                       target="_blank"
                       rel="noopener noreferrer"
                       className="mt-3 inline-block text-xs font-bold uppercase tracking-[0.14em] underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]"
-                      style={{ color: "var(--accent-solid)" }}
+                      style={{ color: "var(--accent-ink)" }}
                     >
                       {t.work.viewProject} ↗
                     </a>
@@ -320,7 +320,7 @@ export function PublicPortfolioSiteBrand({
               <ol className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {process.map((step, i) => (
                   <motion.li key={step.step} {...push(Math.min(i, 4) * 0.05)} className="border-t pt-4" style={{ borderColor: LINE }}>
-                    <span className="text-xs font-bold" style={{ color: "var(--accent-solid)" }}>
+                    <span className="text-xs font-bold" style={{ color: "var(--accent-ink)" }}>
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <h3 className="mt-1.5 text-base font-extrabold uppercase tracking-tight">{step.step}</h3>

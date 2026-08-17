@@ -86,7 +86,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
           {site.profile?.logoUrl ? (
             <SafeImage src={site.profile.logoUrl} alt="" className="h-9 w-9 rounded-lg object-cover" />
           ) : (
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-accent text-sm font-semibold text-white">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-accent text-sm font-semibold text-[var(--accent-contrast)]">
               {site.businessName.charAt(0)}
             </span>
           )}
@@ -104,7 +104,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
               {site.businessName}
             </h1>
             {content.heroHeading && (
-              <p className="mt-3 text-2xl font-semibold italic text-[var(--accent-solid)]">{content.heroHeading}</p>
+              <p className="mt-3 text-2xl font-semibold italic text-[var(--accent-ink)]">{content.heroHeading}</p>
             )}
             {(content.heroSubtitle || site.profile?.description) && (
               <p className="mt-4 max-w-md text-sm text-[var(--theme-text-muted)]">{content.heroSubtitle || site.profile?.description}</p>
@@ -213,7 +213,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                   key={category.id}
                   type="button"
                   onClick={() => scrollToCategory(category.id)}
-                  className="shrink-0 rounded-full border border-[var(--theme-border)] px-4 py-1.5 text-sm font-medium transition-colors hover:border-[var(--accent-solid)] hover:text-[var(--accent-solid)]"
+                  className="shrink-0 rounded-full border border-[var(--theme-border)] px-4 py-1.5 text-sm font-medium transition-colors hover:border-[var(--accent-solid)] hover:text-[var(--accent-ink)]"
                 >
                   {category.name}
                 </button>
@@ -278,7 +278,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                 )}
               </div>
               {site.openingHours.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--theme-text-muted)]">
                   {site.openingHours.map((h) => (
                     <span key={h.dayOfWeek}>
                       {t.hours.dayShort[h.dayOfWeek] ?? h.dayOfWeek}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : t.hours.closed}
@@ -336,7 +336,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                   transition={{ type: "spring", stiffness: 320, damping: 34 }}
                   className="fixed right-0 top-0 z-50 h-full w-full max-w-sm overflow-y-auto bg-background p-4 shadow-lift"
                 >
-                  <button type="button" onClick={() => setCartOpen(false)} className="mb-3 text-sm text-zinc-500 hover:underline">
+                  <button type="button" onClick={() => setCartOpen(false)} className="mb-3 text-sm text-[var(--theme-text-muted)] hover:underline">
                     {dir === "rtl" ? `${t.cart.close} →` : `← ${t.cart.close}`}
                   </button>
                   <CartPanel

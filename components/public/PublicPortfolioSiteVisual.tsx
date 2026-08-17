@@ -259,7 +259,7 @@ export function PublicPortfolioSiteVisual({
         <div className="mx-auto grid w-full max-w-6xl items-center gap-8 md:grid-cols-[1fr_0.8fr] md:gap-12">
           <div>
             {data.badge && (
-              <motion.p {...rise(0)} className="mb-5 text-xs uppercase tracking-[0.24em]" style={{ color: "var(--accent-solid)" }}>
+              <motion.p {...rise(0)} className="mb-5 text-xs uppercase tracking-[0.24em]" style={{ color: "var(--accent-ink)" }}>
                 {data.badge}
               </motion.p>
             )}
@@ -385,7 +385,7 @@ export function PublicPortfolioSiteVisual({
                         {item.year && <span className="shrink-0 text-xs opacity-45">{item.year}</span>}
                       </span>
                       {item.subtitle && (
-                        <span className="mt-1 block text-xs uppercase tracking-[0.18em]" style={{ color: "var(--accent-solid)" }}>
+                        <span className="mt-1 block text-xs uppercase tracking-[0.18em]" style={{ color: "var(--accent-ink)" }}>
                           {item.subtitle}
                         </span>
                       )}

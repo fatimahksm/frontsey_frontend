@@ -28,6 +28,7 @@ import { subscriptionApi } from "@/lib/api/subscription";
 import { websitesApi } from "@/lib/api/websites";
 import type { BusinessProfileResponse, SubscriptionResponse, WebsiteResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
+import { hasConsoleAccess, revokeConsoleAccess } from "@/lib/website/console-session";
 import { contentPlanFor, type ContentSection } from "@/lib/website/template-content";
 
 /**
@@ -155,10 +156,15 @@ export function SiteAdminShell({
   const [error, setError] = useState<string | null>(null);
   const [isDenied, setIsDenied] = useState(false);
 
-  // This console has its own door. A signed-out visitor goes to that site's
-  // sign-in page, not the platform's, so the whole way in stays theirs.
+  // This console has its own door, and it is always used. A visitor with no
+  // session goes to that site's sign-in page rather than the platform's - and
+  // so does one who has a Frontsey session but has not signed in to *this*
+  // console, which is the case that mattered: the admin link is handed around
+  // and opened on shared machines, and "already logged in to Frontsey" is not
+  // the same claim as "I am this business's admin".
   useEffect(() => {
-    if (isLoading || session) return;
+    if (isLoading) return;
+    if (session && hasConsoleAccess(slug, session.accountId)) return;
     router.replace(`/s/${slug}/login`);
   }, [isLoading, session, router, slug]);
 
@@ -202,7 +208,7 @@ export function SiteAdminShell({
     };
   }, [session, slug]);
 
-  if (isLoading || !session) return null;
+  if (isLoading || !session || !hasConsoleAccess(slug, session.accountId)) return null;
 
   if (isDenied) {
     return (
@@ -328,6 +334,7 @@ export function SiteAdminShell({
             <button
               type="button"
               onClick={() => {
+                revokeConsoleAccess(slug);
                 logout();
                 router.push(`/s/${slug}/login`);
               }}

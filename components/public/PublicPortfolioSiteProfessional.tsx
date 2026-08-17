@@ -51,7 +51,7 @@ function asExperience(value: unknown): ExperienceEntry[] {
 function SectionLabel({ index, children }: { index: string; children: React.ReactNode }) {
   return (
     <div className="mb-10 flex items-baseline gap-3 border-b border-[var(--theme-border)] pb-3">
-      <span className="font-mono text-xs text-[var(--accent-solid)]">{index}</span>
+      <span className="font-mono text-xs text-[var(--accent-ink)]">{index}</span>
       <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--theme-text-muted)]">{children}</h2>
     </div>
   );
@@ -138,14 +138,14 @@ export function PublicPortfolioSiteProfessional({
                 href={link.href}
                 className="rounded-sm transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-solid)]"
               >
-                <span className="text-[var(--accent-solid)]">{String(i + 1).padStart(2, "0")}</span> {link.label}
+                <span className="text-[var(--accent-ink)]">{String(i + 1).padStart(2, "0")}</span> {link.label}
               </a>
             ))}
           </nav>
           {contactHref && (
             <a
               href={contactHref}
-              className="shrink-0 rounded-md border border-[color-mix(in_srgb,var(--foreground)_22%,transparent)] px-3.5 py-1.5 font-mono text-xs text-foreground transition-colors hover:border-[var(--accent-solid)] hover:text-[var(--accent-solid)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
+              className="shrink-0 rounded-md border border-[color-mix(in_srgb,var(--foreground)_22%,transparent)] px-3.5 py-1.5 font-mono text-xs text-foreground transition-colors hover:border-[var(--accent-solid)] hover:text-[var(--accent-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
             >
               {t.nav.contact}
             </a>
@@ -190,7 +190,7 @@ export function PublicPortfolioSiteProfessional({
             <motion.p
               {...rise}
               transition={reduceMotion ? undefined : { duration: 0.5, delay: 0.08 }}
-              className="mt-3 font-mono text-lg text-[var(--accent-solid)] sm:text-2xl"
+              className="mt-3 font-mono text-lg text-[var(--accent-ink)] sm:text-2xl"
             >
               {data.headline}
             </motion.p>
@@ -248,7 +248,7 @@ export function PublicPortfolioSiteProfessional({
           <ul className="mx-auto flex w-full max-w-6xl flex-wrap gap-x-6 gap-y-3 font-mono text-sm text-[var(--theme-text-muted)]">
             {stack.map((tech) => (
               <li key={tech} className="transition-colors hover:text-foreground">
-                <span className="text-[var(--accent-solid)]">/</span> {tech}
+                <span className="text-[var(--accent-ink)]">/</span> {tech}
               </li>
             ))}
           </ul>
@@ -274,7 +274,7 @@ export function PublicPortfolioSiteProfessional({
                       </figure>
                     )}
                     <div className={item.imageUrl ? "" : "lg:col-span-2"}>
-                      <span className="font-mono text-xs text-[var(--accent-solid)]">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="font-mono text-xs text-[var(--accent-ink)]">{String(i + 1).padStart(2, "0")}</span>
                       {item.title && (
                         <h3 className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{item.title}</h3>
                       )}
@@ -300,7 +300,7 @@ export function PublicPortfolioSiteProfessional({
                               href={item.liveUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[var(--accent-solid)] underline-offset-4 hover:underline"
+                              className="text-[var(--accent-ink)] underline-offset-4 hover:underline"
                             >
                               {t.work.viewProject} ↗
                             </a>
@@ -340,7 +340,7 @@ export function PublicPortfolioSiteProfessional({
                       type="button"
                       onClick={() => setOpenCapability(isOpen ? null : i)}
                       aria-expanded={isOpen}
-                      className="flex w-full items-center justify-between gap-6 py-5 text-left transition-colors hover:text-[var(--accent-solid)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
+                      className="flex w-full items-center justify-between gap-6 py-5 text-left transition-colors hover:text-[var(--accent-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-solid)]"
                     >
                       <span className="flex items-baseline gap-4">
                         <span className="font-mono text-xs text-[color-mix(in_srgb,var(--foreground)_42%,transparent)]">{String(i + 1).padStart(2, "0")}</span>

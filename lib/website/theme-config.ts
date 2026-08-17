@@ -133,12 +133,67 @@ function readableOn(accent: string): string {
   return luminance > 0.179 ? "#16181d" : "#ffffff";
 }
 
+/** sRGB relative luminance of a hex colour, or null if it will not parse. */
+function luminanceOf(hex: string): number | null {
+  const raw = hex.trim().replace("#", "");
+  const full = raw.length === 3 ? raw.split("").map((c) => c + c).join("") : raw;
+  if (!/^[0-9a-fA-F]{6}$/.test(full)) return null;
+  const channel = (value: number) => {
+    const c = value / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return (
+    0.2126 * channel(parseInt(full.slice(0, 2), 16)) +
+    0.7152 * channel(parseInt(full.slice(2, 4), 16)) +
+    0.0722 * channel(parseInt(full.slice(4, 6), 16))
+  );
+}
+
+function contrastRatio(a: number, b: number): number {
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+}
+
+/**
+ * The accent colour, made readable as *text* on the page's own background.
+ *
+ * --accent-contrast answers "what colour goes on top of the accent". This is
+ * the other direction, and it was missing: templates set section numbers,
+ * eyebrow labels and inline links in the accent itself, and an owner who picks
+ * a warm amber or a pale brand colour then has those sitting on a white page at
+ * around 1.8:1 - technically coloured, practically invisible. Measured across
+ * the templates, this was the single most common way a chosen colour broke a
+ * page.
+ *
+ * The hue is kept and only blended toward the page's text colour, by the
+ * smallest step that clears 4.5:1, so a colour that was already readable comes
+ * back untouched and one that was not stays recognisably itself.
+ */
+function accentInk(accent: string, background: string, text: string): string {
+  const accentLum = luminanceOf(accent);
+  const groundLum = luminanceOf(background);
+  if (accentLum === null || groundLum === null) return accent;
+  if (contrastRatio(accentLum, groundLum) >= 4.5) return accent;
+
+  // color-mix does the blending in the browser; we only decide how far.
+  for (let mix = 80; mix >= 20; mix -= 10) {
+    const blendLum = luminanceOf(text);
+    if (blendLum === null) break;
+    const approx = (accentLum * mix + blendLum * (100 - mix)) / 100;
+    if (contrastRatio(approx, groundLum) >= 4.5) {
+      return `color-mix(in srgb, ${accent} ${mix}%, ${text})`;
+    }
+  }
+  return text;
+}
+
 export function themeCssVars(theme: ThemeConfig, brandColorOverride?: string): CSSProperties {
   const accent = brandColorOverride && brandColorOverride.toLowerCase() !== "#171717" ? brandColorOverride : theme.primaryColor;
   return {
     "--accent-solid": accent,
     /** Readable text on top of --accent-solid; see readableOn above. */
     "--accent-contrast": readableOn(accent),
+    /** The accent used *as* text on the page background; see accentInk above. */
+    "--accent-ink": accentInk(accent, theme.backgroundColor, theme.textColor),
     "--accent-from": accent,
     "--accent-to": accent,
     "--theme-secondary": theme.secondaryColor,

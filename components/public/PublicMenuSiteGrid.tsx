@@ -49,7 +49,7 @@ function FilterChip({
       className={`shrink-0 snap-start rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
         active
           ? "text-[color:var(--accent-contrast)]"
-          : "border border-black/[.1] bg-surface hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-solid)] dark:border-white/[.14] dark:bg-white/[.04]"
+          : "border border-black/[.1] bg-surface hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-ink)] dark:border-white/[.14] dark:bg-white/[.04]"
       }`}
       style={active ? { background: "var(--accent-solid)" } : undefined}
     >
@@ -154,7 +154,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
               className="h-16 w-16 rounded-2xl object-cover shadow-lift ring-1 ring-white/25 sm:h-20 sm:w-20"
             />
           ) : (
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-accent text-2xl font-semibold text-white shadow-lift sm:h-20 sm:w-20">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-accent text-2xl font-semibold text-[var(--accent-contrast)] shadow-lift sm:h-20 sm:w-20">
               {site.businessName.charAt(0)}
             </div>
           )}
@@ -166,14 +166,14 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
               {site.businessName}
             </h1>
             {content.heroHeading && (
-              <p className={`mt-1.5 text-base font-medium sm:text-lg ${hasCover ? "text-white/85" : "text-[var(--accent-solid)]"}`}>
+              <p className={`mt-1.5 text-base font-medium sm:text-lg ${hasCover ? "text-white/85" : "text-[var(--accent-ink)]"}`}>
                 {content.heroHeading}
               </p>
             )}
             {content.heroSubtitle && (
               <p
                 className={`mt-2 max-w-2xl text-sm leading-relaxed ${
-                  hasCover ? "text-white/70" : "text-zinc-500 dark:text-zinc-400"
+                  hasCover ? "text-white/70" : "text-[var(--theme-text-muted)]"
                 }`}
               >
                 {content.heroSubtitle}
@@ -240,7 +240,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
             {/* Labelled, so it reads as photos of the place rather than as the
                 menu itself - which is what an unexplained row of food pictures
                 directly above the menu looked like. */}
-            <p className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400">
+            <p className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-[var(--theme-text-muted)]">
               {t.stats.photos}
             </p>
             <div className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto">
@@ -274,7 +274,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
                   setQuery("");
                   chooseCategory(null);
                 }}
-                className="mt-2 text-sm font-medium text-[var(--accent-solid)] hover:underline"
+                className="mt-2 text-sm font-medium text-[var(--accent-ink)] hover:underline"
               >
                 {t.filter.clearFilters}
               </button>
@@ -282,7 +282,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
           </div>
         ) : (
           (query || activeCategory) && (
-            <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mb-6 text-sm text-[var(--theme-text-muted)]">
               {visibleItemCount} {visibleItemCount === 1 ? t.filter.itemSingular : t.filter.itemPlural}
             </p>
           )
@@ -317,7 +317,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
           site.openingHours.length > 0) && (
           <Reveal as="section" className="mt-16 flex flex-col gap-5">
             {site.profile?.description && (
-              <p className="max-w-3xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{site.profile.description}</p>
+              <p className="max-w-3xl text-sm leading-relaxed text-[var(--theme-text-muted)]">{site.profile.description}</p>
             )}
             {site.profile && <LocationCard profile={site.profile} openingHours={site.openingHours} />}
             {(site.profile?.instagramUrl || site.profile?.tiktokUrl) && (
@@ -327,7 +327,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
                     href={site.profile.instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-full border border-black/[.08] px-4 py-2 text-sm font-medium transition-colors hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-solid)] dark:border-white/[.12]"
+                    className="rounded-full border border-black/[.08] px-4 py-2 text-sm font-medium transition-colors hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-ink)] dark:border-white/[.12]"
                   >
                     {t.contact.instagram}
                   </a>
@@ -337,7 +337,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
                     href={site.profile.tiktokUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-full border border-black/[.08] px-4 py-2 text-sm font-medium transition-colors hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-solid)] dark:border-white/[.12]"
+                    className="rounded-full border border-black/[.08] px-4 py-2 text-sm font-medium transition-colors hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-ink)] dark:border-white/[.12]"
                   >
                     {t.contact.tiktok}
                   </a>
@@ -350,7 +350,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
         <DynamicSections sections={site.sections} tone="grid" />
 
         {(site.profile?.policies.PRIVACY || site.profile?.policies.TERMS || site.profile?.policies.DELIVERY || site.profile?.policies.REFUND) && (
-          <footer className="mt-10 flex flex-col gap-4 border-t border-black/[.06] pt-6 text-xs text-zinc-500 dark:border-white/[.1]">
+          <footer className="mt-10 flex flex-col gap-4 border-t border-[var(--theme-border)] pt-6 text-xs text-[var(--theme-text-muted)]">
             {Object.entries(site.profile?.policies ?? {}).map(([key, policyContent]) => (
               <details key={key}>
                 <summary className="cursor-pointer font-medium">{t.policy[key.toLowerCase() as keyof typeof t.policy]}</summary>
@@ -371,7 +371,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
-            className="fixed bottom-5 right-5 z-40 flex h-14 items-center gap-2 bg-gradient-accent px-5 text-sm font-medium text-white shadow-lift"
+            className="fixed bottom-5 right-5 z-40 flex h-14 items-center gap-2 bg-gradient-accent px-5 text-sm font-medium text-[var(--accent-contrast)] shadow-lift"
           >
             🛒 {t.cart.cart}{cartCount > 0 ? ` (${cartCount})` : ""}
           </motion.button>
@@ -396,7 +396,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
                   <button
                     type="button"
                     onClick={() => setCartOpen(false)}
-                    className="mb-3 text-sm text-zinc-500 hover:underline"
+                    className="mb-3 text-sm text-[var(--theme-text-muted)] hover:underline"
                   >
                     {dir === "rtl" ? `${t.cart.close} →` : `← ${t.cart.close}`}
                   </button>

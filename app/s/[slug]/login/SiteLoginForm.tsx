@@ -10,6 +10,7 @@ import { friendlyMessage } from "@/lib/api/client";
 import { publicSiteApi } from "@/lib/api/publicSite";
 import { websitesApi } from "@/lib/api/websites";
 import { useAuth } from "@/lib/auth/auth-context";
+import { grantConsoleAccess, hasConsoleAccess } from "@/lib/website/console-session";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars } from "@/lib/website/theme-config";
 import type { ThemeConfig } from "@/lib/website/theme-config";
@@ -67,20 +68,14 @@ export function SiteLoginForm({ slug }: { slug: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Already signed in and allowed here? Then this page has nothing to ask.
+  // Forwarded only if this browser has actually signed in to *this* console.
+  // A Frontsey session on its own is deliberately not enough: the whole point
+  // of a separate admin link is that opening it asks who you are, rather than
+  // letting whoever happens to be logged in on this machine walk into somebody
+  // else's business.
   useEffect(() => {
-    if (!session) return;
-    let cancelled = false;
-    websitesApi
-      .listAccessible(session.accessToken)
-      .then((all) => {
-        if (cancelled) return;
-        if (all.some((w) => w.slug === slug)) router.replace(`/s/${slug}`);
-      })
-      .catch(() => undefined);
-    return () => {
-      cancelled = true;
-    };
+    if (!session || !hasConsoleAccess(slug, session.accountId)) return;
+    router.replace(`/s/${slug}`);
   }, [session, slug, router]);
 
   useEffect(() => {
@@ -120,6 +115,9 @@ export function SiteLoginForm({ slug }: { slug: string }) {
         setIsSubmitting(false);
         return;
       }
+      // Credentials for this website were typed here and checked against its
+      // access list - that, and only that, opens the console.
+      grantConsoleAccess(slug, authenticated.accountId);
       router.push(`/s/${slug}`);
     } catch (err) {
       setError(friendlyMessage(err, "Login failed. Please try again."));
@@ -137,7 +135,12 @@ export function SiteLoginForm({ slug }: { slug: string }) {
       : undefined;
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-surface-muted px-4 py-16" style={themeStyle}>
+    // `text-foreground` alongside the background, not instead of it. themeCssVars
+    // redefines --foreground to the site's text colour but deliberately sets no
+    // `color`, so a surface that names only a background inherits the app's own
+    // - which on a site with a dark palette put near-white type on this page's
+    // light card and made the business name invisible on its own front door.
+    <div className="flex flex-1 items-center justify-center bg-surface-muted px-4 py-16 text-foreground" style={themeStyle}>
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center gap-3 text-center">
           {brand?.logoUrl ? (
@@ -154,7 +157,7 @@ export function SiteLoginForm({ slug }: { slug: string }) {
           )}
           <div>
             <h1 className="text-lg font-semibold tracking-tight">{brand?.name ?? titleFromSlug(slug)}</h1>
-            <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mt-0.5 text-sm text-[var(--theme-text-muted,color-mix(in_srgb,var(--foreground)_62%,transparent))]">
               {brand?.tagline ?? "Sign in to your website's admin."}
             </p>
           </div>
@@ -162,7 +165,7 @@ export function SiteLoginForm({ slug }: { slug: string }) {
 
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col gap-4 rounded-2xl border border-black/[.08] bg-surface p-7 shadow-lift dark:border-white/[.1]"
+          className="flex flex-col gap-4 rounded-2xl border border-[var(--theme-border)] bg-surface p-7 text-foreground shadow-lift"
         >
           {error && <Alert tone="error">{error}</Alert>}
           <TextField
@@ -188,7 +191,7 @@ export function SiteLoginForm({ slug }: { slug: string }) {
           </Button>
         </form>
 
-        <p className="mt-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="mt-4 text-center text-xs text-[var(--theme-text-muted,color-mix(in_srgb,var(--foreground)_62%,transparent))]">
           Only the owner and invited managers of {brand?.name ?? "this website"} can sign in here.
         </p>
       </div>

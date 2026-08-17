@@ -89,8 +89,8 @@ export function LocationCard({ profile, openingHours, variant = "surface" }: Pro
   const openNow = now ? isOpenAt(today, now) : null;
 
   const dark = variant === "dark";
-  const mutedText = dark ? "text-zinc-400" : "text-zinc-500 dark:text-zinc-400";
-  const border = dark ? "border-white/10" : "border-black/[.08] dark:border-white/[.145]";
+  const mutedText = dark ? "text-[var(--theme-text-muted)]" : "text-[var(--theme-text-muted)]";
+  const border = dark ? "border-white/10" : "border-[var(--theme-border)]";
   const rowBorder = dark ? "border-white/[.06]" : "border-black/[.05] dark:border-white/[.08]";
 
   const mapQuery = profile.address?.trim();
@@ -124,7 +124,7 @@ export function LocationCard({ profile, openingHours, variant = "surface" }: Pro
                   className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                     openNow
                       ? "bg-emerald-500/12 text-emerald-600 dark:text-emerald-400"
-                      : "bg-zinc-500/12 text-zinc-500 dark:text-zinc-400"
+                      : "bg-zinc-500/12 text-[var(--theme-text-muted)]"
                   }`}
                 >
                   <span className={`h-1.5 w-1.5 rounded-full ${openNow ? "bg-emerald-500" : "bg-zinc-400"}`} />

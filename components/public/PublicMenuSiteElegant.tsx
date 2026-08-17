@@ -55,7 +55,7 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
             <SafeImage src={site.profile.logoUrl} alt="" className="mb-4 h-16 w-16 rounded-full object-cover shadow-soft" />
           )}
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl" style={themeHeadingStyle()}>{site.businessName}</h1>
-          {content.heroHeading && <p className="mt-2 text-base text-[var(--accent-solid)]">{content.heroHeading}</p>}
+          {content.heroHeading && <p className="mt-2 text-base text-[var(--accent-ink)]">{content.heroHeading}</p>}
           {content.heroSubtitle && <p className="mt-1 text-sm text-[var(--theme-text-muted)]">{content.heroSubtitle}</p>}
         </motion.div>
 

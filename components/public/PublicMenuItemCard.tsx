@@ -30,8 +30,8 @@ function OptionPill({ selected, onClick, children }: { selected: boolean; onClic
       style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
       className={`border px-3 py-1.5 text-left text-xs font-medium transition-colors ${
         selected
-          ? "border-transparent bg-[var(--accent-solid)] text-white"
-          : "border-black/[.12] text-zinc-600 hover:border-[var(--accent-solid)]/50 dark:border-white/[.18] dark:text-zinc-400"
+          ? "border-transparent bg-[var(--accent-solid)] text-[var(--accent-contrast)]"
+          : "border-[var(--theme-border)] text-[var(--theme-text-muted)] hover:border-[var(--accent-solid)]/50 hover:text-foreground"
       }`}
     >
       {children}
@@ -161,18 +161,18 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
       ) : (
         <>
           {item.imageUrl && (
-            <div className="aspect-[4/3] w-full overflow-hidden bg-black/[.04] dark:bg-white/[.06]">
+            <div className="aspect-[4/3] w-full overflow-hidden bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]">
               <SafeImage src={item.imageUrl} alt="" className="h-full w-full object-cover" />
             </div>
           )}
           <button type="button" onClick={handleExpand} className="flex w-full items-start justify-between gap-4 p-4 text-left">
             <div className="min-w-0">
               <p className="font-medium">{item.name}</p>
-              {item.description && <p className="mt-0.5 line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400">{item.description}</p>}
+              {item.description && <p className="mt-0.5 line-clamp-2 text-sm text-[var(--theme-text-muted)]">{item.description}</p>}
               <p className="mt-1.5 text-sm font-semibold">
                 {formatMoney(item.discountPrice ?? item.price, currency)}
                 {item.discountPrice != null && (
-                  <span className="ml-2 text-xs font-normal text-zinc-400 line-through">{formatMoney(item.price, currency)}</span>
+                  <span className="ml-2 text-xs font-normal text-[var(--theme-text-muted)] line-through">{formatMoney(item.price, currency)}</span>
                 )}
               </p>
             </div>
@@ -195,7 +195,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
         <p className="mt-1 text-sm italic text-[var(--theme-text-muted)]">{item.description}</p>
       )}
 
-      {isUnavailable && <p className={`text-xs font-medium text-amber-600 ${variant === "elegant" ? "mt-2" : "px-4 pb-3"}`}>{t.item.currentlyUnavailable}</p>}
+      {isUnavailable && <p className={`text-xs font-medium text-[color-mix(in_srgb,#f59e0b_55%,var(--foreground))] ${variant === "elegant" ? "mt-2" : "px-4 pb-3"}`}>{t.item.currentlyUnavailable}</p>}
 
       <AnimatePresence initial={false}>
       {expanded && !isUnavailable && (
@@ -207,7 +207,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
           className="overflow-hidden"
         >
         <div className={`flex flex-col gap-3 border-t border-black/[.06] pt-3 dark:border-white/[.1] ${variant === "elegant" ? "mt-3" : "mx-4 mb-4"}`}>
-          {item.ingredients && <p className="text-xs text-zinc-500">{item.ingredients}</p>}
+          {item.ingredients && <p className="text-xs text-[var(--theme-text-muted)]">{item.ingredients}</p>}
 
           {item.fixedBoxItem && item.boxVariants.length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -232,7 +232,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
           {!item.fixedBoxItem &&
             item.addonGroups.map((group) => (
               <div key={group.id} className="flex flex-col gap-1.5">
-                <p className="text-xs font-medium text-zinc-500">
+                <p className="text-xs font-medium text-[var(--theme-text-muted)]">
                   {group.name}
                   {group.maxSelections != null && ` (${t.item.upTo(group.maxSelections)})`}
                 </p>
@@ -252,12 +252,12 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
 
           {orderingEnabled && (
             <div className="flex items-center gap-3">
-              <div className="flex h-10 items-center rounded-full border border-black/[.12] dark:border-white/[.18]">
+              <div className="flex h-10 items-center rounded-full border border-[var(--theme-border)]">
                 <button
                   type="button"
                   aria-label={t.item.decreaseQuantity}
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="flex h-full w-9 items-center justify-center text-sm text-zinc-500 hover:text-foreground"
+                  className="flex h-full w-9 items-center justify-center text-sm text-[var(--theme-text-muted)] hover:text-foreground"
                 >
                   −
                 </button>
@@ -266,7 +266,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
                   type="button"
                   aria-label={t.item.increaseQuantity}
                   onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
-                  className="flex h-full w-9 items-center justify-center text-sm text-zinc-500 hover:text-foreground"
+                  className="flex h-full w-9 items-center justify-center text-sm text-[var(--theme-text-muted)] hover:text-foreground"
                 >
                   +
                 </button>

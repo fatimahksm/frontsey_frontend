@@ -83,7 +83,7 @@ export function CartPanel({ lines, currency, deliveryAreas, onRemove, onCheckout
     >
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold tracking-tight">{t.cart.yourOrder}</h3>
-        <span className="rounded-full bg-[var(--accent-solid)]/10 px-2.5 py-1 text-xs font-medium text-[var(--accent-solid)]">
+        <span className="rounded-full bg-[var(--accent-solid)]/10 px-2.5 py-1 text-xs font-medium text-[var(--accent-ink)]">
           {itemCount} {itemCount === 1 ? t.cart.itemSingular : t.cart.itemsPlural}
         </span>
       </div>
