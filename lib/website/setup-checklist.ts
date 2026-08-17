@@ -4,6 +4,7 @@ import { profileApi } from "@/lib/api/profile";
 import { servicesApi } from "@/lib/api/services";
 import { subscriptionApi } from "@/lib/api/subscription";
 import type { BusinessProfileResponse, SubscriptionResponse, WebsiteResponse } from "@/lib/api/types";
+import { trialStillAvailable } from "@/lib/website/subscription-state";
 
 export interface ChecklistItem {
   key: string;
@@ -53,14 +54,18 @@ export function buildPublicationChecklist(input: {
  * refuse - an expired or canceled subscription, or a checkout left unpaid.
  */
 function subscriptionItem(subscription: SubscriptionResponse | null, trialDays: number | null): ChecklistItem {
-  if (!subscription) {
+  // No subscription, or one that never actually ran - the trial is still to
+  // come either way. The second case matters: a zero-length trial left an
+  // EXPIRED row behind, and reading only the status told an owner their plan
+  // had stopped while the server was still accepting all their edits.
+  if (trialStillAvailable(subscription)) {
     return {
       key: "subscription",
       label: trialDays ? `Free ${trialDays}-day trial - starts when you publish` : "Free trial - starts when you publish",
       complete: true,
     };
   }
-  switch (subscription.status) {
+  switch (subscription!.status) {
     case "TRIAL":
       return { key: "subscription", label: "Free trial running", complete: true };
     case "ACTIVE":

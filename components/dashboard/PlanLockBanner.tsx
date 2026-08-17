@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import type { SubscriptionResponse } from "@/lib/api/types";
+import { isPlanLocked } from "@/lib/website/subscription-state";
 
 /**
  * The bar shown on every page of a website whose plan has stopped.
@@ -17,17 +18,6 @@ import type { SubscriptionResponse } from "@/lib/api/types";
  * should be able to see their own menu, their own content and their own numbers
  * while they decide whether to pay - it just cannot be changed.
  */
-
-/** Whether writes are currently refused for this website. Mirrors the server's rule. */
-export function isPlanLocked(subscription: SubscriptionResponse | null): boolean {
-  if (!subscription) return false;
-  // A row whose dates never advanced is a trial that never ran - the server
-  // treats it as "not started" rather than "stopped", and so does this.
-  if (subscription.startDate && subscription.endDate && subscription.endDate <= subscription.startDate) {
-    return false;
-  }
-  return !["TRIAL", "ACTIVE", "GRACE", "PENDING"].includes(subscription.status);
-}
 
 export function PlanLockBanner({
   subscription,

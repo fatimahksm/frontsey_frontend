@@ -11,6 +11,7 @@ import { plansApi } from "@/lib/api/plans";
 import { subscriptionApi } from "@/lib/api/subscription";
 import type { MockPaymentResponse, MockPaymentStatus, PlanResponse, SubscriptionResponse } from "@/lib/api/types";
 import { formatDate, formatMoney } from "@/lib/format";
+import { hasEverRun } from "@/lib/website/subscription-state";
 import { useWebsite } from "@/lib/website/website-context";
 
 /**
@@ -56,7 +57,15 @@ function dayCount(days: number): string {
  * One plain sentence about where this website stands, in the terms that matter
  * to the person paying: is my site up, and when do I have to do something.
  */
-function statusSentence(subscription: SubscriptionResponse): string {
+function statusSentence(subscription: SubscriptionResponse, trialDays: number | null): string {
+  // A row that never served a day is not a plan that stopped. Saying "your site
+  // is offline because the subscription ended" about a trial that never began
+  // is both wrong and unfixable-sounding - the trial is still there to be had.
+  if (!hasEverRun(subscription)) {
+    return trialDays
+      ? `Your free ${trialDays}-day trial is still waiting for you - it starts the moment you publish.`
+      : "Your free trial is still waiting for you - it starts the moment you publish.";
+  }
   const left = daysUntil(subscription.endDate);
   switch (subscription.status) {
     case "TRIAL":
@@ -91,6 +100,7 @@ export default function SubscriptionPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isBusy, setIsBusy] = useState(false);
+  const [trialDays, setTrialDays] = useState<number | null>(null);
 
   async function loadSubscription() {
     try {
@@ -101,11 +111,19 @@ export default function SubscriptionPage() {
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
-    Promise.all([loadSubscription(), plansApi.list().then(setPlans)])
+    // Fetch-on-mount: one sync with the backend, not derivable state.
+    Promise.all([
+      subscriptionApi.get(accessToken, website.id).catch(() => null),
+      plansApi.list(),
+      plansApi.trialDays().catch(() => null),
+    ])
+      .then(([found, allPlans, days]) => {
+        setSubscription(found);
+        setPlans(allPlans);
+        setTrialDays(days);
+      })
       .catch((err) => setError(friendlyMessage(err, "Failed to load subscription info.")))
       .finally(() => setIsLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, website.id]);
 
   async function handleCheckout(plan: PlanResponse) {
@@ -152,6 +170,7 @@ export default function SubscriptionPage() {
   // that was never paid for.
   const isCurrent = (plan: PlanResponse) =>
     subscription?.status !== "TRIAL" &&
+    (subscription == null || hasEverRun(subscription)) &&
     subscription?.planCode === plan.code &&
     subscription.billingPeriod === plan.billingPeriod;
 
@@ -176,12 +195,14 @@ export default function SubscriptionPage() {
                   Your plan
                 </p>
                 <p className="text-2xl font-semibold tracking-tight">
-                  {subscription.status === "TRIAL"
+                  {subscription.status === "TRIAL" || !hasEverRun(subscription)
                     ? "Free trial"
                     : `${subscription.planCode} · ${subscription.billingPeriod}`}
                 </p>
               </div>
-              <Badge tone={STATUS_TONE[subscription.status]}>{STATUS_LABEL[subscription.status]}</Badge>
+              <Badge tone={hasEverRun(subscription) ? STATUS_TONE[subscription.status] : "neutral"}>
+                {hasEverRun(subscription) ? STATUS_LABEL[subscription.status] : "Not started"}
+              </Badge>
             </div>
 
             {/* The countdown is the number an owner on a trial actually wants,
@@ -197,9 +218,13 @@ export default function SubscriptionPage() {
               </div>
             )}
 
-            <p className="text-sm">{statusSentence(subscription)}</p>
+            <p className="text-sm">{statusSentence(subscription, trialDays)}</p>
 
-            <dl className="grid grid-cols-2 gap-x-6 gap-y-2 border-t border-black/[.08] pt-4 text-sm sm:grid-cols-3 dark:border-white/[.145]">
+            <dl
+              className={`grid grid-cols-2 gap-x-6 gap-y-2 border-t border-black/[.08] pt-4 text-sm sm:grid-cols-3 dark:border-white/[.145] ${
+                hasEverRun(subscription) ? "" : "hidden"
+              }`}
+            >
               {subscription.startDate && (
                 <div>
                   <dt className="text-xs text-zinc-500 dark:text-zinc-400">Started</dt>
