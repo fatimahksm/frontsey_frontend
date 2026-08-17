@@ -544,6 +544,15 @@ export interface AdminWebsiteSummaryResponse {
   status: WebsiteStatus;
   ownerId: string;
   ownerEmail: string;
+  ownerName: string | null;
+  /** From this website's own business profile - the number its customers use. */
+  ownerPhone: string | null;
+  /** How many websites this owner has in total. */
+  ownerWebsiteCount: number;
+  planCode: string | null;
+  planBillingPeriod: string | null;
+  subscriptionStatus: SubscriptionStatus | null;
+  subscriptionEndsAt: string | null;
   suspensionReason: string | null;
   suspensionReactivateAt: string | null;
   publishedAt: string | null;
