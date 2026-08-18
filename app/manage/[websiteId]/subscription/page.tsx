@@ -58,6 +58,12 @@ function dayCount(days: number): string {
  * to the person paying: is my site up, and when do I have to do something.
  */
 function statusSentence(subscription: SubscriptionResponse, trialDays: number | null): string {
+  // Free access, granted deliberately. Telling this owner their plan renews, or
+  // showing them a countdown, would be chasing them for money nobody intends to
+  // take.
+  if (subscription.complimentary) {
+    return "Your site is live on free access, granted by Frontsey. There is nothing to pay and nothing to renew.";
+  }
   // A row that never served a day is not a plan that stopped. Saying "your site
   // is offline because the subscription ended" about a trial that never began
   // is both wrong and unfixable-sounding - the trial is still there to be had.
@@ -195,13 +201,19 @@ export default function SubscriptionPage() {
                   Your plan
                 </p>
                 <p className="text-2xl font-semibold tracking-tight">
-                  {subscription.status === "TRIAL" || !hasEverRun(subscription)
-                    ? "Free trial"
-                    : `${subscription.planCode} · ${subscription.billingPeriod}`}
+                  {subscription.complimentary
+                    ? "Free access"
+                    : subscription.status === "TRIAL" || !hasEverRun(subscription)
+                      ? "Free trial"
+                      : `${subscription.planCode} · ${subscription.billingPeriod}`}
                 </p>
               </div>
-              <Badge tone={hasEverRun(subscription) ? STATUS_TONE[subscription.status] : "neutral"}>
-                {hasEverRun(subscription) ? STATUS_LABEL[subscription.status] : "Not started"}
+              <Badge tone={subscription.complimentary || hasEverRun(subscription) ? STATUS_TONE[subscription.status] : "neutral"}>
+                {subscription.complimentary
+                  ? "Live"
+                  : hasEverRun(subscription)
+                    ? STATUS_LABEL[subscription.status]
+                    : "Not started"}
               </Badge>
             </div>
 
@@ -222,7 +234,7 @@ export default function SubscriptionPage() {
 
             <dl
               className={`grid grid-cols-2 gap-x-6 gap-y-2 border-t border-black/[.08] pt-4 text-sm sm:grid-cols-3 dark:border-white/[.145] ${
-                hasEverRun(subscription) ? "" : "hidden"
+                hasEverRun(subscription) && !subscription.complimentary ? "" : "hidden"
               }`}
             >
               {subscription.startDate && (
@@ -279,6 +291,9 @@ export default function SubscriptionPage() {
         </Card>
       )}
 
+      {/* Nothing below is for somebody on free access - no plan to pick, no
+          checkout to run. */}
+      {subscription?.complimentary ? null : (
       <Card
         title="Plans"
         description={
@@ -334,6 +349,7 @@ export default function SubscriptionPage() {
           })}
         </ul>
       </Card>
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { ProvisionSiteForm } from "@/components/admin/ProvisionSiteForm";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
@@ -24,8 +25,10 @@ import { useAuth } from "@/lib/auth/auth-context";
  * whether they are paying, and how to reach them first. All of that is on the
  * row now, and blocking is one button with the reason attached.
  *
- * There is deliberately no "create website" here. That belongs to owners, in
- * their own dashboard - an admin oversees businesses rather than opening them.
+ * An admin does not create a website for themselves here - that belongs to
+ * owners, in their own dashboard. What they can do is stand one up *for* an
+ * owner, named by email, which is a different act: the owner owns it, and if
+ * they have no account yet they are invited to make one.
  */
 
 const PLAN_TONE: Record<SubscriptionStatus, "success" | "warning" | "danger" | "neutral"> = {
@@ -187,6 +190,10 @@ export default function AdminWebsitesPage() {
 
       {error && <Alert tone="error">{error}</Alert>}
 
+      {/* Standing a site up *for* an owner - not the admin creating one for
+          themselves, which stays where it belongs, in an owner's dashboard. */}
+      {session && <ProvisionSiteForm accessToken={session.accessToken} onCreated={() => void load()} />}
+
       {isLoading ? (
         <p className="text-sm text-zinc-500">Loading…</p>
       ) : visible.length === 0 ? (
@@ -208,7 +215,9 @@ export default function AdminWebsitesPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-base font-semibold">{site.businessName}</p>
                     <WebsiteStatusBadge status={site.status} />
-                    {site.subscriptionStatus ? (
+                    {site.complimentary ? (
+                      <Badge tone="success">Free access</Badge>
+                    ) : site.subscriptionStatus ? (
                       <Badge tone={PLAN_TONE[site.subscriptionStatus]}>
                         {site.subscriptionStatus === "TRIAL"
                           ? PLAN_LABEL.TRIAL

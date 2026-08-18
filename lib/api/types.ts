@@ -445,6 +445,8 @@ export interface SubscriptionResponse {
   graceEndsAt: string | null;
   /** The server's own reading of BR-SUB-010: false while a paid plan is still running. */
   canChangePlan: boolean;
+  /** Free access granted by a Super Admin: never billed, never expires. */
+  complimentary: boolean;
 }
 
 export interface CheckoutRequest {
@@ -552,6 +554,8 @@ export interface AdminWebsiteSummaryResponse {
   planCode: string | null;
   planBillingPeriod: string | null;
   subscriptionStatus: SubscriptionStatus | null;
+  /** Free access granted by an admin. */
+  complimentary: boolean;
   subscriptionEndsAt: string | null;
   suspensionReason: string | null;
   suspensionReactivateAt: string | null;
@@ -775,4 +779,26 @@ export interface AdminPlatformReportResponse {
   renewals: number;
   onFreeTrial: number;
   trialsLapsed: number;
+}
+
+/** Matches com.dbwb.platform.admin.dto.ProvisionWebsiteRequest. */
+export interface ProvisionWebsiteRequest {
+  ownerEmail: string;
+  ownerFullName?: string | null;
+  businessName: string;
+  templateType: TemplateType;
+  layoutVariant?: LayoutVariant | null;
+  pageMode?: PageMode | null;
+  complimentary: boolean;
+}
+
+/** Matches com.dbwb.platform.admin.dto.ProvisionedWebsiteResponse. */
+export interface ProvisionedWebsiteResponse {
+  websiteId: string;
+  businessName: string;
+  slug: string;
+  ownerId: string;
+  ownerEmail: string;
+  ownerAccountCreated: boolean;
+  complimentary: boolean;
 }

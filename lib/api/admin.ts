@@ -1,5 +1,7 @@
 import { apiFetch } from "@/lib/api/client";
 import type {
+  ProvisionWebsiteRequest,
+  ProvisionedWebsiteResponse,
   AdminPlatformReportResponse,
   AccountSummaryResponse,
   AdminDashboardResponse,
@@ -19,6 +21,11 @@ import type {
 
 /** `/api/admin/**` (BRD 9.17): Super Admin console only. */
 export const adminApi = {
+  /** Stand a website up for an owner named by email (Super Admin). */
+  provisionWebsite(accessToken: string, body: ProvisionWebsiteRequest): Promise<ProvisionedWebsiteResponse> {
+    return apiFetch<ProvisionedWebsiteResponse>("/admin/websites/provision", { method: "POST", accessToken, body });
+  },
+
   /** The platform report - templates chosen, signups, publishes, takings, renewals. */
   report(accessToken: string, days = 30): Promise<AdminPlatformReportResponse> {
     return apiFetch<AdminPlatformReportResponse>(`/admin/report?days=${days}`, { accessToken });
