@@ -449,9 +449,30 @@ export interface SubscriptionResponse {
   complimentary: boolean;
 }
 
+/**
+ * What a website costs is decided by its template, not by a tier the owner
+ * picks - so checkout only asks how they want to be billed.
+ */
 export interface CheckoutRequest {
-  planCode: PlanCode;
   billingPeriod: BillingPeriod;
+}
+
+/** One template's price, and the plan whose limits come with it. */
+export interface TemplatePriceResponse {
+  id: string;
+  layoutVariant: LayoutVariant;
+  templateType: TemplateType;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  planCode: PlanCode;
+  active: boolean;
+}
+
+export interface TemplatePriceUpdateRequest {
+  monthlyPrice: string;
+  yearlyPrice: string;
+  planCode: PlanCode;
+  active: boolean;
 }
 
 export interface MockPaymentResponse {

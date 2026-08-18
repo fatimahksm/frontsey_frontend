@@ -8,8 +8,11 @@ import type {
   AdminWebsiteSummaryResponse,
   AdminWebsiteUpdateRequest,
   AuditLogResponse,
+  LayoutVariant,
   PlanResponse,
   PlanUpdateRequest,
+  TemplatePriceResponse,
+  TemplatePriceUpdateRequest,
   SupportTicketResponse,
   SupportTicketStatus,
   SuspendWebsiteRequest,
@@ -97,6 +100,24 @@ export const adminApi = {
 
   updatePlan(accessToken: string, planId: string, request: PlanUpdateRequest): Promise<PlanResponse> {
     return apiFetch<PlanResponse>(`/admin/plans/${planId}`, { method: "PUT", body: request, accessToken });
+  },
+
+  /** Every template's price, monthly and yearly. */
+  listTemplatePrices(accessToken: string): Promise<TemplatePriceResponse[]> {
+    return apiFetch<TemplatePriceResponse[]>("/admin/template-prices", { accessToken });
+  },
+
+  /** Reprice one template. Subscriptions already running keep what they paid for. */
+  updateTemplatePrice(
+    accessToken: string,
+    layoutVariant: LayoutVariant,
+    request: TemplatePriceUpdateRequest,
+  ): Promise<TemplatePriceResponse> {
+    return apiFetch<TemplatePriceResponse>(`/admin/template-prices/${layoutVariant}`, {
+      method: "PUT",
+      body: request,
+      accessToken,
+    });
   },
 
   listSupportTickets(accessToken: string): Promise<SupportTicketResponse[]> {

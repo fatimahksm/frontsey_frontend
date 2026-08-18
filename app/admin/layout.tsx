@@ -109,14 +109,26 @@ const NAV_GROUPS: { label: string | null; items: NavItem[] }[] = [
     label: "Platform",
     items: [
       {
-        href: "/admin/plans",
-        label: "Plans",
-        hint: "Pricing and limits",
+        href: "/admin/template-pricing",
+        label: "Template pricing",
+        hint: "What each template costs",
         icon: (
           <Icon>
             <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
             <path d="M2.5 10h19" />
             <path d="M6 15h4" />
+          </Icon>
+        ),
+      },
+      {
+        href: "/admin/plans",
+        label: "Plans",
+        // Owners no longer pick a plan - a template names one, and this is where
+        // what that plan allows is set.
+        hint: "The limits behind each price",
+        icon: (
+          <Icon>
+            <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
           </Icon>
         ),
       },
