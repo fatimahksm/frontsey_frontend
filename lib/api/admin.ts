@@ -1,5 +1,6 @@
 import { apiFetch } from "@/lib/api/client";
 import type {
+  AdminPlatformReportResponse,
   AccountSummaryResponse,
   AdminDashboardResponse,
   AdminWebsiteSummaryResponse,
@@ -18,6 +19,11 @@ import type {
 
 /** `/api/admin/**` (BRD 9.17): Super Admin console only. */
 export const adminApi = {
+  /** The platform report - templates chosen, signups, publishes, takings, renewals. */
+  report(accessToken: string, days = 30): Promise<AdminPlatformReportResponse> {
+    return apiFetch<AdminPlatformReportResponse>(`/admin/report?days=${days}`, { accessToken });
+  },
+
   dashboard(accessToken: string): Promise<AdminDashboardResponse> {
     return apiFetch<AdminDashboardResponse>("/admin/dashboard", { accessToken });
   },

@@ -760,3 +760,19 @@ export interface AiSuggestionRequest {
 export interface AiSuggestionResponse {
   suggestion: string;
 }
+
+/** Matches com.dbwb.platform.admin.dto.AdminPlatformReportResponse. */
+export interface AdminPlatformReportResponse {
+  days: number;
+  templates: { layoutVariant: LayoutVariant; templateType: TemplateType; websites: number; published: number }[];
+  signups: { date: string; count: number }[];
+  websitesCreated: { date: string; count: number }[];
+  websitesPublished: { date: string; count: number }[];
+  revenue: { date: string; amount: number }[];
+  subscriptions: { status: SubscriptionStatus; count: number }[];
+  revenueByPlan: { planCode: string; billingPeriod: string; payments: number; revenue: number }[];
+  firstPayments: number;
+  renewals: number;
+  onFreeTrial: number;
+  trialsLapsed: number;
+}
