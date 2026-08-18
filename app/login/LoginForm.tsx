@@ -11,6 +11,7 @@ import { TextField } from "@/components/ui/TextField";
 import { friendlyMessage } from "@/lib/api/client";
 import { publicSiteApi } from "@/lib/api/publicSite";
 import { websitesApi } from "@/lib/api/websites";
+import type { Role } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { parseDraftContent } from "@/lib/website/draft-content";
 
@@ -72,7 +73,8 @@ export function LoginForm() {
   }, [siteSlug]);
 
   /** Where to land after a successful sign-in. */
-  async function destination(accessToken: string): Promise<string> {
+  async function destination(session: { accessToken: string; role: Role }): Promise<string> {
+    const accessToken = session.accessToken;
     if (next && next.startsWith("/")) return next;
     if (siteSlug) {
       // The console is keyed by id, and this screen only knows the slug, so
@@ -83,6 +85,11 @@ export function LoginForm() {
       const match = accessible.find((w) => w.slug === siteSlug);
       if (match) return `/manage/${match.id}`;
     }
+    // A Super Admin lands in the platform console, not in an owner's "My
+    // Websites" with an Admin link to find. Their job is the platform; being
+    // dropped into a personal website list and having to click through to it
+    // had the roles the wrong way round.
+    if (session.role === "SUPER_ADMIN") return "/admin";
     return "/dashboard";
   }
 
@@ -92,7 +99,7 @@ export function LoginForm() {
     setIsSubmitting(true);
     try {
       const session = await login({ email, password });
-      router.push(await destination(session.accessToken));
+      router.push(await destination(session));
     } catch (err) {
       setError(friendlyMessage(err, "Login failed. Please try again."));
       setIsSubmitting(false);

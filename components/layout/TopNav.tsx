@@ -7,10 +7,25 @@ import { usePathname, useRouter } from "next/navigation";
 import { NotificationsBell } from "@/components/layout/NotificationsBell";
 import { useAuth } from "@/lib/auth/auth-context";
 
-const LINKS = [
+/** What a business owner's account is for: their own websites. */
+const OWNER_LINKS = [
   { href: "/dashboard", label: "Websites", match: (path: string) => path === "/dashboard" || path.startsWith("/dashboard/websites") },
   { href: "/dashboard/support", label: "Support", match: (path: string) => path.startsWith("/dashboard/support") },
   { href: "/dashboard/account", label: "Account", match: (path: string) => path.startsWith("/dashboard/account") },
+];
+
+/**
+ * What a Super Admin's account is for: the platform.
+ *
+ * They used to get the owner's nav with an "Admin" link added at the end, so
+ * the platform console read as a side trip from a personal website list -
+ * exactly backwards. The console leads now, and "My own websites" is the side
+ * trip, kept because a Super Admin may genuinely own a site and should be able
+ * to reach and create one. Named so it is clear that is a different hat.
+ */
+const ADMIN_LINKS = [
+  { href: "/admin", label: "Platform", match: (path: string) => path.startsWith("/admin") },
+  { href: "/dashboard", label: "My own websites", match: (path: string) => path.startsWith("/dashboard") },
 ];
 
 export function TopNav() {
@@ -20,10 +35,8 @@ export function TopNav() {
 
   if (!session) return null;
 
-  const links =
-    session.role === "SUPER_ADMIN"
-      ? [...LINKS, { href: "/admin", label: "Admin", match: (path: string) => path.startsWith("/admin") }]
-      : LINKS;
+  const isSuperAdmin = session.role === "SUPER_ADMIN";
+  const links = isSuperAdmin ? ADMIN_LINKS : OWNER_LINKS;
 
   return (
     <motion.header
@@ -32,8 +45,13 @@ export function TopNav() {
       transition={{ duration: 0.35, ease: "easeOut" }}
       className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-black/[.08] bg-surface/80 px-4 backdrop-blur-md dark:border-white/[.1]"
     >
-      <Link href="/dashboard" className="text-gradient text-sm font-semibold tracking-tight">
-        Frontsey
+      <Link href={isSuperAdmin ? "/admin" : "/dashboard"} className="flex items-center gap-2 text-sm font-semibold tracking-tight">
+        <span className="text-gradient">Frontsey</span>
+        {isSuperAdmin && (
+          <span className="rounded-full border border-black/[.12] px-2 py-0.5 text-[11px] font-medium text-zinc-500 dark:border-white/[.18] dark:text-zinc-400">
+            Admin
+          </span>
+        )}
       </Link>
       <nav className="flex items-center gap-1 text-sm">
         {links.map((link) => {
