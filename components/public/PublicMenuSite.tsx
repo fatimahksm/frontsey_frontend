@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionSafeImage, SafeImage } from "@/components/public/SafeImage";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
@@ -35,7 +36,7 @@ function BackToTop({ label }: { label: string }) {
       type="button"
       aria-label={label}
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center text-lg text-[var(--theme-background)] shadow-lift"
+      className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center text-lg text-[var(--accent-contrast)] shadow-lift"
       style={{ background: "var(--accent-solid)", borderRadius: "var(--theme-button-radius, 9999px)" }}
     >
       <span aria-hidden>↑</span>
@@ -110,8 +111,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
       >
         {hasCover && (
           <>
-            {/* eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL */}
-            <img src={site.profile!.coverImageUrl!} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <SafeImage src={site.profile!.coverImageUrl!} alt="" className="absolute inset-0 h-full w-full object-cover" />
             <div className="absolute inset-0 bg-black/45" aria-hidden />
           </>
         )}
@@ -124,7 +124,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
           } ${heroText}`}
         >
           <a href="#menu" className="hover:opacity-80">
-            {t.nav.menu}
+            {content.menuBusinessKind === "SHOP" ? t.nav.products : t.nav.menu}
           </a>
           {site.profile?.description && (
             <a href="#about" className="hover:opacity-80">
@@ -145,8 +145,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
           className={`relative z-10 flex flex-col items-center gap-4 ${hasCover ? "my-auto" : ""}`}
         >
           {site.profile?.logoUrl && (
-            // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-            <img src={site.profile.logoUrl} alt="" className="h-24 w-24 rounded-full object-cover shadow-lift" />
+            <SafeImage src={site.profile.logoUrl} alt="" className="h-24 w-24 rounded-full object-cover shadow-lift" />
           )}
           <h1
             className={`max-w-3xl text-4xl font-semibold leading-tight tracking-tight sm:text-6xl ${heroText}`}
@@ -172,7 +171,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
       <section id="menu" className="mx-auto w-full max-w-3xl scroll-mt-4 px-5 py-14">
         <Reveal as="div" className="flex flex-col items-center">
           <h2 className="text-3xl font-semibold tracking-tight" style={themeHeadingStyle()}>
-            {t.nav.menu}
+            {content.menuBusinessKind === "SHOP" ? t.nav.products : t.nav.menu}
           </h2>
           <span className="mt-3 h-1 w-16 rounded-full" style={{ background: "var(--accent-solid)" }} aria-hidden />
         </Reveal>
@@ -182,7 +181,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={t.filter.searchPlaceholder}
+            placeholder={(content.menuBusinessKind === "SHOP" ? t.filter.searchProductsPlaceholder : t.filter.searchPlaceholder)}
             className="mt-8 h-11 w-full border bg-transparent px-4 text-sm text-[var(--theme-text)] outline-none placeholder:text-[var(--theme-text-muted)] focus:border-[var(--accent-solid)]"
             style={{ borderColor: "var(--theme-border)", borderRadius: "var(--theme-radius)" }}
           />
@@ -196,7 +195,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
                 key={category.id}
                 type="button"
                 onClick={() => scrollToCategory(category)}
-                className="px-4 py-3.5 text-sm font-semibold text-[var(--theme-background)] transition-opacity hover:opacity-90 sm:text-base"
+                className="px-4 py-3.5 text-sm font-semibold text-[var(--accent-contrast)] transition-opacity hover:opacity-90 sm:text-base"
                 style={{ background: "var(--accent-solid)", borderRadius: "var(--theme-button-radius, 9999px)" }}
               >
                 {category.name}
@@ -214,7 +213,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
             <section key={category.id} id={sectionId(category.id)} className="scroll-mt-4 pt-8">
               <Reveal as="div">
                 <h3
-                  className="text-center text-3xl font-bold tracking-tight text-[var(--accent-solid)]"
+                  className="text-center text-3xl font-bold tracking-tight text-[var(--accent-ink)]"
                   style={themeHeadingStyle()}
                 >
                   {category.name}
@@ -255,7 +254,7 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
       {site.galleryImageUrls.length > 0 && (
         <div className="mx-auto grid w-full max-w-3xl grid-cols-2 gap-3 px-5 py-6 sm:grid-cols-3">
           {site.galleryImageUrls.map((url) => (
-            <motion.img
+            <MotionSafeImage
               key={url}
               whileHover={{ scale: 1.03 }}
               transition={{ duration: 0.25 }}
@@ -289,17 +288,17 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
             {site.profile?.address && <span>{site.profile.address}</span>}
             <div className="mt-2 flex flex-wrap justify-center gap-4">
               {site.profile?.googleMapsUrl && (
-                <a href={site.profile.googleMapsUrl} target="_blank" className="text-[var(--accent-solid)] hover:underline">
+                <a href={site.profile.googleMapsUrl} target="_blank" className="text-[var(--accent-ink)] hover:underline">
                   {t.contact.map}
                 </a>
               )}
               {site.profile?.instagramUrl && (
-                <a href={site.profile.instagramUrl} target="_blank" className="text-[var(--accent-solid)] hover:underline">
+                <a href={site.profile.instagramUrl} target="_blank" className="text-[var(--accent-ink)] hover:underline">
                   {t.contact.instagram}
                 </a>
               )}
               {site.profile?.tiktokUrl && (
-                <a href={site.profile.tiktokUrl} target="_blank" className="text-[var(--accent-solid)] hover:underline">
+                <a href={site.profile.tiktokUrl} target="_blank" className="text-[var(--accent-ink)] hover:underline">
                   {t.contact.tiktok}
                 </a>
               )}

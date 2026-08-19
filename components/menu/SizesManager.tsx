@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { menuOptionsApi } from "@/lib/api/menuOptions";
 import type { SizeVariantResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
@@ -48,7 +48,7 @@ export function SizesManager({
       setPrice("");
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to add size.");
+      setError(friendlyMessage(err, "Failed to add size."));
     } finally {
       setIsBusy(false);
     }
@@ -61,7 +61,7 @@ export function SizesManager({
       await menuOptionsApi.deleteSize(accessToken, websiteId, itemId, sizeId);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to delete size.");
+      setError(friendlyMessage(err, "Failed to delete size."));
     } finally {
       setIsBusy(false);
     }

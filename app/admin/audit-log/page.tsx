@@ -6,7 +6,7 @@ import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Card } from "@/components/ui/Card";
 import { adminApi } from "@/lib/api/admin";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import type { AuditLogResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { formatDate } from "@/lib/format";
@@ -21,7 +21,7 @@ export default function AdminAuditLogPage() {
     adminApi
       .listAuditLogs(session.accessToken)
       .then(setLogs)
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load the audit log."));
+      .catch((err) => setError(friendlyMessage(err, "Failed to load the audit log.")));
   }, [session]);
 
   return (

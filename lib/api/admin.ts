@@ -1,12 +1,18 @@
 import { apiFetch } from "@/lib/api/client";
 import type {
+  ProvisionWebsiteRequest,
+  ProvisionedWebsiteResponse,
+  AdminPlatformReportResponse,
   AccountSummaryResponse,
   AdminDashboardResponse,
   AdminWebsiteSummaryResponse,
   AdminWebsiteUpdateRequest,
   AuditLogResponse,
+  LayoutVariant,
   PlanResponse,
   PlanUpdateRequest,
+  TemplatePriceResponse,
+  TemplatePriceUpdateRequest,
   SupportTicketResponse,
   SupportTicketStatus,
   SuspendWebsiteRequest,
@@ -18,6 +24,16 @@ import type {
 
 /** `/api/admin/**` (BRD 9.17): Super Admin console only. */
 export const adminApi = {
+  /** Stand a website up for an owner named by email (Super Admin). */
+  provisionWebsite(accessToken: string, body: ProvisionWebsiteRequest): Promise<ProvisionedWebsiteResponse> {
+    return apiFetch<ProvisionedWebsiteResponse>("/admin/websites/provision", { method: "POST", accessToken, body });
+  },
+
+  /** The platform report - templates chosen, signups, publishes, takings, renewals. */
+  report(accessToken: string, days = 30): Promise<AdminPlatformReportResponse> {
+    return apiFetch<AdminPlatformReportResponse>(`/admin/report?days=${days}`, { accessToken });
+  },
+
   dashboard(accessToken: string): Promise<AdminDashboardResponse> {
     return apiFetch<AdminDashboardResponse>("/admin/dashboard", { accessToken });
   },
@@ -84,6 +100,24 @@ export const adminApi = {
 
   updatePlan(accessToken: string, planId: string, request: PlanUpdateRequest): Promise<PlanResponse> {
     return apiFetch<PlanResponse>(`/admin/plans/${planId}`, { method: "PUT", body: request, accessToken });
+  },
+
+  /** Every template's price, monthly and yearly. */
+  listTemplatePrices(accessToken: string): Promise<TemplatePriceResponse[]> {
+    return apiFetch<TemplatePriceResponse[]>("/admin/template-prices", { accessToken });
+  },
+
+  /** Reprice one template. Subscriptions already running keep what they paid for. */
+  updateTemplatePrice(
+    accessToken: string,
+    layoutVariant: LayoutVariant,
+    request: TemplatePriceUpdateRequest,
+  ): Promise<TemplatePriceResponse> {
+    return apiFetch<TemplatePriceResponse>(`/admin/template-prices/${layoutVariant}`, {
+      method: "PUT",
+      body: request,
+      accessToken,
+    });
   },
 
   listSupportTickets(accessToken: string): Promise<SupportTicketResponse[]> {

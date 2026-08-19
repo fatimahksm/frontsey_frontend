@@ -54,6 +54,15 @@ export const websitesApi = {
     });
   },
 
+  /** Pass null to clear the override so the selected preset applies again. */
+  updateThemeConfig(accessToken: string, websiteId: string, themeConfig: string | null): Promise<WebsiteResponse> {
+    return apiFetch<WebsiteResponse>(`/websites/${websiteId}/theme-config`, {
+      method: "PUT",
+      body: { themeConfig },
+      accessToken,
+    });
+  },
+
   updateLayoutVariant(accessToken: string, websiteId: string, layoutVariant: LayoutVariant): Promise<WebsiteResponse> {
     return apiFetch<WebsiteResponse>(`/websites/${websiteId}/layout`, {
       method: "PUT",

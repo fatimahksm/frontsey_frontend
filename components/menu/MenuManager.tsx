@@ -6,7 +6,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Card } from "@/components/ui/Card";
 import { CategoryManager } from "@/components/menu/CategoryManager";
 import { ItemsPanel } from "@/components/menu/ItemsPanel";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { menuApi } from "@/lib/api/menu";
 import type { CategoryDto } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
@@ -24,7 +24,7 @@ export function MenuManager() {
     try {
       setCategories(await menuApi.listCategories(accessToken, website.id));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to load categories.");
+      setError(friendlyMessage(err, "Failed to load categories."));
     }
   }
 

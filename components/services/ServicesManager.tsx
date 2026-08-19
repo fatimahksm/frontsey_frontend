@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { ImageUploadField } from "@/components/ui/ImageUploadField";
 import { TextField } from "@/components/ui/TextField";
 import { Textarea } from "@/components/ui/Textarea";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { servicesApi } from "@/lib/api/services";
 import type { ServiceItemRequest, ServiceItemResponse } from "@/lib/api/types";
 import { formatMoney } from "@/lib/format";
@@ -46,7 +46,7 @@ export function ServicesManager() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
     load()
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load services."))
+      .catch((err) => setError(friendlyMessage(err, "Failed to load services.")))
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, website.id]);
@@ -72,7 +72,7 @@ export function ServicesManager() {
       setEditingId(null);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save service.");
+      setError(friendlyMessage(err, "Failed to save service."));
     } finally {
       setIsBusy(false);
     }
@@ -95,7 +95,7 @@ export function ServicesManager() {
       await servicesApi.delete(accessToken, website.id, id);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to delete service.");
+      setError(friendlyMessage(err, "Failed to delete service."));
     } finally {
       setIsBusy(false);
     }
@@ -119,7 +119,7 @@ export function ServicesManager() {
       await servicesApi.reorder(accessToken, website.id, reordered.map((s) => s.id));
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to reorder services.");
+      setError(friendlyMessage(err, "Failed to reorder services."));
     } finally {
       setIsBusy(false);
     }

@@ -8,6 +8,8 @@ export interface CartLine {
   key: string;
   itemId: string;
   itemName: string;
+  /** The dish's photo, so the cart reads back the way the menu looked. Null when the item has none. */
+  imageUrl: string | null;
   variantLabel: string | null;
   unitPrice: number;
   addons: CartLineAddon[];

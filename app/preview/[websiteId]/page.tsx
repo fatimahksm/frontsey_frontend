@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 import { PublicSiteRenderer } from "@/components/public/PublicSiteRenderer";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { websitesApi } from "@/lib/api/websites";
 import { useAuth } from "@/lib/auth/auth-context";
@@ -36,7 +36,7 @@ export default function PreviewPage({ params }: Props) {
         if (!cancelled) setSite(response);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof ApiError ? err.message : "Failed to load preview.");
+        if (!cancelled) setError(friendlyMessage(err, "Failed to load preview."));
       });
     return () => {
       cancelled = true;
@@ -48,7 +48,7 @@ export default function PreviewPage({ params }: Props) {
       {!embedded && (
         <div className="sticky top-0 z-50 flex items-center justify-between gap-3 border-b border-black/[.08] bg-amber-400 px-4 py-2 text-sm font-medium text-black dark:border-white/[.1]">
           <span>Draft preview - unpublished changes are included and won&apos;t be visible to customers until you publish.</span>
-          <Link href={`/dashboard/websites/${websiteId}`} className="shrink-0 underline">
+          <Link href={`/manage/${websiteId}`} className="shrink-0 underline">
             Back to editor
           </Link>
         </div>

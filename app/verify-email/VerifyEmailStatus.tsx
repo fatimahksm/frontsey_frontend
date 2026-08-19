@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Alert } from "@/components/ui/Alert";
 import { AuthCard } from "@/components/ui/AuthCard";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { authApi } from "@/lib/auth/api";
 
 type Status = "verifying" | "success" | "error";
@@ -23,7 +23,7 @@ export function VerifyEmailStatus({ token }: { token: string | undefined }) {
       .then(() => setStatus("success"))
       .catch((err) => {
         setStatus("error");
-        setMessage(err instanceof ApiError ? err.message : "Verification failed.");
+        setMessage(friendlyMessage(err, "Verification failed."));
       });
   }, [token]);
 

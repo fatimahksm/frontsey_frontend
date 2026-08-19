@@ -3,14 +3,14 @@ import { PublicMenuSite } from "@/components/public/PublicMenuSite";
 import { PublicMenuSiteBistro } from "@/components/public/PublicMenuSiteBistro";
 import { PublicMenuSiteElegant } from "@/components/public/PublicMenuSiteElegant";
 import { PublicMenuSiteGrid } from "@/components/public/PublicMenuSiteGrid";
-import { PublicPortfolioSite } from "@/components/public/PublicPortfolioSite";
-import { PublicPortfolioSiteBold } from "@/components/public/PublicPortfolioSiteBold";
-import { PublicPortfolioSiteMinimal } from "@/components/public/PublicPortfolioSiteMinimal";
-import { PublicPortfolioSiteProfile } from "@/components/public/PublicPortfolioSiteProfile";
+import { PublicPortfolioSiteProfessional } from "@/components/public/PublicPortfolioSiteProfessional";
+import { PublicPortfolioSiteBrand } from "@/components/public/PublicPortfolioSiteBrand";
+import { PublicPortfolioSiteVisual } from "@/components/public/PublicPortfolioSiteVisual";
+import { PublicPortfolioSiteServices } from "@/components/public/PublicPortfolioSiteServices";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
 
-function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string) => void) {
+function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string) => void, isSample: boolean) {
   switch (site.layoutVariant) {
     case "MENU_GRID":
       return <PublicMenuSiteGrid site={site} onFirstView={onFirstView} />;
@@ -19,13 +19,13 @@ function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string)
     case "MENU_BISTRO":
       return <PublicMenuSiteBistro site={site} onFirstView={onFirstView} />;
     case "PORTFOLIO_MINIMAL":
-      return <PublicPortfolioSiteMinimal site={site} />;
+      return <PublicPortfolioSiteVisual site={site} isSample={isSample} />;
     case "PORTFOLIO_BOLD":
-      return <PublicPortfolioSiteBold site={site} />;
+      return <PublicPortfolioSiteBrand site={site} isSample={isSample} />;
     case "PORTFOLIO_PROFILE":
-      return <PublicPortfolioSiteProfile site={site} />;
+      return <PublicPortfolioSiteServices site={site} isSample={isSample} />;
     case "PORTFOLIO_HERO":
-      return <PublicPortfolioSite site={site} />;
+      return <PublicPortfolioSiteProfessional site={site} isSample={isSample} />;
     case "MENU_CLASSIC":
     default:
       return <PublicMenuSite site={site} onFirstView={onFirstView} />;
@@ -40,10 +40,27 @@ function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string)
  * consumer (public site, draft preview, wizard mock preview, admin theme
  * preview) gets language switching for free.
  */
-export function PublicSiteRenderer({ site, onFirstView }: { site: PublicWebsiteResponse; onFirstView(itemId: string): void }) {
+export function PublicSiteRenderer({
+  site,
+  onFirstView,
+  isSample = false,
+}: {
+  site: PublicWebsiteResponse;
+  onFirstView(itemId: string): void;
+  /**
+   * True only where the caller knowingly passes fabricated content - the design
+   * gallery and the template pickers, which all render `mockSiteFor(...)`.
+   *
+   * It defaults to false and is never derived from the data, because every
+   * field in the response is user-editable: an owner who slugs their site
+   * "preview" must not have demo content appear on it. A published site can
+   * therefore only ever be treated as real.
+   */
+  isSample?: boolean;
+}) {
   return (
     <LocaleProvider defaultLocale={site.primaryLanguage}>
-      {renderLayout(site, onFirstView)}
+      {renderLayout(site, onFirstView, isSample)}
       <LanguageSwitcher />
     </LocaleProvider>
   );

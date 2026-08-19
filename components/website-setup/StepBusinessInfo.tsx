@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { BusinessProfileForm } from "@/components/profile/BusinessProfileForm";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { profileApi } from "@/lib/api/profile";
 import type { BusinessProfileRequest } from "@/lib/api/types";
 import { useWebsite } from "@/lib/website/website-context";
@@ -31,7 +31,15 @@ const EMPTY_PROFILE: BusinessProfileRequest = {
   refundPolicyContent: "",
 };
 
-/** Wizard Step 3 - only the essential business-information fields (BR-SITE Phase 1). */
+/**
+ * Wizard Step 3 - the smallest set of facts a website cannot open without.
+ *
+ * A logo, a line about the business, and a phone or WhatsApp number. Email,
+ * address, map link, socials, cover image and the policy pages all live on the
+ * Business profile page in the dashboard, where they can be filled in later
+ * and edited afterwards - which is where every other piece of the site's
+ * content is entered too.
+ */
 export function StepBusinessInfo({ onContinue }: { onContinue(): void }) {
   const { website, accessToken } = useWebsite();
   const [profile, setProfile] = useState<BusinessProfileRequest>(EMPTY_PROFILE);
@@ -47,7 +55,7 @@ export function StepBusinessInfo({ onContinue }: { onContinue(): void }) {
         if (!cancelled) setProfile(fetched);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof ApiError ? err.message : "Failed to load business profile.");
+        if (!cancelled) setError(friendlyMessage(err, "Failed to load business profile."));
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -68,7 +76,7 @@ export function StepBusinessInfo({ onContinue }: { onContinue(): void }) {
       await profileApi.update(accessToken, website.id, profile);
       onContinue();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to save business information.");
+      setError(friendlyMessage(err, "Failed to save business information."));
     } finally {
       setIsSaving(false);
     }
@@ -81,9 +89,10 @@ export function StepBusinessInfo({ onContinue }: { onContinue(): void }) {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">Business information</h2>
+        <h2 className="text-lg font-semibold tracking-tight">The basics</h2>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Tell customers how to find and contact you. You can add more detail later from Website Settings.
+          Just enough to open your website. Everything else - your work, your services, photos, colours, opening hours
+          and the rest of your contact details - you add from your dashboard afterwards, and can change any time.
         </p>
       </div>
 
@@ -95,6 +104,7 @@ export function StepBusinessInfo({ onContinue }: { onContinue(): void }) {
         accessToken={accessToken}
         profile={profile}
         onChange={updateField}
+        fields="essentials"
       />
 
       <Button onClick={handleSaveAndContinue} isLoading={isSaving} className="w-auto self-start px-6">

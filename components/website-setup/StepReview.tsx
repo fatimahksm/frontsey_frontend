@@ -6,13 +6,38 @@ import { useEffect, useState } from "react";
 import { ShareLinksPanel } from "@/components/dashboard/ShareLinksPanel";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { websitesApi } from "@/lib/api/websites";
+import type { TemplateType } from "@/lib/api/types";
 import type { ChecklistItem } from "@/lib/website/setup-checklist";
 import { loadSetupStatus } from "@/lib/website/setup-checklist";
 import { useWebsite } from "@/lib/website/website-context";
 
-/** Wizard Step 7 - publication checklist plus the single "Publish website" action. */
+/** Where each incomplete checklist item sends the owner to fix it. */
+const FIX_LINK: Record<string, { href: string; label: string }> = {
+  contact: { href: "/profile", label: "Add contact details" },
+  content: { href: "/services", label: "Add one" },
+  subscription: { href: "/subscription", label: "Choose a plan" },
+};
+/** The content item points at whichever editor that website type actually uses. */
+function fixLink(key: string, templateType: TemplateType): { href: string; label: string } | null {
+  if (key === "content") {
+    return templateType === "PORTFOLIO"
+      ? { href: "/services", label: "Add a service" }
+      : { href: "/menu", label: "Add an item" };
+  }
+  return FIX_LINK[key] ?? null;
+}
+
+/**
+ * Wizard Step 4 - publication checklist plus the single "Publish website"
+ * action.
+ *
+ * Since the wizard stopped walking people through content and design, this is
+ * where an owner finds out what is still missing, so every incomplete item
+ * carries a link straight to the dashboard page that fixes it. A checklist that
+ * only says "no" is a dead end.
+ */
 export function StepReview({ onPublished }: { onPublished(): void }) {
   const { website, accessToken, reload } = useWebsite();
   const [checklist, setChecklist] = useState<ChecklistItem[] | null>(null);
@@ -27,7 +52,7 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
         if (!cancelled) setChecklist(result);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof ApiError ? err.message : "Failed to load your setup status.");
+        if (!cancelled) setError(friendlyMessage(err, "Failed to load your setup status."));
       });
     return () => {
       cancelled = true;
@@ -43,7 +68,7 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
       setHasPublished(true);
       onPublished();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to publish. Check the checklist below for what's missing.");
+      setError(friendlyMessage(err, "Failed to publish. Check the checklist below for what's missing."));
     } finally {
       setIsPublishing(false);
     }
@@ -63,7 +88,8 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
       <div>
         <h2 className="text-lg font-semibold tracking-tight">Review and publish</h2>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Everything below must be complete before your website can go live.
+          Everything below must be complete before your website can go live. Anything missing links straight to the
+          page that fixes it.
         </p>
       </div>
 
@@ -84,12 +110,12 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
               {item.complete ? "✓" : "!"}
             </span>
             <span className={item.complete ? "" : "font-medium"}>{item.label}</span>
-            {item.key === "subscription" && !item.complete && (
+            {!item.complete && fixLink(item.key, website.templateType) && (
               <Link
-                href={`/dashboard/websites/${website.id}/subscription`}
+                href={`/manage/${website.id}${fixLink(item.key, website.templateType)!.href}`}
                 className="ml-auto shrink-0 text-xs font-medium text-[var(--accent-solid)] hover:underline"
               >
-                Choose a plan →
+                {fixLink(item.key, website.templateType)!.label} →
               </Link>
             )}
           </li>

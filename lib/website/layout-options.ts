@@ -9,9 +9,13 @@ import type { LayoutVariant, TemplateType } from "@/lib/api/types";
 export const WEBSITE_TYPES: { value: TemplateType; icon: string; label: string; description: string }[] = [
   {
     value: "MENU_ORDERING",
-    icon: "🍽️",
-    label: "Restaurant / Café Menu",
-    description: "Categories, items, sizes/add-ons, and optional WhatsApp ordering. For cafes, restaurants, shops.",
+    icon: "🧾",
+    // Was "Restaurant / Café Menu" with a plate icon, which read as
+    // food-only however the description ended. The same four layouts list a
+    // shop's stock exactly as well; step 1 asks which, and the samples,
+    // labels and previews follow that answer from there on.
+    label: "Menu or product list",
+    description: "Categories, items, sizes/add-ons, and optional WhatsApp ordering. For restaurants and cafes, and for shops of any kind.",
   },
   {
     value: "PORTFOLIO",
@@ -21,7 +25,23 @@ export const WEBSITE_TYPES: { value: TemplateType; icon: string; label: string; 
   },
 ];
 
-export const TEMPLATE_OPTIONS: Record<TemplateType, { value: LayoutVariant; label: string; description: string }[]> = {
+export interface TemplateOption {
+  value: LayoutVariant;
+  label: string;
+  description: string;
+  /**
+   * Concrete jobs this template suits, shown in the picker.
+   *
+   * The four portfolio templates were each built around one profession, and it
+   * showed: a photographer looking at "Hero Portfolio" had no way to tell it
+   * was meant for them too. Naming the audience is what turns four looks into
+   * four choices - so this list is the picker's actual content, not decoration,
+   * and every template covers a family of trades rather than one job title.
+   */
+  bestFor?: string[];
+}
+
+export const TEMPLATE_OPTIONS: Record<TemplateType, TemplateOption[]> = {
   MENU_ORDERING: [
     { value: "MENU_CLASSIC", label: "Classic Menu", description: "A simple price list to read - business-card header, gallery strip, categories with sub-categories. No cart or ordering." },
     { value: "MENU_GRID", label: "Modern Grid", description: "Full-width cover, sticky category tabs, items as a card grid, cart drawer." },
@@ -29,10 +49,30 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, { value: LayoutVariant; labe
     { value: "MENU_BISTRO", label: "Bistro Menu", description: "Warm, photography-led cafe style - bold headline hero, combo box deals, and a sticky-filtered card-grid menu." },
   ],
   PORTFOLIO: [
-    { value: "PORTFOLIO_HERO", label: "Hero Portfolio", description: "Full-bleed dark hero, centered content, services grid, work gallery." },
-    { value: "PORTFOLIO_MINIMAL", label: "Minimal Portfolio", description: "Warm editorial personal-site style - serif type, About block, and a project grid." },
-    { value: "PORTFOLIO_BOLD", label: "Bold Portfolio", description: "Vibrant creative-agency style with bold type and a masonry work gallery." },
-    { value: "PORTFOLIO_PROFILE", label: "Profile Portfolio", description: "Personal, photo-led homepage with a floating highlight badge and a featured-projects grid. Great for individual freelancers and consultants." },
+    {
+      value: "PORTFOLIO_HERO",
+      label: "Professional / CV",
+      description: "Your background as a hiring manager reads it: experience, skills, projects and a downloadable CV, in a dense dark layout that stays scannable.",
+      bestFor: ["Developer", "Engineer", "Accountant", "Student", "Consultant", "Analyst"],
+    },
+    {
+      value: "PORTFOLIO_MINIMAL",
+      label: "Creative / Visual",
+      description: "Pictures first and words second - large editorial compositions with a caption beside each one, on warm paper.",
+      bestFor: ["Designer", "Photographer", "Architect", "Artist", "Fashion", "Videographer"],
+    },
+    {
+      value: "PORTFOLIO_PROFILE",
+      label: "Freelancer / Services",
+      description: "Built to get you booked: what you offer and what it costs, proof from past clients, answers to the usual questions, and a contact button that is never far away.",
+      bestFor: ["Coach", "Marketer", "Social media manager", "Trainer", "Makeup artist", "Tutor"],
+    },
+    {
+      value: "PORTFOLIO_BOLD",
+      label: "Brand / Product",
+      description: "A loud front page for something you have made - your story, featured items, and your social links, in heavy type and full-strength colour.",
+      bestFor: ["Small business", "Creator", "Personal brand", "Product maker", "Studio", "Shop"],
+    },
   ],
 };
 
@@ -44,6 +84,7 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, { value: LayoutVariant; labe
  */
 const DISPLAY_ONLY_LAYOUTS = new Set<LayoutVariant>([
   "MENU_CLASSIC",
+  "MENU_ELEGANT",
   "PORTFOLIO_HERO",
   "PORTFOLIO_MINIMAL",
   "PORTFOLIO_BOLD",

@@ -5,35 +5,43 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Stepper, type StepDefinition } from "@/components/ui/Stepper";
 import { StepBusinessInfo } from "@/components/website-setup/StepBusinessInfo";
-import { StepContent } from "@/components/website-setup/StepContent";
-import { StepDesign } from "@/components/website-setup/StepDesign";
-import { StepPreview } from "@/components/website-setup/StepPreview";
 import { StepReview } from "@/components/website-setup/StepReview";
+import { StepTheme } from "@/components/website-setup/StepTheme";
 import { useWebsite } from "@/lib/website/website-context";
 
-const STEPS: StepDefinition[] = [
+export const SETUP_STEPS: StepDefinition[] = [
   { step: 1, label: "Website type" },
   { step: 2, label: "Template" },
-  { step: 3, label: "Business info" },
-  { step: 4, label: "Content" },
-  { step: 5, label: "Design" },
-  { step: 6, label: "Preview" },
-  { step: 7, label: "Review & publish" },
+  { step: 3, label: "Basics" },
+  { step: 4, label: "Theme" },
+  { step: 5, label: "Publish" },
 ];
 
 const FIRST_STEP = 3;
-const LAST_STEP = 7;
+const LAST_STEP = 5;
 
 function clampStep(value: number): number {
   return Math.min(LAST_STEP, Math.max(FIRST_STEP, value));
 }
 
 /**
- * Steps 3-7 of the guided website-creation wizard. Steps 1-2 (website type,
+ * Steps 3-4 of the guided website-creation wizard. Steps 1-2 (website type,
  * template) happen before the website exists yet, at
  * /dashboard/websites/new - this continues straight from there once the
  * website has been created, and always operates on real, already-persisted
  * data so leaving and coming back never loses progress.
+ *
+ * It used to run to seven steps, walking the owner through the whole menu or
+ * services manager and a preview before they could publish. Every one of those
+ * is a dashboard page that does the same job better and can be revisited, so
+ * the wizard now asks only for what a site cannot open without - a logo, a line
+ * of description, a way to be contacted - and hands over. The dashboard is
+ * where a website gets filled in; setup only has to get someone to it.
+ *
+ * Colours are the exception, and they are back. Template and theme are the two
+ * decisions the console deliberately does not carry, because they are made once
+ * at first build - which left the theme with nowhere at all to be chosen. It is
+ * a swatch picker here, not the full editor.
  */
 export function SetupWizard() {
   const { website } = useWebsite();
@@ -44,7 +52,7 @@ export function SetupWizard() {
   const [step, setStep] = useState(() => (requestedStep >= FIRST_STEP && requestedStep <= LAST_STEP ? requestedStep : FIRST_STEP));
 
   useEffect(() => {
-    router.replace(`/dashboard/websites/${website.id}/setup?step=${step}`, { scroll: false });
+    router.replace(`/manage/${website.id}/setup?step=${step}`, { scroll: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
@@ -65,10 +73,10 @@ export function SetupWizard() {
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Set up {website.businessName}</h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Step {step} of {LAST_STEP} - {STEPS.find((s) => s.step === step)?.label}
+            Step {step} of {LAST_STEP} - {SETUP_STEPS.find((s) => s.step === step)?.label}
           </p>
         </div>
-        <Stepper steps={STEPS} currentStep={step} completedSteps={completedSteps} />
+        <Stepper steps={SETUP_STEPS} currentStep={step} completedSteps={completedSteps} />
       </div>
 
       {step > FIRST_STEP && (
@@ -78,10 +86,8 @@ export function SetupWizard() {
       )}
 
       {step === 3 && <StepBusinessInfo onContinue={() => goTo(4)} />}
-      {step === 4 && <StepContent onContinue={() => goTo(5)} />}
-      {step === 5 && <StepDesign onContinue={() => goTo(6)} />}
-      {step === 6 && <StepPreview onContinue={() => goTo(7)} />}
-      {step === 7 && <StepReview onPublished={() => router.push(`/dashboard/websites/${website.id}`)} />}
+      {step === 4 && <StepTheme onContinue={() => goTo(5)} />}
+      {step === 5 && <StepReview onPublished={() => router.push(`/manage/${website.id}`)} />}
     </div>
   );
 }

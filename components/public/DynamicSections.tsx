@@ -1,5 +1,6 @@
 "use client";
 
+import { SafeImage } from "@/components/public/SafeImage";
 import { motion } from "framer-motion";
 
 import { Reveal } from "@/components/motion/Reveal";
@@ -22,11 +23,11 @@ export type SectionTone = "hero" | "minimal" | "bold" | "classic" | "grid" | "el
 
 const HEADING_CLASS: Record<SectionTone, string> = {
   hero: "mb-10 text-center text-2xl font-bold tracking-tight text-white",
-  minimal: "mb-6 text-sm font-semibold uppercase tracking-widest text-zinc-500",
+  minimal: "mb-6 text-sm font-semibold uppercase tracking-widest text-[var(--theme-text-muted)]",
   bold: "mb-8 flex items-center justify-center gap-3 text-2xl font-extrabold tracking-tight",
   classic: "mb-3 text-lg font-semibold tracking-tight",
   grid: "mb-4 text-xl font-semibold tracking-tight",
-  elegant: "mb-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500",
+  elegant: "mb-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[var(--theme-text-muted)]",
 };
 
 const UNDERLINE_CLASS: Record<SectionTone, string> = {
@@ -57,16 +58,19 @@ function Heading({ tone, children }: { tone: SectionTone; children: React.ReactN
 
 const CONTAINER_CLASS: Record<SectionTone, string> = {
   hero: "px-6 py-20 sm:px-12",
-  minimal: "mb-16",
+  // Matches the padding every other section in the Minimal layout uses.
+  // Without it the owner's custom sections ran flush to the viewport edge
+  // while the hero and services beside them sat in a centred column.
+  minimal: "mb-16 px-6 sm:px-12",
   bold: "",
   classic: "",
-  grid: "mt-16 rounded-2xl border border-black/[.08] p-6 dark:border-white/[.145]",
+  grid: "mt-16 rounded-2xl border border-[var(--theme-border)] p-6",
   elegant: "mt-14",
 };
 
 const WRAP_CLASS: Record<SectionTone, string> = {
   hero: "mx-auto w-full max-w-5xl",
-  minimal: "",
+  minimal: "mx-auto w-full max-w-6xl",
   bold: "mb-16",
   classic: "",
   grid: "",
@@ -78,14 +82,13 @@ function AboutBlock({ tone, data }: { tone: SectionTone; data: AboutSectionData 
   return (
     <div className={centered ? "flex flex-col items-center text-center" : "flex flex-col gap-4 sm:flex-row sm:items-center"}>
       {data.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-        <img
+        <SafeImage
           src={data.imageUrl}
           alt=""
           className={centered ? "mb-4 h-24 w-24 rounded-full object-cover shadow-soft" : "h-32 w-32 shrink-0 rounded-2xl object-cover shadow-soft"}
         />
       )}
-      <p className={tone === "hero" ? "max-w-md text-zinc-400" : "max-w-xl text-sm text-zinc-500 dark:text-zinc-400"}>{data.body}</p>
+      <p className={tone === "hero" ? "max-w-md text-[var(--theme-text-muted)]" : "max-w-xl text-sm text-[var(--theme-text-muted)]"}>{data.body}</p>
     </div>
   );
 }
@@ -93,10 +96,10 @@ function AboutBlock({ tone, data }: { tone: SectionTone; data: AboutSectionData 
 function TestimonialsBlock({ tone, data }: { tone: SectionTone; data: TestimonialsSectionData }) {
   if (tone === "minimal" || tone === "elegant") {
     return (
-      <StaggerGroup as="ul" className="flex flex-col divide-y divide-black/[.06] dark:divide-white/[.1]">
+      <StaggerGroup as="ul" className="flex flex-col divide-y divide-[var(--theme-border)]">
         {data.items.map((item, i) => (
           <StaggerItem as="li" key={i} className="flex flex-col gap-1 py-4">
-            <p className="text-sm italic text-zinc-600 dark:text-zinc-400">&ldquo;{item.quote}&rdquo;</p>
+            <p className="text-sm italic text-[var(--theme-text-muted)]">&ldquo;{item.quote}&rdquo;</p>
             <p className="text-xs font-medium">{item.name}</p>
           </StaggerItem>
         ))}
@@ -104,29 +107,47 @@ function TestimonialsBlock({ tone, data }: { tone: SectionTone; data: Testimonia
     );
   }
 
-  const cardClass =
-    tone === "hero"
-      ? "h-full rounded-2xl border border-white/10 bg-white/5 p-5"
-      : tone === "bold"
-        ? "h-full rounded-2xl border border-black/[.08] bg-surface p-5 shadow-soft dark:border-white/[.145]"
-        : "h-full rounded-xl border border-black/[.08] p-4 dark:border-white/[.145]";
+  const dark = tone === "hero";
+  const cardClass = dark
+    ? "border-white/10 bg-white/[.04] hover:border-white/20"
+    : "border-[var(--theme-border)] bg-surface hover:border-[var(--accent-solid)]/40";
 
   return (
     <StaggerGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {data.items.map((item, i) => (
         <StaggerItem key={i}>
-          <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }} className={cardClass}>
-            <p className={`text-sm italic ${tone === "hero" ? "text-zinc-300" : "text-zinc-600 dark:text-zinc-400"}`}>
-              &ldquo;{item.quote}&rdquo;
-            </p>
-            <div className="mt-3 flex items-center gap-2">
-              {item.imageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-                <img src={item.imageUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
+          <motion.figure
+            whileHover={{ y: -4 }}
+            transition={{ type: "spring", stiffness: 320, damping: 26 }}
+            className={`relative flex h-full flex-col gap-4 overflow-hidden rounded-2xl border p-6 shadow-soft transition-colors duration-200 ${cardClass}`}
+          >
+            {/* Oversized, clipped quote glyph as texture rather than punctuation -
+                the quote itself is not wrapped in quote marks, so this carries the
+                "testimonial" read on its own. aria-hidden: it is decoration. */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -top-6 right-3 select-none font-serif text-8xl leading-none text-[var(--accent-ink)] opacity-[0.12]"
+            >
+              &rdquo;
+            </span>
+            <blockquote className={`relative text-sm leading-relaxed ${dark ? "text-[var(--theme-text-muted)]" : "text-[var(--theme-text-muted)]"}`}>
+              {item.quote}
+            </blockquote>
+            <figcaption className="mt-auto flex items-center gap-3">
+              {item.imageUrl ? (
+                <SafeImage
+                  src={item.imageUrl}
+                  alt=""
+                  className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-[var(--accent-solid)]/25"
+                />
+              ) : (
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-accent text-sm font-semibold text-[var(--accent-contrast)]">
+                  {item.name.charAt(0).toUpperCase()}
+                </span>
               )}
-              <p className="text-xs font-semibold">{item.name}</p>
-            </div>
-          </motion.div>
+              <span className="text-sm font-semibold">{item.name}</span>
+            </figcaption>
+          </motion.figure>
         </StaggerItem>
       ))}
     </StaggerGroup>
@@ -134,20 +155,40 @@ function TestimonialsBlock({ tone, data }: { tone: SectionTone; data: Testimonia
 }
 
 function FaqBlock({ tone, data }: { tone: SectionTone; data: FaqSectionData }) {
-  const detailsClass =
-    tone === "hero"
-      ? "rounded-xl border border-white/10 bg-white/5 p-4"
-      : "rounded-xl border border-black/[.08] p-4 dark:border-white/[.145]";
-  const questionClass = tone === "hero" ? "cursor-pointer font-medium text-white" : "cursor-pointer font-medium";
-  const answerClass = tone === "hero" ? "mt-2 text-sm text-zinc-400" : "mt-2 text-sm text-zinc-500 dark:text-zinc-400";
+  const dark = tone === "hero";
+  const detailsClass = dark
+    ? "border-white/10 bg-white/[.04] hover:border-white/20 open:border-white/25 open:bg-white/[.06]"
+    : "border-[var(--theme-border)] bg-surface hover:border-[var(--accent-solid)]/40 open:border-[var(--accent-solid)]/60";
+  const answerClass = dark ? "text-[var(--theme-text-muted)]" : "text-[var(--theme-text-muted)]";
 
   return (
     <StaggerGroup className="flex flex-col gap-3">
       {data.items.map((item, i) => (
         <StaggerItem key={i}>
-          <details className={detailsClass}>
-            <summary className={questionClass}>{item.question}</summary>
-            <p className={answerClass}>{item.answer}</p>
+          {/* <details> keeps this working without JS and gives the disclosure
+              semantics for free; the marker rules below strip the browser's
+              default triangle so the chevron can sit on the trailing edge. */}
+          <details className={`group rounded-2xl border transition-colors duration-200 ${detailsClass}`}>
+            <summary
+              className={`flex cursor-pointer list-none items-center justify-between gap-4 p-4 text-sm font-semibold [&::-webkit-details-marker]:hidden ${
+                dark ? "text-foreground" : ""
+              }`}
+            >
+              {item.question}
+              <svg
+                aria-hidden
+                viewBox="0 0 20 20"
+                className={`h-4 w-4 shrink-0 transition-transform duration-300 group-open:rotate-180 ${answerClass}`}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 7.5 10 12.5 15 7.5" />
+              </svg>
+            </summary>
+            <p className={`px-4 pb-4 text-sm leading-relaxed ${answerClass}`}>{item.answer}</p>
           </details>
         </StaggerItem>
       ))}
@@ -162,15 +203,14 @@ function TeamBlock({ tone, data }: { tone: SectionTone; data: TeamSectionData })
         <StaggerItem key={i}>
           <div className="flex flex-col items-center gap-2 text-center">
             {item.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-              <img src={item.imageUrl} alt="" className="h-20 w-20 rounded-full object-cover shadow-soft" />
+              <SafeImage src={item.imageUrl} alt="" className="h-20 w-20 rounded-full object-cover shadow-soft" />
             ) : (
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-accent text-xl font-semibold text-white">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-accent text-xl font-semibold text-[var(--accent-contrast)]">
                 {item.name.charAt(0).toUpperCase()}
               </div>
             )}
             <p className={`text-sm font-semibold ${tone === "hero" ? "text-white" : ""}`}>{item.name}</p>
-            <p className={`text-xs ${tone === "hero" ? "text-zinc-400" : "text-zinc-500 dark:text-zinc-400"}`}>{item.role}</p>
+            <p className={`text-xs ${tone === "hero" ? "text-[var(--theme-text-muted)]" : "text-[var(--theme-text-muted)]"}`}>{item.role}</p>
           </div>
         </StaggerItem>
       ))}

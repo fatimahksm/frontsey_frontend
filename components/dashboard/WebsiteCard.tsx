@@ -11,11 +11,13 @@ import { Button } from "@/components/ui/Button";
 import { subscriptionApi } from "@/lib/api/subscription";
 import type { SubscriptionResponse, WebsiteResponse } from "@/lib/api/types";
 import { mockSiteFor } from "@/lib/mock-preview-data";
+import { parseDraftContent } from "@/lib/website/draft-content";
 import { WEBSITE_TYPES } from "@/lib/website/layout-options";
 import { loadSetupStatus, readinessPercent } from "@/lib/website/setup-checklist";
 
 const SUBSCRIPTION_TONE = {
   PENDING: "warning",
+  TRIAL: "success",
   ACTIVE: "success",
   GRACE: "warning",
   EXPIRED: "danger",
@@ -24,6 +26,7 @@ const SUBSCRIPTION_TONE = {
 
 const SUBSCRIPTION_LABEL = {
   PENDING: "Pending",
+  TRIAL: "Free trial",
   ACTIVE: "Active",
   GRACE: "Grace period",
   EXPIRED: "Expired",
@@ -76,7 +79,7 @@ export function WebsiteCard({ website, accessToken }: { website: WebsiteResponse
     <div className="flex flex-col gap-4 rounded-2xl border border-black/[.08] bg-surface p-5 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.1] sm:flex-row sm:gap-6">
       <div className="hidden shrink-0 sm:block">
         <ScaledPreviewFrame width={180} height={130}>
-          <PublicSiteRenderer site={mockSiteFor(website.layoutVariant)} onFirstView={() => {}} />
+          <PublicSiteRenderer site={mockSiteFor(website.layoutVariant, parseDraftContent(website.draftContent).menuBusinessKind)} onFirstView={() => {}} isSample />
         </ScaledPreviewFrame>
       </div>
 
@@ -106,7 +109,7 @@ export function WebsiteCard({ website, accessToken }: { website: WebsiteResponse
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Link href={`/dashboard/websites/${website.id}`}>
+          <Link href={`/manage/${website.id}`}>
             <Button variant="primary" className="w-auto px-4">
               Manage website
             </Button>
@@ -134,7 +137,7 @@ export function WebsiteCard({ website, accessToken }: { website: WebsiteResponse
           ) : (
             <>
               <span className="text-sm text-zinc-500 dark:text-zinc-400">Not published yet</span>
-              <Link href={`/dashboard/websites/${website.id}/setup`}>
+              <Link href={`/manage/${website.id}/setup`}>
                 <Button variant="secondary" className="w-auto px-4">
                   Continue setup
                 </Button>

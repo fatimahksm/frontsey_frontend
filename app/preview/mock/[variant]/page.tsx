@@ -1,10 +1,11 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 
 import { PublicSiteRenderer } from "@/components/public/PublicSiteRenderer";
 import type { LayoutVariant } from "@/lib/api/types";
 import { mockSiteFor } from "@/lib/mock-preview-data";
+import type { MenuBusinessKind } from "@/lib/website/draft-content";
 
 interface Props {
   params: Promise<{ variant: string }>;
@@ -17,7 +18,16 @@ interface Props {
  */
 export default function MockPreviewPage({ params }: Props) {
   const { variant } = use(params);
-  const site = mockSiteFor(variant as LayoutVariant);
+  // ?kind=SHOP shows the shop sample instead of the kitchen one, so the "open
+  // full size" link from the picker shows the same goods as the thumbnail the
+  // owner just clicked. Read from the URL rather than useSearchParams, which
+  // would opt this statically prerendered page into a client bailout.
+  const [kind, setKind] = useState<MenuBusinessKind>("FOOD");
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading the URL is a one-time sync with the browser, not derivable state
+    setKind(new URLSearchParams(window.location.search).get("kind") === "SHOP" ? "SHOP" : "FOOD");
+  }, []);
+  const site = mockSiteFor(variant as LayoutVariant, kind);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -27,7 +37,7 @@ export default function MockPreviewPage({ params }: Props) {
           Close
         </button>
       </div>
-      <PublicSiteRenderer site={site} onFirstView={() => {}} />
+      <PublicSiteRenderer site={site} onFirstView={() => {}} isSample />
     </div>
   );
 }

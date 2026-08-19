@@ -13,6 +13,7 @@ import {
 
 import { authApi } from "@/lib/auth/api";
 import { decodeJwtExpiryMs } from "@/lib/auth/jwt";
+import { onSessionExpired } from "@/lib/auth/session-events";
 import { clearStoredSession, getStoredSession, setStoredSession } from "@/lib/auth/token";
 import type { AuthResponse, LoginRequest } from "@/lib/api/types";
 
@@ -71,12 +72,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     scheduleRefreshRef.current = scheduleRefresh;
   }, [scheduleRefresh]);
 
+  /**
+   * Ends the session locally. Used both by the explicit logout button and by
+   * the fetch wrapper's "this 401 survived a refresh" signal, so an expired
+   * session clears itself wherever it is discovered rather than leaving the
+   * user apparently signed in with every request failing.
+   */
+  const endSession = useCallback(() => {
+    if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    clearStoredSession();
+    setSession(null);
+  }, []);
+
+  useEffect(() => onSessionExpired(endSession), [endSession]);
+
   useEffect(() => {
     // localStorage doesn't exist during server rendering, so the session can
     // only be known once we're running in the browser - this is a one-time
     // sync with that external system, not state that could be derived during
     // render.
     const stored = getStoredSession();
+    const expiryMs = stored ? decodeJwtExpiryMs(stored.accessToken) : null;
+    // A tab closed for longer than the token's lifetime reopens with a stored
+    // session that is already dead. Restoring it would show a signed-in UI
+    // that 401s on its first request; renewing first means the user either
+    // stays signed in properly or lands on the login screen, with no broken
+    // state in between.
+    const isExpired = expiryMs != null && expiryMs <= Date.now();
+
+    if (stored && isExpired) {
+      authApi
+        .refresh()
+        .then((refreshed) => {
+          setStoredSession(refreshed);
+          setSession(refreshed);
+          scheduleRefresh(refreshed.accessToken);
+        })
+        .catch(() => {
+          clearStoredSession();
+          setSession(null);
+        })
+        .finally(() => setIsLoading(false));
+      return () => {
+        if (refreshTimer.current) clearTimeout(refreshTimer.current);
+      };
+    }
+
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSession(stored);
     setIsLoading(false);
@@ -96,12 +137,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [scheduleRefresh]);
 
   const logout = useCallback(() => {
-    if (refreshTimer.current) clearTimeout(refreshTimer.current);
-    clearStoredSession();
-    setSession(null);
+    endSession();
     // Best-effort - revokes the refresh token server-side so a copied/stale cookie can't be replayed after logout.
     authApi.logout().catch(() => {});
-  }, []);
+  }, [endSession]);
 
   const value = useMemo<AuthContextValue>(
     () => ({ session, isLoading, login, logout }),

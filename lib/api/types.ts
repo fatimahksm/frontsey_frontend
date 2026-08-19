@@ -81,6 +81,8 @@ export interface WebsiteResponse {
   publishedContent: string | null;
   publishedAt: string | null;
   themeId: string | null;
+  /** This website's own theme overrides, or null when it inherits the selected preset. */
+  themeConfig: string | null;
   /** Null on action-response endpoints that don't resolve it; always set on GET /websites/{id} and /websites/accessible. */
   role: AccessRole | null;
   /** For role="MANAGER", exactly the granted permissions; empty for role="OWNER" (an owner implicitly has all of them). */
@@ -176,6 +178,39 @@ export interface GalleryImageResponse {
 export type ItemAvailability = "AVAILABLE" | "UNAVAILABLE";
 
 // --- Services (PORTFOLIO template) ---
+
+/**
+ * Create/update payload for a portfolio project.
+ *
+ * Only the name is required. Every template renders what is present and hides
+ * what is not, so an owner can add a project with just a title and a picture
+ * and come back to the detail later - which is the whole point of having this
+ * editor instead of hand-written JSON in a custom section.
+ */
+export interface PortfolioProjectRequest {
+  name: string;
+  discipline?: string | null;
+  year?: string | null;
+  summary?: string | null;
+  /** Comma-separated on the wire; the response splits it back into a list. */
+  tags?: string | null;
+  imageUrl?: string | null;
+  liveUrl?: string | null;
+  repoUrl?: string | null;
+}
+
+export interface PortfolioProjectResponse {
+  id: string;
+  name: string;
+  discipline: string | null;
+  year: string | null;
+  summary: string | null;
+  tags: string[];
+  imageUrl: string | null;
+  liveUrl: string | null;
+  repoUrl: string | null;
+  sortOrder: number;
+}
 
 export interface ServiceItemRequest {
   name: string;
@@ -396,7 +431,7 @@ export interface PlanUpdateRequest {
   active: boolean;
 }
 
-export type SubscriptionStatus = "PENDING" | "ACTIVE" | "GRACE" | "EXPIRED" | "CANCELED";
+export type SubscriptionStatus = "PENDING" | "TRIAL" | "ACTIVE" | "GRACE" | "EXPIRED" | "CANCELED";
 export type MockPaymentStatus = "PENDING" | "SUCCESS" | "FAILED";
 
 export interface SubscriptionResponse {
@@ -408,11 +443,36 @@ export interface SubscriptionResponse {
   startDate: string | null;
   endDate: string | null;
   graceEndsAt: string | null;
+  /** The server's own reading of BR-SUB-010: false while a paid plan is still running. */
+  canChangePlan: boolean;
+  /** Free access granted by a Super Admin: never billed, never expires. */
+  complimentary: boolean;
 }
 
+/**
+ * What a website costs is decided by its template, not by a tier the owner
+ * picks - so checkout only asks how they want to be billed.
+ */
 export interface CheckoutRequest {
-  planCode: PlanCode;
   billingPeriod: BillingPeriod;
+}
+
+/** One template's price, and the plan whose limits come with it. */
+export interface TemplatePriceResponse {
+  id: string;
+  layoutVariant: LayoutVariant;
+  templateType: TemplateType;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  planCode: PlanCode;
+  active: boolean;
+}
+
+export interface TemplatePriceUpdateRequest {
+  monthlyPrice: string;
+  yearlyPrice: string;
+  planCode: PlanCode;
+  active: boolean;
 }
 
 export interface MockPaymentResponse {
@@ -484,6 +544,8 @@ export interface AnalyticsSummaryResponse {
   mostViewedItems: { itemId: string; itemName: string; views: number }[];
   visitsByReferralSource: Record<string, number>;
   visitsByDeviceType: Record<string, number>;
+  /** One entry per calendar day in the range, quiet days included, in order. */
+  visitsByDay: { date: string; visits: number }[];
 }
 
 // --- Admin (Super Admin console) ---
@@ -505,6 +567,17 @@ export interface AdminWebsiteSummaryResponse {
   status: WebsiteStatus;
   ownerId: string;
   ownerEmail: string;
+  ownerName: string | null;
+  /** From this website's own business profile - the number its customers use. */
+  ownerPhone: string | null;
+  /** How many websites this owner has in total. */
+  ownerWebsiteCount: number;
+  planCode: string | null;
+  planBillingPeriod: string | null;
+  subscriptionStatus: SubscriptionStatus | null;
+  /** Free access granted by an admin. */
+  complimentary: boolean;
+  subscriptionEndsAt: string | null;
   suspensionReason: string | null;
   suspensionReactivateAt: string | null;
   publishedAt: string | null;
@@ -642,6 +715,25 @@ export interface PublicWebsiteResponse {
   sections: PublicPageSection[];
   /** Phase 3: the website's effective design system - see lib/website/theme-config.ts. */
   theme: ThemeConfig;
+  /**
+   * Portfolio projects, in the owner's order. Empty for MENU_ORDERING sites and
+   * for portfolio sites that predate the projects editor - templates fall back
+   * to the gallery in that case, so an older saved site is unaffected.
+   */
+  projects: PublicProject[];
+}
+
+/** One portfolio project as the public site sees it. Every field but the name may be blank. */
+export interface PublicProject {
+  id: string;
+  name: string;
+  discipline: string | null;
+  year: string | null;
+  summary: string | null;
+  tags: string[];
+  imageUrl: string | null;
+  liveUrl: string | null;
+  repoUrl: string | null;
 }
 
 export interface PublicPageSection {
@@ -692,4 +784,42 @@ export interface AiSuggestionRequest {
 
 export interface AiSuggestionResponse {
   suggestion: string;
+}
+
+/** Matches com.dbwb.platform.admin.dto.AdminPlatformReportResponse. */
+export interface AdminPlatformReportResponse {
+  days: number;
+  templates: { layoutVariant: LayoutVariant; templateType: TemplateType; websites: number; published: number }[];
+  signups: { date: string; count: number }[];
+  websitesCreated: { date: string; count: number }[];
+  websitesPublished: { date: string; count: number }[];
+  revenue: { date: string; amount: number }[];
+  subscriptions: { status: SubscriptionStatus; count: number }[];
+  revenueByPlan: { planCode: string; billingPeriod: string; payments: number; revenue: number }[];
+  firstPayments: number;
+  renewals: number;
+  onFreeTrial: number;
+  trialsLapsed: number;
+}
+
+/** Matches com.dbwb.platform.admin.dto.ProvisionWebsiteRequest. */
+export interface ProvisionWebsiteRequest {
+  ownerEmail: string;
+  ownerFullName?: string | null;
+  businessName: string;
+  templateType: TemplateType;
+  layoutVariant?: LayoutVariant | null;
+  pageMode?: PageMode | null;
+  complimentary: boolean;
+}
+
+/** Matches com.dbwb.platform.admin.dto.ProvisionedWebsiteResponse. */
+export interface ProvisionedWebsiteResponse {
+  websiteId: string;
+  businessName: string;
+  slug: string;
+  ownerId: string;
+  ownerEmail: string;
+  ownerAccountCreated: boolean;
+  complimentary: boolean;
 }

@@ -7,7 +7,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { adminApi } from "@/lib/api/admin";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import type { AccountStatus, AccountSummaryResponse, Role } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { formatDate } from "@/lib/format";
@@ -34,7 +34,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
-    load().catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load users."));
+    load().catch((err) => setError(friendlyMessage(err, "Failed to load users.")));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
@@ -46,7 +46,7 @@ export default function AdminUsersPage() {
       await adminApi.updateUserRole(session.accessToken, accountId, { role });
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to update role.");
+      setError(friendlyMessage(err, "Failed to update role."));
     } finally {
       setBusyId(null);
     }
@@ -60,7 +60,7 @@ export default function AdminUsersPage() {
       await adminApi.disableUser(session.accessToken, accountId);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to disable account.");
+      setError(friendlyMessage(err, "Failed to disable account."));
     } finally {
       setBusyId(null);
     }
@@ -74,7 +74,7 @@ export default function AdminUsersPage() {
       await adminApi.reactivateUser(session.accessToken, accountId);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to reactivate account.");
+      setError(friendlyMessage(err, "Failed to reactivate account."));
     } finally {
       setBusyId(null);
     }

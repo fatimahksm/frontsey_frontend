@@ -1,22 +1,34 @@
 import { apiUrl } from "@/lib/config";
 import type { ApiResponse, AuthResponse } from "@/lib/api/types";
+import { ApiError } from "@/lib/api/errors";
+import { emitSessionExpired } from "@/lib/auth/session-events";
 import { setStoredSession } from "@/lib/auth/token";
 
-/**
- * Thrown whenever the backend responds with `{ success: false }` or a
- * non-2xx status. Callers can rely on `.message` being safe, user-facing
- * text - the backend's GlobalExceptionHandler guarantees it never leaks
- * internal diagnostics.
- */
-export class ApiError extends Error {
-  readonly status: number;
+// Re-exported so the many `import { ApiError } from "@/lib/api/client"` call
+// sites keep working now that the type itself lives with its taxonomy.
+export { ApiError } from "@/lib/api/errors";
+export type { ApiErrorKind } from "@/lib/api/errors";
+export { friendlyMessage, isSessionExpired, unexpectedErrorMessage } from "@/lib/api/errors";
 
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
+/** No request should hang forever; a dead connection must surface as an error the UI can show. */
+const REQUEST_TIMEOUT_MS = 30_000;
+
+/**
+ * Runs a fetch with a timeout, converting the two ways a request can fail
+ * without ever producing a response into typed errors. Everything downstream
+ * can then assume a failure is an ApiError.
+ */
+async function fetchOrThrow(input: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, { ...init, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+  } catch (error) {
+    if (error instanceof DOMException && (error.name === "TimeoutError" || error.name === "AbortError")) {
+      throw ApiError.timeout();
+    }
+    throw ApiError.network();
   }
 }
+
 
 export interface ApiFetchOptions {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -38,7 +50,7 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!refreshInFlight) {
     refreshInFlight = (async () => {
       try {
-        const response = await fetch(apiUrl("/auth/refresh"), { method: "POST", credentials: "include" });
+        const response = await fetchOrThrow(apiUrl("/auth/refresh"), { method: "POST", credentials: "include" });
         const envelope = (await parseEnvelope(response)) as ApiResponse<AuthResponse>;
         if (!response.ok || !envelope.success || !envelope.data) return null;
         setStoredSession(envelope.data);
@@ -88,7 +100,7 @@ export async function apiFetch<T>(
     if (accessToken) {
       headers["Authorization"] = `Bearer ${accessToken}`;
     }
-    return fetch(url.toString(), { method: options.method ?? "GET", headers, body, credentials: "include" });
+    return fetchOrThrow(url.toString(), { method: options.method ?? "GET", headers, body, credentials: "include" });
   }
 
   let response = await attempt(options.accessToken);
@@ -98,15 +110,21 @@ export async function apiFetch<T>(
     if (newAccessToken) {
       response = await attempt(newAccessToken);
     }
+    // Still refused with a token we just minted (or we could not mint one at
+    // all): the refresh cookie is gone, expired, or revoked. Nothing the
+    // client can do will recover it, so end the session rather than leaving
+    // the user apparently signed in with every request failing.
+    if (!newAccessToken || response.status === 401) {
+      emitSessionExpired();
+    }
   }
 
   const envelope = (await parseEnvelope(response)) as ApiResponse<T>;
 
   if (!response.ok || !envelope.success) {
-    throw new ApiError(
-      envelope.message ?? "An unexpected error occurred. Please try again.",
-      response.status,
-    );
+    // An empty message is left empty on purpose: friendlyMessage() then picks
+    // the wording for the failure kind instead of a generic catch-all.
+    throw new ApiError(envelope.message ?? "", response.status);
   }
 
   return envelope.data as T;
@@ -143,7 +161,7 @@ export async function apiFetchBlob(
     headers["Authorization"] = `Bearer ${options.accessToken}`;
   }
 
-  const response = await fetch(url.toString(), { method: options.method ?? "GET", headers, credentials: "include" });
+  const response = await fetchOrThrow(url.toString(), { method: options.method ?? "GET", headers, credentials: "include" });
   if (!response.ok) {
     throw new ApiError("Failed to download file.", response.status);
   }

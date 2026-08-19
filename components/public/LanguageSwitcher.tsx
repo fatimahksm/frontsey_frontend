@@ -23,8 +23,8 @@ export function LanguageSwitcher() {
           aria-pressed={locale === option.value}
           className={`rounded-full px-2.5 py-1 transition-colors ${
             locale === option.value
-              ? "bg-[var(--accent-solid)] text-white"
-              : "text-zinc-500 hover:text-foreground dark:text-zinc-400"
+              ? "bg-[var(--accent-solid)] text-[var(--accent-contrast)]"
+              : "text-[var(--theme-text-muted)] hover:text-foreground"
           }`}
         >
           {option.value.toUpperCase()}

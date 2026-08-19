@@ -6,7 +6,7 @@ import { Alert } from "@/components/ui/Alert";
 import { AuthCard } from "@/components/ui/AuthCard";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import { authApi } from "@/lib/auth/api";
 
 export default function RegisterPage() {
@@ -25,7 +25,7 @@ export default function RegisterPage() {
       await authApi.register({ fullName, email, password });
       setIsRegistered(true);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Registration failed. Please try again.");
+      setError(friendlyMessage(err, "Registration failed. Please try again."));
     } finally {
       setIsSubmitting(false);
     }

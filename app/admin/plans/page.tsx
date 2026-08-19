@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { TextField } from "@/components/ui/TextField";
 import { adminApi } from "@/lib/api/admin";
-import { ApiError } from "@/lib/api/client";
+import { friendlyMessage } from "@/lib/api/client";
 import type { PlanResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { formatMoney } from "@/lib/format";
@@ -31,7 +31,7 @@ export default function AdminPlansPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount is a one-time sync with the backend, not derivable state
     load()
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load plans."))
+      .catch((err) => setError(friendlyMessage(err, "Failed to load plans.")))
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
@@ -61,7 +61,7 @@ export default function AdminPlansPage() {
       setDraft(null);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Failed to update plan.");
+      setError(friendlyMessage(err, "Failed to update plan."));
     } finally {
       setIsBusy(false);
     }

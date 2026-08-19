@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionSafeImage, SafeImage } from "@/components/public/SafeImage";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
@@ -16,7 +17,7 @@ import { itemsUnder } from "@/lib/site/menu-categories";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
-import { themeCardStyle, themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
+import { effectiveTheme, themeCardStyle, themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
 
 function slugifyId(value: string): string {
   return `category-${value}`;
@@ -37,6 +38,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
   const [query, setQuery] = useState("");
 
   const content = parseDraftContent(site.publishedContent);
+  const isShop = content.menuBusinessKind === "SHOP";
   const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
   const cartCount = cart.reduce((sum, l) => sum + l.quantity, 0);
   const whatsappNumber = site.profile?.whatsappNumber;
@@ -79,21 +81,20 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
   }
 
   return (
-    <div dir={dir} className="flex flex-1 flex-col bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50" style={themeCssVars(site.theme, content.brandColor)}>
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-black/[.06] bg-white/80 px-6 py-4 backdrop-blur sm:px-12 dark:border-white/[.08] dark:bg-zinc-950/80">
+    <div dir={dir} className="flex flex-1 flex-col bg-background text-foreground" style={themeCssVars(effectiveTheme(site.theme, site.layoutVariant), content.brandColor)}>
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[var(--theme-border)] bg-[color-mix(in_srgb,var(--background)_80%,transparent)] px-6 py-4 backdrop-blur sm:px-12">
         <div className="flex items-center gap-2">
           {site.profile?.logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-            <img src={site.profile.logoUrl} alt="" className="h-9 w-9 rounded-lg object-cover" />
+            <SafeImage src={site.profile.logoUrl} alt="" className="h-9 w-9 rounded-lg object-cover" />
           ) : (
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-accent text-sm font-semibold text-white">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-accent text-sm font-semibold text-[var(--accent-contrast)]">
               {site.businessName.charAt(0)}
             </span>
           )}
           <span className="font-semibold tracking-tight">{site.businessName}</span>
         </div>
         <a href="#menu" className="hidden text-sm sm:inline">
-          {t.nav.menu}
+          {isShop ? t.nav.products : t.nav.menu}
         </a>
       </header>
 
@@ -104,10 +105,10 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
               {site.businessName}
             </h1>
             {content.heroHeading && (
-              <p className="mt-3 text-2xl font-semibold italic text-[var(--accent-solid)]">{content.heroHeading}</p>
+              <p className="mt-3 text-2xl font-semibold italic text-[var(--accent-ink)]">{content.heroHeading}</p>
             )}
             {(content.heroSubtitle || site.profile?.description) && (
-              <p className="mt-4 max-w-md text-sm text-zinc-500 dark:text-zinc-400">{content.heroSubtitle || site.profile?.description}</p>
+              <p className="mt-4 max-w-md text-sm text-[var(--theme-text-muted)]">{content.heroSubtitle || site.profile?.description}</p>
             )}
             <div className="mt-8 flex flex-wrap gap-3">
               {site.categories.length > 0 && (
@@ -116,7 +117,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                   style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
                   className="inline-flex items-center gap-2 bg-foreground px-6 py-3 text-sm font-medium text-background transition-transform hover:scale-105"
                 >
-                  {t.hero.viewMenu}
+                  {isShop ? t.hero.viewProducts : t.hero.viewMenu}
                 </a>
               )}
               {whatsappNumber && (
@@ -140,8 +141,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
           >
             <div className="aspect-[4/3] w-full overflow-hidden rounded-3xl bg-[var(--theme-secondary,#f4f0fb)]">
               {site.profile?.coverImageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-                <img src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
+                <SafeImage src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
               )}
             </div>
             {content.heroBadge && (
@@ -150,7 +150,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.4 }}
                 style={themeCardStyle()}
-                className="absolute right-4 top-4 max-w-[70%] bg-white px-4 py-3 dark:bg-zinc-900"
+                className="absolute right-4 top-4 max-w-[70%] bg-surface px-4 py-3 text-foreground"
               >
                 <p className="text-sm font-semibold">{content.heroBadge}</p>
               </motion.div>
@@ -162,7 +162,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
       {site.galleryImageUrls.length > 0 && (
         <div className="mx-auto mb-4 flex w-full max-w-6xl gap-3 overflow-x-auto px-6 pb-2 sm:px-12">
           {site.galleryImageUrls.map((url) => (
-            <motion.img
+            <MotionSafeImage
               key={url}
               whileHover={{ scale: 1.03 }}
               transition={{ duration: 0.25 }}
@@ -178,8 +178,12 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
         <section className="px-6 py-10 sm:px-12">
           <div className="mx-auto w-full max-w-6xl">
             <Reveal>
-              <h2 className="text-2xl font-bold">{t.bistro.comboBoxesTitle}</h2>
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{t.bistro.comboBoxesSubtitle}</p>
+              {/* One item sold in fixed bundles. A kitchen calls that a combo
+                  box of meals; a shop calls it a gift set. Same section. */}
+              <h2 className="text-2xl font-bold">{isShop ? t.bistro.bundlesTitle : t.bistro.comboBoxesTitle}</h2>
+              <p className="mt-1 text-sm text-[var(--theme-text-muted)]">
+                {isShop ? t.bistro.bundlesSubtitle : t.bistro.comboBoxesSubtitle}
+              </p>
             </Reveal>
             <StaggerGroup className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {comboItems.map((item) => (
@@ -199,13 +203,13 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
       )}
 
       {site.categories.length > 0 && (
-        <div className="sticky top-[65px] z-20 flex flex-col gap-3 border-b border-black/[.06] bg-white/90 px-6 py-3 backdrop-blur-md sm:px-12 dark:border-white/[.08] dark:bg-zinc-950/90">
+        <div className="sticky top-[65px] z-20 flex flex-col gap-3 border-b border-[var(--theme-border)] bg-[color-mix(in_srgb,var(--background)_90%,transparent)] px-6 py-3 backdrop-blur-md sm:px-12">
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={t.filter.searchPlaceholder}
-            className="mx-auto h-10 w-full max-w-6xl rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
+            placeholder={(content.menuBusinessKind === "SHOP" ? t.filter.searchProductsPlaceholder : t.filter.searchPlaceholder)}
+            className="mx-auto h-10 w-full max-w-6xl rounded-xl border border-[var(--theme-border)] bg-surface px-3.5 text-sm text-foreground outline-none transition-all duration-200 placeholder:text-[var(--theme-text-muted)] focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40"
           />
           {visibleCategories.length > 0 && (
             <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto">
@@ -214,7 +218,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                   key={category.id}
                   type="button"
                   onClick={() => scrollToCategory(category.id)}
-                  className="shrink-0 rounded-full border border-black/[.1] px-4 py-1.5 text-sm font-medium hover:bg-black/[.04] dark:border-white/[.16] dark:hover:bg-white/[.06]"
+                  className="shrink-0 rounded-full border border-[var(--theme-border)] px-4 py-1.5 text-sm font-medium transition-colors hover:border-[var(--accent-solid)] hover:text-[var(--accent-ink)]"
                 >
                   {category.name}
                 </button>
@@ -225,7 +229,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
       )}
 
       <div id="menu" className="mx-auto w-full max-w-6xl flex-1 scroll-mt-24 px-6 py-10 sm:px-12">
-        {hasNoResults && <p className="text-sm text-zinc-500 dark:text-zinc-400">{t.filter.noResults}</p>}
+        {hasNoResults && <p className="text-sm text-[var(--theme-text-muted)]">{t.filter.noResults}</p>}
 
         <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 3rem)" }}>
           {visibleCategories.map((category) => {
@@ -258,8 +262,8 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
           site.openingHours.length > 0) && (
           <Reveal as="section" className="mt-16">
             <div className="p-6 text-sm" style={themeCardStyle()}>
-              {site.profile?.description && <p className="mb-3 text-zinc-600 dark:text-zinc-400">{site.profile.description}</p>}
-              <div className="flex flex-wrap gap-3 text-zinc-600 dark:text-zinc-400">
+              {site.profile?.description && <p className="mb-3 text-[var(--theme-text-muted)]">{site.profile.description}</p>}
+              <div className="flex flex-wrap gap-3 text-[var(--theme-text-muted)]">
                 {site.profile?.phone && <span>{site.profile.phone}</span>}
                 {site.profile?.address && <span>{site.profile.address}</span>}
                 {site.profile?.googleMapsUrl && (
@@ -279,7 +283,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                 )}
               </div>
               {site.openingHours.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--theme-text-muted)]">
                   {site.openingHours.map((h) => (
                     <span key={h.dayOfWeek}>
                       {t.hours.dayShort[h.dayOfWeek] ?? h.dayOfWeek}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : t.hours.closed}
@@ -294,7 +298,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
         <DynamicSections sections={site.sections} tone="grid" />
 
         {(site.profile?.policies.PRIVACY || site.profile?.policies.TERMS || site.profile?.policies.DELIVERY || site.profile?.policies.REFUND) && (
-          <footer className="mt-10 flex flex-col gap-4 border-t border-black/[.06] pt-6 text-xs text-zinc-500 dark:border-white/[.1]">
+          <footer className="mt-10 flex flex-col gap-4 border-t border-[var(--theme-border)] pt-6 text-xs text-[var(--theme-text-muted)]">
             {Object.entries(site.profile?.policies ?? {}).map(([key, policyContent]) => (
               <details key={key}>
                 <summary className="cursor-pointer font-medium">{t.policy[key.toLowerCase() as keyof typeof t.policy]}</summary>
@@ -337,10 +341,11 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                   transition={{ type: "spring", stiffness: 320, damping: 34 }}
                   className="fixed right-0 top-0 z-50 h-full w-full max-w-sm overflow-y-auto bg-background p-4 shadow-lift"
                 >
-                  <button type="button" onClick={() => setCartOpen(false)} className="mb-3 text-sm text-zinc-500 hover:underline">
+                  <button type="button" onClick={() => setCartOpen(false)} className="mb-3 text-sm text-[var(--theme-text-muted)] hover:underline">
                     {dir === "rtl" ? `${t.cart.close} →` : `← ${t.cart.close}`}
                   </button>
                   <CartPanel
+                    isShop={isShop}
                     lines={cart}
                     currency={site.currency}
                     deliveryAreas={site.deliveryAreas}

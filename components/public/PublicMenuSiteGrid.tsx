@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionSafeImage, SafeImage } from "@/components/public/SafeImage";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
@@ -7,6 +8,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { CartPanel } from "@/components/public/CartPanel";
 import { DynamicSections } from "@/components/public/DynamicSections";
+import { LocationCard } from "@/components/public/LocationCard";
 import { PublicMenuItemCard } from "@/components/public/PublicMenuItemCard";
 import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types";
 import type { CartLine } from "@/lib/site/cart";
@@ -23,6 +25,40 @@ function slugifyId(value: string): string {
 }
 
 /**
+ * A category filter chip.
+ *
+ * The selected one is filled with the accent rather than merely outlined: this
+ * bar used to be a row of identical white pills that scrolled the page instead
+ * of filtering it, so nothing on screen ever said which one you had pressed.
+ */
+function FilterChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick(): void;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      whileTap={{ scale: 0.95 }}
+      aria-pressed={active}
+      className={`shrink-0 snap-start rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+        active
+          ? "text-[color:var(--accent-contrast)]"
+          : "border border-black/[.1] bg-surface hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-ink)] dark:border-white/[.14] dark:bg-white/[.04]"
+      }`}
+      style={active ? { background: "var(--accent-solid)" } : undefined}
+    >
+      {children}
+    </motion.button>
+  );
+}
+
+/**
  * The "Grid" layout for MENU_ORDERING: same data and ordering logic as the
  * Classic layout, arranged completely differently - a full-width cover
  * hero, sticky category pills, items as a card grid, and the cart as a
@@ -33,13 +69,28 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [query, setQuery] = useState("");
+  /** null = every category. The chips are a filter, not a scroll shortcut. */
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const content = parseDraftContent(site.publishedContent);
+  const hasCover = !!site.profile?.coverImageUrl;
   const orderingEnabled = site.orderingMode === "WHATSAPP_ORDERING" && !!site.profile?.whatsappNumber;
   const cartCount = cart.reduce((sum, l) => sum + l.quantity, 0);
-  const visibleCategories = site.categories
+  // Two independent narrowings: the chips choose a category, the box searches
+  // within whatever is showing. Both are applied here so the count under the
+  // bar and the sections below can never disagree.
+  const matchingCategories = site.categories
     .map((category) => ({ ...category, items: itemsUnder(category).filter((item) => itemMatchesQuery(item, query)) }))
     .filter((category) => category.items.length > 0);
+  const visibleCategories = activeCategory
+    ? matchingCategories.filter((category) => category.id === activeCategory)
+    : matchingCategories;
+  const visibleItemCount = visibleCategories.reduce((sum, category) => sum + category.items.length, 0);
+  // Chips list every category that still has a match, so a chip is never a
+  // dead end - plus whichever one is selected, so it cannot vanish under you.
+  const chipCategories = site.categories.filter(
+    (category) => category.id === activeCategory || matchingCategories.some((match) => match.id === category.id),
+  );
 
   function handleAddToCart(line: CartLine) {
     setCart((prev) => {
@@ -62,85 +113,179 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
     window.open(whatsappUrl(site.profile.whatsappNumber, message), "_blank");
   }
 
-  function scrollToCategory(id: string) {
-    document.getElementById(slugifyId(id))?.scrollIntoView({ behavior: "smooth", block: "start" });
+  function chooseCategory(id: string | null) {
+    setActiveCategory(id);
+    // Filtering shortens the page; without this the visitor can be left looking
+    // at the footer of a menu that no longer has anything below the fold.
+    document.getElementById("menu-top")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   return (
-    <div dir={dir} className="flex flex-1 flex-col" style={themeCssVars(site.theme, content.brandColor)}>
+    <div dir={dir} className="flex flex-1 flex-col bg-background text-foreground" style={themeCssVars(site.theme, content.brandColor)}>
       {/* A practical, app-like header (cover strip + overlapping logo, left-aligned info) - deliberately not a
           cinematic full-bleed hero, which is Portfolio's signature move. Menu sites are about getting to the
           menu fast, not a dramatic intro. */}
-      <div className="relative h-40 w-full overflow-hidden bg-surface-muted sm:h-52">
-        {site.profile?.coverImageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-          <img src={site.profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
+      {/* One block, not a photo strip with a header pinned underneath it. The
+          logo used to straddle the boundary between the two, which read as a
+          seam rather than as a design, and left an empty band under the cover
+          on wide screens. Everything now sits inside the image, over a scrim
+          heavy enough that white text stays legible on any owner photo. */}
+      <header
+        className={`relative isolate w-full overflow-hidden ${
+          hasCover ? "min-h-[300px] sm:min-h-[400px]" : "bg-surface-muted"
+        }`}
+      >
+        {hasCover && (
+          <>
+            <SafeImage src={site.profile!.coverImageUrl!} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
+            <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/55 to-black/25" />
+          </>
         )}
-      </div>
-      <div className="mx-auto w-full max-w-6xl px-4 pb-4">
-        <div className="-mt-10 flex items-end gap-4 sm:-mt-12">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className={`mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 pb-8 ${hasCover ? "pt-28 sm:pt-40" : "pt-8"}`}
+        >
           {site.profile?.logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL
-            <img
+            <SafeImage
               src={site.profile.logoUrl}
               alt=""
-              className="h-20 w-20 shrink-0 rounded-2xl border-4 border-background object-cover shadow-lift sm:h-24 sm:w-24"
+              className="h-16 w-16 rounded-2xl object-cover shadow-lift ring-1 ring-white/25 sm:h-20 sm:w-20"
             />
           ) : (
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-4 border-background bg-gradient-accent text-2xl font-semibold text-white shadow-lift sm:h-24 sm:w-24">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-accent text-2xl font-semibold text-[var(--accent-contrast)] shadow-lift sm:h-20 sm:w-20">
               {site.businessName.charAt(0)}
             </div>
           )}
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="min-w-0 pb-2">
-            <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl" style={themeHeadingStyle()}>{site.businessName}</h1>
-            {content.heroHeading && <p className="mt-0.5 truncate text-sm font-medium text-[var(--accent-solid)]">{content.heroHeading}</p>}
-          </motion.div>
-        </div>
-        {content.heroSubtitle && <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">{content.heroSubtitle}</p>}
-      </div>
+          <div className="min-w-0">
+            <h1
+              className={`text-3xl font-semibold tracking-tight sm:text-4xl ${hasCover ? "text-white" : ""}`}
+              style={themeHeadingStyle()}
+            >
+              {site.businessName}
+            </h1>
+            {content.heroHeading && (
+              <p className={`mt-1.5 text-base font-medium sm:text-lg ${hasCover ? "text-white/85" : "text-[var(--accent-ink)]"}`}>
+                {content.heroHeading}
+              </p>
+            )}
+            {content.heroSubtitle && (
+              <p
+                className={`mt-2 max-w-2xl text-sm leading-relaxed ${
+                  hasCover ? "text-white/70" : "text-[var(--theme-text-muted)]"
+                }`}
+              >
+                {content.heroSubtitle}
+              </p>
+            )}
+          </div>
+        </motion.div>
+      </header>
 
       {site.categories.length > 0 && (
-        <div className="sticky top-0 z-30 flex flex-col gap-3 border-b border-black/[.06] bg-surface/90 px-4 py-3 backdrop-blur-md dark:border-white/[.1]">
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t.filter.searchPlaceholder}
-            className="mx-auto h-10 w-full max-w-6xl rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
-          />
-          <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto">
-            {visibleCategories.map((category) => (
-              <button
-                key={category.id}
-                type="button"
-                onClick={() => scrollToCategory(category.id)}
-                className="shrink-0 rounded-full border border-black/[.1] px-4 py-1.5 text-sm font-medium hover:bg-black/[.04] dark:border-white/[.16] dark:hover:bg-white/[.06]"
+        <div
+          id="menu-top"
+          className="sticky top-0 z-30 scroll-mt-0 border-b border-black/[.06] bg-surface/95 backdrop-blur-md dark:border-white/[.1]"
+        >
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-2.5 px-4 py-3 lg:flex-row lg:items-center lg:gap-5">
+            {/* One row on a wide screen. Stacked, this bar was two thirds the
+                height of a phone's viewport before a single dish appeared. */}
+            <label className="relative shrink-0 lg:w-72">
+              <span className="sr-only">{(content.menuBusinessKind === "SHOP" ? t.filter.searchProductsPlaceholder : t.filter.searchPlaceholder)}</span>
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-45"
               >
-                {category.name}
-              </button>
-            ))}
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.6-3.6" />
+              </svg>
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={(content.menuBusinessKind === "SHOP" ? t.filter.searchProductsPlaceholder : t.filter.searchPlaceholder)}
+                className="h-10 w-full rounded-full border border-black/[.12] bg-surface ps-9 pe-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
+              />
+            </label>
+
+            <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0">
+              {/* "All" first, and always present: without it a visitor who taps a
+                  chip has no way back to the whole menu. */}
+              <FilterChip active={activeCategory === null} onClick={() => chooseCategory(null)}>
+                {t.filter.all}
+              </FilterChip>
+              {chipCategories.map((category) => (
+                <FilterChip
+                  key={category.id}
+                  active={activeCategory === category.id}
+                  onClick={() => chooseCategory(category.id)}
+                >
+                  {category.name}
+                </FilterChip>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
       <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
         {site.galleryImageUrls.length > 0 && (
-          <div className="mb-10 flex gap-3 overflow-x-auto pb-2">
-            {site.galleryImageUrls.map((url) => (
-              <motion.img
-                key={url}
-                whileHover={{ scale: 1.03 }}
-                transition={{ duration: 0.25 }}
-                src={url}
-                alt=""
-                className="h-32 w-48 shrink-0 rounded-xl object-cover shadow-soft"
-              />
-            ))}
+          <div className="relative mb-10">
+            {/* Labelled, so it reads as photos of the place rather than as the
+                menu itself - which is what an unexplained row of food pictures
+                directly above the menu looked like. */}
+            <p className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-[var(--theme-text-muted)]">
+              {t.stats.photos}
+            </p>
+            <div className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto">
+              {site.galleryImageUrls.map((url) => (
+                <MotionSafeImage
+                  key={url}
+                  whileHover={{ scale: 1.04 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                  src={url}
+                  alt=""
+                  className="h-36 w-52 shrink-0 snap-start rounded-2xl object-cover shadow-soft"
+                />
+              ))}
+            </div>
+            {/* A fade at the trailing edge: the strip scrolls, and a photo cut
+                flat by the container edge reads as broken rather than as more. */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute bottom-0 end-0 top-8 w-12 bg-gradient-to-l from-background to-transparent"
+            />
           </div>
         )}
 
-        {visibleCategories.length === 0 && (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">{t.filter.noResults}</p>
+        {visibleCategories.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-black/[.12] py-14 text-center dark:border-white/[.16]">
+            <p className="text-sm font-medium">{t.filter.noResults}</p>
+            {(query || activeCategory) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  chooseCategory(null);
+                }}
+                className="mt-2 text-sm font-medium text-[var(--accent-ink)] hover:underline"
+              >
+                {t.filter.clearFilters}
+              </button>
+            )}
+          </div>
+        ) : (
+          (query || activeCategory) && (
+            <p className="mb-6 text-sm text-[var(--theme-text-muted)]">
+              {visibleItemCount} {visibleItemCount === 1 ? t.filter.itemSingular : t.filter.itemPlural}
+            </p>
+          )
         )}
 
         <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 3rem)" }}>
@@ -170,34 +315,33 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
           site.profile?.phone ||
           site.profile?.address ||
           site.openingHours.length > 0) && (
-          <Reveal as="section" className="mt-16 rounded-2xl border border-black/[.08] p-6 text-sm dark:border-white/[.145]">
-            {site.profile?.description && <p className="mb-3 text-zinc-600 dark:text-zinc-400">{site.profile.description}</p>}
-            <div className="flex flex-wrap gap-3 text-zinc-600 dark:text-zinc-400">
-              {site.profile?.phone && <span>{site.profile.phone}</span>}
-              {site.profile?.address && <span>{site.profile.address}</span>}
-              {site.profile?.googleMapsUrl && (
-                <a href={site.profile.googleMapsUrl} target="_blank" className="hover:underline">
-                  {t.contact.map}
-                </a>
-              )}
-              {site.profile?.instagramUrl && (
-                <a href={site.profile.instagramUrl} target="_blank" className="hover:underline">
-                  {t.contact.instagram}
-                </a>
-              )}
-              {site.profile?.tiktokUrl && (
-                <a href={site.profile.tiktokUrl} target="_blank" className="hover:underline">
-                  {t.contact.tiktok}
-                </a>
-              )}
-            </div>
-            {site.openingHours.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
-                {site.openingHours.map((h) => (
-                  <span key={h.dayOfWeek}>
-                    {t.hours.dayShort[h.dayOfWeek] ?? h.dayOfWeek}: {h.open ? `${h.opensAt?.slice(0, 5)}-${h.closesAt?.slice(0, 5)}` : t.hours.closed}
-                  </span>
-                ))}
+          <Reveal as="section" className="mt-16 flex flex-col gap-5">
+            {site.profile?.description && (
+              <p className="max-w-3xl text-sm leading-relaxed text-[var(--theme-text-muted)]">{site.profile.description}</p>
+            )}
+            {site.profile && <LocationCard profile={site.profile} openingHours={site.openingHours} />}
+            {(site.profile?.instagramUrl || site.profile?.tiktokUrl) && (
+              <div className="flex flex-wrap gap-2">
+                {site.profile?.instagramUrl && (
+                  <a
+                    href={site.profile.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-full border border-black/[.08] px-4 py-2 text-sm font-medium transition-colors hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-ink)] dark:border-white/[.12]"
+                  >
+                    {t.contact.instagram}
+                  </a>
+                )}
+                {site.profile?.tiktokUrl && (
+                  <a
+                    href={site.profile.tiktokUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-full border border-black/[.08] px-4 py-2 text-sm font-medium transition-colors hover:border-[var(--accent-solid)]/40 hover:text-[var(--accent-ink)] dark:border-white/[.12]"
+                  >
+                    {t.contact.tiktok}
+                  </a>
+                )}
               </div>
             )}
           </Reveal>
@@ -206,7 +350,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
         <DynamicSections sections={site.sections} tone="grid" />
 
         {(site.profile?.policies.PRIVACY || site.profile?.policies.TERMS || site.profile?.policies.DELIVERY || site.profile?.policies.REFUND) && (
-          <footer className="mt-10 flex flex-col gap-4 border-t border-black/[.06] pt-6 text-xs text-zinc-500 dark:border-white/[.1]">
+          <footer className="mt-10 flex flex-col gap-4 border-t border-[var(--theme-border)] pt-6 text-xs text-[var(--theme-text-muted)]">
             {Object.entries(site.profile?.policies ?? {}).map(([key, policyContent]) => (
               <details key={key}>
                 <summary className="cursor-pointer font-medium">{t.policy[key.toLowerCase() as keyof typeof t.policy]}</summary>
@@ -227,7 +371,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
-            className="fixed bottom-5 right-5 z-40 flex h-14 items-center gap-2 bg-gradient-accent px-5 text-sm font-medium text-white shadow-lift"
+            className="fixed bottom-5 right-5 z-40 flex h-14 items-center gap-2 bg-gradient-accent px-5 text-sm font-medium text-[var(--accent-contrast)] shadow-lift"
           >
             🛒 {t.cart.cart}{cartCount > 0 ? ` (${cartCount})` : ""}
           </motion.button>
@@ -252,11 +396,12 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
                   <button
                     type="button"
                     onClick={() => setCartOpen(false)}
-                    className="mb-3 text-sm text-zinc-500 hover:underline"
+                    className="mb-3 text-sm text-[var(--theme-text-muted)] hover:underline"
                   >
                     {dir === "rtl" ? `${t.cart.close} →` : `← ${t.cart.close}`}
                   </button>
                   <CartPanel
+                    isShop={content.menuBusinessKind === "SHOP"}
                     lines={cart}
                     currency={site.currency}
                     deliveryAreas={site.deliveryAreas}

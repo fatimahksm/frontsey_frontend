@@ -1,5 +1,6 @@
 "use client";
 
+import { SafeImage } from "@/components/public/SafeImage";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 
@@ -50,7 +51,7 @@ export function PublicMenuListItem({
   function pricePill(label: string) {
     return (
       <span
-        className="inline-block whitespace-nowrap px-3 py-1.5 text-sm font-semibold text-[var(--theme-background)]"
+        className="inline-block whitespace-nowrap px-3 py-1.5 text-sm font-semibold text-[var(--accent-contrast)]"
         style={{ background: "var(--accent-solid)", borderRadius: "var(--theme-button-radius, 9999px)" }}
       >
         {label}
@@ -69,8 +70,7 @@ export function PublicMenuListItem({
           className="h-[88px] w-[88px] shrink-0 overflow-hidden"
           style={{ borderRadius: "var(--theme-radius)", background: "var(--theme-surface)" }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL */}
-          <img src={item.imageUrl} alt="" className="h-full w-full object-cover" />
+          <SafeImage src={item.imageUrl} alt="" className="h-full w-full object-cover" />
         </div>
       )}
 
@@ -99,7 +99,7 @@ export function PublicMenuListItem({
           </p>
         )}
 
-        {isUnavailable && <p className="mt-2 text-xs font-medium text-amber-500">{t.item.currentlyUnavailable}</p>}
+        {isUnavailable && <p className="mt-2 text-xs font-medium text-[color-mix(in_srgb,#f59e0b_55%,var(--foreground))]">{t.item.currentlyUnavailable}</p>}
       </div>
 
       {/* A single headline price only when there are no per-variant prices to show instead. */}
