@@ -1,5 +1,42 @@
 # Brief: rework the Portfolio templates
 
+> **Status, checked against the code on 2026-08-24.** Most of this brief has
+> shipped, and the parts describing the old layouts are kept only as the record
+> of why the current ones look as they do. Read this status block first; the
+> sections below it were written before the rebuild and name files that no
+> longer exist.
+>
+> **Done**
+> - The four templates were rebuilt around four audiences, not four skins
+>   (see "Direction change" at the end, which is the decision that governs).
+> - Each variant has its own sample business - `mockDeveloperSite`,
+>   `mockDesignerSite`, `mockBrandSite`, `mockFreelancerSite` in
+>   `lib/mock-preview-data.ts`. One salon no longer stands in for four
+>   professions.
+> - `PublicSiteRenderer` is the single dispatch point from `layoutVariant` to
+>   component, shared by the live site and every preview.
+>
+> **Still open**
+> - **Persistent booking, on all four.** Only `PublicPortfolioSiteServices`
+>   has a sticky bar, and it is `sm:hidden` - mobile only. The other three
+>   leave a visitor mid-scroll with no visible way to act, which is the
+>   problem this brief opened with.
+> - **The enum rename.** The second option below was taken - keep
+>   `HERO`/`MINIMAL`/`BOLD`/`PROFILE`, change only their labels - so the names
+>   now actively mislead: `PORTFOLIO_HERO` renders "Professional / CV",
+>   `PORTFOLIO_MINIMAL` renders "Creative / Visual", `PORTFOLIO_BOLD` is
+>   "Brand / Product" and `PORTFOLIO_PROFILE` is "Freelancer / Services".
+>   `LayoutVariant.java`'s own javadoc still describes the superseded designs.
+>
+> **Current file map** (the table further down is the old one):
+>
+> | File | Layout | Reads as |
+> | --- | --- | --- |
+> | `PublicPortfolioSiteProfessional.tsx` | `PORTFOLIO_HERO` | Professional / CV |
+> | `PublicPortfolioSiteVisual.tsx` | `PORTFOLIO_MINIMAL` | Creative / Visual |
+> | `PublicPortfolioSiteBrand.tsx` | `PORTFOLIO_BOLD` | Brand / Product |
+> | `PublicPortfolioSiteServices.tsx` | `PORTFOLIO_PROFILE` | Freelancer / Services |
+
 Handover notes for picking this up in a fresh session. Written after reviewing
 all four Portfolio layouts in a browser against the sample salon data.
 
@@ -19,6 +56,9 @@ So: cut and reorder the sections so the page reads in a sensible order, and
 make booking reachable from any scroll position.
 
 ## Files
+
+**Superseded** - none of these four files exist any more; see the current file
+map in the status block above. Kept because the findings below refer to them.
 
 | File | Layout |
 | --- | --- |
