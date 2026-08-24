@@ -63,7 +63,7 @@ const GALLERY_PORTFOLIO: ContentSection = {
 
 const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
   // Professional / CV - a hiring manager reading a background.
-  PORTFOLIO_HERO: {
+  PORTFOLIO_PROFESSIONAL: {
     sections: [
       { key: "projects", label: "Projects", hint: "What you have built, with dates and links" },
       { key: "services", label: "Skills & services", hint: "What you can be hired to do" },
@@ -77,7 +77,7 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
   },
 
   // Creative / Visual - a gallery.
-  PORTFOLIO_MINIMAL: {
+  PORTFOLIO_VISUAL: {
     sections: [
       { key: "projects", label: "Work", hint: "Your pieces - each one opens full size" },
       { key: "services", label: "Disciplines", hint: "The kinds of work you take on" },
@@ -91,7 +91,7 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
   },
 
   // Freelancer / Services - built to get booked, so the priced list comes first.
-  PORTFOLIO_PROFILE: {
+  PORTFOLIO_SERVICES: {
     sections: [
       { key: "services", label: "Packages", hint: "What you offer and what it costs" },
       { key: "projects", label: "Recent work", hint: "Proof, shown after your packages" },
@@ -106,7 +106,7 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
   },
 
   // Brand / Product - a shop front, so the things come first.
-  PORTFOLIO_BOLD: {
+  PORTFOLIO_BRAND: {
     sections: [
       { key: "services", label: "Products", hint: "What you sell, with prices" },
       { key: "projects", label: "Work", hint: "What you have made" },

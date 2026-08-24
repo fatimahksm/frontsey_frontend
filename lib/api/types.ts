@@ -50,10 +50,10 @@ export type LayoutVariant =
   | "MENU_GRID"
   | "MENU_ELEGANT"
   | "MENU_BISTRO"
-  | "PORTFOLIO_HERO"
-  | "PORTFOLIO_MINIMAL"
-  | "PORTFOLIO_BOLD"
-  | "PORTFOLIO_PROFILE";
+  | "PORTFOLIO_PROFESSIONAL"
+  | "PORTFOLIO_VISUAL"
+  | "PORTFOLIO_BRAND"
+  | "PORTFOLIO_SERVICES";
 export type WebsiteStatus =
   | "DRAFT"
   | "PUBLISHED"

@@ -21,21 +21,22 @@
 >   has a sticky bar, and it is `sm:hidden` - mobile only. The other three
 >   leave a visitor mid-scroll with no visible way to act, which is the
 >   problem this brief opened with.
-> - **The enum rename.** The second option below was taken - keep
->   `HERO`/`MINIMAL`/`BOLD`/`PROFILE`, change only their labels - so the names
->   now actively mislead: `PORTFOLIO_HERO` renders "Professional / CV",
->   `PORTFOLIO_MINIMAL` renders "Creative / Visual", `PORTFOLIO_BOLD` is
->   "Brand / Product" and `PORTFOLIO_PROFILE` is "Freelancer / Services".
->   `LayoutVariant.java`'s own javadoc still describes the superseded designs.
+> - **The enum rename is now done**, the first option below rather than the
+>   second. `HERO`/`MINIMAL`/`BOLD`/`PROFILE` became
+>   `PROFESSIONAL`/`VISUAL`/`BRAND`/`SERVICES`, with backend migration V19
+>   mapping every stored row in both `business_websites` and `template_prices`.
+>   Anything written against the old names needs updating.
 >
 > **Current file map** (the table further down is the old one):
 >
 > | File | Layout | Reads as |
 > | --- | --- | --- |
-> | `PublicPortfolioSiteProfessional.tsx` | `PORTFOLIO_HERO` | Professional / CV |
-> | `PublicPortfolioSiteVisual.tsx` | `PORTFOLIO_MINIMAL` | Creative / Visual |
-> | `PublicPortfolioSiteBrand.tsx` | `PORTFOLIO_BOLD` | Brand / Product |
-> | `PublicPortfolioSiteServices.tsx` | `PORTFOLIO_PROFILE` | Freelancer / Services |
+> | `PublicPortfolioSiteProfessional.tsx` | `PORTFOLIO_PROFESSIONAL` | Professional / CV |
+> | `PublicPortfolioSiteVisual.tsx` | `PORTFOLIO_VISUAL` | Creative / Visual |
+> | `PublicPortfolioSiteBrand.tsx` | `PORTFOLIO_BRAND` | Brand / Product |
+> | `PublicPortfolioSiteServices.tsx` | `PORTFOLIO_SERVICES` | Freelancer / Services |
+>
+> Names below this block are the pre-rename ones, kept as written.
 
 Handover notes for picking this up in a fresh session. Written after reviewing
 all four Portfolio layouts in a browser against the sample salon data.

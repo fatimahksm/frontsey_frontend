@@ -221,7 +221,7 @@ export function themeCssVars(theme: ThemeConfig, brandColorOverride?: string): C
 
     // Deliberately no backgroundColor/color here. An inline style outranks
     // Tailwind classes, so painting them would override a layout that styles
-    // its own shell - PORTFOLIO_HERO is `bg-zinc-950 text-white` on purpose,
+    // its own shell - PORTFOLIO_PROFESSIONAL is `bg-zinc-950 text-white` on purpose,
     // and forcing it to a light palette left its white-on-dark text unreadable
     // against a white page. Layouts that want the themed palette opt in with
     // `bg-background text-foreground`, which reads the variables above.
@@ -292,13 +292,13 @@ export function serializeThemeConfig(config: ThemeConfig): string {
  */
 const SIGNATURE_PALETTES: Partial<Record<LayoutVariant, Pick<ThemeConfig, "backgroundColor" | "surfaceColor" | "textColor">>> = {
   // Professional / CV - a terminal, deliberately.
-  PORTFOLIO_HERO: { backgroundColor: "#08090c", surfaceColor: "#101116", textColor: "#f4f4f5" },
+  PORTFOLIO_PROFESSIONAL: { backgroundColor: "#08090c", surfaceColor: "#101116", textColor: "#f4f4f5" },
   // Creative / Visual - warm paper, so photographs sit on something.
-  PORTFOLIO_MINIMAL: { backgroundColor: "#f4f1ec", surfaceColor: "#e8e3db", textColor: "#1a1917" },
+  PORTFOLIO_VISUAL: { backgroundColor: "#f4f1ec", surfaceColor: "#e8e3db", textColor: "#1a1917" },
   // Freelancer / Services - clean and bright, because it is a sales page.
-  PORTFOLIO_PROFILE: { backgroundColor: "#ffffff", surfaceColor: "#f6f6f7", textColor: "#16181d" },
+  PORTFOLIO_SERVICES: { backgroundColor: "#ffffff", surfaceColor: "#f6f6f7", textColor: "#16181d" },
   // Brand / Product - loud, heavy, dark.
-  PORTFOLIO_BOLD: { backgroundColor: "#101014", surfaceColor: "#191920", textColor: "#f2f0eb" },
+  PORTFOLIO_BRAND: { backgroundColor: "#101014", surfaceColor: "#191920", textColor: "#f2f0eb" },
   // Bistro - warm and photographic, but light.
   MENU_BISTRO: { backgroundColor: "#ffffff", surfaceColor: "#ffffff", textColor: "#18181b" },
 };

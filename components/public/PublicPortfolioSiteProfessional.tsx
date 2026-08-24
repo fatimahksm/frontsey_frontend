@@ -12,7 +12,7 @@ import { getCompleteness, getProfessionalData, normalizePortfolioData, primaryCo
 import { effectiveTheme, themeCssVars } from "@/lib/website/theme-config";
 
 /**
- * The Developer template (PORTFOLIO_HERO).
+ * The Developer template (PORTFOLIO_PROFESSIONAL).
  *
  * Built for one reader: someone deciding whether to hire this person to write
  * software. That is why the page leads with work rather than a mission

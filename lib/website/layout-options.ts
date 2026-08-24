@@ -50,25 +50,25 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, TemplateOption[]> = {
   ],
   PORTFOLIO: [
     {
-      value: "PORTFOLIO_HERO",
+      value: "PORTFOLIO_PROFESSIONAL",
       label: "Professional / CV",
       description: "Your background as a hiring manager reads it: experience, skills, projects and a downloadable CV, in a dense dark layout that stays scannable.",
       bestFor: ["Developer", "Engineer", "Accountant", "Student", "Consultant", "Analyst"],
     },
     {
-      value: "PORTFOLIO_MINIMAL",
+      value: "PORTFOLIO_VISUAL",
       label: "Creative / Visual",
       description: "Pictures first and words second - large editorial compositions with a caption beside each one, on warm paper.",
       bestFor: ["Designer", "Photographer", "Architect", "Artist", "Fashion", "Videographer"],
     },
     {
-      value: "PORTFOLIO_PROFILE",
+      value: "PORTFOLIO_SERVICES",
       label: "Freelancer / Services",
       description: "Built to get you booked: what you offer and what it costs, proof from past clients, answers to the usual questions, and a contact button that is never far away.",
       bestFor: ["Coach", "Marketer", "Social media manager", "Trainer", "Makeup artist", "Tutor"],
     },
     {
-      value: "PORTFOLIO_BOLD",
+      value: "PORTFOLIO_BRAND",
       label: "Brand / Product",
       description: "A loud front page for something you have made - your story, featured items, and your social links, in heavy type and full-strength colour.",
       bestFor: ["Small business", "Creator", "Personal brand", "Product maker", "Studio", "Shop"],
@@ -85,10 +85,10 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, TemplateOption[]> = {
 const DISPLAY_ONLY_LAYOUTS = new Set<LayoutVariant>([
   "MENU_CLASSIC",
   "MENU_ELEGANT",
-  "PORTFOLIO_HERO",
-  "PORTFOLIO_MINIMAL",
-  "PORTFOLIO_BOLD",
-  "PORTFOLIO_PROFILE",
+  "PORTFOLIO_PROFESSIONAL",
+  "PORTFOLIO_VISUAL",
+  "PORTFOLIO_BRAND",
+  "PORTFOLIO_SERVICES",
 ]);
 
 export function isDisplayOnlyLayout(variant: LayoutVariant): boolean {

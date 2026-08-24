@@ -18,13 +18,13 @@ function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string)
       return <PublicMenuSiteElegant site={site} onFirstView={onFirstView} />;
     case "MENU_BISTRO":
       return <PublicMenuSiteBistro site={site} onFirstView={onFirstView} />;
-    case "PORTFOLIO_MINIMAL":
+    case "PORTFOLIO_VISUAL":
       return <PublicPortfolioSiteVisual site={site} isSample={isSample} />;
-    case "PORTFOLIO_BOLD":
+    case "PORTFOLIO_BRAND":
       return <PublicPortfolioSiteBrand site={site} isSample={isSample} />;
-    case "PORTFOLIO_PROFILE":
+    case "PORTFOLIO_SERVICES":
       return <PublicPortfolioSiteServices site={site} isSample={isSample} />;
-    case "PORTFOLIO_HERO":
+    case "PORTFOLIO_PROFESSIONAL":
       return <PublicPortfolioSiteProfessional site={site} isSample={isSample} />;
     case "MENU_CLASSIC":
     default:

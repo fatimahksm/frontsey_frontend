@@ -395,7 +395,7 @@ export function mockMenuSite(
 }
 
 /**
- * The Developer sample, for PORTFOLIO_HERO.
+ * The Developer sample, for PORTFOLIO_PROFESSIONAL.
  *
  * A separate business from the salon on purpose: a developer template
  * demonstrating "Haircut & Style - $25" makes the template look broken rather
@@ -403,7 +403,7 @@ export function mockMenuSite(
  * which the section payload already allows as free-form JSON - the adapter
  * surfaces them under `extra`, and the template treats every one as optional.
  */
-function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteResponse {
+function mockDeveloperSite(layoutVariant: "PORTFOLIO_PROFESSIONAL"): PublicWebsiteResponse {
   return {
     businessName: "Adam Haddad",
     slug: "preview",
@@ -494,7 +494,7 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteRespon
 }
 
 /**
- * The Designer sample, for PORTFOLIO_MINIMAL.
+ * The Designer sample, for PORTFOLIO_VISUAL.
  *
  * A product/brand designer rather than the salon, for the same reason the
  * Developer sample is a developer: a template demonstrating the wrong
@@ -502,7 +502,7 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteRespon
  * metadata (discipline, year, link) rides in the ABOUT payload's free-form
  * JSON, as it does for Developer, so no schema change is needed.
  */
-function mockDesignerSite(layoutVariant: "PORTFOLIO_MINIMAL"): PublicWebsiteResponse {
+function mockDesignerSite(layoutVariant: "PORTFOLIO_VISUAL"): PublicWebsiteResponse {
   return {
     businessName: "Nadia Sarrouf",
     slug: "preview",
@@ -585,12 +585,12 @@ function mockDesignerSite(layoutVariant: "PORTFOLIO_MINIMAL"): PublicWebsiteResp
 }
 
 /**
- * The Agency sample, for PORTFOLIO_BOLD. A studio selling outcomes, so the
+ * The Agency sample, for PORTFOLIO_BRAND. A studio selling outcomes, so the
  * sample leads with services and case studies rather than a personal bio.
  * Results shown here are invented and only ever reachable through sample
  * mode - a real published site never receives them.
  */
-function mockBrandSite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse {
+function mockBrandSite(layoutVariant: "PORTFOLIO_BRAND"): PublicWebsiteResponse {
   return {
     businessName: "Northbound Goods",
     slug: "preview",
@@ -687,10 +687,10 @@ function mockBrandSite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse {
 }
 
 /**
- * The Freelancer sample, for PORTFOLIO_PROFILE. One person, so the sample is
+ * The Freelancer sample, for PORTFOLIO_SERVICES. One person, so the sample is
  * written in the first person and leads with who they are before what they do.
  */
-function mockFreelancerSite(layoutVariant: "PORTFOLIO_PROFILE"): PublicWebsiteResponse {
+function mockFreelancerSite(layoutVariant: "PORTFOLIO_SERVICES"): PublicWebsiteResponse {
   return {
     businessName: "Karim Debbas",
     slug: "preview",
@@ -790,14 +790,14 @@ function mockFreelancerSite(layoutVariant: "PORTFOLIO_PROFILE"): PublicWebsiteRe
 }
 
 export function mockPortfolioSite(
-  layoutVariant: "PORTFOLIO_HERO" | "PORTFOLIO_MINIMAL" | "PORTFOLIO_BOLD" | "PORTFOLIO_PROFILE",
+  layoutVariant: "PORTFOLIO_PROFESSIONAL" | "PORTFOLIO_VISUAL" | "PORTFOLIO_BRAND" | "PORTFOLIO_SERVICES",
 ): PublicWebsiteResponse {
-  // PORTFOLIO_HERO is the Developer template, so its preview shows a developer
+  // PORTFOLIO_PROFESSIONAL is the Developer template, so its preview shows a developer
   // rather than the salon the other three still use.
-  if (layoutVariant === "PORTFOLIO_HERO") return mockDeveloperSite(layoutVariant);
-  if (layoutVariant === "PORTFOLIO_MINIMAL") return mockDesignerSite(layoutVariant);
-  if (layoutVariant === "PORTFOLIO_BOLD") return mockBrandSite(layoutVariant);
-  if (layoutVariant === "PORTFOLIO_PROFILE") return mockFreelancerSite(layoutVariant);
+  if (layoutVariant === "PORTFOLIO_PROFESSIONAL") return mockDeveloperSite(layoutVariant);
+  if (layoutVariant === "PORTFOLIO_VISUAL") return mockDesignerSite(layoutVariant);
+  if (layoutVariant === "PORTFOLIO_BRAND") return mockBrandSite(layoutVariant);
+  if (layoutVariant === "PORTFOLIO_SERVICES") return mockFreelancerSite(layoutVariant);
 
   return {
     businessName: "Glow Studio",
@@ -937,10 +937,10 @@ export function mockSiteFor(layoutVariant: LayoutVariant, kind: MenuBusinessKind
     case "MENU_ELEGANT":
     case "MENU_BISTRO":
       return mockMenuSite(layoutVariant, kind);
-    case "PORTFOLIO_HERO":
-    case "PORTFOLIO_MINIMAL":
-    case "PORTFOLIO_BOLD":
-    case "PORTFOLIO_PROFILE":
+    case "PORTFOLIO_PROFESSIONAL":
+    case "PORTFOLIO_VISUAL":
+    case "PORTFOLIO_BRAND":
+    case "PORTFOLIO_SERVICES":
       return mockPortfolioSite(layoutVariant);
   }
 }

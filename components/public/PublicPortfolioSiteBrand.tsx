@@ -12,7 +12,7 @@ import { getBrandData, getCompleteness, normalizePortfolioData, primaryContactHr
 import { effectiveTheme, themeCssVars } from "@/lib/website/theme-config";
 
 /**
- * The Brand / Product template (PORTFOLIO_BOLD).
+ * The Brand / Product template (PORTFOLIO_BRAND).
  *
  * For someone with something to sell and a story behind it - a small business,
  * a maker, a personal brand. The page runs like a shop front: a statement, the

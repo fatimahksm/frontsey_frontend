@@ -13,7 +13,7 @@ import type { WorkItem } from "@/lib/website/portfolio-data";
 import { effectiveTheme, themeCssVars } from "@/lib/website/theme-config";
 
 /**
- * The Creative / Visual template (PORTFOLIO_MINIMAL).
+ * The Creative / Visual template (PORTFOLIO_VISUAL).
  *
  * A gallery, and it behaves like one. The previous version ran every piece of
  * work full-bleed at three alternating compositions, which on a wide screen

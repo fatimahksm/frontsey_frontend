@@ -143,7 +143,7 @@ export default function PageContentPage() {
           </div>
           {/* Only the templates that render these ask for them - the CV button
               exists on Professional / CV alone, the badge on two layouts. */}
-          {website.layoutVariant === "PORTFOLIO_HERO" && (
+          {website.layoutVariant === "PORTFOLIO_PROFESSIONAL" && (
             <div className="flex flex-col gap-1.5">
               <TextField
                 id="cvUrl"
@@ -157,7 +157,7 @@ export default function PageContentPage() {
               </p>
             </div>
           )}
-          {(website.layoutVariant === "PORTFOLIO_PROFILE" || website.layoutVariant === "MENU_BISTRO") && (
+          {(website.layoutVariant === "PORTFOLIO_SERVICES" || website.layoutVariant === "MENU_BISTRO") && (
             <div className="flex flex-col gap-1.5">
               <TextField
                 id="heroBadge"

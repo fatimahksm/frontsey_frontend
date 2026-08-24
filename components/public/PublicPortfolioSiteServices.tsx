@@ -13,7 +13,7 @@ import { getCompleteness, getServicesData, normalizePortfolioData, primaryContac
 import { effectiveTheme, themeCssVars } from "@/lib/website/theme-config";
 
 /**
- * The Freelancer / Services template (PORTFOLIO_PROFILE).
+ * The Freelancer / Services template (PORTFOLIO_SERVICES).
  *
  * For anyone who sells their time - a coach, a trainer, a marketer, a makeup
  * artist. The page has one job: get the visitor to book. So it is ordered as a
