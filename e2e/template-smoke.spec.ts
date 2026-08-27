@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 /**
  * A smoke pass over every template, at both widths and in both colour schemes.
@@ -22,6 +22,7 @@ const LAYOUTS = [
   "PORTFOLIO_VISUAL",
   "PORTFOLIO_BRAND",
   "PORTFOLIO_SERVICES",
+  "EVENTS_CELEBRATION",
 ] as const;
 
 /** Relative luminance, per WCAG. */
@@ -96,6 +97,28 @@ async function backdropBehind(heading: Locator): Promise<Backdrop> {
   return { kind: "unknown" };
 }
 
+
+/**
+ * Scrolls the whole page in wheel-sized steps so every scroll-triggered reveal
+ * has fired, then returns to the top.
+ *
+ * Confirmed against the real page: after a pass like this, a heading that
+ * measures opacity 0 when jumped to measures 1, because that is what a reader
+ * actually sees. Without it the contrast check reported perfectly readable
+ * headings as invisible.
+ */
+async function revealEverything(page: Page): Promise<void> {
+  const height = await page.evaluate(() => document.body.scrollHeight);
+  for (let scrolled = 0; scrolled < height; scrolled += 600) {
+    await page.mouse.wheel(0, 600);
+    await page.waitForTimeout(50);
+  }
+  // Let the last reveals finish, then go back so nothing depends on where the
+  // page was left.
+  await page.waitForTimeout(600);
+  await page.evaluate(() => window.scrollTo(0, 0));
+}
+
 for (const layout of LAYOUTS) {
   test.describe(layout, () => {
     test("renders without throwing, and shows something", async ({ page }) => {
@@ -143,6 +166,16 @@ for (const layout of LAYOUTS) {
     test("its headings are readable against what is behind them", async ({ page }, testInfo) => {
       await page.goto(`/preview/mock/${layout}`);
       await page.waitForLoadState("networkidle");
+
+      // Read the page the way a person does before measuring anything.
+      //
+      // These templates reveal headings on scroll, so one still below the fold
+      // sits at opacity 0 - which is not unreadable text, it is text that has
+      // not animated in yet. Playwright's scrollIntoViewIfNeeded jumps, and a
+      // jump does not reliably fire the intersection observer behind the
+      // reveal; a wheel does. The reveals are once-only, so everything stays
+      // revealed after this pass.
+      await revealEverything(page);
 
       const headings = page.locator("h1, h2");
       const total = await headings.count();

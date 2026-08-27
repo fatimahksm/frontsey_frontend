@@ -7,6 +7,7 @@ import { PublicPortfolioSiteProfessional } from "@/components/public/PublicPortf
 import { PublicPortfolioSiteBrand } from "@/components/public/PublicPortfolioSiteBrand";
 import { PublicPortfolioSiteVisual } from "@/components/public/PublicPortfolioSiteVisual";
 import { PublicPortfolioSiteServices } from "@/components/public/PublicPortfolioSiteServices";
+import { PublicEventsSite } from "@/components/public/PublicEventsSite";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
 
@@ -24,6 +25,8 @@ function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string)
       return <PublicPortfolioSiteBrand site={site} isSample={isSample} />;
     case "PORTFOLIO_SERVICES":
       return <PublicPortfolioSiteServices site={site} isSample={isSample} />;
+    case "EVENTS_CELEBRATION":
+      return <PublicEventsSite site={site} />;
     case "PORTFOLIO_PROFESSIONAL":
       return <PublicPortfolioSiteProfessional site={site} isSample={isSample} />;
     case "MENU_CLASSIC":

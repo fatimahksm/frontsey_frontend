@@ -391,6 +391,8 @@ export function mockMenuSite(
         }),
       },
     ],
+    event: null,
+    schedule: [],
   };
 }
 
@@ -490,6 +492,8 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_PROFESSIONAL"): PublicWebsi
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    event: null,
+    schedule: [],
   };
 }
 
@@ -581,6 +585,8 @@ function mockDesignerSite(layoutVariant: "PORTFOLIO_VISUAL"): PublicWebsiteRespo
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    event: null,
+    schedule: [],
   };
 }
 
@@ -683,6 +689,8 @@ function mockBrandSite(layoutVariant: "PORTFOLIO_BRAND"): PublicWebsiteResponse 
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    event: null,
+    schedule: [],
   };
 }
 
@@ -786,6 +794,8 @@ function mockFreelancerSite(layoutVariant: "PORTFOLIO_SERVICES"): PublicWebsiteR
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    event: null,
+    schedule: [],
   };
 }
 
@@ -922,6 +932,71 @@ export function mockPortfolioSite(
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    event: null,
+    schedule: [],
+  };
+}
+
+/**
+ * The Events sample: one wedding, told the way the template tells it.
+ *
+ * Reuses the salon photo set for its cover and gallery - the point of the
+ * sample is to show the shape of an invitation, and a real venue photograph
+ * would need its own image set for no gain here.
+ */
+function mockEventsSite(layoutVariant: "EVENTS_CELEBRATION"): PublicWebsiteResponse {
+  return {
+    businessName: "Sara & Karim",
+    slug: "preview",
+    pageMode: "ONE_PAGE",
+    templateType: "EVENTS",
+    layoutVariant,
+    orderingMode: "DISPLAY_ONLY",
+    primaryLanguage: "en",
+    currency: "USD",
+    publishedContent: JSON.stringify({
+      heroHeading: "Sara & Karim",
+      heroSubtitle: "We are getting married, and we would love you there.",
+      brandColor: "#b08968",
+    }),
+    profile: {
+      description:
+        "We met eight years ago in a queue for bad coffee, and we have been arguing about where to get good coffee ever since. Come and celebrate with us.",
+      logoUrl: null,
+      coverImageUrl: sampleSalonCoverImage(),
+      phone: "+961 70 123 456",
+      whatsappNumber: "+961 70 123 456",
+      email: "saraandkarim@example.com",
+      address: "The Old Orangery, Broummana",
+      googleMapsUrl: "https://maps.google.com",
+      instagramUrl: null,
+      tiktokUrl: null,
+      policies: {},
+    },
+    openingHours: [],
+    categories: [],
+    deliveryAreas: [],
+    services: [],
+    galleryImageUrls: sampleSalonGalleryImages(),
+    projects: [],
+    seo: { metaTitle: "Sara & Karim - 14 June 2026", metaDescription: null, ogImageUrl: null },
+    sections: [],
+    theme: DEFAULT_THEME_CONFIG,
+    event: {
+      eventDate: "Saturday 14 June 2026",
+      startTime: "6:00 PM",
+      endTime: "late",
+      venueName: "The Old Orangery",
+      dressCode: "Summer formal",
+      rsvpBy: "the end of May",
+      note: "There is parking on site, and the ceremony is outdoors - flat shoes are a kindness to yourself.",
+    },
+    schedule: [
+      { id: "e1", time: "6:00 PM", title: "Ceremony", detail: "In the walled garden. Please be seated by ten to." },
+      { id: "e2", time: "7:00 PM", title: "Drinks", detail: "On the terrace, while we are photographed against our will." },
+      { id: "e3", time: "8:30 PM", title: "Dinner", detail: null },
+      { id: "e4", time: "10:30 PM", title: "Dancing", detail: "Until the neighbours complain." },
+    ],
   };
 }
 
@@ -942,5 +1017,7 @@ export function mockSiteFor(layoutVariant: LayoutVariant, kind: MenuBusinessKind
     case "PORTFOLIO_BRAND":
     case "PORTFOLIO_SERVICES":
       return mockPortfolioSite(layoutVariant);
+    case "EVENTS_CELEBRATION":
+      return mockEventsSite(layoutVariant);
   }
 }

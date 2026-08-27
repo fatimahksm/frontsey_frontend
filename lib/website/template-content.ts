@@ -21,7 +21,7 @@ import type { MenuBusinessKind } from "@/lib/website/draft-content";
 /** A content store, named as the current template names it. */
 export interface ContentSection {
   /** Which editor this is - stable across templates, unlike the label. */
-  key: "projects" | "services" | "menu" | "gallery" | "delivery" | "sections";
+  key: "projects" | "services" | "menu" | "gallery" | "delivery" | "sections" | "event";
   /** What this template calls it. */
   label: string;
   /** One line saying what it is for, in this template's terms. */
@@ -166,6 +166,20 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
       { type: "FAQ", label: "Questions", hint: "Parking, reservations, delivery, dietary options." },
     ],
   },
+
+  // Events - one occasion. No services and no menu; the running order and the
+  // photographs are the content, and both are edited on the Event page.
+  EVENTS_CELEBRATION: {
+    sections: [
+      { key: "event", label: "The occasion", hint: "When and where, dress code, and the running order of the day" },
+      { key: "gallery", label: "Memories", hint: "The photographs - before the day as an invitation, after it as the album" },
+      { key: "sections", label: "Your story", hint: "How you got here, and anything guests should know" },
+    ],
+    blocks: [
+      { type: "ABOUT", label: "Our story", hint: "A short paragraph for your guests - how you met, or what you are celebrating." },
+      { type: "FAQ", label: "Questions", hint: "Parking, children, gifts - the things everyone asks." },
+    ],
+  },
 };
 
 /**
@@ -190,7 +204,7 @@ export function contentPlanFor(layoutVariant: LayoutVariant, kind: MenuBusinessK
     blocks: plan.blocks.map((block) =>
       block.type === "ABOUT" ? { ...block, label: "About us", hint: "What you sell and who makes it." } : block,
     ),
-  };
+    };
 }
 
 /** What this template calls one particular editor, for a page heading. */

@@ -43,7 +43,7 @@ export type AccountStatus =
 export type PageMode = "MULTI_PAGE" | "ONE_PAGE";
 export type OrderingMode = "DISPLAY_ONLY" | "WHATSAPP_ORDERING";
 /** The structural shape of a website - distinct from Theme, which is only visual styling. */
-export type TemplateType = "MENU_ORDERING" | "PORTFOLIO";
+export type TemplateType = "MENU_ORDERING" | "PORTFOLIO" | "EVENTS";
 /** Matches com.dbwb.platform.website.entity.LayoutVariant - a structural arrangement, orthogonal to Theme (colors only). */
 export type LayoutVariant =
   | "MENU_CLASSIC"
@@ -53,7 +53,8 @@ export type LayoutVariant =
   | "PORTFOLIO_PROFESSIONAL"
   | "PORTFOLIO_VISUAL"
   | "PORTFOLIO_BRAND"
-  | "PORTFOLIO_SERVICES";
+  | "PORTFOLIO_SERVICES"
+  | "EVENTS_CELEBRATION";
 export type WebsiteStatus =
   | "DRAFT"
   | "PUBLISHED"
@@ -721,9 +722,59 @@ export interface PublicWebsiteResponse {
    * to the gallery in that case, so an older saved site is unaffected.
    */
   projects: PublicProject[];
+  /** The occasion itself. Null on every non-EVENTS site, and on an EVENTS site nobody has filled in yet. */
+  event: PublicEvent | null;
+  /** The running order of the day, in the host's order. Empty for every non-EVENTS site. */
+  schedule: PublicScheduleEntry[];
 }
 
 /** One portfolio project as the public site sees it. Every field but the name may be blank. */
+/** The facts of one occasion. Every field is optional - the template hides what is absent. */
+export interface PublicEvent {
+  eventDate: string | null;
+  startTime: string | null;
+  endTime: string | null;
+  venueName: string | null;
+  dressCode: string | null;
+  rsvpBy: string | null;
+  note: string | null;
+}
+
+/** One line in the running order - "7:00 PM - Ceremony". */
+export interface PublicScheduleEntry {
+  id: string;
+  time: string | null;
+  title: string;
+  detail: string | null;
+}
+
+/** Create/update payload for the occasion's details. Every field optional. */
+export interface EventDetailsRequest {
+  eventDate: string | null;
+  startTime: string | null;
+  endTime: string | null;
+  venueName: string | null;
+  dressCode: string | null;
+  rsvpBy: string | null;
+  note: string | null;
+}
+
+export type EventDetailsResponse = EventDetailsRequest;
+
+export interface ScheduleEntryRequest {
+  time: string | null;
+  title: string;
+  detail: string | null;
+}
+
+export interface ScheduleEntryResponse {
+  id: string;
+  time: string | null;
+  title: string;
+  detail: string | null;
+  sortOrder: number;
+}
+
 export interface PublicProject {
   id: string;
   name: string;

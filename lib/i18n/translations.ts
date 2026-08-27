@@ -152,6 +152,17 @@ export interface Dictionary {
     openDays: string;
     booking: string;
   };
+  event: {
+    when: string;
+    where: string;
+    dressCode: string;
+    rsvpBy: string;
+    runningOrder: string;
+    memories: string;
+    getDirections: string;
+    messageTheHosts: string;
+    goodToKnow: string;
+  };
   filter: {
     searchPlaceholder: string;
     /** Same field on a shop, which has products rather than a menu. */
@@ -250,6 +261,17 @@ const en: Dictionary = {
   policy: { privacy: "Privacy policy", terms: "Terms and conditions", delivery: "Delivery policy", refund: "Refund policy" },
   bistro: { comboBoxesTitle: "Combo Boxes", comboBoxesSubtitle: "Curated meals, better value.", bundlesTitle: "Gift Sets", bundlesSubtitle: "Chosen together, wrapped and ready." },
   stats: { services: "Services", photos: "Photos", openDays: "Open days", booking: "Booking" },
+  event: {
+    when: "When",
+    where: "Where",
+    dressCode: "Dress code",
+    rsvpBy: "RSVP by",
+    runningOrder: "The day",
+    memories: "Memories",
+    getDirections: "Get directions",
+    messageTheHosts: "Message the hosts",
+    goodToKnow: "Good to know",
+  },
   filter: { searchPlaceholder: "Search menu…", searchProductsPlaceholder: "Search products…", noResults: "No items match your search.", all: "All", clearFilters: "Show everything", itemSingular: "item", itemPlural: "items" },
 };
 
@@ -339,6 +361,17 @@ const fr: Dictionary = {
   policy: { privacy: "Politique de confidentialité", terms: "Conditions générales", delivery: "Politique de livraison", refund: "Politique de remboursement" },
   bistro: { comboBoxesTitle: "Formules", comboBoxesSubtitle: "Des repas composés, un meilleur rapport qualité-prix.", bundlesTitle: "Coffrets", bundlesSubtitle: "Choisis ensemble, emballés et prêts à offrir." },
   stats: { services: "Services", photos: "Photos", openDays: "Jours ouverts", booking: "Réservation" },
+  event: {
+    when: "Quand",
+    where: "Ou",
+    dressCode: "Tenue",
+    rsvpBy: "Repondre avant le",
+    runningOrder: "Le programme",
+    memories: "Souvenirs",
+    getDirections: "Itineraire",
+    messageTheHosts: "Ecrire aux hotes",
+    goodToKnow: "Bon a savoir",
+  },
   filter: { searchPlaceholder: "Rechercher dans le menu…", searchProductsPlaceholder: "Rechercher un produit…", noResults: "Aucun article ne correspond à votre recherche.", all: "Tous", clearFilters: "Tout afficher", itemSingular: "article", itemPlural: "articles" },
 };
 
@@ -428,6 +461,17 @@ const ar: Dictionary = {
   policy: { privacy: "سياسة الخصوصية", terms: "الشروط والأحكام", delivery: "سياسة التوصيل", refund: "سياسة الاسترجاع" },
   bistro: { comboBoxesTitle: "علب الكومبو", comboBoxesSubtitle: "وجبات مختارة بقيمة أفضل.", bundlesTitle: "علب الهدايا", bundlesSubtitle: "مختارة معاً، مغلّفة وجاهزة." },
   stats: { services: "الخدمات", photos: "الصور", openDays: "أيام العمل", booking: "الحجز" },
+  event: {
+    when: "الموعد",
+    where: "المكان",
+    dressCode: "اللباس",
+    rsvpBy: "الرجاء التأكيد قبل",
+    runningOrder: "برنامج اليوم",
+    memories: "الذكريات",
+    getDirections: "الاتجاهات",
+    messageTheHosts: "راسل أصحاب المناسبة",
+    goodToKnow: "معلومات مفيدة",
+  },
   filter: { searchPlaceholder: "ابحث في القائمة…", searchProductsPlaceholder: "ابحث عن منتج…", noResults: "لا توجد عناصر مطابقة لبحثك.", all: "الكل", clearFilters: "عرض الكل", itemSingular: "عنصر", itemPlural: "عناصر" },
 };
 

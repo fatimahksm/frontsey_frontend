@@ -56,6 +56,7 @@ const CONTENT_ICONS: Record<ContentSection["key"], string> = {
   gallery: "🖼️",
   delivery: "🚚",
   sections: "🧩",
+  event: "🎉",
 };
 
 /** Editing a content store needs the permission that governs it, not one blanket grant. */
@@ -66,6 +67,8 @@ const CONTENT_PERMISSIONS: Record<ContentSection["key"], Permission> = {
   gallery: "MANAGE_THEME_AND_CONTENT",
   delivery: "MANAGE_DELIVERY_SETTINGS",
   sections: "MANAGE_THEME_AND_CONTENT",
+  // The occasion is website content, same as the gallery and custom sections.
+  event: "MANAGE_THEME_AND_CONTENT",
 };
 
 function navGroupsFor(website: WebsiteResponse, analyticsEnabled: boolean): NavGroup[] {

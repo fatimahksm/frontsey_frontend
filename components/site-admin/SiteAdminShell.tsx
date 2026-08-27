@@ -14,6 +14,7 @@ import {
   PeopleIcon,
   ProjectsIcon,
   ReportsIcon,
+  EventIcon,
   SectionsIcon,
   ServicesIcon,
   SettingsIcon,
@@ -81,6 +82,7 @@ const ICONS: Record<ContentSection["key"], (props: { className?: string }) => Re
   gallery: GalleryIcon,
   delivery: DeliveryIcon,
   sections: SectionsIcon,
+  event: EventIcon,
 };
 
 function navGroupsFor(website: WebsiteResponse): NavGroup[] {

@@ -23,6 +23,12 @@ export const WEBSITE_TYPES: { value: TemplateType; icon: string; label: string; 
     label: "Portfolio / Services",
     description: "A services showcase with no cart. For salons, studios, agencies, and similar businesses.",
   },
+  {
+    value: "EVENTS",
+    icon: "🎉",
+    label: "Event page",
+    description: "One occasion and the photos from it - when, where, the running order of the day. For weddings, engagements, graduations, and parties.",
+  },
 ];
 
 export interface TemplateOption {
@@ -74,6 +80,14 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, TemplateOption[]> = {
       bestFor: ["Small business", "Creator", "Personal brand", "Product maker", "Studio", "Shop"],
     },
   ],
+  EVENTS: [
+    {
+      value: "EVENTS_CELEBRATION",
+      label: "Celebration",
+      description: "The invitation and the album in one page: who and what, when and where, the running order of the day, and the photographs afterwards.",
+      bestFor: ["Wedding", "Engagement", "Graduation", "Birthday", "Anniversary", "Party"],
+    },
+  ],
 };
 
 /**
@@ -89,6 +103,8 @@ const DISPLAY_ONLY_LAYOUTS = new Set<LayoutVariant>([
   "PORTFOLIO_VISUAL",
   "PORTFOLIO_BRAND",
   "PORTFOLIO_SERVICES",
+  // An invitation has nothing to sell.
+  "EVENTS_CELEBRATION",
 ]);
 
 export function isDisplayOnlyLayout(variant: LayoutVariant): boolean {
