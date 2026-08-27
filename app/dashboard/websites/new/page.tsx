@@ -16,13 +16,19 @@ import { TextField } from "@/components/ui/TextField";
 import { friendlyMessage } from "@/lib/api/client";
 import { themeApi } from "@/lib/api/theme";
 import { websitesApi } from "@/lib/api/websites";
+import { plansApi } from "@/lib/api/plans";
 import type { LayoutVariant, PageMode, TemplateType, ThemeResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { mockSiteFor } from "@/lib/mock-preview-data";
 import { BestForChips } from "@/components/dashboard/BestForChips";
 import { SETUP_STEPS } from "@/components/website-setup/SetupWizard";
 import { MENU_BUSINESS_KINDS, serializeDraftContent, EMPTY_DRAFT_CONTENT, type MenuBusinessKind } from "@/lib/website/draft-content";
-import { TEMPLATE_OPTIONS, WEBSITE_TYPES, defaultLayoutVariant } from "@/lib/website/layout-options";
+import {
+  defaultOfferedLayoutVariant,
+  defaultLayoutVariant,
+  offeredTemplates,
+  offeredWebsiteTypes,
+} from "@/lib/website/layout-options";
 
 /** BR-SITE-001..004: name, template type, page mode, and an optional theme (null = build from scratch). Steps 1-2 of the guided creation wizard - steps 3-4 continue at /dashboard/websites/{id}/setup once the website exists. */
 export default function NewWebsitePage() {
@@ -41,13 +47,45 @@ export default function NewWebsitePage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Which templates the platform is currently offering. Null while it loads, or
+  // if the lookup fails, which shows everything rather than an empty wizard -
+  // the server refuses a withdrawn template regardless, so this is
+  // presentation, not the rule.
+  const [offered, setOffered] = useState<Set<LayoutVariant> | null>(null);
+
   useEffect(() => {
     themeApi.list().then(setThemes).catch(() => setThemes([]));
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    plansApi
+      .offeredTemplates()
+      .then((templates) => {
+        if (cancelled) return;
+        const available = new Set(templates.map((template) => template.layoutVariant));
+        setOffered(available);
+        // The default is the first template of this kind, which may itself have
+        // been withdrawn - so move off it rather than pre-selecting something
+        // the owner is not allowed to create.
+        setLayoutVariant((current) =>
+          available.has(current) ? current : defaultOfferedLayoutVariant(templateType, available));
+      })
+      .catch(() => {
+        // Leave it null - see above.
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once; templateType changes are handled by selectTemplateType
+  }, []);
+
+  const websiteTypes = offeredWebsiteTypes(offered);
+  const templateOptions = offeredTemplates(templateType, offered);
+
   function selectTemplateType(type: TemplateType) {
     setTemplateType(type);
-    setLayoutVariant(defaultLayoutVariant(type));
+    setLayoutVariant(defaultOfferedLayoutVariant(type, offered));
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -94,7 +132,7 @@ export default function NewWebsitePage() {
         </Reveal>
 
         <StaggerGroup className="mt-6 grid gap-3 sm:grid-cols-2">
-          {WEBSITE_TYPES.map((option) => {
+          {websiteTypes.map((option) => {
             const isSelected = templateType === option.value;
             return (
               <StaggerItem key={option.value}>
@@ -173,7 +211,7 @@ export default function NewWebsitePage() {
       </Reveal>
 
       <StaggerGroup className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {TEMPLATE_OPTIONS[templateType].map((option) => {
+        {templateOptions.map((option) => {
           const isSelected = layoutVariant === option.value;
           return (
             <StaggerItem key={option.value}>
@@ -219,7 +257,7 @@ export default function NewWebsitePage() {
 
       <div className="mt-8">
         <p className="mb-2 text-sm font-medium">
-          Live preview - {TEMPLATE_OPTIONS[templateType].find((o) => o.value === layoutVariant)?.label}
+          Live preview - {templateOptions.find((o) => o.value === layoutVariant)?.label}
         </p>
         <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
           <ScaledPreviewFrame width={820} height={520}>

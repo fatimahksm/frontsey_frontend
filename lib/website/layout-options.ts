@@ -95,8 +95,41 @@ export function isDisplayOnlyLayout(variant: LayoutVariant): boolean {
   return DISPLAY_ONLY_LAYOUTS.has(variant);
 }
 
+/**
+ * The templates of this kind that are actually on offer.
+ *
+ * TEMPLATE_OPTIONS describes every template the code can render; whether one
+ * may be chosen right now is the Super Admin's call, carried in
+ * template_prices.active and fetched via plansApi.offeredTemplates(). Passing
+ * `null` (not yet loaded, or the request failed) shows the full list rather
+ * than an empty picker - a momentary lookup failure should not make the
+ * product look broken, and the server refuses a withdrawn template anyway.
+ */
+export function offeredTemplates(
+  templateType: TemplateType,
+  offered: Set<LayoutVariant> | null,
+): TemplateOption[] {
+  const all = TEMPLATE_OPTIONS[templateType];
+  if (!offered) return all;
+  return all.filter((option) => offered.has(option.value));
+}
+
+/** The kinds of website with at least one template on offer. */
+export function offeredWebsiteTypes(offered: Set<LayoutVariant> | null) {
+  if (!offered) return WEBSITE_TYPES;
+  return WEBSITE_TYPES.filter((type) => offeredTemplates(type.value, offered).length > 0);
+}
+
 export function defaultLayoutVariant(templateType: TemplateType): LayoutVariant {
   return TEMPLATE_OPTIONS[templateType][0].value;
+}
+
+/** The first template of this kind that may actually be chosen. */
+export function defaultOfferedLayoutVariant(
+  templateType: TemplateType,
+  offered: Set<LayoutVariant> | null,
+): LayoutVariant {
+  return offeredTemplates(templateType, offered)[0]?.value ?? defaultLayoutVariant(templateType);
 }
 
 export function templateLabel(variant: LayoutVariant, templateType: TemplateType): string {

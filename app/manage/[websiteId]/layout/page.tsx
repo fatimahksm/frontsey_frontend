@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ScaledPreviewFrame } from "@/components/dashboard/ScaledPreviewFrame";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
@@ -10,9 +10,10 @@ import { Card } from "@/components/ui/Card";
 import { friendlyMessage } from "@/lib/api/client";
 import type { LayoutVariant } from "@/lib/api/types";
 import { websitesApi } from "@/lib/api/websites";
+import { plansApi } from "@/lib/api/plans";
 import { mockSiteFor } from "@/lib/mock-preview-data";
 import { BestForChips } from "@/components/dashboard/BestForChips";
-import { TEMPLATE_OPTIONS } from "@/lib/website/layout-options";
+import { TEMPLATE_OPTIONS, offeredTemplates } from "@/lib/website/layout-options";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { useWebsite } from "@/lib/website/website-context";
 
@@ -25,7 +26,35 @@ export default function LayoutPage() {
   const [busyVariant, setBusyVariant] = useState<LayoutVariant | null>(null);
   const [previewVariant, setPreviewVariant] = useState<LayoutVariant>(website.layoutVariant);
 
-  const options = TEMPLATE_OPTIONS[website.templateType];
+  // Which templates the platform is currently offering. Null until it loads,
+  // which shows the full list rather than an empty page; the server refuses a
+  // withdrawn template regardless, so this is presentation, not the rule.
+  const [offered, setOffered] = useState<Set<LayoutVariant> | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    plansApi
+      .offeredTemplates()
+      .then((templates) => {
+        if (!cancelled) setOffered(new Set(templates.map((template) => template.layoutVariant)));
+      })
+      .catch(() => {
+        // Leave it null. A momentary lookup failure should not make the
+        // product look like it has no templates.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // The one this website is already on always stays listed, even once it is
+  // withdrawn - otherwise its own template vanishes from its own screen and
+  // there is nothing to show as selected.
+  const options = offeredTemplates(website.templateType, offered)
+    .concat(
+      offered && !offered.has(website.layoutVariant)
+        ? TEMPLATE_OPTIONS[website.templateType].filter((option) => option.value === website.layoutVariant)
+        : [],
+    );
 
   async function handleSelect(variant: LayoutVariant) {
     setError(null);
