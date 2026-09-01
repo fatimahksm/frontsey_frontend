@@ -11,6 +11,7 @@ import { friendlyMessage } from "@/lib/api/client";
 import { galleryApi } from "@/lib/api/gallery";
 import type { GalleryImageResponse } from "@/lib/api/types";
 import { uploadsApi } from "@/lib/api/uploads";
+import { prepareImageForUpload } from "@/lib/images/prepare-upload";
 import { useWebsite } from "@/lib/website/website-context";
 
 function moved<T>(list: T[], from: number, to: number): T[] {
@@ -64,7 +65,10 @@ export default function GalleryPage() {
     setError(null);
     setIsUploading(true);
     try {
-      const { url } = await uploadsApi.uploadImage(accessToken, file);
+      // Same treatment as ImageUploadField - the gallery is the most likely
+      // place of all for a phone photo, and it has its own upload path.
+      const prepared = await prepareImageForUpload(file);
+      const { url } = await uploadsApi.uploadImage(accessToken, prepared);
       await galleryApi.add(accessToken, website.id, url);
       await load();
       notifyDraftChanged();
@@ -175,7 +179,7 @@ export default function GalleryPage() {
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,.heic,.heif"
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0];

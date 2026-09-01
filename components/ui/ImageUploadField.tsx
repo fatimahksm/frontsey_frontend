@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { friendlyMessage } from "@/lib/api/client";
 import { uploadsApi } from "@/lib/api/uploads";
+import { prepareImageForUpload } from "@/lib/images/prepare-upload";
 
 interface Props {
   id: string;
@@ -26,7 +27,13 @@ export function ImageUploadField({ id, label, helperText, value, onChange, acces
     setError(null);
     setIsUploading(true);
     try {
-      const { url } = await uploadsApi.uploadImage(accessToken, file);
+      // An iPhone photo arrives as HEIC, which nothing but Safari can display
+      // and the server has never accepted, and a phone photo of any kind
+      // arrives far larger than a web page should carry. Both are dealt with
+      // before the bytes leave the device - see prepare-upload for why here
+      // rather than on the server.
+      const prepared = await prepareImageForUpload(file);
+      const { url } = await uploadsApi.uploadImage(accessToken, prepared);
       onChange(url);
     } catch (err) {
       setError(friendlyMessage(err, "Failed to upload image."));
@@ -55,7 +62,7 @@ export function ImageUploadField({ id, label, helperText, value, onChange, acces
             ref={inputRef}
             id={id}
             type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
+            accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,.heic,.heif"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
