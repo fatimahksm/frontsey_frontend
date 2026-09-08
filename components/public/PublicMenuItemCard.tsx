@@ -42,6 +42,17 @@ function OptionPill({ selected, onClick, children }: { selected: boolean; onClic
 export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCart, onFirstView, variant = "card" }: Props) {
   const { t } = useLocale();
   const hasOptions = item.sizes.length > 0 || item.boxVariants.length > 0 || item.addonGroups.length > 0;
+  /**
+   * Whether the expanded region would contain anything at all.
+   *
+   * Everything in it - the options, the ingredients, the quantity stepper and
+   * the Add button - can be absent at once: a plain item on a website with
+   * ordering switched off. The region still drew its top border and its
+   * padding, so every such item carried a rule under its price with nothing
+   * beneath it. Visible on any display-only menu, and on every product of a
+   * shop whose owner only wants to show what they sell.
+   */
+  const hasExpandableContent = orderingEnabled || hasOptions || Boolean(item.ingredients);
   /** Card-grid items with nothing to configure skip the click-to-expand step entirely - the quantity stepper and Add to cart button are visible right away, matching a simple grid-of-cards menu. Items with sizes/box variants/addons still require an explicit tap to choose those first. The Elegant variant keeps its original always-click-to-expand, minimal list behavior regardless. */
   const alwaysExpanded = variant === "card" && !hasOptions;
   const [expanded, setExpanded] = useState(alwaysExpanded);
@@ -198,7 +209,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
       {isUnavailable && <p className={`text-xs font-medium text-[color-mix(in_srgb,#f59e0b_55%,var(--foreground))] ${variant === "elegant" ? "mt-2" : "px-4 pb-3"}`}>{t.item.currentlyUnavailable}</p>}
 
       <AnimatePresence initial={false}>
-      {expanded && !isUnavailable && (
+      {expanded && !isUnavailable && hasExpandableContent && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}

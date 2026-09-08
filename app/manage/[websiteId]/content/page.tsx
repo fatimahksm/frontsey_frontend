@@ -202,8 +202,19 @@ export default function PageContentPage() {
               value={orderingMode}
               onChange={(e) => setOrderingMode(e.target.value as OrderingMode)}
             >
-              <option value="DISPLAY_ONLY">Display only (menu is informational)</option>
-              <option value="WHATSAPP_ORDERING">WhatsApp ordering (customers can add to cart and order)</option>
+              {/* A shop is not a menu, and this switch is the one place an owner
+                  decides whether their site sells or only shows. */}
+              {website.templateType === "STORE" ? (
+                <>
+                  <option value="DISPLAY_ONLY">Display only (a catalogue - no cart, visitors contact you)</option>
+                  <option value="WHATSAPP_ORDERING">WhatsApp ordering (customers add to the bag and order)</option>
+                </>
+              ) : (
+                <>
+                  <option value="DISPLAY_ONLY">Display only (menu is informational)</option>
+                  <option value="WHATSAPP_ORDERING">WhatsApp ordering (customers can add to cart and order)</option>
+                </>
+              )}
             </Select>
           )}
           {/* self-start as well as w-auto: the parent is a column flex, so
