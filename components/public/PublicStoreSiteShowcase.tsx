@@ -184,9 +184,20 @@ export function PublicStoreSiteShowcase({
 
         {(openCollection || searching) && (
           <section className="mt-6">
+            {/*
+              Searching, the heading is what was typed - not the field's own
+              placeholder, which read "Search products..." as a title over the
+              results and said nothing about them. The query needs no
+              translating: the visitor wrote it.
+            */}
             <h2 className="text-lg font-semibold" style={themeHeadingStyle()}>
-              {searching ? t.filter.searchProductsPlaceholder : openCollection?.name}
+              {searching ? query.trim() : openCollection?.name}
             </h2>
+            {searching && (
+              <p className="mt-1 text-xs text-[var(--theme-text-muted)]">
+                {shownItems.length} {shownItems.length === 1 ? t.filter.itemSingular : t.filter.itemPlural}
+              </p>
+            )}
             {shownItems.length === 0 ? (
               <p className="mt-6 text-sm text-[var(--theme-text-muted)]">{t.filter.noResults}</p>
             ) : (
