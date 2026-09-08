@@ -1,6 +1,7 @@
 import { LanguageSwitcher } from "@/components/public/LanguageSwitcher";
 import { PublicMenuSite } from "@/components/public/PublicMenuSite";
 import { PublicMenuSiteBistro } from "@/components/public/PublicMenuSiteBistro";
+import { PublicMenuSiteCompact } from "@/components/public/PublicMenuSiteCompact";
 import { PublicMenuSiteElegant } from "@/components/public/PublicMenuSiteElegant";
 import { PublicMenuSiteGrid } from "@/components/public/PublicMenuSiteGrid";
 import { PublicPortfolioSiteProfessional } from "@/components/public/PublicPortfolioSiteProfessional";
@@ -19,6 +20,8 @@ function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string)
       return <PublicMenuSiteElegant site={site} onFirstView={onFirstView} />;
     case "MENU_BISTRO":
       return <PublicMenuSiteBistro site={site} onFirstView={onFirstView} />;
+    case "MENU_COMPACT":
+      return <PublicMenuSiteCompact site={site} onFirstView={onFirstView} />;
     case "PORTFOLIO_VISUAL":
       return <PublicPortfolioSiteVisual site={site} isSample={isSample} />;
     case "PORTFOLIO_BRAND":

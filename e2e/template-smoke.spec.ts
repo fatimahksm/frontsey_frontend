@@ -1,5 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
+import type { LayoutVariant } from "../lib/api/types";
+
 /**
  * A smoke pass over every template, at both widths and in both colour schemes.
  *
@@ -18,12 +20,21 @@ const LAYOUTS = [
   "MENU_GRID",
   "MENU_ELEGANT",
   "MENU_BISTRO",
+  "MENU_COMPACT",
   "PORTFOLIO_PROFESSIONAL",
   "PORTFOLIO_VISUAL",
   "PORTFOLIO_BRAND",
   "PORTFOLIO_SERVICES",
   "EVENTS_CELEBRATION",
 ] as const;
+
+/**
+ * A template missing from LAYOUTS is a template nobody tests, and the omission
+ * is invisible in a green run. This assignment fails to compile the moment a
+ * LayoutVariant is added to the API type without being added above.
+ */
+const untestedLayouts: Record<Exclude<LayoutVariant, (typeof LAYOUTS)[number]>, never> = {};
+void untestedLayouts;
 
 /** Relative luminance, per WCAG. */
 function luminance([r, g, b]: number[]): number {

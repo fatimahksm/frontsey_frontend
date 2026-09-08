@@ -180,6 +180,19 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
       { type: "FAQ", label: "Questions", hint: "Parking, children, gifts - the things everyone asks." },
     ],
   },
+  // Compact - the same stores as the other menus, described for someone whose
+  // menu is long rather than photogenic.
+  MENU_COMPACT: {
+    sections: [
+      { key: "menu", label: "Menu", hint: "Categories and items. Group them under Food and Beverages to get the top switch" },
+      { key: "gallery", label: "Photos", hint: "Shown in the header only - this template puts no photo next to an item" },
+      { key: "sections", label: "About", hint: "Your story and anything customers ask" },
+    ],
+    blocks: [
+      { type: "ABOUT", label: "About", hint: "A short paragraph about the place, shown on the About tab." },
+      { type: "FAQ", label: "Questions", hint: "Parking, delivery, opening times - the things people ask." },
+    ],
+  },
 };
 
 /**

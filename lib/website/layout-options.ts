@@ -53,6 +53,12 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, TemplateOption[]> = {
     { value: "MENU_GRID", label: "Modern Grid", description: "Full-width cover, sticky category tabs, items as a card grid, cart drawer." },
     { value: "MENU_ELEGANT", label: "Elegant Restaurant", description: "Fine-dining style list with dotted price leaders and a minimal bottom cart bar." },
     { value: "MENU_BISTRO", label: "Bistro Menu", description: "Warm, photography-led cafe style - bold headline hero, combo box deals, and a sticky-filtered card-grid menu." },
+    {
+      value: "MENU_COMPACT",
+      label: "Compact Menu",
+      description: "The menu a customer scans at the table: no photos, a Food/Beverages switch, categories as a scrolling row, and plain name-and-price lines. Loads instantly on any phone.",
+      bestFor: ["Restaurant", "Cafe", "Bar", "Long menus", "Slow connections", "QR code menus"],
+    },
   ],
   PORTFOLIO: [
     {
@@ -99,6 +105,7 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, TemplateOption[]> = {
 const DISPLAY_ONLY_LAYOUTS = new Set<LayoutVariant>([
   "MENU_CLASSIC",
   "MENU_ELEGANT",
+  "MENU_COMPACT",
   "PORTFOLIO_PROFESSIONAL",
   "PORTFOLIO_VISUAL",
   "PORTFOLIO_BRAND",

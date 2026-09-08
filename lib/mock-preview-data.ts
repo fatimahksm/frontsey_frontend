@@ -1,4 +1,9 @@
-import type { LayoutVariant, PublicMenuItem, PublicWebsiteResponse } from "@/lib/api/types";
+import type {
+  LayoutVariant,
+  PublicCategory,
+  PublicMenuItem,
+  PublicWebsiteResponse,
+} from "@/lib/api/types";
 import type { DishPhoto } from "@/lib/mock-preview-images";
 import {
   sampleCoverImage,
@@ -1001,6 +1006,150 @@ function mockEventsSite(layoutVariant: "EVENTS_CELEBRATION"): PublicWebsiteRespo
 }
 
 /**
+ * The Compact sample: a restaurant whose menu is genuinely long.
+ *
+ * Built with two top-level categories so the Food/Beverages switch has
+ * something to switch between - the other menu samples are flat, and a flat
+ * menu makes this template look like a plainer version of the others rather
+ * than a differently shaped one.
+ *
+ * No item photographs, because the template shows none. Giving the sample
+ * pictures nobody renders would only mislead an owner comparing templates.
+ */
+function mockCompactMenuSite(layoutVariant: "MENU_COMPACT"): PublicWebsiteResponse {
+  const line = (id: string, name: string, price: number, description: string | null = null): PublicMenuItem => ({
+    id,
+    name,
+    description,
+    ingredients: null,
+    price,
+    discountPrice: null,
+    imageUrl: null,
+    availability: "AVAILABLE",
+    maxOrderQuantity: null,
+    fixedBoxItem: false,
+    sizes: [],
+    addonGroups: [],
+    boxVariants: [],
+  });
+
+  const group = (id: string, name: string, items: PublicMenuItem[]): PublicCategory => ({
+    id,
+    name,
+    items,
+    subcategories: [],
+  });
+
+  return {
+    businessName: "Sunland",
+    slug: "preview",
+    pageMode: "ONE_PAGE",
+    templateType: "MENU_ORDERING",
+    layoutVariant,
+    orderingMode: "DISPLAY_ONLY",
+    primaryLanguage: "en",
+    currency: "USD",
+    publishedContent: JSON.stringify({
+      heroHeading: "Sunland",
+      heroSubtitle: "Open for lunch and dinner",
+      brandColor: "#e23b2e",
+      menuBusinessKind: "FOOD",
+    }),
+    profile: {
+      description:
+        "A terrace kitchen doing small plates and a long drinks list. Everything is cooked to order, so give us a few minutes.",
+      logoUrl: null,
+      coverImageUrl: sampleCoverImage(),
+      phone: "+961 71 000 000",
+      whatsappNumber: "+961 71 000 000",
+      email: "hello@example.com",
+      address: "Beirut",
+      googleMapsUrl: "https://maps.google.com",
+      instagramUrl: "https://instagram.com",
+      tiktokUrl: null,
+      policies: {},
+    },
+    openingHours: [],
+    categories: [
+      {
+        id: "food",
+        name: "Food",
+        items: [],
+        subcategories: [
+          group("starters", "Starters", [
+            line("f1", "The Sunland Mini Burgers", 18.5, "1 cocktail / 2 BBQ mayo / 1 truffle"),
+            line("f2", "Classic Mini Burgers", 16, "4 pcs Cocktail sauce"),
+            line("f3", "Truffle mini burgers", 21, "4 pcs truffle sauce"),
+            line("f4", "Sunland cheesy nachos", 15, "Sour cream & pico de gallo"),
+            line("f5", "Crispy chicken strips", 14, "Honey mustard"),
+          ]),
+          group("salads", "Salads", [
+            line("f6", "Rocca & parmesan", 13, "Lemon dressing, toasted pine nuts"),
+            line("f7", "Quinoa bowl", 16, "Avocado, pomegranate, mint"),
+          ]),
+          group("sandwiches", "Sandwiches", [
+            line("f8", "Chicken sub", 15, "Coleslaw, pickles, garlic sauce"),
+            line("f9", "Steak sandwich", 22, "Caramelised onion, provolone"),
+          ]),
+          group("main", "Main course", [
+            line("f10", "Grilled sea bass", 34, "Seasonal vegetables"),
+            line("f11", "Ribeye 300g", 42, "Peppercorn sauce, fries"),
+            line("f12", "Mushroom risotto", 24, null),
+          ]),
+          group("desserts", "Desserts", [
+            line("f13", "Chocolate fondant", 12, "Vanilla ice cream"),
+            line("f14", "Cheesecake", 11, null),
+          ]),
+        ],
+      },
+      {
+        id: "beverages",
+        name: "Beverages",
+        items: [],
+        subcategories: [
+          // Straight name-and-price, no descriptions - which is exactly why a
+          // photo-led template serves a drinks list badly.
+          group("cocktails", "International Cocktails", [
+            line("b1", "Gin Basil", 15),
+            line("b2", "Mojito", 14),
+            line("b3", "Flavored Mojito", 15),
+            line("b4", "Margarita", 15),
+            line("b5", "Aperol Spritz", 16),
+            line("b6", "Moscow Mule", 15),
+            line("b7", "Negroni", 16),
+            line("b8", "Old Fashioned", 16),
+            line("b9", "Tequila Sunrise", 15),
+            line("b10", "Long Island", 15),
+            line("b11", "Passion Fruit Martini", 16),
+          ]),
+          group("pitchers", "Pitchers", [
+            line("b12", "Mojito pitcher", 45),
+            line("b13", "Sangria pitcher", 48),
+          ]),
+          group("shots", "Shots", [
+            line("b14", "Tequila", 8),
+            line("b15", "Jager", 8),
+          ]),
+          group("specialty", "Specialty Cocktails", [
+            line("b16", "Sunland Sour", 18, "Our own, with arak"),
+            line("b17", "Terrace Spritz", 17, null),
+          ]),
+        ],
+      },
+    ],
+    deliveryAreas: [],
+    services: [],
+    galleryImageUrls: sampleGalleryImages(),
+    projects: [],
+    seo: null,
+    sections: [],
+    theme: DEFAULT_THEME_CONFIG,
+    event: null,
+    schedule: [],
+  };
+}
+
+/**
  * Convenience for pages that just need "a mock site for this variant" without
  * caring which template family it belongs to. `kind` only matters for the menu
  * layouts, where it decides whether the sample is a kitchen or a shop.
@@ -1012,6 +1161,8 @@ export function mockSiteFor(layoutVariant: LayoutVariant, kind: MenuBusinessKind
     case "MENU_ELEGANT":
     case "MENU_BISTRO":
       return mockMenuSite(layoutVariant, kind);
+    case "MENU_COMPACT":
+      return mockCompactMenuSite(layoutVariant);
     case "PORTFOLIO_PROFESSIONAL":
     case "PORTFOLIO_VISUAL":
     case "PORTFOLIO_BRAND":
