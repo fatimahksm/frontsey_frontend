@@ -15,6 +15,7 @@ import { useLocale } from "@/lib/i18n/LocaleContext";
 import type { CartLine } from "@/lib/site/cart";
 import { cartSubtotal } from "@/lib/site/cart";
 import { itemsUnder } from "@/lib/site/menu-categories";
+import { usePaging } from "@/lib/site/paging";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
 import type { Customer } from "@/lib/site/whatsapp";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
@@ -78,7 +79,11 @@ export function PublicStoreSiteShowcase({
     );
   }, [collections, query, searching]);
 
-  const shownItems = searching ? results : openCollection ? itemsUnder(openCollection) : [];
+  const matches = searching ? results : openCollection ? itemsUnder(openCollection) : [];
+  // Entering a collection or typing a search is a different list; the count
+  // starts again, which is what the reset key says.
+  const { limit, showMore } = usePaging(`${collectionId ?? ""}|${query.trim()}`);
+  const shownItems = matches.slice(0, limit);
 
   const bagCount = cart.reduce((sum, line) => sum + line.quantity, 0);
 
@@ -195,7 +200,7 @@ export function PublicStoreSiteShowcase({
             </h2>
             {searching && (
               <p className="mt-1 text-xs text-[var(--theme-text-muted)]">
-                {shownItems.length} {shownItems.length === 1 ? t.filter.itemSingular : t.filter.itemPlural}
+                {matches.length} {matches.length === 1 ? t.filter.itemSingular : t.filter.itemPlural}
               </p>
             )}
             {shownItems.length === 0 ? (
@@ -213,6 +218,20 @@ export function PublicStoreSiteShowcase({
                     />
                   </Reveal>
                 ))}
+              </div>
+            )}
+            {shownItems.length < matches.length && (
+              <div className="mt-8 flex flex-col items-center gap-2">
+                <p className="text-xs text-[var(--theme-text-muted)]">
+                  {t.filter.showingOf(shownItems.length, matches.length)}
+                </p>
+                <button
+                  type="button"
+                  onClick={showMore}
+                  className="rounded-full border border-[var(--theme-border)] bg-surface px-6 py-2.5 text-sm font-medium hover:border-[var(--accent-solid)]"
+                >
+                  {t.filter.showMore}
+                </button>
               </div>
             )}
           </section>

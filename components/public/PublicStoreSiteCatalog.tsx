@@ -14,6 +14,7 @@ import { useLocale } from "@/lib/i18n/LocaleContext";
 import type { CartLine } from "@/lib/site/cart";
 import { cartSubtotal } from "@/lib/site/cart";
 import { itemsUnder } from "@/lib/site/menu-categories";
+import { usePaging } from "@/lib/site/paging";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
 import type { Customer } from "@/lib/site/whatsapp";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
@@ -69,6 +70,26 @@ export function PublicStoreSiteCatalog({
   }, [site.categories, collectionId, query]);
 
   const total = groups.reduce((sum, group) => sum + group.items.length, 0);
+
+  /**
+   * The list is grouped, so the cut runs through the groups rather than over a
+   * flat array: fill each one in turn until the budget is spent, and drop the
+   * groups past it entirely - a collection heading with nothing under it is
+   * worse than no heading.
+   */
+  const { limit, showMore } = usePaging(`${collectionId ?? ""}|${query.trim()}`);
+  const pagedGroups = useMemo(() => {
+    let budget = limit;
+    const out: typeof groups = [];
+    for (const group of groups) {
+      if (budget <= 0) break;
+      const items = group.items.slice(0, budget);
+      budget -= items.length;
+      out.push({ ...group, items });
+    }
+    return out;
+  }, [groups, limit]);
+  const shown = pagedGroups.reduce((sum, group) => sum + group.items.length, 0);
 
   /**
    * Whether to give every row a picture column.
@@ -164,7 +185,7 @@ export function PublicStoreSiteCatalog({
         {groups.length === 0 ? (
           <p className="mt-10 text-sm text-[var(--theme-text-muted)]">{t.filter.noResults}</p>
         ) : (
-          groups.map((group) => (
+          pagedGroups.map((group) => (
             <section key={group.id} className="mt-6">
               <h2
                 className="sticky top-[104px] z-20 -mx-4 bg-background/95 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-[var(--accent-ink)] backdrop-blur"
@@ -198,6 +219,19 @@ export function PublicStoreSiteCatalog({
               </div>
             </section>
           ))
+        )}
+
+        {shown < total && (
+          <div className="mt-8 flex flex-col items-center gap-2">
+            <p className="text-xs text-[var(--theme-text-muted)]">{t.filter.showingOf(shown, total)}</p>
+            <button
+              type="button"
+              onClick={showMore}
+              className="rounded-lg border border-[var(--theme-border)] bg-surface px-6 py-2.5 text-sm font-medium hover:border-[var(--accent-solid)]"
+            >
+              {t.filter.showMore}
+            </button>
+          </div>
         )}
 
         {site.profile?.description && (
