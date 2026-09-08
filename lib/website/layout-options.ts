@@ -10,12 +10,17 @@ export const WEBSITE_TYPES: { value: TemplateType; icon: string; label: string; 
   {
     value: "MENU_ORDERING",
     icon: "🧾",
-    // Was "Restaurant / Café Menu" with a plate icon, which read as
-    // food-only however the description ended. The same four layouts list a
-    // shop's stock exactly as well; step 1 asks which, and the samples,
-    // labels and previews follow that answer from there on.
-    label: "Menu or product list",
-    description: "Categories, items, sizes/add-ons, and optional WhatsApp ordering. For restaurants and cafes, and for shops of any kind.",
+    // This said "Menu or product list ... and for shops of any kind", because
+    // a shop was a menu website with a flag on it. A shop is its own kind of
+    // website now, with its own templates, so this is a menu again.
+    label: "Restaurant menu",
+    description: "Categories, dishes, sizes and add-ons, and optional WhatsApp ordering. For restaurants, cafes, bakeries and anywhere serving food or drink.",
+  },
+  {
+    value: "STORE",
+    icon: "🛍️",
+    label: "Online shop",
+    description: "Collections, products, prices and stock, with optional WhatsApp ordering. For shops selling things - clothes, gifts, homeware, cosmetics, hardware.",
   },
   {
     value: "PORTFOLIO",
@@ -58,6 +63,20 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, TemplateOption[]> = {
       label: "Compact Menu",
       description: "The menu a customer scans at the table: no photos, a Food/Beverages switch, categories as a scrolling row, and plain name-and-price lines. Loads instantly on any phone.",
       bestFor: ["Restaurant", "Cafe", "Bar", "Long menus", "Slow connections", "QR code menus"],
+    },
+  ],
+  STORE: [
+    {
+      value: "STORE_SHOWCASE",
+      label: "Shop front",
+      description: "Collections as photographs you walk into, then big product tiles two to a row, with the bag and its total always on screen.",
+      bestFor: ["Clothes", "Gifts", "Homeware", "Cosmetics", "Flowers", "Jewellery"],
+    },
+    {
+      value: "STORE_CATALOG",
+      label: "Catalogue",
+      description: "Search at the top and everything below it as compact rows with the price down one column. For a shop with more products than anyone will scroll through.",
+      bestFor: ["Pharmacy", "Hardware", "Phone accessories", "Spare parts", "Stationery", "Mini market"],
     },
   ],
   PORTFOLIO: [

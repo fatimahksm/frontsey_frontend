@@ -182,6 +182,33 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
   },
   // Compact - the same stores as the other menus, described for someone whose
   // menu is long rather than photogenic.
+  // Shop front - collections you enter, and the things in them.
+  STORE_SHOWCASE: {
+    sections: [
+      { key: "menu", label: "Collections & products", hint: "Your collections, and the products in each. The first product's photo becomes the collection's picture" },
+      { key: "gallery", label: "Photos", hint: "Shown alongside your story, not on the products" },
+      { key: "delivery", label: "Delivery", hint: "Where you deliver, what it costs, and any minimum" },
+      { key: "sections", label: "About & reviews", hint: "Your story, and what customers say" },
+    ],
+    blocks: [
+      { type: "ABOUT", label: "About us", hint: "What you sell, who makes it, and why someone should buy it from you." },
+      { type: "TESTIMONIALS", label: "Reviews", hint: "What customers say about what they bought." },
+    ],
+  },
+
+  // Catalogue - a long list, kept findable.
+  STORE_CATALOG: {
+    sections: [
+      { key: "menu", label: "Collections & products", hint: "Products grouped into collections. This template shows no cover photo, so put your effort into names and prices" },
+      { key: "delivery", label: "Delivery", hint: "Where you deliver, what it costs, and any minimum" },
+      { key: "sections", label: "About", hint: "Opening hours, ordering, returns - the things customers ask" },
+    ],
+    blocks: [
+      { type: "ABOUT", label: "About us", hint: "A short paragraph, shown under the list rather than above it." },
+      { type: "FAQ", label: "Questions", hint: "Delivery times, returns, whether you hold stock - the usual questions." },
+    ],
+  },
+
   MENU_COMPACT: {
     sections: [
       { key: "menu", label: "Menu", hint: "Categories and items. Group them under Food and Beverages to get the top switch" },

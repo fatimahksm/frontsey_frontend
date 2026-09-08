@@ -251,7 +251,15 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
             ))}
 
           {orderingEnabled && (
-            <div className="flex items-center gap-3">
+            /*
+              Wraps rather than overflows. The button asks not to break its
+              text, so in a narrow card it used to push its own right edge past
+              the card's - which the shop-front template made visible, being
+              the first to put these two to a row on a phone. flex-basis gives
+              it a width to wrap at; on any card wide enough for both it still
+              grows to fill the line beside the stepper, exactly as before.
+            */
+            <div className="flex flex-wrap items-center gap-3">
               <div className="flex h-10 items-center rounded-full border border-[var(--theme-border)]">
                 <button
                   type="button"
@@ -276,7 +284,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
                 onClick={handleAddToCart}
                 disabled={item.fixedBoxItem && item.boxVariants.length > 0 && !boxVariantId}
                 style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
-                className="flex h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap bg-foreground px-2 text-sm font-medium text-background transition-transform hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
+                className="flex h-10 flex-1 basis-32 items-center justify-center gap-1.5 whitespace-nowrap bg-foreground px-2 text-sm font-medium text-background transition-transform hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
               >
                 <span aria-hidden>+</span>
                 {t.item.addToCart}

@@ -31,7 +31,12 @@ export function buildPublicationChecklist(input: {
   const hasContactInfo = Boolean(
     profile && (profile.phone || profile.whatsappNumber || profile.email || profile.address),
   );
-  const isShop = parseDraftContent(website.draftContent).menuBusinessKind === "SHOP";
+  // A STORE website is a shop by its type. The draft-content flag is the older
+  // way of saying so, still set on the menu websites that were shops before
+  // STORE existed, so both still have to be asked.
+  const isShop =
+    website.templateType === "STORE" ||
+    parseDraftContent(website.draftContent).menuBusinessKind === "SHOP";
   const contentLabel =
     website.templateType === "PORTFOLIO"
       ? "At least one service added"

@@ -301,6 +301,10 @@ const SIGNATURE_PALETTES: Partial<Record<LayoutVariant, Pick<ThemeConfig, "backg
   PORTFOLIO_BRAND: { backgroundColor: "#101014", surfaceColor: "#191920", textColor: "#f2f0eb" },
   // Bistro - warm and photographic, but light.
   MENU_BISTRO: { backgroundColor: "#ffffff", surfaceColor: "#ffffff", textColor: "#18181b" },
+  // Shop front - white, so the products supply all the colour on the page.
+  STORE_SHOWCASE: { backgroundColor: "#ffffff", surfaceColor: "#f7f7f8", textColor: "#17171a" },
+  // Catalogue - a working document: cool, flat, and quiet under a long list.
+  STORE_CATALOG: { backgroundColor: "#fbfbfc", surfaceColor: "#ffffff", textColor: "#15161a" },
 };
 
 /**

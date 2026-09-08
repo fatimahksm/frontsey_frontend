@@ -43,7 +43,7 @@ export type AccountStatus =
 export type PageMode = "MULTI_PAGE" | "ONE_PAGE";
 export type OrderingMode = "DISPLAY_ONLY" | "WHATSAPP_ORDERING";
 /** The structural shape of a website - distinct from Theme, which is only visual styling. */
-export type TemplateType = "MENU_ORDERING" | "PORTFOLIO" | "EVENTS";
+export type TemplateType = "MENU_ORDERING" | "PORTFOLIO" | "STORE" | "EVENTS";
 /** Matches com.dbwb.platform.website.entity.LayoutVariant - a structural arrangement, orthogonal to Theme (colors only). */
 export type LayoutVariant =
   | "MENU_CLASSIC"
@@ -51,6 +51,8 @@ export type LayoutVariant =
   | "MENU_ELEGANT"
   | "MENU_BISTRO"
   | "MENU_COMPACT"
+  | "STORE_SHOWCASE"
+  | "STORE_CATALOG"
   | "PORTFOLIO_PROFESSIONAL"
   | "PORTFOLIO_VISUAL"
   | "PORTFOLIO_BRAND"

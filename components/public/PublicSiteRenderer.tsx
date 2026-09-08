@@ -8,6 +8,8 @@ import { PublicPortfolioSiteProfessional } from "@/components/public/PublicPortf
 import { PublicPortfolioSiteBrand } from "@/components/public/PublicPortfolioSiteBrand";
 import { PublicPortfolioSiteVisual } from "@/components/public/PublicPortfolioSiteVisual";
 import { PublicPortfolioSiteServices } from "@/components/public/PublicPortfolioSiteServices";
+import { PublicStoreSiteCatalog } from "@/components/public/PublicStoreSiteCatalog";
+import { PublicStoreSiteShowcase } from "@/components/public/PublicStoreSiteShowcase";
 import { PublicEventsSite } from "@/components/public/PublicEventsSite";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
@@ -22,6 +24,10 @@ function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string)
       return <PublicMenuSiteBistro site={site} onFirstView={onFirstView} />;
     case "MENU_COMPACT":
       return <PublicMenuSiteCompact site={site} onFirstView={onFirstView} />;
+    case "STORE_SHOWCASE":
+      return <PublicStoreSiteShowcase site={site} onFirstView={onFirstView} />;
+    case "STORE_CATALOG":
+      return <PublicStoreSiteCatalog site={site} onFirstView={onFirstView} />;
     case "PORTFOLIO_VISUAL":
       return <PublicPortfolioSiteVisual site={site} isSample={isSample} />;
     case "PORTFOLIO_BRAND":

@@ -1150,6 +1150,34 @@ function mockCompactMenuSite(layoutVariant: "MENU_COMPACT"): PublicWebsiteRespon
 }
 
 /**
+ * The sample shop.
+ *
+ * It is the shop sample that already existed for the menu layouts, rather than
+ * a second one written for these: the same collections, the same stock, the
+ * same photographs. There is only one imaginary shop in this file, so a shop
+ * owner comparing the two store templates is comparing the templates and not
+ * two different sets of invented products.
+ *
+ * It carries no menuBusinessKind. That flag exists to tell a *menu* template it
+ * is being used by a shop; a STORE website is a shop by its type, and a store
+ * template that read the flag would be one that breaks on every real shop,
+ * none of which will have it set.
+ */
+function mockStoreSite(layoutVariant: "STORE_SHOWCASE" | "STORE_CATALOG"): PublicWebsiteResponse {
+  const shop = mockMenuSite("MENU_GRID", "SHOP");
+  const content: Record<string, unknown> = JSON.parse(shop.publishedContent ?? "{}");
+  delete content.menuBusinessKind;
+
+  return {
+    ...shop,
+    templateType: "STORE",
+    layoutVariant,
+    orderingMode: "WHATSAPP_ORDERING",
+    publishedContent: JSON.stringify(content),
+  };
+}
+
+/**
  * Convenience for pages that just need "a mock site for this variant" without
  * caring which template family it belongs to. `kind` only matters for the menu
  * layouts, where it decides whether the sample is a kitchen or a shop.
@@ -1163,6 +1191,9 @@ export function mockSiteFor(layoutVariant: LayoutVariant, kind: MenuBusinessKind
       return mockMenuSite(layoutVariant, kind);
     case "MENU_COMPACT":
       return mockCompactMenuSite(layoutVariant);
+    case "STORE_SHOWCASE":
+    case "STORE_CATALOG":
+      return mockStoreSite(layoutVariant);
     case "PORTFOLIO_PROFESSIONAL":
     case "PORTFOLIO_VISUAL":
     case "PORTFOLIO_BRAND":
