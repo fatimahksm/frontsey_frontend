@@ -17,6 +17,7 @@ import { cartSubtotal } from "@/lib/site/cart";
 import { ListControls } from "@/components/public/ListControls";
 import { ShowMore } from "@/components/public/ShowMore";
 import { CONTROLS_THRESHOLD } from "@/lib/site/item-query";
+import { thumbnailUrl } from "@/lib/images/thumbnail-url";
 import { itemsUnder } from "@/lib/site/menu-categories";
 import { useListControls } from "@/lib/site/use-list-controls";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
@@ -141,7 +142,8 @@ export function PublicStoreSiteShowcase({
         <div className="absolute inset-x-0 bottom-0 mx-auto flex max-w-5xl items-end gap-4 px-4 pb-5">
           {site.profile?.logoUrl && (
             <SafeImage
-              src={site.profile.logoUrl}
+              src={thumbnailUrl(site.profile.logoUrl)}
+              fallbackSrc={site.profile.logoUrl}
               alt=""
               className="h-16 w-16 shrink-0 rounded-xl border-2 border-white/80 object-cover"
             />
@@ -342,7 +344,8 @@ function CollectionTile({ collection, onOpen }: { collection: PublicCategory; on
     >
       {cover ? (
         <SafeImage
-          src={cover}
+          src={thumbnailUrl(cover)}
+          fallbackSrc={cover}
           alt=""
           className="h-36 w-full object-cover transition-transform duration-300 group-hover:scale-105 sm:h-44"
         />

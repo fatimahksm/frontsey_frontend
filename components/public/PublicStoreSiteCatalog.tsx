@@ -16,6 +16,7 @@ import { cartSubtotal } from "@/lib/site/cart";
 import { ListControls } from "@/components/public/ListControls";
 import { ShowMore } from "@/components/public/ShowMore";
 import { CONTROLS_THRESHOLD, countItems, takeFromGroups } from "@/lib/site/item-query";
+import { thumbnailUrl } from "@/lib/images/thumbnail-url";
 import { itemsUnder } from "@/lib/site/menu-categories";
 import { useListControls } from "@/lib/site/use-list-controls";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
@@ -131,7 +132,7 @@ export function PublicStoreSiteCatalog({
       <header className="sticky top-0 z-30 border-b border-[var(--theme-border)] bg-background/95 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
           {site.profile?.logoUrl && (
-            <SafeImage src={site.profile.logoUrl} alt="" className="h-9 w-9 shrink-0 rounded-md object-cover" />
+            <SafeImage src={thumbnailUrl(site.profile.logoUrl)} fallbackSrc={site.profile.logoUrl} alt="" className="h-9 w-9 shrink-0 rounded-md object-cover" />
           )}
           <h1 className="truncate text-base font-semibold" style={themeHeadingStyle()}>
             {site.businessName}
@@ -196,7 +197,8 @@ export function PublicStoreSiteCatalog({
                   <div key={item.id} className="flex items-start gap-3 py-1">
                     {showThumbnails && (
                       <SafeImage
-                        src={item.imageUrl ?? ""}
+                        src={thumbnailUrl(item.imageUrl)}
+                        fallbackSrc={item.imageUrl ?? undefined}
                         alt=""
                         className="mt-3 h-12 w-12 shrink-0 rounded-md object-cover"
                       />

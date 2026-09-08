@@ -31,6 +31,16 @@ const MAX_EDGE = 2000;
 /** JPEG quality for re-encoded photographs. Visually indistinguishable at this size, a fraction of the bytes. */
 const JPEG_QUALITY = 0.85;
 
+/**
+ * Longest edge of the small copy uploaded alongside the picture.
+ *
+ * Measured: a phone photograph stored at MAX_EDGE is about 600KB, and a shop's
+ * catalogue draws it as a 48px thumbnail - thirty rows was roughly 17MB to
+ * paint thirty postage stamps. At this size the same page is about 1.3MB, and
+ * it is still twice the pixels a 2x tile needs.
+ */
+const THUMBNAIL_EDGE = 400;
+
 /** Below this, re-encoding usually costs more bytes than it saves. */
 const SKIP_BELOW_BYTES = 300 * 1024;
 
@@ -71,14 +81,62 @@ async function downscale(file: File, bitmap: ImageBitmap): Promise<File | null> 
   return new File([blob], renamed(file.name, "jpg"), { type: "image/jpeg" });
 }
 
+/** Draws the bitmap down to a fixed longest edge as JPEG. Null when it could not. */
+async function resizeTo(bitmap: ImageBitmap, edge: number, name: string): Promise<File | null> {
+  const longest = Math.max(bitmap.width, bitmap.height);
+  const scale = Math.min(1, edge / longest);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  const context = canvas.getContext("2d");
+  if (!context) return null;
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY));
+  return blob ? new File([blob], renamed(name, "jpg"), { type: "image/jpeg" }) : null;
+}
+
 /**
- * Returns the file to upload.
+ * What to upload: the picture, and a small copy of it when one is worth making.
+ *
+ * The small copy exists because nothing downstream can make one. With R2 the
+ * public URL points straight at Cloudflare and no server of ours is in the
+ * path, so there is nowhere to resize on the way out - and putting one there
+ * would drag every image request back through the application, which is the
+ * opposite of what a shop under load needs. The browser has the decoded
+ * bitmap in its hands already; making a second, smaller JPEG from it costs
+ * nothing here and saves the visitor an order of magnitude.
  *
  * Never throws for a picture it merely could not improve - it hands back the
  * original and lets the server have the final say, so an old browser still
  * uploads something rather than failing at the gate.
  */
-export async function prepareImageForUpload(file: File): Promise<File> {
+export async function prepareImageForUpload(file: File): Promise<PreparedImage> {
+  const full = await prepareFullImage(file);
+  return { file: full, thumbnail: await makeThumbnail(full) };
+}
+
+export interface PreparedImage {
+  file: File;
+  /** Absent when the picture is already small, is a GIF, or could not be decoded. */
+  thumbnail: File | null;
+}
+
+async function makeThumbnail(file: File): Promise<File | null> {
+  // An animated GIF would be flattened to its first frame, and a picture
+  // already smaller than the thumbnail would only get bigger through a second
+  // JPEG encode.
+  if (file.type === "image/gif") return null;
+  try {
+    const bitmap = await createImageBitmap(file);
+    if (Math.max(bitmap.width, bitmap.height) <= THUMBNAIL_EDGE) return null;
+    const thumbnail = await resizeTo(bitmap, THUMBNAIL_EDGE, file.name);
+    return thumbnail && thumbnail.size < file.size ? thumbnail : null;
+  } catch {
+    return null;
+  }
+}
+
+async function prepareFullImage(file: File): Promise<File> {
   if (isHeic(file)) {
     // Loaded on demand: it carries a WebAssembly build of libheif, and most
     // uploads are not HEIC. No reason to put that in the main bundle.
