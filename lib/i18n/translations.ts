@@ -174,6 +174,13 @@ export interface Dictionary {
     itemPlural: string;
     /** The button under a part-rendered list. */
     showMore: string;
+    sort: string;
+    /** The owner's own order - the chef's, on a menu. */
+    sortDefault: string;
+    sortPriceAsc: string;
+    sortPriceDesc: string;
+    priceFrom: string;
+    priceTo: string;
     /** "Showing 30 of 300" - so the button says how much is left, not just that there is more. */
     showingOf(shown: number, total: number): string;
   };
@@ -276,7 +283,7 @@ const en: Dictionary = {
     messageTheHosts: "Message the hosts",
     goodToKnow: "Good to know",
   },
-  filter: { searchPlaceholder: "Search menu…", searchProductsPlaceholder: "Search products…", noResults: "No items match your search.", all: "All", clearFilters: "Show everything", itemSingular: "item", itemPlural: "items", showMore: "Show more", showingOf: (shown, total) => `Showing ${shown} of ${total}` },
+  filter: { searchPlaceholder: "Search menu…", searchProductsPlaceholder: "Search products…", noResults: "No items match your search.", all: "All", clearFilters: "Show everything", itemSingular: "item", itemPlural: "items", showMore: "Show more", showingOf: (shown, total) => `Showing ${shown} of ${total}`, sort: "Sort", sortDefault: "Featured", sortPriceAsc: "Price: low to high", sortPriceDesc: "Price: high to low", priceFrom: "Min", priceTo: "Max" },
 };
 
 const fr: Dictionary = {
@@ -376,7 +383,7 @@ const fr: Dictionary = {
     messageTheHosts: "Ecrire aux hotes",
     goodToKnow: "Bon a savoir",
   },
-  filter: { searchPlaceholder: "Rechercher dans le menu…", searchProductsPlaceholder: "Rechercher un produit…", noResults: "Aucun article ne correspond à votre recherche.", all: "Tous", clearFilters: "Tout afficher", itemSingular: "article", itemPlural: "articles", showMore: "Afficher plus", showingOf: (shown, total) => `${shown} sur ${total} affichés` },
+  filter: { searchPlaceholder: "Rechercher dans le menu…", searchProductsPlaceholder: "Rechercher un produit…", noResults: "Aucun article ne correspond à votre recherche.", all: "Tous", clearFilters: "Tout afficher", itemSingular: "article", itemPlural: "articles", showMore: "Afficher plus", showingOf: (shown, total) => `${shown} sur ${total} affichés`, sort: "Trier", sortDefault: "Suggéré", sortPriceAsc: "Prix : croissant", sortPriceDesc: "Prix : décroissant", priceFrom: "Min", priceTo: "Max" },
 };
 
 const ar: Dictionary = {
@@ -476,7 +483,7 @@ const ar: Dictionary = {
     messageTheHosts: "راسل أصحاب المناسبة",
     goodToKnow: "معلومات مفيدة",
   },
-  filter: { searchPlaceholder: "ابحث في القائمة…", searchProductsPlaceholder: "ابحث عن منتج…", noResults: "لا توجد عناصر مطابقة لبحثك.", all: "الكل", clearFilters: "عرض الكل", itemSingular: "عنصر", itemPlural: "عناصر", showMore: "عرض المزيد", showingOf: (shown, total) => `${shown} من ${total}` },
+  filter: { searchPlaceholder: "ابحث في القائمة…", searchProductsPlaceholder: "ابحث عن منتج…", noResults: "لا توجد عناصر مطابقة لبحثك.", all: "الكل", clearFilters: "عرض الكل", itemSingular: "عنصر", itemPlural: "عناصر", showMore: "عرض المزيد", showingOf: (shown, total) => `${shown} من ${total}`, sort: "ترتيب", sortDefault: "المقترح", sortPriceAsc: "السعر: من الأقل", sortPriceDesc: "السعر: من الأعلى", priceFrom: "من", priceTo: "إلى" },
 };
 
 export const DICTIONARIES: Record<Locale, Dictionary> = { en, fr, ar };

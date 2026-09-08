@@ -6,7 +6,11 @@ import { SafeImage } from "@/components/public/SafeImage";
 import { DynamicSections } from "@/components/public/DynamicSections";
 import type { PublicCategory, PublicWebsiteResponse } from "@/lib/api/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { ListControls } from "@/components/public/ListControls";
+import { ShowMore } from "@/components/public/ShowMore";
+import { CONTROLS_THRESHOLD } from "@/lib/site/item-query";
 import { itemsUnder } from "@/lib/site/menu-categories";
+import { useListControls } from "@/lib/site/use-list-controls";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars, effectiveTheme } from "@/lib/website/theme-config";
 
@@ -68,7 +72,10 @@ export function PublicMenuSiteCompact({
 
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const active = categories.find((category) => category.id === categoryId) ?? categories[0] ?? null;
-  const items = active ? itemsUnder(active) : [];
+  const list = useListControls(active?.id ?? "");
+  const matches = active ? list.refine(itemsUnder(active)) : [];
+  const items = matches.slice(0, list.limit);
+  const menuSize = site.categories.reduce((sum, category) => sum + itemsUnder(category).length, 0);
 
   const [tab, setTab] = useState<"menu" | "about">("menu");
   const cover = site.profile?.coverImageUrl ?? site.galleryImageUrls?.[0] ?? null;
@@ -188,6 +195,12 @@ export function PublicMenuSiteCompact({
             <section className="mt-10">
               <h2 className="text-2xl font-bold tracking-tight text-[var(--accent-solid)]">{active.name}</h2>
 
+              {menuSize >= CONTROLS_THRESHOLD && (
+                <div className="mt-4">
+                  <ListControls {...list.controlProps} currency={site.currency} />
+                </div>
+              )}
+
               <ul className="mt-5">
                 {items.map((item) => (
                   <li
@@ -214,6 +227,8 @@ export function PublicMenuSiteCompact({
               {items.length === 0 && (
                 <p className="mt-5 text-sm text-[var(--compact-muted)]">{t.filter.noResults}</p>
               )}
+
+              <ShowMore shown={items.length} total={matches.length} onShowMore={list.showMore} shape="square" />
             </section>
           )}
         </main>

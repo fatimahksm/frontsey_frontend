@@ -14,8 +14,11 @@ import { formatMoney } from "@/lib/format";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import type { CartLine } from "@/lib/site/cart";
 import { cartSubtotal } from "@/lib/site/cart";
+import { ListControls } from "@/components/public/ListControls";
+import { ShowMore } from "@/components/public/ShowMore";
+import { CONTROLS_THRESHOLD } from "@/lib/site/item-query";
 import { itemsUnder } from "@/lib/site/menu-categories";
-import { usePaging } from "@/lib/site/paging";
+import { useListControls } from "@/lib/site/use-list-controls";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
 import type { Customer } from "@/lib/site/whatsapp";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
@@ -79,11 +82,16 @@ export function PublicStoreSiteShowcase({
     );
   }, [collections, query, searching]);
 
-  const matches = searching ? results : openCollection ? itemsUnder(openCollection) : [];
   // Entering a collection or typing a search is a different list; the count
   // starts again, which is what the reset key says.
-  const { limit, showMore } = usePaging(`${collectionId ?? ""}|${query.trim()}`);
-  const shownItems = matches.slice(0, limit);
+  const list = useListControls(`${collectionId ?? ""}|${query.trim()}`);
+  const matches = list.refine(searching ? results : openCollection ? itemsUnder(openCollection) : []);
+  const shownItems = matches.slice(0, list.limit);
+  /** Everything in the shop, before any narrowing - the controls are only worth a row when there is a lot to control. */
+  const stockCount = useMemo(
+    () => collections.reduce((sum, collection) => sum + itemsUnder(collection).length, 0),
+    [collections],
+  );
 
   const bagCount = cart.reduce((sum, line) => sum + line.quantity, 0);
 
@@ -203,6 +211,11 @@ export function PublicStoreSiteShowcase({
                 {matches.length} {matches.length === 1 ? t.filter.itemSingular : t.filter.itemPlural}
               </p>
             )}
+            {stockCount >= CONTROLS_THRESHOLD && (
+              <div className="mt-3">
+                <ListControls {...list.controlProps} currency={site.currency} />
+              </div>
+            )}
             {shownItems.length === 0 ? (
               <p className="mt-6 text-sm text-[var(--theme-text-muted)]">{t.filter.noResults}</p>
             ) : (
@@ -220,20 +233,7 @@ export function PublicStoreSiteShowcase({
                 ))}
               </div>
             )}
-            {shownItems.length < matches.length && (
-              <div className="mt-8 flex flex-col items-center gap-2">
-                <p className="text-xs text-[var(--theme-text-muted)]">
-                  {t.filter.showingOf(shownItems.length, matches.length)}
-                </p>
-                <button
-                  type="button"
-                  onClick={showMore}
-                  className="rounded-full border border-[var(--theme-border)] bg-surface px-6 py-2.5 text-sm font-medium hover:border-[var(--accent-solid)]"
-                >
-                  {t.filter.showMore}
-                </button>
-              </div>
-            )}
+            <ShowMore shown={shownItems.length} total={matches.length} onShowMore={list.showMore} />
           </section>
         )}
 

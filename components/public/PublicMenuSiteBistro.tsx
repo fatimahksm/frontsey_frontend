@@ -13,7 +13,11 @@ import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types"
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { ListControls } from "@/components/public/ListControls";
+import { ShowMore } from "@/components/public/ShowMore";
+import { CONTROLS_THRESHOLD, PAGE_SIZE_BISTRO } from "@/lib/site/item-query";
 import { itemsUnder } from "@/lib/site/menu-categories";
+import { useListControls } from "@/lib/site/use-list-controls";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
@@ -44,16 +48,42 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
   const whatsappNumber = site.profile?.whatsappNumber;
   const inquiryMessage = `Hi ${site.businessName}, I'd like to place an order.`;
 
+  const list = useListControls(query.trim());
   const allItems = site.categories.flatMap(itemsUnder);
   const comboItems = allItems.filter((item) => item.fixedBoxItem && itemMatchesQuery(item, query));
   const comboIds = new Set(allItems.filter((item) => item.fixedBoxItem).map((i) => i.id));
   const visibleCategories = site.categories
     .map((category) => ({
       ...category,
-      items: itemsUnder(category).filter((item) => !comboIds.has(item.id) && itemMatchesQuery(item, query)),
+      items: list.refine(itemsUnder(category).filter((item) => !comboIds.has(item.id) && itemMatchesQuery(item, query))),
     }))
     .filter((category) => category.items.length > 0);
   const hasNoResults = query.trim() !== "" && comboItems.length === 0 && visibleCategories.length === 0;
+
+  /**
+   * This template pages inside each section rather than across them, unlike
+   * the others.
+   *
+   * Its category chips are jump links, not filters. Cutting the page off after
+   * thirty items would leave the later chips pointing at headings that are not
+   * on the page yet, and pressing one would appear to do nothing - so every
+   * section stays, and each holds its own count of how much of itself it has
+   * shown. The counts live under a key so that searching, sorting or changing
+   * the price bounds starts them all over, without an effect to sync.
+   */
+  const pagingKey = `${query.trim()}|${list.controlProps.order}|${list.controlProps.min}|${list.controlProps.max}`;
+  const [sectionPaging, setSectionPaging] = useState<{ key: string; limits: Record<string, number> }>({
+    key: pagingKey,
+    limits: {},
+  });
+  const sectionLimits = sectionPaging.key === pagingKey ? sectionPaging.limits : {};
+  const limitFor = (categoryId: string) => sectionLimits[categoryId] ?? PAGE_SIZE_BISTRO;
+  const showMoreIn = (categoryId: string) =>
+    setSectionPaging({
+      key: pagingKey,
+      limits: { ...sectionLimits, [categoryId]: limitFor(categoryId) + PAGE_SIZE_BISTRO },
+    });
+  const menuSize = allItems.length;
 
   function handleAddToCart(line: CartLine) {
     setCart((prev) => {
@@ -231,6 +261,12 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
       <div id="menu" className="mx-auto w-full max-w-6xl flex-1 scroll-mt-24 px-6 py-10 sm:px-12">
         {hasNoResults && <p className="text-sm text-[var(--theme-text-muted)]">{t.filter.noResults}</p>}
 
+        {menuSize >= CONTROLS_THRESHOLD && (
+          <div className="mb-6">
+            <ListControls {...list.controlProps} currency={site.currency} />
+          </div>
+        )}
+
         <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 3rem)" }}>
           {visibleCategories.map((category) => {
             return (
@@ -239,7 +275,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                   <h2 className="mb-4 text-xl font-semibold tracking-tight">{category.name}</h2>
                 </Reveal>
                 <StaggerGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {category.items.map((item) => (
+                  {category.items.slice(0, limitFor(category.id)).map((item) => (
                     <StaggerItem key={item.id}>
                       <PublicMenuItemCard
                         item={item}
@@ -251,6 +287,11 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                     </StaggerItem>
                   ))}
                 </StaggerGroup>
+                <ShowMore
+                  shown={Math.min(limitFor(category.id), category.items.length)}
+                  total={category.items.length}
+                  onShowMore={() => showMoreIn(category.id)}
+                />
               </section>
             );
           })}

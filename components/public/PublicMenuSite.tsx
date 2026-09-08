@@ -9,7 +9,11 @@ import { DynamicSections } from "@/components/public/DynamicSections";
 import { PublicMenuListItem } from "@/components/public/PublicMenuListItem";
 import type { PublicCategory, PublicMenuItem, PublicWebsiteResponse } from "@/lib/api/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { ListControls } from "@/components/public/ListControls";
+import { ShowMore } from "@/components/public/ShowMore";
+import { CONTROLS_THRESHOLD, PAGE_SIZE_BISTRO } from "@/lib/site/item-query";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
+import { useListControls } from "@/lib/site/use-list-controls";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
 
@@ -70,7 +74,32 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
   const hasCover = !!site.profile?.coverImageUrl;
   const heroText = hasCover ? "text-white" : "text-[var(--theme-text)]";
 
-  const matching = (items: PublicMenuItem[]) => items.filter((item) => itemMatchesQuery(item, query));
+  const list = useListControls(query.trim());
+  const matching = (items: PublicMenuItem[]) => list.refine(items.filter((item) => itemMatchesQuery(item, query)));
+
+  /**
+   * Like the Bistro layout, this one pages inside each category rather than
+   * across them: its category buttons scroll to a heading, so every heading
+   * has to be on the page for them to work. The budget covers a category's own
+   * items and its sub-categories' together - they are one section on screen,
+   * however they are filed.
+   */
+  const pagingKey = `${query.trim()}|${list.controlProps.order}|${list.controlProps.min}|${list.controlProps.max}`;
+  const [sectionPaging, setSectionPaging] = useState<{ key: string; limits: Record<string, number> }>({
+    key: pagingKey,
+    limits: {},
+  });
+  const sectionLimits = sectionPaging.key === pagingKey ? sectionPaging.limits : {};
+  const limitFor = (categoryId: string) => sectionLimits[categoryId] ?? PAGE_SIZE_BISTRO;
+  const showMoreIn = (categoryId: string) =>
+    setSectionPaging({
+      key: pagingKey,
+      limits: { ...sectionLimits, [categoryId]: limitFor(categoryId) + PAGE_SIZE_BISTRO },
+    });
+  const menuSize = site.categories.reduce(
+    (sum, category) => sum + category.items.length + category.subcategories.reduce((n, sub) => n + sub.items.length, 0),
+    0,
+  );
 
   /** A category is shown only when it, or one of its sub-categories, still has a matching item. */
   const visibleCategories = site.categories
@@ -208,8 +237,33 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
           <p className="mt-8 text-center text-sm text-[var(--theme-text-muted)]">{t.filter.noResults}</p>
         )}
 
+        {menuSize >= CONTROLS_THRESHOLD && (
+          <div className="mt-6 flex justify-center">
+            <ListControls {...list.controlProps} currency={site.currency} />
+          </div>
+        )}
+
         <div className="mt-4 flex flex-col" style={{ gap: "var(--theme-section-gap, 2.5rem)" }}>
-          {visibleCategories.map(({ category, directItems, subgroups }) => (
+          {visibleCategories.map(({ category, directItems, subgroups }) => {
+            // The section's budget, spent on its own items first and then on
+            // its sub-categories in order, so a sub-heading never arrives with
+            // nothing under it.
+            const budget = limitFor(category.id);
+            const shownDirect = directItems.slice(0, budget);
+            let left = budget - shownDirect.length;
+            const shownSubgroups = subgroups
+              .map(({ sub, items }) => {
+                const taken = items.slice(0, Math.max(0, left));
+                left -= taken.length;
+                return { sub, items: taken };
+              })
+              .filter((group) => group.items.length > 0);
+            const sectionTotal =
+              directItems.length + subgroups.reduce((sum, group) => sum + group.items.length, 0);
+            const sectionShown =
+              shownDirect.length + shownSubgroups.reduce((sum, group) => sum + group.items.length, 0);
+
+            return (
             <section key={category.id} id={sectionId(category.id)} className="scroll-mt-4 pt-8">
               <Reveal as="div">
                 <h3
@@ -221,9 +275,9 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
                 <div className="mt-4 border-t border-dashed" style={{ borderColor: "var(--theme-border)" }} aria-hidden />
               </Reveal>
 
-              {directItems.length > 0 && itemRows(directItems)}
+              {shownDirect.length > 0 && itemRows(shownDirect)}
 
-              {subgroups.map(({ sub, items }) => (
+              {shownSubgroups.map(({ sub, items }) => (
                 <div key={sub.id} className="mt-6">
                   <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--theme-text-muted)]">
                     {sub.name}
@@ -231,8 +285,16 @@ export function PublicMenuSite({ site, onFirstView }: { site: PublicWebsiteRespo
                   {itemRows(items)}
                 </div>
               ))}
+
+              <ShowMore
+                shown={sectionShown}
+                total={sectionTotal}
+                onShowMore={() => showMoreIn(category.id)}
+                shape="square"
+              />
             </section>
-          ))}
+            );
+          })}
         </div>
       </section>
 

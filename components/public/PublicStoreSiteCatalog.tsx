@@ -13,8 +13,11 @@ import { formatMoney } from "@/lib/format";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import type { CartLine } from "@/lib/site/cart";
 import { cartSubtotal } from "@/lib/site/cart";
+import { ListControls } from "@/components/public/ListControls";
+import { ShowMore } from "@/components/public/ShowMore";
+import { CONTROLS_THRESHOLD, countItems, takeFromGroups } from "@/lib/site/item-query";
 import { itemsUnder } from "@/lib/site/menu-categories";
-import { usePaging } from "@/lib/site/paging";
+import { useListControls } from "@/lib/site/use-list-controls";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
 import type { Customer } from "@/lib/site/whatsapp";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
@@ -58,38 +61,27 @@ export function PublicStoreSiteCatalog({
    * collection, with the empty ones dropped. Computed once so the headings,
    * the rows and the result count can never disagree with each other.
    */
+  const list = useListControls(`${collectionId ?? ""}|${query.trim()}`);
   const groups = useMemo(() => {
     return site.categories
       .filter((category) => !collectionId || category.id === collectionId)
       .map((category) => ({
         id: category.id,
         name: category.name,
-        items: itemsUnder(category).filter((item) => itemMatchesQuery(item, query)),
+        items: list.refine(itemsUnder(category).filter((item) => itemMatchesQuery(item, query))),
       }))
       .filter((group) => group.items.length > 0);
-  }, [site.categories, collectionId, query]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- refine is rebuilt every render; its inputs are the controls, which are already in the key below
+  }, [site.categories, collectionId, query, list.controlProps.order, list.controlProps.min, list.controlProps.max]);
 
-  const total = groups.reduce((sum, group) => sum + group.items.length, 0);
-
-  /**
-   * The list is grouped, so the cut runs through the groups rather than over a
-   * flat array: fill each one in turn until the budget is spent, and drop the
-   * groups past it entirely - a collection heading with nothing under it is
-   * worse than no heading.
-   */
-  const { limit, showMore } = usePaging(`${collectionId ?? ""}|${query.trim()}`);
-  const pagedGroups = useMemo(() => {
-    let budget = limit;
-    const out: typeof groups = [];
-    for (const group of groups) {
-      if (budget <= 0) break;
-      const items = group.items.slice(0, budget);
-      budget -= items.length;
-      out.push({ ...group, items });
-    }
-    return out;
-  }, [groups, limit]);
-  const shown = pagedGroups.reduce((sum, group) => sum + group.items.length, 0);
+  const total = countItems(groups);
+  const pagedGroups = takeFromGroups(groups, list.limit);
+  const shown = countItems(pagedGroups);
+  /** Everything the shop stocks, before any narrowing - what decides whether the controls are worth a row of the screen. */
+  const stockCount = useMemo(
+    () => countItems(site.categories.map((category) => ({ items: itemsUnder(category) }))),
+    [site.categories],
+  );
 
   /**
    * Whether to give every row a picture column.
@@ -178,6 +170,12 @@ export function PublicStoreSiteCatalog({
             ))}
         </div>
 
+        {stockCount >= CONTROLS_THRESHOLD && (
+          <div className="mt-3">
+            <ListControls {...list.controlProps} currency={site.currency} />
+          </div>
+        )}
+
         <p className="mt-3 text-xs text-[var(--theme-text-muted)]">
           {total} {total === 1 ? t.filter.itemSingular : t.filter.itemPlural}
         </p>
@@ -221,18 +219,7 @@ export function PublicStoreSiteCatalog({
           ))
         )}
 
-        {shown < total && (
-          <div className="mt-8 flex flex-col items-center gap-2">
-            <p className="text-xs text-[var(--theme-text-muted)]">{t.filter.showingOf(shown, total)}</p>
-            <button
-              type="button"
-              onClick={showMore}
-              className="rounded-lg border border-[var(--theme-border)] bg-surface px-6 py-2.5 text-sm font-medium hover:border-[var(--accent-solid)]"
-            >
-              {t.filter.showMore}
-            </button>
-          </div>
-        )}
+        <ShowMore shown={shown} total={total} onShowMore={list.showMore} shape="square" />
 
         {site.profile?.description && (
           <section className="mt-12 rounded-lg border border-[var(--theme-border)] bg-surface p-5">
