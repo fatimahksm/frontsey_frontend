@@ -230,13 +230,22 @@ export function PublicStoreSiteShowcase({
           <button
             type="button"
             onClick={() => setCartOpen(true)}
-            className="mx-auto flex w-full max-w-5xl items-center justify-between rounded-full px-5 py-3 text-sm font-semibold text-[color:var(--accent-contrast)]"
+            /*
+              The left gutter is the language switcher's corner. It is fixed at
+              bottom-left on every public site, and this is the first bar to
+              run the full width of the screen down there, so it is the first
+              to have to give it room. Only needed while the bar is wider than
+              its own centred content - once the page is wide enough, the
+              content already starts clear of it.
+            */
+            className="mx-auto flex w-full max-w-5xl items-center justify-between rounded-full px-5 py-3 pl-40 text-sm font-semibold text-[color:var(--accent-contrast)] lg:pl-5"
             style={{ background: "var(--accent-solid)" }}
           >
             <span>
               {bagCount} {bagCount === 1 ? t.cart.itemSingular : t.cart.itemsPlural}
             </span>
-            <span>{t.cart.viewOrder}</span>
+            {/* The bar is plainly a button; on a phone the words cost room the count and the total need. */}
+            <span className="hidden sm:inline">{t.cart.viewOrder}</span>
             <span>{formatMoney(cartSubtotal(cart), site.currency)}</span>
           </button>
         </div>
