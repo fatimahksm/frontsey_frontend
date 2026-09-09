@@ -307,8 +307,12 @@ const SIGNATURE_PALETTES: Partial<
   // rather than a preference. An owner who picks their own brand colour still
   // overrides it; that is what hasDefaultPalette below decides.
   STORE_SHOWCASE: { backgroundColor: "#fdf1ea", surfaceColor: "#ffffff", textColor: "#1c1a19", primaryColor: "#f4623a" },
-  // Catalogue - a working document: cool, flat, and quiet under a long list.
-  STORE_CATALOG: { backgroundColor: "#fbfbfc", surfaceColor: "#ffffff", textColor: "#15161a" },
+  // Catalogue - a working document: paper, ink, and a single deep blue used
+  // the way a printed catalogue uses a second colour, for the section numbers
+  // and the one line that says a thing is not in stock. Deliberately nowhere
+  // near the shop front's orange: the two templates should not be mistaken for
+  // each other at a glance.
+  STORE_CATALOG: { backgroundColor: "#faf9f7", surfaceColor: "#ffffff", textColor: "#16151a", primaryColor: "#26457a" },
 };
 
 /**
