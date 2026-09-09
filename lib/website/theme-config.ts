@@ -290,7 +290,9 @@ export function serializeThemeConfig(config: ThemeConfig): string {
  * it. Fonts, radii and spacing are never touched here - only the three colours
  * that decide whether the page reads light or dark.
  */
-const SIGNATURE_PALETTES: Partial<Record<LayoutVariant, Pick<ThemeConfig, "backgroundColor" | "surfaceColor" | "textColor">>> = {
+const SIGNATURE_PALETTES: Partial<
+  Record<LayoutVariant, Partial<Pick<ThemeConfig, "backgroundColor" | "surfaceColor" | "textColor" | "primaryColor">>>
+> = {
   // Professional / CV - a terminal, deliberately.
   PORTFOLIO_PROFESSIONAL: { backgroundColor: "#08090c", surfaceColor: "#101116", textColor: "#f4f4f5" },
   // Creative / Visual - warm paper, so photographs sit on something.
@@ -301,8 +303,10 @@ const SIGNATURE_PALETTES: Partial<Record<LayoutVariant, Pick<ThemeConfig, "backg
   PORTFOLIO_BRAND: { backgroundColor: "#101014", surfaceColor: "#191920", textColor: "#f2f0eb" },
   // Bistro - warm and photographic, but light.
   MENU_BISTRO: { backgroundColor: "#ffffff", surfaceColor: "#ffffff", textColor: "#18181b" },
-  // Shop front - white, so the products supply all the colour on the page.
-  STORE_SHOWCASE: { backgroundColor: "#ffffff", surfaceColor: "#f7f7f8", textColor: "#17171a" },
+  // Shop front - blush ground and a warm orange, which is the design itself
+  // rather than a preference. An owner who picks their own brand colour still
+  // overrides it; that is what hasDefaultPalette below decides.
+  STORE_SHOWCASE: { backgroundColor: "#fdf1ea", surfaceColor: "#ffffff", textColor: "#1c1a19", primaryColor: "#f4623a" },
   // Catalogue - a working document: cool, flat, and quiet under a long list.
   STORE_CATALOG: { backgroundColor: "#fbfbfc", surfaceColor: "#ffffff", textColor: "#15161a" },
 };
