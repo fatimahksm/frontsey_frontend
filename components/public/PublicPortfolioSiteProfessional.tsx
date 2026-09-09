@@ -12,7 +12,7 @@ import { getCompleteness, getProfessionalData, normalizePortfolioData, primaryCo
 import { effectiveTheme, themeCssVars } from "@/lib/website/theme-config";
 
 /**
- * The Developer template (PORTFOLIO_HERO).
+ * The Developer template (PORTFOLIO_PROFESSIONAL).
  *
  * Built for one reader: someone deciding whether to hire this person to write
  * software. That is why the page leads with work rather than a mission
@@ -265,7 +265,7 @@ export function PublicPortfolioSiteProfessional({
                 // the text column carries the index and stays put whether or
                 // not the owner has written anything yet.
                 return (
-                  <motion.article key={item.id} {...rise} className="grid items-center gap-8 lg:grid-cols-2">
+                  <motion.article key={item.id} {...rise} className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
                     {item.imageUrl && (
                       <figure
                         className={`overflow-hidden rounded-lg border border-[var(--theme-border)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] ${i % 2 === 1 ? "lg:order-2" : ""}`}
@@ -363,7 +363,7 @@ export function PublicPortfolioSiteProfessional({
 
       {(data.bio || experience.length > 0) && (
         <section id="about" className="border-b border-[var(--theme-border)] px-6 py-20">
-          <div className="mx-auto grid w-full max-w-6xl gap-14 lg:grid-cols-[1fr_1.1fr]">
+          <div className="mx-auto grid grid-cols-1 w-full max-w-6xl gap-14 lg:grid-cols-[1fr_1.1fr]">
             {data.bio && (
               <div>
                 <SectionLabel index="03">{t.nav.about}</SectionLabel>
@@ -397,7 +397,7 @@ export function PublicPortfolioSiteProfessional({
         <section className="border-b border-[var(--theme-border)] px-6 py-20">
           <div className="mx-auto w-full max-w-6xl">
             <SectionLabel index="05">{t.section.testimonials}</SectionLabel>
-            <div className="grid gap-10 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-10 sm:grid-cols-2">
               {data.recommendations.map((item, i) => (
                 <motion.figure key={i} {...rise} className="border-s-2 border-[var(--accent-solid)]/40 ps-5">
                   <blockquote className="text-base leading-relaxed text-[color-mix(in_srgb,var(--foreground)_82%,transparent)]">{item.quote}</blockquote>

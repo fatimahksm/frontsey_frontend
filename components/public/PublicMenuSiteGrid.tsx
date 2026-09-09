@@ -14,7 +14,11 @@ import type { PublicDeliveryArea, PublicWebsiteResponse } from "@/lib/api/types"
 import type { CartLine } from "@/lib/site/cart";
 import type { Customer } from "@/lib/site/whatsapp";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { ListControls } from "@/components/public/ListControls";
+import { ShowMore } from "@/components/public/ShowMore";
+import { CONTROLS_THRESHOLD, countItems, takeFromGroups } from "@/lib/site/item-query";
 import { itemsUnder } from "@/lib/site/menu-categories";
+import { useListControls } from "@/lib/site/use-list-controls";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
 import { buildWhatsAppMessage, whatsappUrl } from "@/lib/site/whatsapp";
 import { parseDraftContent } from "@/lib/website/draft-content";
@@ -79,13 +83,17 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
   // Two independent narrowings: the chips choose a category, the box searches
   // within whatever is showing. Both are applied here so the count under the
   // bar and the sections below can never disagree.
+  const list = useListControls(`${activeCategory ?? ""}|${query.trim()}`);
   const matchingCategories = site.categories
-    .map((category) => ({ ...category, items: itemsUnder(category).filter((item) => itemMatchesQuery(item, query)) }))
+    .map((category) => ({ ...category, items: list.refine(itemsUnder(category).filter((item) => itemMatchesQuery(item, query))) }))
     .filter((category) => category.items.length > 0);
   const visibleCategories = activeCategory
     ? matchingCategories.filter((category) => category.id === activeCategory)
     : matchingCategories;
-  const visibleItemCount = visibleCategories.reduce((sum, category) => sum + category.items.length, 0);
+  const visibleItemCount = countItems(visibleCategories);
+  const pagedCategories = takeFromGroups(visibleCategories, list.limit);
+  const shownItemCount = countItems(pagedCategories);
+  const menuSize = site.categories.reduce((sum, category) => sum + itemsUnder(category).length, 0);
   // Chips list every category that still has a match, so a chip is never a
   // dead end - plus whichever one is selected, so it cannot vanish under you.
   const chipCategories = site.categories.filter(
@@ -264,6 +272,12 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
           </div>
         )}
 
+        {menuSize >= CONTROLS_THRESHOLD && (
+          <div className="mb-6">
+            <ListControls {...list.controlProps} currency={site.currency} />
+          </div>
+        )}
+
         {visibleCategories.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-black/[.12] py-14 text-center dark:border-white/[.16]">
             <p className="text-sm font-medium">{t.filter.noResults}</p>
@@ -289,12 +303,12 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
         )}
 
         <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 3rem)" }}>
-          {visibleCategories.map((category) => (
+          {pagedCategories.map((category) => (
             <section key={category.id} id={slugifyId(category.id)} className="scroll-mt-24">
               <Reveal as="div">
                 <h2 className="mb-4 text-xl font-semibold tracking-tight">{category.name}</h2>
               </Reveal>
-              <StaggerGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <StaggerGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {category.items.map((item) => (
                   <StaggerItem key={item.id}>
                     <PublicMenuItemCard
@@ -310,6 +324,8 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
             </section>
           ))}
         </div>
+
+        <ShowMore shown={shownItemCount} total={visibleItemCount} onShowMore={list.showMore} />
 
         {(site.profile?.description ||
           site.profile?.phone ||

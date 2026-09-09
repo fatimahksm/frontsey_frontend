@@ -260,7 +260,7 @@ export default function WebsiteOverviewPage() {
 
       {/* Quick actions, drawn from the same source as the sidebar so a Portfolio
           never offers a Menu shortcut and a menu site never offers Projects. */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {quickActionsFor(website.templateType).map((action) => (
           <Link
             key={action.href}
@@ -279,7 +279,7 @@ export default function WebsiteOverviewPage() {
       </div>
 
       {analyticsSummary !== null && (analyticsSummary.mostViewedItems.length > 0 || analyticsSummary.totalVisits > 0) && (
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {analyticsSummary.mostViewedItems.length > 0 && (
             <Card title="Top items" description="Most-viewed in the last 30 days.">
               <ul className="flex flex-col gap-3">

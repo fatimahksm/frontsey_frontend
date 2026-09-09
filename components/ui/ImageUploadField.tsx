@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { friendlyMessage } from "@/lib/api/client";
 import { uploadsApi } from "@/lib/api/uploads";
+import { prepareImageForUpload } from "@/lib/images/prepare-upload";
 
 interface Props {
   id: string;
@@ -26,7 +27,13 @@ export function ImageUploadField({ id, label, helperText, value, onChange, acces
     setError(null);
     setIsUploading(true);
     try {
-      const { url } = await uploadsApi.uploadImage(accessToken, file);
+      // An iPhone photo arrives as HEIC, which nothing but Safari can display
+      // and the server has never accepted, and a phone photo of any kind
+      // arrives far larger than a web page should carry. Both are dealt with
+      // before the bytes leave the device - see prepare-upload for why here
+      // rather than on the server.
+      const prepared = await prepareImageForUpload(file);
+      const { url } = await uploadsApi.uploadImage(accessToken, prepared);
       onChange(url);
     } catch (err) {
       setError(friendlyMessage(err, "Failed to upload image."));
@@ -36,11 +43,17 @@ export function ImageUploadField({ id, label, helperText, value, onChange, acces
   }
 
   return (
-    <div className="flex flex-col gap-1.5 text-sm">
+    // min-w-0: this sits in a two-column grid on wider screens, and a grid
+    // child keeps its content's width unless told otherwise - which on a phone
+    // meant the preview and its buttons widened the column past the screen.
+    <div className="flex min-w-0 flex-col gap-1.5 text-sm">
       <span className="font-medium text-foreground">{label}</span>
       {helperText && <span className="text-xs text-zinc-500 dark:text-zinc-400">{helperText}</span>}
 
-      <div className="flex items-center gap-3">
+      {/* Wraps on a narrow phone rather than pushing the page sideways - the
+          preview square is fixed at 64px and the buttons beside it are not
+          free to shrink to nothing. */}
+      <div className="flex flex-wrap items-center gap-3">
         {value ? (
           // eslint-disable-next-line @next/next/no-img-element -- owner-supplied preview, may be a remote URL
           <img src={value} alt="" className="h-16 w-16 shrink-0 rounded-xl border border-black/[.08] object-cover dark:border-white/[.145]" />
@@ -50,12 +63,12 @@ export function ImageUploadField({ id, label, helperText, value, onChange, acces
           </div>
         )}
 
-        <div className="flex flex-col gap-1.5">
+        <div className="flex min-w-0 flex-col gap-1.5">
           <input
             ref={inputRef}
             id={id}
             type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
+            accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,.heic,.heif"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];

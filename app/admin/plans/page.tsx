@@ -75,7 +75,7 @@ export default function AdminPlansPage() {
       {isLoading ? (
         <p className="text-sm text-zinc-500">Loading…</p>
       ) : (
-        <StaggerGroup className="grid gap-4 sm:grid-cols-2">
+        <StaggerGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {plans.map((plan) => (
             <StaggerItem key={plan.id}>
             <Card title={`${plan.code} · ${plan.billingPeriod}`}>

@@ -10,18 +10,29 @@ export const WEBSITE_TYPES: { value: TemplateType; icon: string; label: string; 
   {
     value: "MENU_ORDERING",
     icon: "🧾",
-    // Was "Restaurant / Café Menu" with a plate icon, which read as
-    // food-only however the description ended. The same four layouts list a
-    // shop's stock exactly as well; step 1 asks which, and the samples,
-    // labels and previews follow that answer from there on.
-    label: "Menu or product list",
-    description: "Categories, items, sizes/add-ons, and optional WhatsApp ordering. For restaurants and cafes, and for shops of any kind.",
+    // This said "Menu or product list ... and for shops of any kind", because
+    // a shop was a menu website with a flag on it. A shop is its own kind of
+    // website now, with its own templates, so this is a menu again.
+    label: "Restaurant menu",
+    description: "Categories, dishes, sizes and add-ons, and optional WhatsApp ordering. For restaurants, cafes, bakeries and anywhere serving food or drink.",
+  },
+  {
+    value: "STORE",
+    icon: "🛍️",
+    label: "Online shop",
+    description: "Collections, products, prices and stock, with optional WhatsApp ordering. For shops selling things - clothes, gifts, homeware, cosmetics, hardware.",
   },
   {
     value: "PORTFOLIO",
     icon: "🎨",
     label: "Portfolio / Services",
     description: "A services showcase with no cart. For salons, studios, agencies, and similar businesses.",
+  },
+  {
+    value: "EVENTS",
+    icon: "🎉",
+    label: "Event page",
+    description: "One occasion and the photos from it - when, where, the running order of the day. For weddings, engagements, graduations, and parties.",
   },
 ];
 
@@ -47,31 +58,59 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, TemplateOption[]> = {
     { value: "MENU_GRID", label: "Modern Grid", description: "Full-width cover, sticky category tabs, items as a card grid, cart drawer." },
     { value: "MENU_ELEGANT", label: "Elegant Restaurant", description: "Fine-dining style list with dotted price leaders and a minimal bottom cart bar." },
     { value: "MENU_BISTRO", label: "Bistro Menu", description: "Warm, photography-led cafe style - bold headline hero, combo box deals, and a sticky-filtered card-grid menu." },
+    {
+      value: "MENU_COMPACT",
+      label: "Compact Menu",
+      description: "The menu a customer scans at the table: no photos, a Food/Beverages switch, categories as a scrolling row, and plain name-and-price lines. Loads instantly on any phone.",
+      bestFor: ["Restaurant", "Cafe", "Bar", "Long menus", "Slow connections", "QR code menus"],
+    },
+  ],
+  STORE: [
+    {
+      value: "STORE_SHOWCASE",
+      label: "Shop front",
+      description: "Collections as photographs you walk into, then big product tiles two to a row, with the bag and its total always on screen.",
+      bestFor: ["Clothes", "Gifts", "Homeware", "Cosmetics", "Flowers", "Jewellery"],
+    },
+    {
+      value: "STORE_CATALOG",
+      label: "Catalogue",
+      description: "Search at the top and everything below it as compact rows with the price down one column. For a shop with more products than anyone will scroll through.",
+      bestFor: ["Pharmacy", "Hardware", "Phone accessories", "Spare parts", "Stationery", "Mini market"],
+    },
   ],
   PORTFOLIO: [
     {
-      value: "PORTFOLIO_HERO",
+      value: "PORTFOLIO_PROFESSIONAL",
       label: "Professional / CV",
       description: "Your background as a hiring manager reads it: experience, skills, projects and a downloadable CV, in a dense dark layout that stays scannable.",
       bestFor: ["Developer", "Engineer", "Accountant", "Student", "Consultant", "Analyst"],
     },
     {
-      value: "PORTFOLIO_MINIMAL",
+      value: "PORTFOLIO_VISUAL",
       label: "Creative / Visual",
       description: "Pictures first and words second - large editorial compositions with a caption beside each one, on warm paper.",
       bestFor: ["Designer", "Photographer", "Architect", "Artist", "Fashion", "Videographer"],
     },
     {
-      value: "PORTFOLIO_PROFILE",
+      value: "PORTFOLIO_SERVICES",
       label: "Freelancer / Services",
       description: "Built to get you booked: what you offer and what it costs, proof from past clients, answers to the usual questions, and a contact button that is never far away.",
       bestFor: ["Coach", "Marketer", "Social media manager", "Trainer", "Makeup artist", "Tutor"],
     },
     {
-      value: "PORTFOLIO_BOLD",
+      value: "PORTFOLIO_BRAND",
       label: "Brand / Product",
       description: "A loud front page for something you have made - your story, featured items, and your social links, in heavy type and full-strength colour.",
       bestFor: ["Small business", "Creator", "Personal brand", "Product maker", "Studio", "Shop"],
+    },
+  ],
+  EVENTS: [
+    {
+      value: "EVENTS_CELEBRATION",
+      label: "Celebration",
+      description: "The invitation and the album in one page: who and what, when and where, the running order of the day, and the photographs afterwards.",
+      bestFor: ["Wedding", "Engagement", "Graduation", "Birthday", "Anniversary", "Party"],
     },
   ],
 };
@@ -85,18 +124,54 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, TemplateOption[]> = {
 const DISPLAY_ONLY_LAYOUTS = new Set<LayoutVariant>([
   "MENU_CLASSIC",
   "MENU_ELEGANT",
-  "PORTFOLIO_HERO",
-  "PORTFOLIO_MINIMAL",
-  "PORTFOLIO_BOLD",
-  "PORTFOLIO_PROFILE",
+  "MENU_COMPACT",
+  "PORTFOLIO_PROFESSIONAL",
+  "PORTFOLIO_VISUAL",
+  "PORTFOLIO_BRAND",
+  "PORTFOLIO_SERVICES",
+  // An invitation has nothing to sell.
+  "EVENTS_CELEBRATION",
 ]);
 
 export function isDisplayOnlyLayout(variant: LayoutVariant): boolean {
   return DISPLAY_ONLY_LAYOUTS.has(variant);
 }
 
+/**
+ * The templates of this kind that are actually on offer.
+ *
+ * TEMPLATE_OPTIONS describes every template the code can render; whether one
+ * may be chosen right now is the Super Admin's call, carried in
+ * template_prices.active and fetched via plansApi.offeredTemplates(). Passing
+ * `null` (not yet loaded, or the request failed) shows the full list rather
+ * than an empty picker - a momentary lookup failure should not make the
+ * product look broken, and the server refuses a withdrawn template anyway.
+ */
+export function offeredTemplates(
+  templateType: TemplateType,
+  offered: Set<LayoutVariant> | null,
+): TemplateOption[] {
+  const all = TEMPLATE_OPTIONS[templateType];
+  if (!offered) return all;
+  return all.filter((option) => offered.has(option.value));
+}
+
+/** The kinds of website with at least one template on offer. */
+export function offeredWebsiteTypes(offered: Set<LayoutVariant> | null) {
+  if (!offered) return WEBSITE_TYPES;
+  return WEBSITE_TYPES.filter((type) => offeredTemplates(type.value, offered).length > 0);
+}
+
 export function defaultLayoutVariant(templateType: TemplateType): LayoutVariant {
   return TEMPLATE_OPTIONS[templateType][0].value;
+}
+
+/** The first template of this kind that may actually be chosen. */
+export function defaultOfferedLayoutVariant(
+  templateType: TemplateType,
+  offered: Set<LayoutVariant> | null,
+): LayoutVariant {
+  return offeredTemplates(templateType, offered)[0]?.value ?? defaultLayoutVariant(templateType);
 }
 
 export function templateLabel(variant: LayoutVariant, templateType: TemplateType): string {

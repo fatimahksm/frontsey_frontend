@@ -1,4 +1,9 @@
-import type { LayoutVariant, PublicMenuItem, PublicWebsiteResponse } from "@/lib/api/types";
+import type {
+  LayoutVariant,
+  PublicCategory,
+  PublicMenuItem,
+  PublicWebsiteResponse,
+} from "@/lib/api/types";
 import type { DishPhoto } from "@/lib/mock-preview-images";
 import {
   sampleCoverImage,
@@ -391,11 +396,13 @@ export function mockMenuSite(
         }),
       },
     ],
+    event: null,
+    schedule: [],
   };
 }
 
 /**
- * The Developer sample, for PORTFOLIO_HERO.
+ * The Developer sample, for PORTFOLIO_PROFESSIONAL.
  *
  * A separate business from the salon on purpose: a developer template
  * demonstrating "Haircut & Style - $25" makes the template look broken rather
@@ -403,7 +410,7 @@ export function mockMenuSite(
  * which the section payload already allows as free-form JSON - the adapter
  * surfaces them under `extra`, and the template treats every one as optional.
  */
-function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteResponse {
+function mockDeveloperSite(layoutVariant: "PORTFOLIO_PROFESSIONAL"): PublicWebsiteResponse {
   return {
     businessName: "Adam Haddad",
     slug: "preview",
@@ -490,11 +497,13 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteRespon
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    event: null,
+    schedule: [],
   };
 }
 
 /**
- * The Designer sample, for PORTFOLIO_MINIMAL.
+ * The Designer sample, for PORTFOLIO_VISUAL.
  *
  * A product/brand designer rather than the salon, for the same reason the
  * Developer sample is a developer: a template demonstrating the wrong
@@ -502,7 +511,7 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_HERO"): PublicWebsiteRespon
  * metadata (discipline, year, link) rides in the ABOUT payload's free-form
  * JSON, as it does for Developer, so no schema change is needed.
  */
-function mockDesignerSite(layoutVariant: "PORTFOLIO_MINIMAL"): PublicWebsiteResponse {
+function mockDesignerSite(layoutVariant: "PORTFOLIO_VISUAL"): PublicWebsiteResponse {
   return {
     businessName: "Nadia Sarrouf",
     slug: "preview",
@@ -581,16 +590,18 @@ function mockDesignerSite(layoutVariant: "PORTFOLIO_MINIMAL"): PublicWebsiteResp
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    event: null,
+    schedule: [],
   };
 }
 
 /**
- * The Agency sample, for PORTFOLIO_BOLD. A studio selling outcomes, so the
+ * The Agency sample, for PORTFOLIO_BRAND. A studio selling outcomes, so the
  * sample leads with services and case studies rather than a personal bio.
  * Results shown here are invented and only ever reachable through sample
  * mode - a real published site never receives them.
  */
-function mockBrandSite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse {
+function mockBrandSite(layoutVariant: "PORTFOLIO_BRAND"): PublicWebsiteResponse {
   return {
     businessName: "Northbound Goods",
     slug: "preview",
@@ -683,14 +694,16 @@ function mockBrandSite(layoutVariant: "PORTFOLIO_BOLD"): PublicWebsiteResponse {
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    event: null,
+    schedule: [],
   };
 }
 
 /**
- * The Freelancer sample, for PORTFOLIO_PROFILE. One person, so the sample is
+ * The Freelancer sample, for PORTFOLIO_SERVICES. One person, so the sample is
  * written in the first person and leads with who they are before what they do.
  */
-function mockFreelancerSite(layoutVariant: "PORTFOLIO_PROFILE"): PublicWebsiteResponse {
+function mockFreelancerSite(layoutVariant: "PORTFOLIO_SERVICES"): PublicWebsiteResponse {
   return {
     businessName: "Karim Debbas",
     slug: "preview",
@@ -786,18 +799,20 @@ function mockFreelancerSite(layoutVariant: "PORTFOLIO_PROFILE"): PublicWebsiteRe
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    event: null,
+    schedule: [],
   };
 }
 
 export function mockPortfolioSite(
-  layoutVariant: "PORTFOLIO_HERO" | "PORTFOLIO_MINIMAL" | "PORTFOLIO_BOLD" | "PORTFOLIO_PROFILE",
+  layoutVariant: "PORTFOLIO_PROFESSIONAL" | "PORTFOLIO_VISUAL" | "PORTFOLIO_BRAND" | "PORTFOLIO_SERVICES",
 ): PublicWebsiteResponse {
-  // PORTFOLIO_HERO is the Developer template, so its preview shows a developer
+  // PORTFOLIO_PROFESSIONAL is the Developer template, so its preview shows a developer
   // rather than the salon the other three still use.
-  if (layoutVariant === "PORTFOLIO_HERO") return mockDeveloperSite(layoutVariant);
-  if (layoutVariant === "PORTFOLIO_MINIMAL") return mockDesignerSite(layoutVariant);
-  if (layoutVariant === "PORTFOLIO_BOLD") return mockBrandSite(layoutVariant);
-  if (layoutVariant === "PORTFOLIO_PROFILE") return mockFreelancerSite(layoutVariant);
+  if (layoutVariant === "PORTFOLIO_PROFESSIONAL") return mockDeveloperSite(layoutVariant);
+  if (layoutVariant === "PORTFOLIO_VISUAL") return mockDesignerSite(layoutVariant);
+  if (layoutVariant === "PORTFOLIO_BRAND") return mockBrandSite(layoutVariant);
+  if (layoutVariant === "PORTFOLIO_SERVICES") return mockFreelancerSite(layoutVariant);
 
   return {
     businessName: "Glow Studio",
@@ -922,6 +937,243 @@ export function mockPortfolioSite(
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    event: null,
+    schedule: [],
+  };
+}
+
+/**
+ * The Events sample: one wedding, told the way the template tells it.
+ *
+ * Reuses the salon photo set for its cover and gallery - the point of the
+ * sample is to show the shape of an invitation, and a real venue photograph
+ * would need its own image set for no gain here.
+ */
+function mockEventsSite(layoutVariant: "EVENTS_CELEBRATION"): PublicWebsiteResponse {
+  return {
+    businessName: "Sara & Karim",
+    slug: "preview",
+    pageMode: "ONE_PAGE",
+    templateType: "EVENTS",
+    layoutVariant,
+    orderingMode: "DISPLAY_ONLY",
+    primaryLanguage: "en",
+    currency: "USD",
+    publishedContent: JSON.stringify({
+      heroHeading: "Sara & Karim",
+      heroSubtitle: "We are getting married, and we would love you there.",
+      brandColor: "#b08968",
+    }),
+    profile: {
+      description:
+        "We met eight years ago in a queue for bad coffee, and we have been arguing about where to get good coffee ever since. Come and celebrate with us.",
+      logoUrl: null,
+      coverImageUrl: sampleSalonCoverImage(),
+      phone: "+961 70 123 456",
+      whatsappNumber: "+961 70 123 456",
+      email: "saraandkarim@example.com",
+      address: "The Old Orangery, Broummana",
+      googleMapsUrl: "https://maps.google.com",
+      instagramUrl: null,
+      tiktokUrl: null,
+      policies: {},
+    },
+    openingHours: [],
+    categories: [],
+    deliveryAreas: [],
+    services: [],
+    galleryImageUrls: sampleSalonGalleryImages(),
+    projects: [],
+    seo: { metaTitle: "Sara & Karim - 14 June 2026", metaDescription: null, ogImageUrl: null },
+    sections: [],
+    theme: DEFAULT_THEME_CONFIG,
+    event: {
+      eventDate: "Saturday 14 June 2026",
+      startTime: "6:00 PM",
+      endTime: "late",
+      venueName: "The Old Orangery",
+      dressCode: "Summer formal",
+      rsvpBy: "the end of May",
+      note: "There is parking on site, and the ceremony is outdoors - flat shoes are a kindness to yourself.",
+    },
+    schedule: [
+      { id: "e1", time: "6:00 PM", title: "Ceremony", detail: "In the walled garden. Please be seated by ten to." },
+      { id: "e2", time: "7:00 PM", title: "Drinks", detail: "On the terrace, while we are photographed against our will." },
+      { id: "e3", time: "8:30 PM", title: "Dinner", detail: null },
+      { id: "e4", time: "10:30 PM", title: "Dancing", detail: "Until the neighbours complain." },
+    ],
+  };
+}
+
+/**
+ * The Compact sample: a restaurant whose menu is genuinely long.
+ *
+ * Built with two top-level categories so the Food/Beverages switch has
+ * something to switch between - the other menu samples are flat, and a flat
+ * menu makes this template look like a plainer version of the others rather
+ * than a differently shaped one.
+ *
+ * No item photographs, because the template shows none. Giving the sample
+ * pictures nobody renders would only mislead an owner comparing templates.
+ */
+function mockCompactMenuSite(layoutVariant: "MENU_COMPACT"): PublicWebsiteResponse {
+  const line = (id: string, name: string, price: number, description: string | null = null): PublicMenuItem => ({
+    id,
+    name,
+    description,
+    ingredients: null,
+    price,
+    discountPrice: null,
+    imageUrl: null,
+    availability: "AVAILABLE",
+    maxOrderQuantity: null,
+    fixedBoxItem: false,
+    sizes: [],
+    addonGroups: [],
+    boxVariants: [],
+  });
+
+  const group = (id: string, name: string, items: PublicMenuItem[]): PublicCategory => ({
+    id,
+    name,
+    items,
+    subcategories: [],
+  });
+
+  return {
+    businessName: "Sunland",
+    slug: "preview",
+    pageMode: "ONE_PAGE",
+    templateType: "MENU_ORDERING",
+    layoutVariant,
+    orderingMode: "DISPLAY_ONLY",
+    primaryLanguage: "en",
+    currency: "USD",
+    publishedContent: JSON.stringify({
+      heroHeading: "Sunland",
+      heroSubtitle: "Open for lunch and dinner",
+      brandColor: "#e23b2e",
+      menuBusinessKind: "FOOD",
+    }),
+    profile: {
+      description:
+        "A terrace kitchen doing small plates and a long drinks list. Everything is cooked to order, so give us a few minutes.",
+      logoUrl: null,
+      coverImageUrl: sampleCoverImage(),
+      phone: "+961 71 000 000",
+      whatsappNumber: "+961 71 000 000",
+      email: "hello@example.com",
+      address: "Beirut",
+      googleMapsUrl: "https://maps.google.com",
+      instagramUrl: "https://instagram.com",
+      tiktokUrl: null,
+      policies: {},
+    },
+    openingHours: [],
+    categories: [
+      {
+        id: "food",
+        name: "Food",
+        items: [],
+        subcategories: [
+          group("starters", "Starters", [
+            line("f1", "The Sunland Mini Burgers", 18.5, "1 cocktail / 2 BBQ mayo / 1 truffle"),
+            line("f2", "Classic Mini Burgers", 16, "4 pcs Cocktail sauce"),
+            line("f3", "Truffle mini burgers", 21, "4 pcs truffle sauce"),
+            line("f4", "Sunland cheesy nachos", 15, "Sour cream & pico de gallo"),
+            line("f5", "Crispy chicken strips", 14, "Honey mustard"),
+          ]),
+          group("salads", "Salads", [
+            line("f6", "Rocca & parmesan", 13, "Lemon dressing, toasted pine nuts"),
+            line("f7", "Quinoa bowl", 16, "Avocado, pomegranate, mint"),
+          ]),
+          group("sandwiches", "Sandwiches", [
+            line("f8", "Chicken sub", 15, "Coleslaw, pickles, garlic sauce"),
+            line("f9", "Steak sandwich", 22, "Caramelised onion, provolone"),
+          ]),
+          group("main", "Main course", [
+            line("f10", "Grilled sea bass", 34, "Seasonal vegetables"),
+            line("f11", "Ribeye 300g", 42, "Peppercorn sauce, fries"),
+            line("f12", "Mushroom risotto", 24, null),
+          ]),
+          group("desserts", "Desserts", [
+            line("f13", "Chocolate fondant", 12, "Vanilla ice cream"),
+            line("f14", "Cheesecake", 11, null),
+          ]),
+        ],
+      },
+      {
+        id: "beverages",
+        name: "Beverages",
+        items: [],
+        subcategories: [
+          // Straight name-and-price, no descriptions - which is exactly why a
+          // photo-led template serves a drinks list badly.
+          group("cocktails", "International Cocktails", [
+            line("b1", "Gin Basil", 15),
+            line("b2", "Mojito", 14),
+            line("b3", "Flavored Mojito", 15),
+            line("b4", "Margarita", 15),
+            line("b5", "Aperol Spritz", 16),
+            line("b6", "Moscow Mule", 15),
+            line("b7", "Negroni", 16),
+            line("b8", "Old Fashioned", 16),
+            line("b9", "Tequila Sunrise", 15),
+            line("b10", "Long Island", 15),
+            line("b11", "Passion Fruit Martini", 16),
+          ]),
+          group("pitchers", "Pitchers", [
+            line("b12", "Mojito pitcher", 45),
+            line("b13", "Sangria pitcher", 48),
+          ]),
+          group("shots", "Shots", [
+            line("b14", "Tequila", 8),
+            line("b15", "Jager", 8),
+          ]),
+          group("specialty", "Specialty Cocktails", [
+            line("b16", "Sunland Sour", 18, "Our own, with arak"),
+            line("b17", "Terrace Spritz", 17, null),
+          ]),
+        ],
+      },
+    ],
+    deliveryAreas: [],
+    services: [],
+    galleryImageUrls: sampleGalleryImages(),
+    projects: [],
+    seo: null,
+    sections: [],
+    theme: DEFAULT_THEME_CONFIG,
+    event: null,
+    schedule: [],
+  };
+}
+
+/**
+ * The sample shop.
+ *
+ * It is the shop sample that already existed for the menu layouts, rather than
+ * a second one written for these: the same collections, the same stock, the
+ * same photographs. There is only one imaginary shop in this file, so a shop
+ * owner comparing the two store templates is comparing the templates and not
+ * two different sets of invented products.
+ *
+ * It carries no menuBusinessKind. That flag exists to tell a *menu* template it
+ * is being used by a shop; a STORE website is a shop by its type, and a store
+ * template that read the flag would be one that breaks on every real shop,
+ * none of which will have it set.
+ */
+function mockStoreSite(layoutVariant: "STORE_SHOWCASE" | "STORE_CATALOG"): PublicWebsiteResponse {
+  const shop = mockMenuSite("MENU_GRID", "SHOP");
+  const content: Record<string, unknown> = JSON.parse(shop.publishedContent ?? "{}");
+  delete content.menuBusinessKind;
+
+  return {
+    ...shop,
+    templateType: "STORE",
+    layoutVariant,
+    orderingMode: "WHATSAPP_ORDERING",
+    publishedContent: JSON.stringify(content),
   };
 }
 
@@ -937,10 +1189,17 @@ export function mockSiteFor(layoutVariant: LayoutVariant, kind: MenuBusinessKind
     case "MENU_ELEGANT":
     case "MENU_BISTRO":
       return mockMenuSite(layoutVariant, kind);
-    case "PORTFOLIO_HERO":
-    case "PORTFOLIO_MINIMAL":
-    case "PORTFOLIO_BOLD":
-    case "PORTFOLIO_PROFILE":
+    case "MENU_COMPACT":
+      return mockCompactMenuSite(layoutVariant);
+    case "STORE_SHOWCASE":
+    case "STORE_CATALOG":
+      return mockStoreSite(layoutVariant);
+    case "PORTFOLIO_PROFESSIONAL":
+    case "PORTFOLIO_VISUAL":
+    case "PORTFOLIO_BRAND":
+    case "PORTFOLIO_SERVICES":
       return mockPortfolioSite(layoutVariant);
+    case "EVENTS_CELEBRATION":
+      return mockEventsSite(layoutVariant);
   }
 }

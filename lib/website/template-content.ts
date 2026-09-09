@@ -21,7 +21,7 @@ import type { MenuBusinessKind } from "@/lib/website/draft-content";
 /** A content store, named as the current template names it. */
 export interface ContentSection {
   /** Which editor this is - stable across templates, unlike the label. */
-  key: "projects" | "services" | "menu" | "gallery" | "delivery" | "sections";
+  key: "projects" | "services" | "menu" | "gallery" | "delivery" | "sections" | "event";
   /** What this template calls it. */
   label: string;
   /** One line saying what it is for, in this template's terms. */
@@ -63,7 +63,7 @@ const GALLERY_PORTFOLIO: ContentSection = {
 
 const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
   // Professional / CV - a hiring manager reading a background.
-  PORTFOLIO_HERO: {
+  PORTFOLIO_PROFESSIONAL: {
     sections: [
       { key: "projects", label: "Projects", hint: "What you have built, with dates and links" },
       { key: "services", label: "Skills & services", hint: "What you can be hired to do" },
@@ -77,7 +77,7 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
   },
 
   // Creative / Visual - a gallery.
-  PORTFOLIO_MINIMAL: {
+  PORTFOLIO_VISUAL: {
     sections: [
       { key: "projects", label: "Work", hint: "Your pieces - each one opens full size" },
       { key: "services", label: "Disciplines", hint: "The kinds of work you take on" },
@@ -91,7 +91,7 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
   },
 
   // Freelancer / Services - built to get booked, so the priced list comes first.
-  PORTFOLIO_PROFILE: {
+  PORTFOLIO_SERVICES: {
     sections: [
       { key: "services", label: "Packages", hint: "What you offer and what it costs" },
       { key: "projects", label: "Recent work", hint: "Proof, shown after your packages" },
@@ -106,7 +106,7 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
   },
 
   // Brand / Product - a shop front, so the things come first.
-  PORTFOLIO_BOLD: {
+  PORTFOLIO_BRAND: {
     sections: [
       { key: "services", label: "Products", hint: "What you sell, with prices" },
       { key: "projects", label: "Work", hint: "What you have made" },
@@ -166,6 +166,60 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
       { type: "FAQ", label: "Questions", hint: "Parking, reservations, delivery, dietary options." },
     ],
   },
+
+  // Events - one occasion. No services and no menu; the running order and the
+  // photographs are the content, and both are edited on the Event page.
+  EVENTS_CELEBRATION: {
+    sections: [
+      { key: "event", label: "The occasion", hint: "When and where, dress code, and the running order of the day" },
+      { key: "gallery", label: "Memories", hint: "The photographs - before the day as an invitation, after it as the album" },
+      { key: "sections", label: "Your story", hint: "How you got here, and anything guests should know" },
+    ],
+    blocks: [
+      { type: "ABOUT", label: "Our story", hint: "A short paragraph for your guests - how you met, or what you are celebrating." },
+      { type: "FAQ", label: "Questions", hint: "Parking, children, gifts - the things everyone asks." },
+    ],
+  },
+  // Compact - the same stores as the other menus, described for someone whose
+  // menu is long rather than photogenic.
+  // Shop front - collections you enter, and the things in them.
+  STORE_SHOWCASE: {
+    sections: [
+      { key: "menu", label: "Collections & products", hint: "Your collections, and the products in each. The first product's photo becomes the collection's picture" },
+      { key: "gallery", label: "Photos", hint: "Shown alongside your story, not on the products" },
+      { key: "delivery", label: "Delivery", hint: "Where you deliver, what it costs, and any minimum" },
+      { key: "sections", label: "About & reviews", hint: "Your story, and what customers say" },
+    ],
+    blocks: [
+      { type: "ABOUT", label: "About us", hint: "What you sell, who makes it, and why someone should buy it from you." },
+      { type: "TESTIMONIALS", label: "Reviews", hint: "What customers say about what they bought." },
+    ],
+  },
+
+  // Catalogue - a long list, kept findable.
+  STORE_CATALOG: {
+    sections: [
+      { key: "menu", label: "Collections & products", hint: "Products grouped into collections. This template shows no cover photo, so put your effort into names and prices" },
+      { key: "delivery", label: "Delivery", hint: "Where you deliver, what it costs, and any minimum" },
+      { key: "sections", label: "About", hint: "Opening hours, ordering, returns - the things customers ask" },
+    ],
+    blocks: [
+      { type: "ABOUT", label: "About us", hint: "A short paragraph, shown under the list rather than above it." },
+      { type: "FAQ", label: "Questions", hint: "Delivery times, returns, whether you hold stock - the usual questions." },
+    ],
+  },
+
+  MENU_COMPACT: {
+    sections: [
+      { key: "menu", label: "Menu", hint: "Categories and items. Group them under Food and Beverages to get the top switch" },
+      { key: "gallery", label: "Photos", hint: "Shown in the header only - this template puts no photo next to an item" },
+      { key: "sections", label: "About", hint: "Your story and anything customers ask" },
+    ],
+    blocks: [
+      { type: "ABOUT", label: "About", hint: "A short paragraph about the place, shown on the About tab." },
+      { type: "FAQ", label: "Questions", hint: "Parking, delivery, opening times - the things people ask." },
+    ],
+  },
 };
 
 /**
@@ -190,7 +244,7 @@ export function contentPlanFor(layoutVariant: LayoutVariant, kind: MenuBusinessK
     blocks: plan.blocks.map((block) =>
       block.type === "ABOUT" ? { ...block, label: "About us", hint: "What you sell and who makes it." } : block,
     ),
-  };
+    };
 }
 
 /** What this template calls one particular editor, for a page heading. */

@@ -1,6 +1,7 @@
 "use client";
 
 import { SafeImage } from "@/components/public/SafeImage";
+import { thumbnailUrl } from "@/lib/images/thumbnail-url";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 
@@ -70,7 +71,13 @@ export function PublicMenuListItem({
           className="h-[88px] w-[88px] shrink-0 overflow-hidden"
           style={{ borderRadius: "var(--theme-radius)", background: "var(--theme-surface)" }}
         >
-          <SafeImage src={item.imageUrl} alt="" className="h-full w-full object-cover" />
+          {/* 88px on screen, so the small copy is already twice what it needs; the full picture here was 600KB per row. */}
+          <SafeImage
+            src={thumbnailUrl(item.imageUrl)}
+            fallbackSrc={item.imageUrl}
+            alt=""
+            className="h-full w-full object-cover"
+          />
         </div>
       )}
 

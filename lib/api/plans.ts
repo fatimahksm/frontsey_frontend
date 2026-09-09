@@ -15,6 +15,20 @@ export const plansApi = {
     return apiFetch<TemplatePriceResponse>(`/public/plans/template/${layoutVariant}`);
   },
 
+  /**
+   * The templates currently on offer.
+   *
+   * The picker's own list (TEMPLATE_OPTIONS) is a fixed array of labels and
+   * descriptions - it says what each template *is*, not whether it may be
+   * chosen. That is the admin's call, it lives in template_prices.active, and
+   * this is how the picker learns it. Without it, switching a template off
+   * hid it from pricing and checkout but left it on display, so an owner could
+   * pick it and only hit the wall after building on it.
+   */
+  offeredTemplates(): Promise<TemplatePriceResponse[]> {
+    return apiFetch<TemplatePriceResponse[]>("/public/plans/templates");
+  },
+
   /** How long the free trial runs. Config on the server, so never a literal here. */
   trialDays(): Promise<number> {
     return apiFetch<number>("/public/plans/trial-days");

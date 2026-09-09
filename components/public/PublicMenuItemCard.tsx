@@ -42,6 +42,17 @@ function OptionPill({ selected, onClick, children }: { selected: boolean; onClic
 export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCart, onFirstView, variant = "card" }: Props) {
   const { t } = useLocale();
   const hasOptions = item.sizes.length > 0 || item.boxVariants.length > 0 || item.addonGroups.length > 0;
+  /**
+   * Whether the expanded region would contain anything at all.
+   *
+   * Everything in it - the options, the ingredients, the quantity stepper and
+   * the Add button - can be absent at once: a plain item on a website with
+   * ordering switched off. The region still drew its top border and its
+   * padding, so every such item carried a rule under its price with nothing
+   * beneath it. Visible on any display-only menu, and on every product of a
+   * shop whose owner only wants to show what they sell.
+   */
+  const hasExpandableContent = orderingEnabled || hasOptions || Boolean(item.ingredients);
   /** Card-grid items with nothing to configure skip the click-to-expand step entirely - the quantity stepper and Add to cart button are visible right away, matching a simple grid-of-cards menu. Items with sizes/box variants/addons still require an explicit tap to choose those first. The Elegant variant keeps its original always-click-to-expand, minimal list behavior regardless. */
   const alwaysExpanded = variant === "card" && !hasOptions;
   const [expanded, setExpanded] = useState(alwaysExpanded);
@@ -198,7 +209,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
       {isUnavailable && <p className={`text-xs font-medium text-[color-mix(in_srgb,#f59e0b_55%,var(--foreground))] ${variant === "elegant" ? "mt-2" : "px-4 pb-3"}`}>{t.item.currentlyUnavailable}</p>}
 
       <AnimatePresence initial={false}>
-      {expanded && !isUnavailable && (
+      {expanded && !isUnavailable && hasExpandableContent && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
@@ -251,7 +262,15 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
             ))}
 
           {orderingEnabled && (
-            <div className="flex items-center gap-3">
+            /*
+              Wraps rather than overflows. The button asks not to break its
+              text, so in a narrow card it used to push its own right edge past
+              the card's - which the shop-front template made visible, being
+              the first to put these two to a row on a phone. flex-basis gives
+              it a width to wrap at; on any card wide enough for both it still
+              grows to fill the line beside the stepper, exactly as before.
+            */
+            <div className="flex flex-wrap items-center gap-3">
               <div className="flex h-10 items-center rounded-full border border-[var(--theme-border)]">
                 <button
                   type="button"
@@ -276,7 +295,7 @@ export function PublicMenuItemCard({ item, currency, orderingEnabled, onAddToCar
                 onClick={handleAddToCart}
                 disabled={item.fixedBoxItem && item.boxVariants.length > 0 && !boxVariantId}
                 style={{ borderRadius: "var(--theme-button-radius, 9999px)" }}
-                className="flex h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap bg-foreground px-2 text-sm font-medium text-background transition-transform hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
+                className="flex h-10 flex-1 basis-32 items-center justify-center gap-1.5 whitespace-nowrap bg-foreground px-2 text-sm font-medium text-background transition-transform hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
               >
                 <span aria-hidden>+</span>
                 {t.item.addToCart}

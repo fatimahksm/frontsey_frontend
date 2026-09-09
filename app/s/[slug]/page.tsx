@@ -324,7 +324,7 @@ function Dashboard({ website, accessToken }: SiteAdminContext) {
 
       <p className="text-base leading-relaxed">{sentence}</p>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi
           tone="accent"
           label={`Visits · last ${rangeDays} days`}
@@ -360,7 +360,7 @@ function Dashboard({ website, accessToken }: SiteAdminContext) {
         />
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[1.6fr_1fr]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1.6fr_1fr]">
         <Panel
           title="Visits over time"
           description={`How many times your page was opened each day, compared with ${range.previous}.`}
@@ -414,7 +414,7 @@ function Dashboard({ website, accessToken }: SiteAdminContext) {
         </Panel>
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
         <Panel
           title="Most looked at"
           description="What visitors opened the most."

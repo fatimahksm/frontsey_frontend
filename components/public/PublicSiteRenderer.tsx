@@ -1,12 +1,16 @@
 import { LanguageSwitcher } from "@/components/public/LanguageSwitcher";
 import { PublicMenuSite } from "@/components/public/PublicMenuSite";
 import { PublicMenuSiteBistro } from "@/components/public/PublicMenuSiteBistro";
+import { PublicMenuSiteCompact } from "@/components/public/PublicMenuSiteCompact";
 import { PublicMenuSiteElegant } from "@/components/public/PublicMenuSiteElegant";
 import { PublicMenuSiteGrid } from "@/components/public/PublicMenuSiteGrid";
 import { PublicPortfolioSiteProfessional } from "@/components/public/PublicPortfolioSiteProfessional";
 import { PublicPortfolioSiteBrand } from "@/components/public/PublicPortfolioSiteBrand";
 import { PublicPortfolioSiteVisual } from "@/components/public/PublicPortfolioSiteVisual";
 import { PublicPortfolioSiteServices } from "@/components/public/PublicPortfolioSiteServices";
+import { PublicStoreSiteCatalog } from "@/components/public/PublicStoreSiteCatalog";
+import { PublicStoreSiteShowcase } from "@/components/public/PublicStoreSiteShowcase";
+import { PublicEventsSite } from "@/components/public/PublicEventsSite";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
 
@@ -18,13 +22,21 @@ function renderLayout(site: PublicWebsiteResponse, onFirstView: (itemId: string)
       return <PublicMenuSiteElegant site={site} onFirstView={onFirstView} />;
     case "MENU_BISTRO":
       return <PublicMenuSiteBistro site={site} onFirstView={onFirstView} />;
-    case "PORTFOLIO_MINIMAL":
+    case "MENU_COMPACT":
+      return <PublicMenuSiteCompact site={site} onFirstView={onFirstView} />;
+    case "STORE_SHOWCASE":
+      return <PublicStoreSiteShowcase site={site} onFirstView={onFirstView} />;
+    case "STORE_CATALOG":
+      return <PublicStoreSiteCatalog site={site} onFirstView={onFirstView} />;
+    case "PORTFOLIO_VISUAL":
       return <PublicPortfolioSiteVisual site={site} isSample={isSample} />;
-    case "PORTFOLIO_BOLD":
+    case "PORTFOLIO_BRAND":
       return <PublicPortfolioSiteBrand site={site} isSample={isSample} />;
-    case "PORTFOLIO_PROFILE":
+    case "PORTFOLIO_SERVICES":
       return <PublicPortfolioSiteServices site={site} isSample={isSample} />;
-    case "PORTFOLIO_HERO":
+    case "EVENTS_CELEBRATION":
+      return <PublicEventsSite site={site} />;
+    case "PORTFOLIO_PROFESSIONAL":
       return <PublicPortfolioSiteProfessional site={site} isSample={isSample} />;
     case "MENU_CLASSIC":
     default:

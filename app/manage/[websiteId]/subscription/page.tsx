@@ -343,7 +343,7 @@ export default function SubscriptionPage() {
           }
         >
           {pricing ? (
-            <ul className="grid gap-3 sm:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {billingOptions.map((option) => {
                 const current = isCurrent(option.period);
                 // The locked option stays visible - an owner should see what they

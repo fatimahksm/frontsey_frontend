@@ -201,7 +201,7 @@ export default function ProjectsPage() {
               value={form.name ?? ""}
               onChange={(e) => set("name", e.target.value)}
             />
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <TextField
                 id="discipline"
                 label="Type of work"
@@ -239,7 +239,7 @@ export default function ProjectsPage() {
               onChange={(url) => set("imageUrl", url)}
               accessToken={accessToken}
             />
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <TextField
                 id="liveUrl"
                 label="Link"

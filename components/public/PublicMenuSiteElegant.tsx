@@ -8,7 +8,11 @@ import { Reveal } from "@/components/motion/Reveal";
 import { PublicMenuItemCard } from "@/components/public/PublicMenuItemCard";
 import type { PublicWebsiteResponse } from "@/lib/api/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { ListControls } from "@/components/public/ListControls";
+import { ShowMore } from "@/components/public/ShowMore";
+import { CONTROLS_THRESHOLD, countItems, takeFromGroups } from "@/lib/site/item-query";
 import { itemsUnder } from "@/lib/site/menu-categories";
+import { useListControls } from "@/lib/site/use-list-controls";
 import { itemMatchesQuery } from "@/lib/site/menu-search";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { themeCssVars, themeHeadingStyle } from "@/lib/website/theme-config";
@@ -32,9 +36,14 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
   const [query, setQuery] = useState("");
 
   const content = parseDraftContent(site.publishedContent);
+  const list = useListControls(query.trim());
   const visibleCategories = site.categories
-    .map((category) => ({ ...category, items: itemsUnder(category).filter((item) => itemMatchesQuery(item, query)) }))
+    .map((category) => ({ ...category, items: list.refine(itemsUnder(category).filter((item) => itemMatchesQuery(item, query))) }))
     .filter((category) => category.items.length > 0);
+  const total = countItems(visibleCategories);
+  const pagedCategories = takeFromGroups(visibleCategories, list.limit);
+  const shown = countItems(pagedCategories);
+  const menuSize = site.categories.reduce((sum, category) => sum + itemsUnder(category).length, 0);
 
   return (
     // `text-foreground` is not decoration. themeCssVars redeclares --foreground
@@ -69,12 +78,18 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
           />
         )}
 
+        {menuSize >= CONTROLS_THRESHOLD && (
+          <div className="mb-8 flex justify-center">
+            <ListControls {...list.controlProps} currency={site.currency} />
+          </div>
+        )}
+
         {site.categories.length > 0 && visibleCategories.length === 0 && (
           <p className="text-center text-sm text-[var(--theme-text-muted)]">{t.filter.noResults}</p>
         )}
 
         <div className="flex flex-col" style={{ gap: "var(--theme-section-gap, 2.5rem)" }}>
-          {visibleCategories.map((category) => (
+          {pagedCategories.map((category) => (
             <section key={category.id}>
               <Reveal as="div">
                 <h2 className="mb-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[var(--theme-text-muted)]">{category.name}</h2>
@@ -95,6 +110,8 @@ export function PublicMenuSiteElegant({ site, onFirstView }: { site: PublicWebsi
             </section>
           ))}
         </div>
+
+        <ShowMore shown={shown} total={total} onShowMore={list.showMore} shape="square" />
       </div>
     </div>
   );

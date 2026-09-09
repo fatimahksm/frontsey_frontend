@@ -139,14 +139,14 @@ export default function AdminDashboardPage() {
 
         {/* Headline numbers for the chosen window - the ones a chart would only
             get in the way of. */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Stat value={String(newSignups)} label="New accounts" hint={`in the last ${days} days`} />
           <Stat value={String(wentLive)} label="Sites published" hint={`${newSites} created`} />
           <Stat value={formatMoney(takings)} label="Taken" hint={`in the last ${days} days`} />
           <Stat value={String(paying)} label="Paying now" hint={`${report.onFreeTrial} on a free trial`} />
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Panel title="Sign-ups and sites" hint="New accounts, websites created, and websites published each day.">
             <TrendLines
               series={[

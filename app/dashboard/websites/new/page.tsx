@@ -16,13 +16,18 @@ import { TextField } from "@/components/ui/TextField";
 import { friendlyMessage } from "@/lib/api/client";
 import { themeApi } from "@/lib/api/theme";
 import { websitesApi } from "@/lib/api/websites";
+import { plansApi } from "@/lib/api/plans";
 import type { LayoutVariant, PageMode, TemplateType, ThemeResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import { mockSiteFor } from "@/lib/mock-preview-data";
 import { BestForChips } from "@/components/dashboard/BestForChips";
 import { SETUP_STEPS } from "@/components/website-setup/SetupWizard";
-import { MENU_BUSINESS_KINDS, serializeDraftContent, EMPTY_DRAFT_CONTENT, type MenuBusinessKind } from "@/lib/website/draft-content";
-import { TEMPLATE_OPTIONS, WEBSITE_TYPES, defaultLayoutVariant } from "@/lib/website/layout-options";
+import {
+  defaultOfferedLayoutVariant,
+  defaultLayoutVariant,
+  offeredTemplates,
+  offeredWebsiteTypes,
+} from "@/lib/website/layout-options";
 
 /** BR-SITE-001..004: name, template type, page mode, and an optional theme (null = build from scratch). Steps 1-2 of the guided creation wizard - steps 3-4 continue at /dashboard/websites/{id}/setup once the website exists. */
 export default function NewWebsitePage() {
@@ -33,7 +38,6 @@ export default function NewWebsitePage() {
   const [themes, setThemes] = useState<ThemeResponse[]>([]);
   const [businessName, setBusinessName] = useState("");
   const [templateType, setTemplateType] = useState<TemplateType>("MENU_ORDERING");
-  const [menuBusinessKind, setMenuBusinessKind] = useState<MenuBusinessKind>("FOOD");
   const [layoutVariant, setLayoutVariant] = useState<LayoutVariant>("MENU_CLASSIC");
   const [pageMode, setPageMode] = useState<PageMode>("ONE_PAGE");
   const [themeId, setThemeId] = useState("");
@@ -41,13 +45,45 @@ export default function NewWebsitePage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Which templates the platform is currently offering. Null while it loads, or
+  // if the lookup fails, which shows everything rather than an empty wizard -
+  // the server refuses a withdrawn template regardless, so this is
+  // presentation, not the rule.
+  const [offered, setOffered] = useState<Set<LayoutVariant> | null>(null);
+
   useEffect(() => {
     themeApi.list().then(setThemes).catch(() => setThemes([]));
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    plansApi
+      .offeredTemplates()
+      .then((templates) => {
+        if (cancelled) return;
+        const available = new Set(templates.map((template) => template.layoutVariant));
+        setOffered(available);
+        // The default is the first template of this kind, which may itself have
+        // been withdrawn - so move off it rather than pre-selecting something
+        // the owner is not allowed to create.
+        setLayoutVariant((current) =>
+          available.has(current) ? current : defaultOfferedLayoutVariant(templateType, available));
+      })
+      .catch(() => {
+        // Leave it null - see above.
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once; templateType changes are handled by selectTemplateType
+  }, []);
+
+  const websiteTypes = offeredWebsiteTypes(offered);
+  const templateOptions = offeredTemplates(templateType, offered);
+
   function selectTemplateType(type: TemplateType) {
     setTemplateType(type);
-    setLayoutVariant(defaultLayoutVariant(type));
+    setLayoutVariant(defaultOfferedLayoutVariant(type, offered));
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -64,16 +100,6 @@ export default function NewWebsitePage() {
       });
       if (layoutVariant !== defaultLayoutVariant(templateType)) {
         await websitesApi.updateLayoutVariant(session.accessToken, website.id, layoutVariant);
-      }
-      // Saved as part of the draft blob, which is where the rest of the
-      // freeform page content already lives - no new column, no migration.
-      if (templateType === "MENU_ORDERING" && menuBusinessKind !== "FOOD") {
-        await websitesApi
-          .saveDraft(session.accessToken, website.id, {
-            content: serializeDraftContent({ ...EMPTY_DRAFT_CONTENT, menuBusinessKind }),
-            orderingMode: website.orderingMode,
-          })
-          .catch(() => undefined);
       }
       router.push(`/manage/${website.id}/setup`);
     } catch (err) {
@@ -93,8 +119,8 @@ export default function NewWebsitePage() {
           </div>
         </Reveal>
 
-        <StaggerGroup className="mt-6 grid gap-3 sm:grid-cols-2">
-          {WEBSITE_TYPES.map((option) => {
+        <StaggerGroup className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {websiteTypes.map((option) => {
             const isSelected = templateType === option.value;
             return (
               <StaggerItem key={option.value}>
@@ -120,35 +146,13 @@ export default function NewWebsitePage() {
           })}
         </StaggerGroup>
 
-        {/* The menu layouts sell a shop's stock as readily as a kitchen's
-            menu, but everything about them - the samples, the labels - spoke
-            only to restaurants. Asking here costs one tap and changes the
-            wording and the previews from this point on. */}
-        {templateType === "MENU_ORDERING" && (
-          <div className="mt-6">
-            <p className="text-sm font-medium">What do you sell?</p>
-            <div className="mt-2 grid gap-3 sm:grid-cols-2">
-              {MENU_BUSINESS_KINDS.map((option) => {
-                const isSelected = menuBusinessKind === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setMenuBusinessKind(option.value)}
-                    className={`flex w-full cursor-pointer flex-col gap-1 rounded-2xl border p-4 text-left text-sm transition-colors duration-200 ${
-                      isSelected
-                        ? "border-[var(--accent-solid)] bg-[var(--accent-solid)]/8"
-                        : "border-black/[.08] bg-surface hover:bg-black/[.02] dark:border-white/[.145] dark:hover:bg-white/[.04]"
-                    }`}
-                  >
-                    <span className="font-semibold">{option.label}</span>
-                    <span className="text-zinc-500 dark:text-zinc-400">{option.description}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        {/*
+          This used to be followed by a second question - "What do you sell?",
+          food or products - which turned a menu website into a shop by
+          renaming its labels. A shop is its own kind of website now, chosen
+          above like any other, so the question is gone: picking "Online shop"
+          is the answer to it.
+        */}
 
         <Button className="mt-6" onClick={() => setStep(2)}>
           Next: choose a template
@@ -172,8 +176,8 @@ export default function NewWebsitePage() {
         </div>
       </Reveal>
 
-      <StaggerGroup className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {TEMPLATE_OPTIONS[templateType].map((option) => {
+      <StaggerGroup className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {templateOptions.map((option) => {
           const isSelected = layoutVariant === option.value;
           return (
             <StaggerItem key={option.value}>
@@ -193,7 +197,7 @@ export default function NewWebsitePage() {
               >
                 <div className="flex justify-center overflow-hidden rounded-xl border border-black/[.08] dark:border-white/[.145]">
                   <ScaledPreviewFrame>
-                    <PublicSiteRenderer site={mockSiteFor(option.value, menuBusinessKind)} onFirstView={() => {}} isSample />
+                    <PublicSiteRenderer site={mockSiteFor(option.value)} onFirstView={() => {}} isSample />
                   </ScaledPreviewFrame>
                 </div>
                 <div className="mt-3 flex items-start justify-between gap-2">
@@ -203,7 +207,7 @@ export default function NewWebsitePage() {
                     <BestForChips items={option.bestFor} />
                   </div>
                   <a
-                    href={`/preview/mock/${option.value}${menuBusinessKind === "SHOP" ? "?kind=SHOP" : ""}`}
+                    href={`/preview/mock/${option.value}`}
                     target="_blank"
                     onClick={(e) => e.stopPropagation()}
                     className="shrink-0 text-xs font-medium text-[var(--accent-solid)] hover:underline"
@@ -219,11 +223,11 @@ export default function NewWebsitePage() {
 
       <div className="mt-8">
         <p className="mb-2 text-sm font-medium">
-          Live preview - {TEMPLATE_OPTIONS[templateType].find((o) => o.value === layoutVariant)?.label}
+          Live preview - {templateOptions.find((o) => o.value === layoutVariant)?.label}
         </p>
         <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
           <ScaledPreviewFrame width={820} height={520}>
-            <PublicSiteRenderer site={mockSiteFor(layoutVariant, menuBusinessKind)} onFirstView={() => {}} isSample />
+            <PublicSiteRenderer site={mockSiteFor(layoutVariant)} onFirstView={() => {}} isSample />
           </ScaledPreviewFrame>
         </div>
       </div>

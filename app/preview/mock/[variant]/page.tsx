@@ -5,6 +5,7 @@ import { use, useEffect, useState } from "react";
 import { PublicSiteRenderer } from "@/components/public/PublicSiteRenderer";
 import type { LayoutVariant } from "@/lib/api/types";
 import { mockSiteFor } from "@/lib/mock-preview-data";
+import { plansApi } from "@/lib/api/plans";
 import type { MenuBusinessKind } from "@/lib/website/draft-content";
 
 interface Props {
@@ -27,6 +28,44 @@ export default function MockPreviewPage({ params }: Props) {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reading the URL is a one-time sync with the browser, not derivable state
     setKind(new URLSearchParams(window.location.search).get("kind") === "SHOP" ? "SHOP" : "FOOD");
   }, []);
+
+  // This page is the sales gallery: it shows a template to somebody deciding
+  // whether to pick it. A template the admin has withdrawn is not on sale, and
+  // the URL is guessable, so it must not render one here just because nobody
+  // linked to it. An owner looking at the template their own site already uses
+  // sees it on the Layout tab, which renders the sample inline and is not
+  // affected by this.
+  //
+  // Null while the lookup is in flight or if it failed - the design still
+  // renders then, for the same reason the picker still lists everything: a
+  // momentary failure should not look like the product is broken.
+  const [offered, setOffered] = useState<Set<LayoutVariant> | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    plansApi
+      .offeredTemplates()
+      .then((templates) => {
+        if (!cancelled) setOffered(new Set(templates.map((template) => template.layoutVariant)));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (offered && !offered.has(variant as LayoutVariant)) {
+    return (
+      <main className="flex min-h-screen items-center justify-center p-8 text-center">
+        <div className="max-w-sm">
+          <h1 className="text-lg font-semibold tracking-tight">This design is not available</h1>
+          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+            It is not one of the templates on offer right now. Pick another from the gallery.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
   const site = mockSiteFor(variant as LayoutVariant, kind);
 
   return (
