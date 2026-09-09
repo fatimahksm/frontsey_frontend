@@ -242,7 +242,18 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
             className="mx-auto h-10 w-full max-w-6xl rounded-xl border border-[var(--theme-border)] bg-surface px-3.5 text-sm text-foreground outline-none transition-all duration-200 placeholder:text-[var(--theme-text-muted)] focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40"
           />
           {visibleCategories.length > 0 && (
-            <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto">
+            /*
+              w-full is what makes overflow-x-auto work here.
+
+              An auto margin on the cross axis cancels a flex item's stretch,
+              so `mx-auto` in this column left the strip sized to its content -
+              375px of chips inside a 272px container - and the page scrolled
+              sideways while the strip itself never scrolled at all. The search
+              field beside it was fine for the one reason this now matches:
+              it asks for w-full. Only visible below 375px, which is why it
+              stood until a 320px browser project went looking.
+            */
+            <div className="mx-auto flex w-full max-w-6xl gap-2 overflow-x-auto">
               {visibleCategories.map((category) => (
                 <button
                   key={category.id}

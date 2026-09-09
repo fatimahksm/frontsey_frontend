@@ -1182,6 +1182,37 @@ function mockStoreSite(layoutVariant: "STORE_SHOWCASE" | "STORE_CATALOG"): Publi
  * caring which template family it belongs to. `kind` only matters for the menu
  * layouts, where it decides whether the sample is a kitchen or a shop.
  */
+/**
+ * The same sample, padded out to `count` products.
+ *
+ * Twelve products is the right size for showing a design off, and the wrong
+ * size for seeing what it does with a real shop's stock - the paging, the
+ * sticky headings, the sheer length of it. This repeats the sample's own
+ * products across its own collections until there are `count` of them, so the
+ * preview can be asked for a hundred without inventing a hundred names.
+ *
+ * Only ever reachable from the sample preview, which renders no real site's
+ * data under any circumstances.
+ */
+export function withProductCount(site: PublicWebsiteResponse, count: number): PublicWebsiteResponse {
+  const originals = site.categories.flatMap((category) => category.items);
+  if (originals.length === 0 || count <= originals.length) return site;
+
+  const perCategory = Math.ceil(count / site.categories.length);
+  let made = 0;
+  return {
+    ...site,
+    categories: site.categories.map((category, categoryIndex) => ({
+      ...category,
+      items: Array.from({ length: perCategory }, (_, i) => {
+        const source = originals[(categoryIndex * perCategory + i) % originals.length];
+        made += 1;
+        return { ...source, id: `${source.id}-x${made}`, name: `${source.name} ${made}` };
+      }),
+    })),
+  };
+}
+
 export function mockSiteFor(layoutVariant: LayoutVariant, kind: MenuBusinessKind = "FOOD"): PublicWebsiteResponse {
   switch (layoutVariant) {
     case "MENU_CLASSIC":

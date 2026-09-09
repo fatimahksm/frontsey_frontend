@@ -37,10 +37,14 @@ export default defineConfig({
     // The public templates, in both schemes on purpose: the public site must
     // follow the owner's theme rather than the visitor's device, and several
     // bugs here were only ever visible in one of the two.
-    { name: "desktop-light", testMatch: /template-smoke/, use: { ...devices["Desktop Chrome"], colorScheme: "light", launchOptions: { executablePath: chromium } } },
+    { name: "desktop-light", testMatch: /template-smoke|store-paging/, use: { ...devices["Desktop Chrome"], colorScheme: "light", launchOptions: { executablePath: chromium } } },
     { name: "desktop-dark", testMatch: /template-smoke/, use: { ...devices["Desktop Chrome"], colorScheme: "dark", launchOptions: { executablePath: chromium } } },
-    { name: "mobile-light", testMatch: /template-smoke/, use: { ...devices["Pixel 7"], colorScheme: "light", launchOptions: { executablePath: chromium } } },
+    { name: "mobile-light", testMatch: /template-smoke|store-paging/, use: { ...devices["Pixel 7"], colorScheme: "light", launchOptions: { executablePath: chromium } } },
     { name: "mobile-dark", testMatch: /template-smoke/, use: { ...devices["Pixel 7"], colorScheme: "dark", launchOptions: { executablePath: chromium } } },
+    // 320px: the narrowest phone still in real use, and where five of the
+    // console's layout faults were found. The templates get it too, since a
+    // page that scrolls sideways is a page that scrolls sideways.
+    { name: "narrow-phone", testMatch: /template-smoke/, use: { ...devices["Desktop Chrome"], viewport: { width: 320, height: 720 }, isMobile: false, launchOptions: { executablePath: chromium } } },
     // The owner's console sets its own widths and does not depend on the
     // colour scheme, so it runs once rather than four times.
     // localhost rather than 127.0.0.1, which is the same machine and a

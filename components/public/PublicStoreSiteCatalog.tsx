@@ -68,66 +68,71 @@ function ProductRow({
   const now = item.discountPrice ?? item.price;
 
   return (
-    <li
-      ref={() => onFirstView(item.id)}
-      className={`group grid grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-[var(--cat-rule)] py-3 transition-colors last:border-b-0 hover:bg-[var(--cat-hover)] sm:gap-4 ${
-        unavailable ? "opacity-55" : ""
-      }`}
-    >
-      <div className="flex items-center gap-3">
-        {/* The line number. A catalogue is referred to by position as much as
-            by name - "the third one down" is how a counter conversation goes. */}
-        <span className="w-6 shrink-0 text-end text-[11px] tabular-nums text-[var(--cat-faint)]">
-          {String(index).padStart(2, "0")}
-        </span>
-        {showThumbnail && (
-          <span className="h-11 w-11 shrink-0 overflow-hidden rounded bg-[var(--cat-tint)] sm:h-14 sm:w-14">
-            {item.imageUrl && (
-              <SafeImage
-                src={thumbnailUrl(item.imageUrl)}
-                alt=""
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-            )}
+    <li>
+      {/* An <article> because a listed product is a self-contained thing, the
+          same as it is on the other shop template - which also means one
+          selector finds a product on either of them. */}
+      <article
+        ref={() => onFirstView(item.id)}
+        className={`group grid grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-[var(--cat-rule)] py-3 transition-colors hover:bg-[var(--cat-hover)] sm:gap-4 ${
+          unavailable ? "opacity-55" : ""
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          {/* The line number. A catalogue is referred to by position as much as
+              by name - "the third one down" is how a counter conversation goes. */}
+          <span className="w-6 shrink-0 text-end text-[11px] tabular-nums text-[var(--cat-faint)]">
+            {String(index).padStart(2, "0")}
           </span>
-        )}
-      </div>
-
-      <div className="min-w-0">
-        <p className="truncate text-sm font-semibold sm:text-[15px]">{item.name}</p>
-        {item.description && (
-          <p className="mt-0.5 line-clamp-1 text-xs text-[var(--cat-muted)]">{item.description}</p>
-        )}
-        {unavailable && (
-          <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--accent-ink)]">
-            {t.item.currentlyUnavailable}
-          </p>
-        )}
-      </div>
-
-      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-        <span className="text-end">
-          <span className="block text-sm font-semibold tabular-nums sm:text-base">
-            {formatMoney(now, currency)}
-          </span>
-          {item.discountPrice != null && (
-            <span className="block text-[11px] tabular-nums text-[var(--cat-faint)] line-through">
-              {formatMoney(item.price, currency)}
+          {showThumbnail && (
+            <span className="h-11 w-11 shrink-0 overflow-hidden rounded bg-[var(--cat-tint)] sm:h-14 sm:w-14">
+              {item.imageUrl && (
+                <SafeImage
+                  src={thumbnailUrl(item.imageUrl)}
+                  alt=""
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              )}
             </span>
           )}
-        </span>
+        </div>
 
-        {orderingEnabled && !unavailable && (
-          <button
-            type="button"
-            onClick={() => onAdd(item)}
-            aria-label={`${t.item.addToCart}: ${item.name}`}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--cat-rule)] text-lg leading-none transition-colors hover:border-transparent hover:bg-[var(--accent-solid)] hover:text-[color:var(--accent-contrast)]"
-          >
-            +
-          </button>
-        )}
-      </div>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold sm:text-[15px]">{item.name}</p>
+          {item.description && (
+            <p className="mt-0.5 line-clamp-1 text-xs text-[var(--cat-muted)]">{item.description}</p>
+          )}
+          {unavailable && (
+            <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--accent-ink)]">
+              {t.item.currentlyUnavailable}
+            </p>
+          )}
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <span className="text-end">
+            <span className="block text-sm font-semibold tabular-nums sm:text-base">
+              {formatMoney(now, currency)}
+            </span>
+            {item.discountPrice != null && (
+              <span className="block text-[11px] tabular-nums text-[var(--cat-faint)] line-through">
+                {formatMoney(item.price, currency)}
+              </span>
+            )}
+          </span>
+
+          {orderingEnabled && !unavailable && (
+            <button
+              type="button"
+              onClick={() => onAdd(item)}
+              aria-label={`${t.item.addToCart}: ${item.name}`}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--cat-rule)] text-lg leading-none transition-colors hover:border-transparent hover:bg-[var(--accent-solid)] hover:text-[color:var(--accent-contrast)]"
+            >
+              +
+            </button>
+          )}
+        </div>
+      </article>
     </li>
   );
 }
