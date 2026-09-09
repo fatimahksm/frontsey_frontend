@@ -73,12 +73,15 @@ export default function MenuImportPage() {
       {error && <Alert tone="error">{error}</Alert>}
 
       <Card title="1. Choose file">
-        <div className="flex items-center gap-3">
+        {/* A file input carries a wide intrinsic size - its button plus the
+            filename - and a flex child will not shrink below that on its own.
+            Wrapping is what keeps this row inside a phone. */}
+        <div className="flex flex-wrap items-center gap-3">
           <input
             type="file"
             accept=".csv,text/csv"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="text-sm"
+            className="max-w-full text-sm"
           />
           <Button className="w-auto px-4" onClick={handlePreview} isLoading={isBusy} disabled={!file}>
             Preview

@@ -34,19 +34,31 @@ export default defineConfig({
   },
 
   projects: [
-    // Both schemes, on purpose. The public site must follow the owner's theme
-    // rather than the visitor's device, and several bugs here were only ever
-    // visible in one of the two.
-    { name: "desktop-light", use: { ...devices["Desktop Chrome"], colorScheme: "light", launchOptions: { executablePath: chromium } } },
-    { name: "desktop-dark", use: { ...devices["Desktop Chrome"], colorScheme: "dark", launchOptions: { executablePath: chromium } } },
-    { name: "mobile-light", use: { ...devices["Pixel 7"], colorScheme: "light", launchOptions: { executablePath: chromium } } },
-    { name: "mobile-dark", use: { ...devices["Pixel 7"], colorScheme: "dark", launchOptions: { executablePath: chromium } } },
+    // The public templates, in both schemes on purpose: the public site must
+    // follow the owner's theme rather than the visitor's device, and several
+    // bugs here were only ever visible in one of the two.
+    { name: "desktop-light", testMatch: /template-smoke/, use: { ...devices["Desktop Chrome"], colorScheme: "light", launchOptions: { executablePath: chromium } } },
+    { name: "desktop-dark", testMatch: /template-smoke/, use: { ...devices["Desktop Chrome"], colorScheme: "dark", launchOptions: { executablePath: chromium } } },
+    { name: "mobile-light", testMatch: /template-smoke/, use: { ...devices["Pixel 7"], colorScheme: "light", launchOptions: { executablePath: chromium } } },
+    { name: "mobile-dark", testMatch: /template-smoke/, use: { ...devices["Pixel 7"], colorScheme: "dark", launchOptions: { executablePath: chromium } } },
+    // The owner's console sets its own widths and does not depend on the
+    // colour scheme, so it runs once rather than four times.
+    // localhost rather than 127.0.0.1, which is the same machine and a
+    // different origin as far as the API's CORS list is concerned - the
+    // console suite signs in for real, so it has to come from an origin the
+    // API allows.
+    { name: "console", testMatch: /console-responsive/, use: { ...devices["Desktop Chrome"], baseURL: "http://localhost:3100", launchOptions: { executablePath: chromium } } },
   ],
 
   webServer: {
     command: "npm run build && npx next start --port 3100",
     url: "http://127.0.0.1:3100",
-    reuseExistingServer: !process.env.CI,
+    // Never reuse. A server left running from an earlier build serves the code
+    // from that build, so the suite passes on what was there before the change
+    // under test - which is exactly how a deliberately broken layout once went
+    // green here. Rebuilding every run costs a few seconds and is the only
+    // thing that makes a green run mean anything.
+    reuseExistingServer: false,
     timeout: 180_000,
   },
 });

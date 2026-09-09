@@ -113,7 +113,7 @@ function TestimonialsBlock({ tone, data }: { tone: SectionTone; data: Testimonia
     : "border-[var(--theme-border)] bg-surface hover:border-[var(--accent-solid)]/40";
 
   return (
-    <StaggerGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <StaggerGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {data.items.map((item, i) => (
         <StaggerItem key={i}>
           <motion.figure

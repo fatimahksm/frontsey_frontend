@@ -129,7 +129,7 @@ export default function AnalyticsPage() {
             )}
           </Card>
 
-          <div className="grid gap-6 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <Card title="Referral source">
               <ul className="flex flex-col gap-1.5 text-sm">
                 {Object.entries(summary.visitsByReferralSource).map(([source, count]) => (

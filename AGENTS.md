@@ -29,3 +29,23 @@ never mistaken for coverage it does not have.
 Note that `images.unsplash.com` is blocked in the sandbox, so the sample photos
 fall back to `SafeImage`'s drawn placeholder. That is expected, and the failed
 requests are filtered out of the console-error check.
+
+Run that suite with the API stopped. It is built to need no backend; one that
+is running but does not allow the suite's origin turns every template red with
+a CORS error that says nothing about the templates.
+
+# The owner's console
+
+```bash
+E2E_EMAIL=... E2E_PASSWORD=... E2E_WEBSITE_ID=... npx playwright test --project=console
+```
+
+Twenty-odd pages at 320, 390, 768 and 1280, asserting only that nothing sticks
+out past the edge of the screen. Unlike the template suite this one signs in,
+so it needs the API running with `http://localhost:3100` in its allowed
+origins; without the three variables it skips rather than failing.
+
+It exists because the console had no browser test at all, and the first run of
+it found the top navigation pushing every dashboard page sideways on any phone,
+plus five more pages doing the same at 320. All of those were invisible to
+`tsc`, `eslint` and `npm run build`.

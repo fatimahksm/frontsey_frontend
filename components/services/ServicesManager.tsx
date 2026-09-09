@@ -191,7 +191,7 @@ export function ServicesManager() {
             value={draft.description ?? ""}
             onChange={(e) => setDraft({ ...draft, description: e.target.value })}
           />
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <TextField
               id="servicePrice"
               label="Price (leave blank for 'on request')"

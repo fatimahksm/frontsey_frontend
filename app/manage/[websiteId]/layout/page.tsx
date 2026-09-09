@@ -80,13 +80,16 @@ export default function LayoutPage() {
       </div>
       {error && <Alert tone="error">{error}</Alert>}
 
-      <StaggerGroup className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <StaggerGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {options.map((option) => {
           const isSelected = website.layoutVariant === option.value;
           const mockSite = mockSiteFor(option.value, kind);
 
           return (
-            <StaggerItem key={option.value}>
+            // min-w-0 on the grid item: without it a grid child will not
+            // shrink below its content, so the fixed-width preview inside
+            // widened its own column and took the page with it.
+            <StaggerItem key={option.value} className="min-w-0">
               <Card>
                 <div
                   role="button"
@@ -98,7 +101,12 @@ export default function LayoutPage() {
                       setPreviewVariant(option.value);
                     }
                   }}
-                  className={`flex w-full cursor-pointer justify-center overflow-x-auto rounded-xl transition-shadow ${
+                  // min-w-0: a grid and flex child defaults to min-width:auto,
+                  // which is its content's width - so the fixed 360px preview
+                  // widened the track it sits in and overflow-x-auto here had
+                  // nothing to scroll. With it the card fits the phone and the
+                  // preview scrolls inside the card.
+                  className={`flex w-full min-w-0 cursor-pointer justify-center overflow-x-auto rounded-xl transition-shadow ${
                     previewVariant === option.value ? "ring-2 ring-[var(--accent-solid)]" : ""
                   }`}
                 >
@@ -142,7 +150,7 @@ export default function LayoutPage() {
         <p className="mb-2 text-sm font-medium">
           Live preview - {options.find((o) => o.value === previewVariant)?.label}
         </p>
-        <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
+        <div className="flex min-w-0 justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
           <ScaledPreviewFrame width={820} height={520}>
             <PublicSiteRenderer site={mockSiteFor(previewVariant, kind)} onFirstView={() => {}} isSample />
           </ScaledPreviewFrame>

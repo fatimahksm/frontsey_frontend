@@ -46,7 +46,7 @@ export function ThemeConfigForm({ config, onChange }: Props) {
     <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-black/[.12] p-4 dark:border-white/[.18]">
       <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Design system</p>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <ColorField id="primaryColor" label="Primary color" value={config.primaryColor} onChange={(v) => onChange("primaryColor", v)} />
         <ColorField id="secondaryColor" label="Secondary color" value={config.secondaryColor} onChange={(v) => onChange("secondaryColor", v)} />
         <ColorField id="backgroundColor" label="Background color" value={config.backgroundColor} onChange={(v) => onChange("backgroundColor", v)} />
@@ -54,7 +54,7 @@ export function ThemeConfigForm({ config, onChange }: Props) {
         <ColorField id="textColor" label="Text color" value={config.textColor} onChange={(v) => onChange("textColor", v)} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Select
           id="fontFamily"
           label="Body font"

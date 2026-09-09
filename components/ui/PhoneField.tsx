@@ -46,7 +46,10 @@ export function PhoneField({ id, label, value, onChange }: Props) {
           value={localNumber}
           onChange={(e) => update(dialCode, e.target.value)}
           placeholder="70 123 456"
-          className="h-11 flex-1 rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
+          // min-w-0: flex-1 lets a child grow, it does not let it shrink below
+          // its own placeholder. Beside a fixed 112px country select on a
+          // 320px phone, that pushed the field past the edge of the card.
+          className="h-11 min-w-0 flex-1 rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
         />
       </div>
     </label>

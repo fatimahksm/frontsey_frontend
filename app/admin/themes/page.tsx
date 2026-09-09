@@ -141,7 +141,7 @@ export default function AdminThemesPage() {
             onChange={(e) => setDraft({ ...draft, description: e.target.value })}
           />
 
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <ThemeConfigForm config={draft.config} onChange={updateConfig} />
             <div>
               <p className="mb-2 text-sm font-medium">Live preview</p>

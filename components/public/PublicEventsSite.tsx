@@ -101,7 +101,7 @@ export function PublicEventsSite({ site }: { site: PublicWebsiteResponse }) {
 
       {facts.length > 0 && (
         <section className="mx-auto max-w-3xl px-6 py-16">
-          <dl className="grid gap-8 sm:grid-cols-2">
+          <dl className="grid grid-cols-1 gap-8 sm:grid-cols-2">
             {facts.map((fact) => (
               <div key={fact.label}>
                 <dt className="text-xs uppercase tracking-[0.24em] text-[var(--events-muted)]">{fact.label}</dt>

@@ -162,7 +162,7 @@ export default function AdminTemplatePricingPage() {
             <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
               {family.label}
             </h2>
-            <StaggerGroup className="grid gap-4 sm:grid-cols-2">
+            <StaggerGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {family.rows.map((price) => {
                 const isEditing = editing === price.layoutVariant;
                 const yearlySaving = price.monthlyPrice * 12 - price.yearlyPrice;
@@ -171,7 +171,7 @@ export default function AdminTemplatePricingPage() {
                     <Card title={templateLabel(price.layoutVariant, price.templateType)}>
                       {isEditing && draft ? (
                         <div className="flex flex-col gap-3">
-                          <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <TextField
                               id={`monthly-${price.id}`}
                               label="Monthly price"

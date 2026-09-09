@@ -308,7 +308,7 @@ export function PublicMenuSiteGrid({ site, onFirstView }: { site: PublicWebsiteR
               <Reveal as="div">
                 <h2 className="mb-4 text-xl font-semibold tracking-tight">{category.name}</h2>
               </Reveal>
-              <StaggerGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <StaggerGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {category.items.map((item) => (
                   <StaggerItem key={item.id}>
                     <PublicMenuItemCard

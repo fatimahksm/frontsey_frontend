@@ -105,7 +105,7 @@ export default function DeliveryAreasPage() {
           </StaggerGroup>
         )}
 
-        <form onSubmit={handleCreate} className="mt-5 grid gap-4 sm:grid-cols-2">
+        <form onSubmit={handleCreate} className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <TextField id="areaName" label="Area name" value={name} onChange={(e) => setName(e.target.value)} />
           <TextField id="areaFee" label="Delivery fee" type="number" step="0.01" min="0" value={fee} onChange={(e) => setFee(e.target.value)} />
           <TextField

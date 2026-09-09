@@ -129,7 +129,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
       </header>
 
       <section className="relative px-6 py-14 sm:px-12 sm:py-20">
-        <div className="mx-auto grid w-full max-w-6xl gap-10 sm:grid-cols-2 sm:items-center">
+        <div className="mx-auto grid grid-cols-1 w-full max-w-6xl gap-10 sm:grid-cols-2 sm:items-center">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl" style={themeHeadingStyle()}>
               {site.businessName}
@@ -215,7 +215,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                 {isShop ? t.bistro.bundlesSubtitle : t.bistro.comboBoxesSubtitle}
               </p>
             </Reveal>
-            <StaggerGroup className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <StaggerGroup className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {comboItems.map((item) => (
                 <StaggerItem key={item.id}>
                   <PublicMenuItemCard
@@ -274,7 +274,7 @@ export function PublicMenuSiteBistro({ site, onFirstView }: { site: PublicWebsit
                 <Reveal as="div">
                   <h2 className="mb-4 text-xl font-semibold tracking-tight">{category.name}</h2>
                 </Reveal>
-                <StaggerGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <StaggerGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {category.items.slice(0, limitFor(category.id)).map((item) => (
                     <StaggerItem key={item.id}>
                       <PublicMenuItemCard

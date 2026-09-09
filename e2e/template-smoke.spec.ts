@@ -13,6 +13,13 @@ import type { LayoutVariant } from "../lib/api/types";
  * Every one of those has actually happened here. The theme palette being
  * applied inline once forced a deliberately dark layout light and left its
  * white text invisible, and `npm run build` was perfectly happy with it.
+ *
+ * Run it with the API stopped. The mock preview asks the API which templates
+ * are still offered, and with nothing listening that request fails in a way
+ * the console-error check already filters out. An API that is up but does not
+ * allow this suite's origin fails it as a CORS error instead, which is not
+ * filtered - and then every template fails at once for a reason that has
+ * nothing to do with templates.
  */
 
 const LAYOUTS = [

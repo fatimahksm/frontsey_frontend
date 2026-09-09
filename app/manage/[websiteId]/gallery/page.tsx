@@ -134,7 +134,7 @@ export default function GalleryPage() {
         {isLoading ? (
           <p className="text-sm text-zinc-500">Loading…</p>
         ) : (
-          <StaggerGroup as="ul" className="grid gap-3 sm:grid-cols-2">
+          <StaggerGroup as="ul" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {images.map((image, index) => (
               <StaggerItem
                 as="li"
@@ -175,7 +175,7 @@ export default function GalleryPage() {
         )}
 
         <div className="mt-5 flex flex-col gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <input
               ref={fileInputRef}
               type="file"
@@ -198,8 +198,11 @@ export default function GalleryPage() {
             </Button>
             <span className="text-xs text-zinc-500 dark:text-zinc-400">or paste a URL below</span>
           </div>
+          {/* min-w-0 so the field may shrink below the width of its own
+              label and placeholder; flex-1 alone does not permit that, and the
+              button beside it was pushed off a 320px screen. */}
           <form onSubmit={handleAdd} className="flex items-end gap-2">
-            <TextField id="imageUrl" label="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="flex-1" />
+            <TextField id="imageUrl" label="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} wrapperClassName="flex-1" />
             <Button type="submit" isLoading={isBusy} className="w-auto px-5">
               Add image
             </Button>

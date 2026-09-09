@@ -145,7 +145,7 @@ export function PublicPortfolioSiteBrand({
       {/* Hero: a statement beside the thing itself, at a size that fits on a
           screen rather than filling three of them. */}
       <section id="top" className={`px-5 py-12 sm:px-8 sm:py-16 ${isSparse ? "flex flex-1 items-center" : ""}`}>
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
+        <div className="mx-auto grid grid-cols-1 w-full max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
           <div>
             {data.badge && (
               <motion.p
@@ -224,7 +224,7 @@ export function PublicPortfolioSiteBrand({
         <section id="shop" className="scroll-mt-16 px-5 py-14 sm:px-8 sm:py-20">
           <div className="mx-auto w-full max-w-6xl">
             <h2 className="text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.nav.services}</h2>
-            <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {data.services.map((item, i) => (
                 <motion.li key={item.id} {...push(Math.min(i, 4) * 0.05)} className="flex flex-col">
                   <span className="block overflow-hidden" style={{ background: PANEL }}>
@@ -268,7 +268,7 @@ export function PublicPortfolioSiteBrand({
         <section id="work" className="scroll-mt-16 px-5 py-14 sm:px-8 sm:py-20" style={{ background: PANEL }}>
           <div className="mx-auto w-full max-w-6xl">
             <h2 className="text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.selectedWork}</h2>
-            <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {data.caseStudies.map((item, i) => (
                 <motion.li key={item.id} {...push(Math.min(i, 4) * 0.05)}>
                   {item.imageUrl && (
@@ -317,7 +317,7 @@ export function PublicPortfolioSiteBrand({
               </motion.p>
             )}
             {process.length > 0 && (
-              <ol className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <ol className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {process.map((step, i) => (
                   <motion.li key={step.step} {...push(Math.min(i, 4) * 0.05)} className="border-t pt-4" style={{ borderColor: LINE }}>
                     <span className="text-xs font-bold" style={{ color: "var(--accent-ink)" }}>
@@ -356,7 +356,7 @@ export function PublicPortfolioSiteBrand({
         <section className="px-5 py-14 sm:px-8 sm:py-20">
           <div className="mx-auto w-full max-w-6xl">
             <h2 className="text-xs font-bold uppercase tracking-[0.24em] opacity-50">{t.section.testimonials}</h2>
-            <div className="mt-8 grid gap-6 md:grid-cols-2">
+            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
               {data.reviews.map((item, i) => (
                 <motion.figure key={i} {...push(Math.min(i, 3) * 0.05)} className="border-t pt-5" style={{ borderColor: LINE }}>
                   <blockquote className="text-lg font-bold leading-snug tracking-tight sm:text-xl">

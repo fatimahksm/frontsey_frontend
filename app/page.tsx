@@ -100,7 +100,7 @@ export default function Home() {
           <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Everything your business needs</h2>
           <p className="mt-2 text-zinc-500 dark:text-zinc-400">Two ways to launch, one dashboard to run it all.</p>
         </Reveal>
-        <StaggerGroup className="grid gap-5 sm:grid-cols-2">
+        <StaggerGroup className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           {FEATURES.map((feature) => (
             <StaggerItem
               key={feature.title}
@@ -119,7 +119,7 @@ export default function Home() {
           <Reveal className="mb-12 text-center">
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">How it works</h2>
           </Reveal>
-          <StaggerGroup className="grid gap-8 sm:grid-cols-3">
+          <StaggerGroup className="grid grid-cols-1 gap-8 sm:grid-cols-3">
             {STEPS.map((item) => (
               <StaggerItem key={item.step}>
                 <span className="text-gradient text-4xl font-bold">{item.step}</span>

@@ -104,7 +104,7 @@ export function ProvisionSiteForm({ accessToken, onCreated }: { accessToken: str
 
       {error && <Alert tone="error">{error}</Alert>}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <TextField
           id="ownerEmail"
           label="Owner's email"
@@ -132,7 +132,7 @@ export function ProvisionSiteForm({ accessToken, onCreated }: { accessToken: str
 
       <fieldset className="flex flex-col gap-2">
         <legend className="text-sm font-medium">Kind of website</legend>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {WEBSITE_TYPES.map((option) => (
             <button
               key={option.value}

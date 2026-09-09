@@ -51,7 +51,7 @@ export function BusinessProfileForm({ businessName, templateType, accessToken, p
           onSuggestion={(text) => onChange("description", text)}
         />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <ImageUploadField
           id="logoUrl"
           label="Logo"

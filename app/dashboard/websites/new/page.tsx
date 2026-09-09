@@ -119,7 +119,7 @@ export default function NewWebsitePage() {
           </div>
         </Reveal>
 
-        <StaggerGroup className="mt-6 grid gap-3 sm:grid-cols-2">
+        <StaggerGroup className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {websiteTypes.map((option) => {
             const isSelected = templateType === option.value;
             return (
@@ -176,7 +176,7 @@ export default function NewWebsitePage() {
         </div>
       </Reveal>
 
-      <StaggerGroup className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <StaggerGroup className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {templateOptions.map((option) => {
           const isSelected = layoutVariant === option.value;
           return (

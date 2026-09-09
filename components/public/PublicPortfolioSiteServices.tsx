@@ -228,7 +228,7 @@ export function PublicPortfolioSiteServices({
         <section id="packages" className="scroll-mt-16 px-5 py-12 sm:px-8 sm:py-16" style={{ background: TINT }}>
           <div className="mx-auto w-full max-w-5xl">
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">{hasPricing ? t.work.packages : t.nav.services}</h2>
-            <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {data.expertise.map((item, i) => (
                 <motion.li
                   key={item.id}
@@ -267,7 +267,7 @@ export function PublicPortfolioSiteServices({
         <section className="px-5 py-12 sm:px-8 sm:py-16">
           <div className="mx-auto w-full max-w-5xl">
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t.section.process}</h2>
-            <ol className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <ol className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {process.map((step, i) => (
                 <motion.li key={step.step} {...rise(Math.min(i, 4) * 0.05)}>
                   <span className="text-sm font-semibold" style={{ color: "var(--accent-ink)" }}>
@@ -289,7 +289,7 @@ export function PublicPortfolioSiteServices({
       {/* About: one short block, not a chapter. */}
       {(data.story || experience.length > 0) && (
         <section id="about" className="scroll-mt-16 px-5 py-12 sm:px-8 sm:py-16" style={{ background: TINT }}>
-          <div className="mx-auto grid w-full max-w-5xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
+          <div className="mx-auto grid grid-cols-1 w-full max-w-5xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t.nav.about}</h2>
               {data.story && (
@@ -304,7 +304,7 @@ export function PublicPortfolioSiteServices({
                   <motion.li
                     key={`${entry.year}-${entry.company}`}
                     {...rise(0)}
-                    className="grid gap-1 border-b py-4 sm:grid-cols-[130px_1fr] sm:gap-6"
+                    className="grid grid-cols-1 gap-1 border-b py-4 sm:grid-cols-[130px_1fr] sm:gap-6"
                     style={{ borderColor: LINE }}
                   >
                     <p className="text-sm" style={{ color: MUTED }}>
@@ -333,7 +333,7 @@ export function PublicPortfolioSiteServices({
         <section id="work" className="scroll-mt-16 px-5 py-12 sm:px-8 sm:py-16">
           <div className="mx-auto w-full max-w-5xl">
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t.nav.work}</h2>
-            <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {data.projects.map((item, i) => (
                 <motion.li
                   key={item.id}
@@ -388,7 +388,7 @@ export function PublicPortfolioSiteServices({
         <section className="px-5 py-12 sm:px-8 sm:py-16" style={{ background: TINT }}>
           <div className="mx-auto w-full max-w-5xl">
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t.section.testimonials}</h2>
-            <div className="mt-8 grid gap-5 md:grid-cols-2">
+            <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2">
               {data.recommendations.map((item, i) => (
                 <motion.figure
                   key={i}

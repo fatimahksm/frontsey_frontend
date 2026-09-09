@@ -256,7 +256,7 @@ export function PublicPortfolioSiteVisual({
       {/* Hero: compact by design. Two short columns, capped height on the
           image, so the work below is reachable in one scroll rather than five. */}
       <section id="top" className={`px-5 py-12 sm:px-8 sm:py-16 ${isSparse ? "flex flex-1 items-center" : ""}`}>
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-8 md:grid-cols-[1fr_0.8fr] md:gap-12">
+        <div className="mx-auto grid grid-cols-1 w-full max-w-6xl items-center gap-8 md:grid-cols-[1fr_0.8fr] md:gap-12">
           <div>
             {data.badge && (
               <motion.p {...rise(0)} className="mb-5 text-xs uppercase tracking-[0.24em]" style={{ color: "var(--accent-ink)" }}>
@@ -353,7 +353,7 @@ export function PublicPortfolioSiteVisual({
               )}
             </div>
 
-            <ul className="mt-8 grid gap-x-5 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-8 grid grid-cols-1 gap-x-5 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
               {shown.map((item, i) => {
                 const indexInAll = data.selectedWork.indexOf(item);
                 return (
@@ -406,7 +406,7 @@ export function PublicPortfolioSiteVisual({
             <h2 className="border-t pt-4 text-xs uppercase tracking-[0.24em] opacity-60" style={{ borderColor: RULE }}>
               {t.nav.about}
             </h2>
-            <div className="mt-8 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+            <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
               {data.bio && (
                 <motion.p {...rise(0)} className="text-xl leading-relaxed sm:text-2xl" style={{ fontFamily: SERIF }}>
                   {data.bio}
@@ -418,7 +418,7 @@ export function PublicPortfolioSiteVisual({
                     <motion.li
                       key={item.id}
                       {...rise(Math.min(i, 4) * 0.05)}
-                      className="grid gap-1.5 border-b py-4 sm:grid-cols-[0.45fr_0.55fr] sm:gap-6"
+                      className="grid grid-cols-1 gap-1.5 border-b py-4 sm:grid-cols-[0.45fr_0.55fr] sm:gap-6"
                       style={{ borderColor: RULE }}
                     >
                       <h3 className="text-lg tracking-tight" style={{ fontFamily: SERIF }}>
@@ -447,7 +447,7 @@ export function PublicPortfolioSiteVisual({
             <h2 className="border-t pt-4 text-xs uppercase tracking-[0.24em] opacity-60" style={{ borderColor: RULE }}>
               {t.section.testimonials}
             </h2>
-            <div className="mt-8 grid gap-8 md:grid-cols-2 lg:gap-12">
+            <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-12">
               {data.testimonials.map((item, i) => (
                 <motion.figure key={i} {...rise(Math.min(i, 3) * 0.06)}>
                   <blockquote className="text-lg leading-[1.5] tracking-tight sm:text-xl" style={{ fontFamily: SERIF }}>
