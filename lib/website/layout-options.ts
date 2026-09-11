@@ -69,13 +69,13 @@ export const TEMPLATE_OPTIONS: Record<TemplateType, TemplateOption[]> = {
     {
       value: "STORE_SHOWCASE",
       label: "Shop front",
-      description: "Collections as photographs you walk into, then big product tiles two to a row, with the bag and its total always on screen.",
+      description: "A warm storefront: your name across the top, a photograph in the hero, collections as round chips, and products four to a row with the discount on the corner and Add To Cart under each.",
       bestFor: ["Clothes", "Gifts", "Homeware", "Cosmetics", "Flowers", "Jewellery"],
     },
     {
       value: "STORE_CATALOG",
       label: "Catalogue",
-      description: "Search at the top and everything below it as compact rows with the price down one column. For a shop with more products than anyone will scroll through.",
+      description: "A printed index: search at the very top, collections numbered down the side, and every product a compact row with the price aligned in one column. For a shop with more lines than anyone will scroll through.",
       bestFor: ["Pharmacy", "Hardware", "Phone accessories", "Spare parts", "Stationery", "Mini market"],
     },
   ],

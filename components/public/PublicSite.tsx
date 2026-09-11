@@ -29,6 +29,12 @@ export function PublicSite({ slug }: { slug: string }) {
     publicSiteApi
       .getBySlug(slug)
       .then((envelope) => {
+        // The visit, counted separately from the page so the page can be
+        // cached. Deliberately not awaited and deliberately swallowed on
+        // failure: a number nobody reads until tomorrow must never be the
+        // reason a shop's page does not appear.
+        publicSiteApi.recordPageView(slug).catch(() => {});
+
         if (envelope.status === "AVAILABLE" && envelope.website) {
           setSite(envelope.website);
           setStatus("available");
