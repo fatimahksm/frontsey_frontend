@@ -51,9 +51,15 @@ test.describe("the owner's item list", () => {
     const showMore = page.getByRole("button", { name: "Show more" });
 
     // The list is fetched after the page renders, so nothing below is
-    // meaningful until the first load has finished. Waiting for the first row
-    // rather than a timeout is what keeps the skip honest.
-    await expect(itemRows(page).first()).toBeVisible({ timeout: 30_000 });
+    // meaningful until the first load has finished. Waiting for whichever of
+    // the two settled states arrives - a row, or the empty state - rather than
+    // for a timeout is what keeps the skip honest: waiting only for a row
+    // turned a website with no items into a failure rather than a skip.
+    const empty = page.getByText(/have not added any menu items/i);
+    await expect(itemRows(page).first().or(empty)).toBeVisible({ timeout: 30_000 });
+    if (await empty.isVisible().catch(() => false)) {
+      test.skip(true, "this website has no menu items - nothing to page through");
+    }
 
     // The one assertion that holds for any website, and the one the screen
     // used to break: a first load never draws more than a page, whatever the

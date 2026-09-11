@@ -228,6 +228,28 @@ export interface PortfolioProjectResponse {
   sortOrder: number;
 }
 
+/**
+ * One line of work history. Only the role is required, for the same reason a
+ * project needs only a name: the templates render what is present and hide the
+ * rest, so an owner can put the job title down and fill in the dates later.
+ */
+export interface ExperienceEntryRequest {
+  role: string;
+  company?: string | null;
+  /** Free text - owners write "2024", "2023-24", "2019 - Present". */
+  year?: string | null;
+  detail?: string | null;
+}
+
+export interface ExperienceEntryResponse {
+  id: string;
+  role: string;
+  company: string | null;
+  year: string | null;
+  detail: string | null;
+  sortOrder: number;
+}
+
 export interface ServiceItemRequest {
   name: string;
   description?: string | null;
@@ -737,6 +759,13 @@ export interface PublicWebsiteResponse {
    * to the gallery in that case, so an older saved site is unaffected.
    */
   projects: PublicProject[];
+  /**
+   * The owner's work history, in their order, for the portfolio templates that
+   * show a timeline. Empty on every other kind of site and on a portfolio that
+   * predates the experience editor - those templates fall back to the ABOUT
+   * section's free-form JSON, so an older saved site is unaffected.
+   */
+  experience: PublicExperience[];
   /** The occasion itself. Null on every non-EVENTS site, and on an EVENTS site nobody has filled in yet. */
   event: PublicEvent | null;
   /** The running order of the day, in the host's order. Empty for every non-EVENTS site. */
@@ -800,6 +829,15 @@ export interface PublicProject {
   imageUrl: string | null;
   liveUrl: string | null;
   repoUrl: string | null;
+}
+
+/** One line of work history as the public site sees it - every field but the role may be blank. */
+export interface PublicExperience {
+  id: string;
+  role: string;
+  company: string | null;
+  year: string | null;
+  detail: string | null;
 }
 
 export interface PublicPageSection {

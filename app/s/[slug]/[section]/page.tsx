@@ -8,6 +8,8 @@ import { SiteAdminShell, type SiteAdminContext } from "@/components/site-admin/S
 import AnalyticsPage from "@/app/manage/[websiteId]/analytics/page";
 import PageContentPage from "@/app/manage/[websiteId]/content/page";
 import DeliveryPage from "@/app/manage/[websiteId]/delivery/page";
+import EventPage from "@/app/manage/[websiteId]/event/page";
+import ExperiencePage from "@/app/manage/[websiteId]/experience/page";
 import GalleryPage from "@/app/manage/[websiteId]/gallery/page";
 import ManagersPage from "@/app/manage/[websiteId]/managers/page";
 import MenuPage from "@/app/manage/[websiteId]/menu/page";
@@ -35,7 +37,12 @@ import { WebsiteProvider } from "@/lib/website/website-context";
  */
 const EDITORS = {
   projects: ProjectsPage,
+  experience: ExperiencePage,
   services: ServicesPage,
+  // Both of these are in a template's content plan and were missing here, so
+  // the console offered the link and the link came straight back to the
+  // dashboard. Every key the plan can name needs an editor, or the nav lies.
+  event: EventPage,
   menu: MenuPage,
   delivery: DeliveryPage,
   gallery: GalleryPage,

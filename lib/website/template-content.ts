@@ -21,7 +21,7 @@ import type { MenuBusinessKind } from "@/lib/website/draft-content";
 /** A content store, named as the current template names it. */
 export interface ContentSection {
   /** Which editor this is - stable across templates, unlike the label. */
-  key: "projects" | "services" | "menu" | "gallery" | "delivery" | "sections" | "event";
+  key: "projects" | "experience" | "services" | "menu" | "gallery" | "delivery" | "sections" | "event";
   /** What this template calls it. */
   label: string;
   /** One line saying what it is for, in this template's terms. */
@@ -66,6 +66,9 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
   PORTFOLIO_PROFESSIONAL: {
     sections: [
       { key: "projects", label: "Projects", hint: "What you have built, with dates and links" },
+      // This template draws a timeline from it, and had no editor for it until
+      // now - so the section appeared on the sample sites and on nobody's real one.
+      { key: "experience", label: "Experience", hint: "Where you have worked, as a timeline" },
       { key: "services", label: "Skills & services", hint: "What you can be hired to do" },
       GALLERY_PORTFOLIO,
       { key: "sections", label: "About & recommendations", hint: "Your background, and what people say" },
@@ -95,6 +98,7 @@ const PLANS: Record<LayoutVariant, TemplateContentPlan> = {
     sections: [
       { key: "services", label: "Packages", hint: "What you offer and what it costs" },
       { key: "projects", label: "Recent work", hint: "Proof, shown after your packages" },
+      { key: "experience", label: "Experience", hint: "Where you have worked, shown beside your story" },
       GALLERY_PORTFOLIO,
       { key: "sections", label: "About, reviews & FAQ", hint: "Your story, proof, and the usual questions" },
     ],

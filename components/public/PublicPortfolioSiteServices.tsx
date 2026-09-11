@@ -88,7 +88,18 @@ export function PublicPortfolioSiteServices({
   const data = getServicesData(normalizePortfolioData(site, { isSample }));
 
   const about = (data.extra.ABOUT ?? {}) as Record<string, unknown>;
-  const experience = asExperience(about.experience);
+  // The owner's own entries first, and the ABOUT section's free-form JSON only
+  // when there are none. The timeline was drawn from that JSON alone until the
+  // Experience editor existed, so a site saved before it keeps rendering
+  // exactly as it did; anything typed in the editor wins from then on.
+  const experience = site.experience.length > 0
+    ? site.experience.map((entry) => ({
+        year: entry.year ?? "",
+        role: entry.role,
+        company: entry.company ?? "",
+        detail: entry.detail ?? undefined,
+      }))
+    : asExperience(about.experience);
   const process = asProcess(about.process);
 
   const hasExpertise = data.expertise.length > 0;

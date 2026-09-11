@@ -396,6 +396,7 @@ export function mockMenuSite(
         }),
       },
     ],
+    experience: [],
     event: null,
     schedule: [],
   };
@@ -477,11 +478,6 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_PROFESSIONAL"): PublicWebsi
           imageUrl: devArt("terminal"),
           // Extra keys the base schema ignores and the adapter surfaces under `extra`.
           stack: ["TypeScript", "React", "Next.js", "Node.js", "Java", "Spring Boot", "PostgreSQL", "Docker", "AWS", "Playwright"],
-          experience: [
-            { year: "2022 - now", role: "Senior Engineer", company: "Independent", detail: "Contract product work for startups across the EU and Gulf." },
-            { year: "2019 - 2022", role: "Full-stack Engineer", company: "Cedar Labs", detail: "Owned the billing rewrite; cut checkout errors by a third." },
-            { year: "2017 - 2019", role: "Frontend Developer", company: "Beirut Digital", detail: "Design systems and accessibility across six client products." },
-          ],
         }),
       },
       {
@@ -497,6 +493,15 @@ function mockDeveloperSite(layoutVariant: "PORTFOLIO_PROFESSIONAL"): PublicWebsi
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    // On the new top-level field rather than in the ABOUT section's JSON, so
+    // the browser suite renders the path a real owner's site now takes. The
+    // freelancer sample deliberately keeps its entries in the old section
+    // payload, which keeps the fallback under test too.
+    experience: [
+      { id: "dx1", year: "2022 - now", role: "Senior Engineer", company: "Independent", detail: "Contract product work for startups across the EU and Gulf." },
+      { id: "dx2", year: "2019 - 2022", role: "Full-stack Engineer", company: "Cedar Labs", detail: "Owned the billing rewrite; cut checkout errors by a third." },
+      { id: "dx3", year: "2017 - 2019", role: "Frontend Developer", company: "Beirut Digital", detail: "Design systems and accessibility across six client products." },
+    ],
     event: null,
     schedule: [],
   };
@@ -590,6 +595,7 @@ function mockDesignerSite(layoutVariant: "PORTFOLIO_VISUAL"): PublicWebsiteRespo
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    experience: [],
     event: null,
     schedule: [],
   };
@@ -694,6 +700,7 @@ function mockBrandSite(layoutVariant: "PORTFOLIO_BRAND"): PublicWebsiteResponse 
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    experience: [],
     event: null,
     schedule: [],
   };
@@ -799,6 +806,7 @@ function mockFreelancerSite(layoutVariant: "PORTFOLIO_SERVICES"): PublicWebsiteR
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    experience: [],
     event: null,
     schedule: [],
   };
@@ -937,6 +945,7 @@ export function mockPortfolioSite(
       },
     ],
     theme: DEFAULT_THEME_CONFIG,
+    experience: [],
     event: null,
     schedule: [],
   };
@@ -987,6 +996,7 @@ function mockEventsSite(layoutVariant: "EVENTS_CELEBRATION"): PublicWebsiteRespo
     seo: { metaTitle: "Sara & Karim - 14 June 2026", metaDescription: null, ogImageUrl: null },
     sections: [],
     theme: DEFAULT_THEME_CONFIG,
+    experience: [],
     event: {
       eventDate: "Saturday 14 June 2026",
       startTime: "6:00 PM",
@@ -1144,6 +1154,7 @@ function mockCompactMenuSite(layoutVariant: "MENU_COMPACT"): PublicWebsiteRespon
     seo: null,
     sections: [],
     theme: DEFAULT_THEME_CONFIG,
+    experience: [],
     event: null,
     schedule: [],
   };
