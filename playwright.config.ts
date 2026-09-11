@@ -51,7 +51,7 @@ export default defineConfig({
     // different origin as far as the API's CORS list is concerned - the
     // console suite signs in for real, so it has to come from an origin the
     // API allows.
-    { name: "console", testMatch: /console-responsive/, use: { ...devices["Desktop Chrome"], baseURL: "http://localhost:3100", launchOptions: { executablePath: chromium } } },
+    { name: "console", testMatch: /console-responsive|console-item-paging/, use: { ...devices["Desktop Chrome"], baseURL: "http://localhost:3100", launchOptions: { executablePath: chromium } } },
   ],
 
   webServer: {

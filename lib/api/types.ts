@@ -6,6 +6,18 @@
 
 import type { ThemeConfig } from "@/lib/website/theme-config";
 
+/**
+ * One page of a list, and enough about the whole list to ask for the rest.
+ * Matches com.dbwb.platform.common.dto.PagedResponse.
+ */
+export interface PagedResponse<T> {
+  items: T[];
+  page: number;
+  size: number;
+  total: number;
+  hasMore: boolean;
+}
+
 /** Matches com.dbwb.platform.common.dto.ApiResponse on the backend. */
 export interface ApiResponse<T> {
   success: boolean;

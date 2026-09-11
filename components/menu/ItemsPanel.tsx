@@ -22,8 +22,17 @@ interface Props {
   categories: CategoryDto[];
 }
 
+/** Rows per request. A shop with two thousand items used to send all two thousand to draw this list. */
+const PAGE_SIZE = 50;
+
+/** What MenuController clamps `size` to; asking for more than this silently gets this. */
+const SERVER_MAX_PAGE_SIZE = 200;
+
 export function ItemsPanel({ accessToken, websiteId, currency, categories }: Props) {
   const [items, setItems] = useState<MenuItemResponse[]>([]);
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [lastPage, setLastPage] = useState(0);
   const [showTrash, setShowTrash] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [search, setSearch] = useState("");
@@ -32,6 +41,7 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
   const [bulkTargetCategory, setBulkTargetCategory] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
 
   /** "Coffee › Iced" for a sub-category, so the list never shows an ambiguous bare child name. */
@@ -42,23 +52,78 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
 
   const visibleItems = availabilityFilter ? items.filter((item) => item.availability === availabilityFilter) : items;
 
+  /**
+   * Trash is not paged: it is what the owner deleted in the last thirty days,
+   * and the backend returns it as a plain list.
+   */
+  async function loadTrash() {
+    const fetched = await menuApi.listTrashedItems(accessToken, websiteId);
+    setItems(fetched);
+    setTotal(fetched.length);
+    setHasMore(false);
+    setLastPage(0);
+  }
+
+  /**
+   * One request for `size` rows starting at `page`, either replacing what is
+   * on screen or adding to it. `size` above one page is how a refresh after a
+   * bulk action puts back the pages the owner had already loaded, in a single
+   * request rather than one per page.
+   */
+  async function loadItems(page: number, mode: "replace" | "append", size = PAGE_SIZE) {
+    const fetched = await menuApi.listItems(accessToken, websiteId, {
+      categoryId: categoryFilter || undefined,
+      search: search || undefined,
+      page,
+      size,
+    });
+    setItems((prev) => (mode === "replace" ? fetched.items : [...prev, ...fetched.items]));
+    setTotal(fetched.total);
+    setHasMore(fetched.hasMore);
+    setLastPage(mode === "append" ? page : Math.ceil(size / PAGE_SIZE) - 1);
+  }
+
   async function load() {
     setIsLoading(true);
     setError(null);
     try {
-      const fetched = showTrash
-        ? await menuApi.listTrashedItems(accessToken, websiteId)
-        : await menuApi.listItems(accessToken, websiteId, {
-            categoryId: categoryFilter || undefined,
-            search: search || undefined,
-          });
-      setItems(fetched);
+      if (showTrash) await loadTrash();
+      else await loadItems(0, "replace");
       setSelected(new Set());
     } catch (err) {
       setError(friendlyMessage(err, "Failed to load menu items."));
     } finally {
       setIsLoading(false);
     }
+  }
+
+  async function loadMore() {
+    setIsLoadingMore(true);
+    setError(null);
+    try {
+      await loadItems(lastPage + 1, "append");
+    } catch (err) {
+      setError(friendlyMessage(err, "Failed to load more items."));
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }
+
+  /**
+   * After an action that changed the list, re-read exactly what the owner had
+   * open. Past the server's cap we cannot ask for it all in one request, so
+   * the list goes back to its first page rather than pretending otherwise.
+   */
+  async function refresh() {
+    if (showTrash) {
+      await loadTrash();
+      setSelected(new Set());
+      return;
+    }
+    const loadedRows = (lastPage + 1) * PAGE_SIZE;
+    if (loadedRows <= SERVER_MAX_PAGE_SIZE) await loadItems(0, "replace", loadedRows);
+    else await loadItems(0, "replace");
+    setSelected(new Set());
   }
 
   useEffect(() => {
@@ -81,7 +146,7 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
     setIsBusy(true);
     try {
       await action();
-      await load();
+      await refresh();
     } catch (err) {
       setError(friendlyMessage(err, "That action failed."));
     } finally {
@@ -205,7 +270,11 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
           {showTrash ? "Trash is empty." : "You have not added any menu items yet. Use \"Add item\" above to add your first one."}
         </p>
       ) : visibleItems.length === 0 ? (
-        <p className="text-sm text-zinc-500">No items match the availability filter.</p>
+        <p className="text-sm text-zinc-500">
+          {hasMore
+            ? "None of the items loaded so far match the availability filter. Load more to keep looking."
+            : "No items match the availability filter."}
+        </p>
       ) : (
         <StaggerGroup as="ul" className="flex flex-col gap-2">
           {visibleItems.map((item) => (
@@ -269,6 +338,18 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
             </StaggerItem>
           ))}
         </StaggerGroup>
+      )}
+
+      {!isLoading && total > items.length && (
+        <p className="text-sm text-zinc-500">
+          Showing {items.length} of {total} items
+        </p>
+      )}
+
+      {!isLoading && hasMore && (
+        <Button variant="secondary" className="w-auto self-start px-4" onClick={loadMore} isLoading={isLoadingMore}>
+          Show more
+        </Button>
       )}
     </div>
   );
