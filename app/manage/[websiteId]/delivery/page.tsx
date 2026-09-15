@@ -77,19 +77,18 @@ export default function DeliveryAreasPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold tracking-tight">Delivery areas</h1>
       {error && <Alert tone="error">{error}</Alert>}
 
       <Card title="Areas">
         {isLoading ? (
-          <p className="text-sm text-zinc-500">Loading…</p>
+          <p className="text-sm text-muted">Loading…</p>
         ) : (
           <StaggerGroup as="ul" className="flex flex-col gap-2">
             {areas.map((area) => (
-              <StaggerItem as="li" key={area.id} className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
+              <StaggerItem as="li" key={area.id} className="flex items-center justify-between rounded-lg border border-line p-3 text-sm">
                 <div>
                   <p className="font-medium">{area.name}</p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="text-xs text-muted">
                     Fee {formatMoney(area.deliveryFee, website.currency)} · Min order {formatMoney(area.minimumOrderAmount, website.currency)}
                     {area.freeDeliveryThreshold != null && (
                       <> · Free above {formatMoney(area.freeDeliveryThreshold, website.currency)}</>
@@ -101,7 +100,7 @@ export default function DeliveryAreasPage() {
                 </button>
               </StaggerItem>
             ))}
-            {areas.length === 0 && <p className="text-sm text-zinc-500">No delivery areas yet.</p>}
+            {areas.length === 0 && <p className="text-sm text-muted">No delivery areas yet.</p>}
           </StaggerGroup>
         )}
 
@@ -126,7 +125,7 @@ export default function DeliveryAreasPage() {
             value={freeThreshold}
             onChange={(e) => setFreeThreshold(e.target.value)}
           />
-          <Button type="submit" isLoading={isBusy} className="w-auto px-5 sm:col-span-2">
+          <Button type="submit" isLoading={isBusy} className="sm:col-span-2">
             Add delivery area
           </Button>
         </form>

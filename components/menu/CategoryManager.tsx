@@ -106,16 +106,16 @@ export function CategoryManager({ accessToken, websiteId, categories, onChange }
   function categoryRow(category: CategoryDto, extraAction?: React.ReactNode) {
     if (renaming?.id === category.id) {
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <input
             value={renaming.name}
             onChange={(e) => setRenaming({ id: category.id, name: e.target.value })}
-            className="h-9 flex-1 rounded-lg border border-black/[.12] bg-transparent px-2.5 text-sm outline-none dark:border-white/[.18]"
+            className="h-9 flex-1 rounded-lg border border-line-strong bg-transparent px-2.5 text-sm outline-none"
           />
-          <Button className="w-auto px-3" onClick={() => handleRename(category.id)} isLoading={isBusy}>
+          <Button onClick={() => handleRename(category.id)} isLoading={isBusy}>
             Save
           </Button>
-          <Button variant="secondary" className="w-auto px-3" onClick={() => setRenaming(null)}>
+          <Button variant="secondary" onClick={() => setRenaming(null)}>
             Cancel
           </Button>
         </div>
@@ -128,7 +128,7 @@ export function CategoryManager({ accessToken, websiteId, categories, onChange }
           {extraAction}
           <button
             type="button"
-            className="text-zinc-500 hover:underline"
+            className="text-muted hover:underline"
             onClick={() => setRenaming({ id: category.id, name: category.name })}
           >
             Rename
@@ -152,7 +152,7 @@ export function CategoryManager({ accessToken, websiteId, categories, onChange }
     return (
       <div className="mt-3 flex flex-col gap-2 rounded-lg bg-black/[.03] p-3 dark:bg-white/[.05]">
         {alsoRemoves.length > 0 && (
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          <p className="text-xs text-muted">
             This also deletes its {alsoRemoves.length} sub-{alsoRemoves.length === 1 ? "category" : "categories"} (
             {alsoRemoves.map((sub) => sub.name).join(", ")}). Your choice below applies to every item in them.
           </p>
@@ -185,14 +185,14 @@ export function CategoryManager({ accessToken, websiteId, categories, onChange }
         )}
         <div className="flex gap-2">
           <Button
-            className="w-auto px-3"
+ 
             onClick={() => handleDelete(category.id)}
             isLoading={isBusy}
             disabled={deletionMode === "MOVE_ITEMS_TO_CATEGORY" && !targetCategoryId}
           >
             Confirm delete
           </Button>
-          <Button variant="secondary" className="w-auto px-3" onClick={() => setDeleting(null)}>
+          <Button variant="secondary" onClick={() => setDeleting(null)}>
             Cancel
           </Button>
         </div>
@@ -206,12 +206,12 @@ export function CategoryManager({ accessToken, websiteId, categories, onChange }
 
       <StaggerGroup as="ul" className="flex flex-col gap-2">
         {tree.map(({ category, subcategories }) => (
-          <StaggerItem as="li" key={category.id} className="rounded-lg border border-black/[.08] p-3 dark:border-white/[.145]">
+          <StaggerItem as="li" key={category.id} className="rounded-lg border border-line p-3">
             {categoryRow(
               category,
               <button
                 type="button"
-                className="text-zinc-500 hover:underline"
+                className="text-muted hover:underline"
                 onClick={() => setAddingSubTo({ parentId: category.id, name: "" })}
               >
                 + Sub-category
@@ -219,7 +219,7 @@ export function CategoryManager({ accessToken, websiteId, categories, onChange }
             )}
 
             {subcategories.length > 0 && (
-              <ul className="mt-2 flex flex-col gap-1.5 border-l border-black/[.08] pl-3 dark:border-white/[.145]">
+              <ul className="mt-2 flex flex-col gap-1.5 border-l border-line pl-3">
                 {subcategories.map((sub) => (
                   <li key={sub.id}>
                     {categoryRow(sub)}
@@ -237,10 +237,10 @@ export function CategoryManager({ accessToken, websiteId, categories, onChange }
                   value={addingSubTo.name}
                   onChange={(e) => setAddingSubTo({ parentId: category.id, name: e.target.value })}
                 />
-                <Button type="submit" isLoading={isBusy} className="w-auto px-4">
+                <Button type="submit" isLoading={isBusy} >
                   Add
                 </Button>
-                <Button variant="secondary" className="w-auto px-3" onClick={() => setAddingSubTo(null)}>
+                <Button variant="secondary" onClick={() => setAddingSubTo(null)}>
                   Cancel
                 </Button>
               </form>
@@ -249,12 +249,21 @@ export function CategoryManager({ accessToken, websiteId, categories, onChange }
             {deleting === category.id && deletionPanel(category, subcategories)}
           </StaggerItem>
         ))}
-        {categories.length === 0 && <p className="text-sm text-zinc-500">No categories yet.</p>}
+        {categories.length === 0 && <p className="text-sm text-muted">No categories yet.</p>}
       </StaggerGroup>
 
+      {/* Secondary: this page's one primary action is Add item, in the toolbar
+          above. Two gradients on a screen means neither is the answer to
+          "what am I here to do". */}
       <form onSubmit={handleCreate} className="flex items-end gap-2">
-        <TextField id="newCategory" label="New category" value={newName} onChange={(e) => setNewName(e.target.value)} />
-        <Button type="submit" isLoading={isBusy} className="w-auto px-4">
+        <TextField
+          id="newCategory"
+          label="New category"
+          wrapperClassName="flex-1"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+        />
+        <Button type="submit" variant="secondary" isLoading={isBusy}>
           Add
         </Button>
       </form>

@@ -31,7 +31,7 @@ export function PhoneField({ id, label, value, onChange }: Props) {
           aria-label={`${label} country code`}
           value={dialCode}
           onChange={(e) => update(e.target.value, localNumber)}
-          className="h-11 w-28 shrink-0 rounded-xl border border-black/[.12] bg-surface px-2 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
+          className="h-11 w-28 shrink-0 rounded-xl border border-line-strong bg-surface px-2 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40"
         >
           {PHONE_COUNTRIES.map((country) => (
             <option key={`${country.iso}-${country.dialCode}`} value={country.dialCode}>
@@ -49,7 +49,7 @@ export function PhoneField({ id, label, value, onChange }: Props) {
           // min-w-0: flex-1 lets a child grow, it does not let it shrink below
           // its own placeholder. Beside a fixed 112px country select on a
           // 320px phone, that pushed the field past the edge of the card.
-          className="h-11 min-w-0 flex-1 rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16]"
+          className="h-11 min-w-0 flex-1 rounded-xl border border-line-strong bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40"
         />
       </div>
     </label>

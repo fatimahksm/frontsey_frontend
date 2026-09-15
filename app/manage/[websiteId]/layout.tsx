@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { WebsiteShell } from "@/components/dashboard/WebsiteShell";
+import { ConsoleShell } from "@/components/console/ConsoleShell";
 
 interface Props {
   children: ReactNode;
@@ -9,5 +9,5 @@ interface Props {
 
 export default async function WebsiteLayout({ children, params }: Props) {
   const { websiteId } = await params;
-  return <WebsiteShell websiteId={websiteId}>{children}</WebsiteShell>;
+  return <ConsoleShell websiteId={websiteId}>{children}</ConsoleShell>;
 }

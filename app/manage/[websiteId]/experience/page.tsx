@@ -155,25 +155,21 @@ export default function ExperiencePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-xl font-semibold tracking-tight">Experience</h1>
-          <p className="mt-1 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
-            Where you have worked, shown as a timeline on your website. Only the job title is needed - your template
-            leaves out whatever you have not filled in, and hides the whole section until you add your first line.
-          </p>
-        </div>
-        {!isFormOpen && (
-          <Button type="button" className="!w-auto shrink-0 px-5" onClick={startAdding}>
+      {!isFormOpen && (
+        <div className="flex justify-end">
+          <Button type="button" onClick={startAdding}>
             Add
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {error && <Alert tone="error">{error}</Alert>}
 
       {isFormOpen && (
-        <Card title={editingId ? "Edit entry" : "Add an entry"}>
+        <Card
+          title={editingId ? "Edit entry" : "Add an entry"}
+          description="The job title is all that is required - your template leaves out whatever you have not filled in."
+        >
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <TextField
@@ -210,10 +206,10 @@ export default function ExperiencePage() {
               onChange={(e) => set("detail", e.target.value)}
             />
             <div className="flex flex-wrap gap-3">
-              <Button type="submit" isLoading={isBusy} className="w-auto px-5">
+              <Button type="submit" isLoading={isBusy} >
                 {editingId ? "Save changes" : "Add entry"}
               </Button>
-              <Button type="button" variant="secondary" className="w-auto px-5" onClick={cancel}>
+              <Button type="button" variant="secondary" onClick={cancel}>
                 Cancel
               </Button>
             </div>
@@ -223,15 +219,15 @@ export default function ExperiencePage() {
 
       <Card title="Your experience" description="Reorder with the arrows - visitors see them top to bottom.">
         {isLoading ? (
-          <p className="text-sm text-zinc-500">Loading…</p>
+          <p className="text-sm text-muted">Loading…</p>
         ) : entries.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-black/[.12] p-8 text-center dark:border-white/[.16]">
+          <div className="rounded-xl border border-dashed border-line-strong p-8 text-center">
             <p className="text-sm font-medium">Nothing here yet.</p>
-            <p className="mx-auto mt-1 max-w-md text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mx-auto mt-1 max-w-md text-sm text-muted">
               Your website leaves the timeline out entirely until you add a line, so there is no empty section on your
               page while you think about it.
             </p>
-            <Button type="button" className="mx-auto mt-4 w-auto px-5" onClick={startAdding}>
+            <Button type="button" className="mx-auto mt-4" onClick={startAdding}>
               Add your first entry
             </Button>
           </div>
@@ -240,14 +236,14 @@ export default function ExperiencePage() {
             {entries.map((entry, index) => (
               <li
                 key={entry.id}
-                className="flex flex-wrap items-center gap-4 rounded-xl border border-black/[.08] p-3 dark:border-white/[.12]"
+                className="flex flex-wrap items-center gap-4 rounded-xl border border-line p-3"
               >
                 <div className="min-w-40 flex-1">
                   <p className="text-sm font-medium">
                     {entry.role}
-                    {entry.company && <span className="text-zinc-500 dark:text-zinc-400"> · {entry.company}</span>}
+                    {entry.company && <span className="text-muted"> · {entry.company}</span>}
                   </p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{entry.year || "No dates yet"}</p>
+                  <p className="text-xs text-muted">{entry.year || "No dates yet"}</p>
                 </div>
                 <div className="flex items-center gap-3 text-xs">
                   <button type="button" disabled={index === 0} onClick={() => handleMove(index, -1)} className="disabled:opacity-30">

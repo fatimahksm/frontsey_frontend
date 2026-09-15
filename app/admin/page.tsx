@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { LabelledBars, RevenueArea, TrendLines, VizRoot } from "@/components/admin/ReportCharts";
 import { Alert } from "@/components/ui/Alert";
 import { Card } from "@/components/ui/Card";
+import { Segmented } from "@/components/ui/Segmented";
 import { adminApi } from "@/lib/api/admin";
 import { friendlyMessage } from "@/lib/api/client";
 import type { AdminDashboardResponse, AdminPlatformReportResponse } from "@/lib/api/types";
@@ -49,7 +50,7 @@ function Panel({ title, hint, children }: { title: string; hint?: string; childr
       <div className="flex flex-col gap-4">
         <div>
           <h2 className="text-sm font-semibold tracking-tight">{title}</h2>
-          {hint && <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{hint}</p>}
+          {hint && <p className="mt-0.5 text-xs text-muted">{hint}</p>}
         </div>
         {children}
       </div>
@@ -61,8 +62,8 @@ function Stat({ value, label, hint }: { value: string; label: string; hint?: str
   return (
     <Card>
       <p className="text-2xl font-semibold tabular-nums">{value}</p>
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">{label}</p>
-      {hint && <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">{hint}</p>}
+      <p className="text-sm text-muted">{label}</p>
+      {hint && <p className="mt-0.5 text-xs text-faint">{hint}</p>}
     </Card>
   );
 }
@@ -99,7 +100,7 @@ export default function AdminDashboardPage() {
   }, [session, days]);
 
   if (error) return <Alert tone="error">{error}</Alert>;
-  if (!dashboard || !report) return <p className="text-sm text-zinc-500">Loading…</p>;
+  if (!dashboard || !report) return <p className="text-sm text-muted">Loading…</p>;
 
   const takings = report.revenue.reduce((sum, point) => sum + point.amount, 0);
   const newSignups = report.signups.reduce((sum, point) => sum + point.count, 0);
@@ -115,26 +116,20 @@ export default function AdminDashboardPage() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Platform</h1>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mt-1 text-sm text-muted">
               {dashboard.totalUsers} account{dashboard.totalUsers === 1 ? "" : "s"} · {dashboard.totalWebsites} website
               {dashboard.totalWebsites === 1 ? "" : "s"} · {formatMoney(dashboard.totalRevenue)} taken all time
             </p>
           </div>
-          {/* One filter row above the charts, driving every series on the page. */}
-          <div className="flex items-center gap-1 rounded-full bg-black/[.04] p-1 dark:bg-white/[.06]">
-            {RANGES.map((range) => (
-              <button
-                key={range}
-                type="button"
-                onClick={() => setDays(range)}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                  days === range ? "bg-gradient-accent text-white" : "text-zinc-600 hover:text-foreground dark:text-zinc-400"
-                }`}
-              >
-                {range} days
-              </button>
-            ))}
-          </div>
+          {/* One filter row above the charts, driving every series on the page,
+              in the console's one segmented control rather than a third
+              hand-rolled row of pills. */}
+          <Segmented<number>
+            ariaLabel="Reporting period"
+            value={days}
+            onChange={setDays}
+            options={RANGES.map((range) => ({ value: range, label: `${range} days` }))}
+          />
         </div>
 
         {/* Headline numbers for the chosen window - the ones a chart would only
@@ -191,14 +186,14 @@ export default function AdminDashboardPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-2xl font-semibold tabular-nums">{report.firstPayments}</p>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">First payments</p>
+                <p className="text-sm text-muted">First payments</p>
               </div>
               <div>
                 <p className="text-2xl font-semibold tabular-nums">{report.renewals}</p>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">Renewals</p>
+                <p className="text-sm text-muted">Renewals</p>
               </div>
             </div>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-muted">
               {report.trialsLapsed} free trial{report.trialsLapsed === 1 ? "" : "s"} ended without a payment.
             </p>
           </Panel>
@@ -223,7 +218,7 @@ export default function AdminDashboardPage() {
           </Panel>
         </div>
 
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="text-xs text-muted">
           Sign-in activity is not shown because the platform does not record logins - only actions taken on content,
           which are in the audit log.
         </p>

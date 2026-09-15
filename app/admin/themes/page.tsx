@@ -107,14 +107,14 @@ export default function AdminThemesPage() {
 
       <Card title="Presets">
         {isLoading ? (
-          <p className="text-sm text-zinc-500">Loading…</p>
+          <p className="text-sm text-muted">Loading…</p>
         ) : (
           <StaggerGroup as="ul" className="flex flex-col gap-2">
             {themes.map((theme) => (
-              <StaggerItem as="li" key={theme.id} className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
+              <StaggerItem as="li" key={theme.id} className="flex items-center justify-between rounded-lg border border-line p-3 text-sm">
                 <div>
                   <p className="font-medium">{theme.name}</p>
-                  {theme.description && <p className="text-xs text-zinc-500">{theme.description}</p>}
+                  {theme.description && <p className="text-xs text-muted">{theme.description}</p>}
                 </div>
                 <div className="flex gap-3 text-xs">
                   <button type="button" className="hover:underline" onClick={() => startEdit(theme)}>
@@ -126,7 +126,7 @@ export default function AdminThemesPage() {
                 </div>
               </StaggerItem>
             ))}
-            {themes.length === 0 && <p className="text-sm text-zinc-500">No themes yet.</p>}
+            {themes.length === 0 && <p className="text-sm text-muted">No themes yet.</p>}
           </StaggerGroup>
         )}
       </Card>
@@ -145,7 +145,7 @@ export default function AdminThemesPage() {
             <ThemeConfigForm config={draft.config} onChange={updateConfig} />
             <div>
               <p className="mb-2 text-sm font-medium">Live preview</p>
-              <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
+              <div className="flex justify-center overflow-x-auto rounded-card border border-line bg-white p-2">
                 <ScaledPreviewFrame width={480} height={340}>
                   <PublicSiteRenderer site={{ ...mockSiteFor("MENU_CLASSIC"), theme: draft.config }} onFirstView={() => {}} isSample />
                 </ScaledPreviewFrame>
@@ -154,15 +154,15 @@ export default function AdminThemesPage() {
           </div>
 
           <Checkbox id="themeActive" label="Active" checked={draft.active} onChange={(e) => setDraft({ ...draft, active: e.target.checked })} />
-          <div className="flex gap-3">
-            <Button type="submit" isLoading={isBusy} className="w-auto px-5">
+          <div className="flex flex-wrap gap-3">
+            <Button type="submit" isLoading={isBusy} >
               {editingId ? "Save changes" : "Create theme"}
             </Button>
             {editingId && (
               <Button
-                type="button"
+ type="button"
                 variant="secondary"
-                className="w-auto px-5"
+                
                 onClick={() => {
                   setEditingId(null);
                   setDraft(EMPTY);

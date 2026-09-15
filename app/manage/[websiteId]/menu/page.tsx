@@ -2,11 +2,7 @@
 
 import { MenuManager } from "@/components/menu/MenuManager";
 
+/** Named by the console from the template's own plan - see ServicesPage. */
 export default function MenuPage() {
-  return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold tracking-tight">Menu</h1>
-      <MenuManager />
-    </div>
-  );
+  return <MenuManager />;
 }

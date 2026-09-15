@@ -1,5 +1,6 @@
 "use client";
 
+import { PageFrame } from "@/components/ui/PageFrame";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -113,7 +114,7 @@ export default function NewWebsitePage() {
       <div className="mx-auto w-full max-w-lg flex-1 px-4 py-10">
         <Reveal>
           <h1 className="text-xl font-semibold tracking-tight">Create a website</h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Step 1 of {SETUP_STEPS.length} - What kind of site are you building?</p>
+          <p className="mt-1 text-sm text-muted">Step 1 of {SETUP_STEPS.length} - What kind of site are you building?</p>
           <div className="mt-4">
             <Stepper steps={SETUP_STEPS} currentStep={1} completedSteps={new Set()} />
           </div>
@@ -129,17 +130,17 @@ export default function NewWebsitePage() {
                   whileHover={{ y: -2 }}
                   transition={{ duration: 0.15 }}
                   onClick={() => selectTemplateType(option.value)}
-                  className={`flex h-full w-full cursor-pointer flex-col gap-2 rounded-2xl border p-4 text-left text-sm shadow-soft transition-colors duration-200 ${
-                    isSelected
+                  className={`flex h-full w-full cursor-pointer flex-col gap-2 rounded-card border p-4 text-left text-sm shadow-soft transition-colors duration-200 ${
+ isSelected
                       ? "border-transparent bg-gradient-accent text-white shadow-lift"
-                      : "border-black/[.08] bg-surface hover:bg-black/[.02] dark:border-white/[.145] dark:hover:bg-white/[.04]"
+                      : "border-line bg-surface hover:bg-surface-muted"
                   }`}
                 >
                   <span className="text-2xl" aria-hidden>
                     {option.icon}
                   </span>
                   <span className="font-semibold">{option.label}</span>
-                  <span className={isSelected ? "text-white/80" : "text-zinc-500 dark:text-zinc-400"}>{option.description}</span>
+                  <span className={isSelected ? "text-white/80" : "text-muted"}>{option.description}</span>
                 </motion.button>
               </StaggerItem>
             );
@@ -162,13 +163,13 @@ export default function NewWebsitePage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl flex-1 px-4 py-10">
+    <PageFrame>
       <Reveal>
-        <button type="button" onClick={() => setStep(1)} className="mb-2 text-sm text-zinc-500 hover:underline">
+        <button type="button" onClick={() => setStep(1)} className="mb-2 text-sm text-muted hover:underline">
           ← Back
         </button>
         <h1 className="text-xl font-semibold tracking-tight">Choose a template</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           Step 2 of {SETUP_STEPS.length} - every template below has the exact same features, only the look changes. You can switch anytime later, too.
         </p>
         <div className="mt-4">
@@ -191,11 +192,11 @@ export default function NewWebsitePage() {
                     setLayoutVariant(option.value);
                   }
                 }}
-                className={`w-full cursor-pointer rounded-2xl border-2 p-4 text-left transition-colors ${
-                  isSelected ? "border-[var(--accent-solid)]" : "border-transparent"
+                className={`w-full cursor-pointer rounded-card border-2 p-4 text-left transition-colors ${
+ isSelected ? "border-[var(--accent-solid)]" : "border-transparent"
                 }`}
               >
-                <div className="flex justify-center overflow-hidden rounded-xl border border-black/[.08] dark:border-white/[.145]">
+                <div className="flex justify-center overflow-hidden rounded-xl border border-line">
                   <ScaledPreviewFrame>
                     <PublicSiteRenderer site={mockSiteFor(option.value)} onFirstView={() => {}} isSample />
                   </ScaledPreviewFrame>
@@ -203,7 +204,7 @@ export default function NewWebsitePage() {
                 <div className="mt-3 flex items-start justify-between gap-2">
                   <div>
                     <p className="font-semibold">{option.label}</p>
-                    <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{option.description}</p>
+                    <p className="mt-0.5 text-xs text-muted">{option.description}</p>
                     <BestForChips items={option.bestFor} />
                   </div>
                   <a
@@ -225,7 +226,7 @@ export default function NewWebsitePage() {
         <p className="mb-2 text-sm font-medium">
           Live preview - {templateOptions.find((o) => o.value === layoutVariant)?.label}
         </p>
-        <div className="flex justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
+        <div className="flex justify-center overflow-x-auto rounded-card border border-line bg-white p-2">
           <ScaledPreviewFrame width={820} height={520}>
             <PublicSiteRenderer site={mockSiteFor(layoutVariant)} onFirstView={() => {}} isSample />
           </ScaledPreviewFrame>
@@ -252,7 +253,7 @@ export default function NewWebsitePage() {
         </button>
 
         {showAdvanced && (
-          <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-black/[.12] p-4 dark:border-white/[.18]">
+          <div className="flex flex-col gap-4 rounded-card border border-dashed border-line-strong p-4">
             <Select id="pageMode" label="Page layout" value={pageMode} onChange={(e) => setPageMode(e.target.value as PageMode)}>
               <option value="ONE_PAGE">Single page</option>
               <option value="MULTI_PAGE">Multiple pages</option>
@@ -273,6 +274,6 @@ export default function NewWebsitePage() {
           Create website
         </Button>
       </form>
-    </div>
+    </PageFrame>
   );
 }

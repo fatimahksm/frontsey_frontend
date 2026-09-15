@@ -52,7 +52,7 @@ export default function Home() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative rounded-full border border-black/[.08] bg-surface px-4 py-1.5 text-xs font-medium text-zinc-500 shadow-soft dark:border-white/[.1] dark:text-zinc-400"
+          className="relative rounded-full border border-line bg-surface px-4 py-1.5 text-xs font-medium text-muted shadow-soft"
         >
           Multi-tenant website builder
         </motion.span>
@@ -68,7 +68,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.15 }}
-          className="relative max-w-xl text-lg text-zinc-600 dark:text-zinc-400"
+          className="relative max-w-xl text-lg text-muted"
         >
           Pick a template, brand your site, and share it with customers - no code required.
         </motion.p>
@@ -98,17 +98,17 @@ export default function Home() {
       <section className="mx-auto w-full max-w-5xl px-4 py-20">
         <Reveal className="mx-auto mb-12 max-w-xl text-center">
           <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Everything your business needs</h2>
-          <p className="mt-2 text-zinc-500 dark:text-zinc-400">Two ways to launch, one dashboard to run it all.</p>
+          <p className="mt-2 text-muted">Two ways to launch, one dashboard to run it all.</p>
         </Reveal>
         <StaggerGroup className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           {FEATURES.map((feature) => (
             <StaggerItem
               key={feature.title}
-              className="rounded-2xl border border-black/[.08] bg-surface p-6 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.1]"
+              className="rounded-card border border-line bg-surface p-6 shadow-soft transition-shadow duration-300 hover:shadow-lift"
             >
               <span className="text-3xl">{feature.icon}</span>
               <h3 className="mt-3 font-medium">{feature.title}</h3>
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{feature.description}</p>
+              <p className="mt-1 text-sm text-muted">{feature.description}</p>
             </StaggerItem>
           ))}
         </StaggerGroup>
@@ -124,7 +124,7 @@ export default function Home() {
               <StaggerItem key={item.step}>
                 <span className="text-gradient text-4xl font-bold">{item.step}</span>
                 <h3 className="mt-3 font-medium">{item.title}</h3>
-                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{item.description}</p>
+                <p className="mt-1 text-sm text-muted">{item.description}</p>
               </StaggerItem>
             ))}
           </StaggerGroup>
@@ -134,7 +134,7 @@ export default function Home() {
       <section className="px-4 py-24 text-center">
         <Reveal className="mx-auto flex max-w-md flex-col items-center gap-6">
           <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Ready to go live?</h2>
-          <p className="text-zinc-500 dark:text-zinc-400">Create your account and publish your first site today.</p>
+          <p className="text-muted">Create your account and publish your first site today.</p>
           <Link href={session ? "/dashboard" : "/register"} className="w-full sm:w-56">
             <Button>{session ? "Go to dashboard" : "Get started for free"}</Button>
           </Link>

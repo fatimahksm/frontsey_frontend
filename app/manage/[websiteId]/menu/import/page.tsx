@@ -66,7 +66,7 @@ export default function MenuImportPage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold tracking-tight">Import menu from CSV</h1>
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="text-sm text-muted">
         Columns: Category, Name, Description, Ingredients, Price, DiscountPrice, ImageUrl, MaxOrderQuantity.
       </p>
 
@@ -83,7 +83,7 @@ export default function MenuImportPage() {
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             className="max-w-full text-sm"
           />
-          <Button className="w-auto px-4" onClick={handlePreview} isLoading={isBusy} disabled={!file}>
+          <Button onClick={handlePreview} isLoading={isBusy} disabled={!file}>
             Preview
           </Button>
         </div>
@@ -97,7 +97,7 @@ export default function MenuImportPage() {
           <div className="flex flex-col gap-3">
             <ul className="flex flex-col gap-2">
               {preview.rows.map((row) => (
-                <li key={row.rowNumber} className="rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
+                <li key={row.rowNumber} className="rounded-lg border border-line p-3 text-sm">
                   <div className="flex items-center justify-between">
                     <span>
                       Row {row.rowNumber}: {row.name || "(no name)"} · {row.categoryName}
@@ -137,9 +137,9 @@ export default function MenuImportPage() {
             )}
 
             <Button
-              onClick={handleConfirm}
+ onClick={handleConfirm}
               isLoading={isBusy}
-              className="w-auto px-5"
+              
               disabled={preview.invalidCount > 0 && !importValidRowsOnly}
             >
               Confirm import
@@ -154,7 +154,7 @@ export default function MenuImportPage() {
             {outcome.createdCount} created · {outcome.updatedCount} updated · {outcome.skippedCount} skipped
           </p>
           {outcome.skippedRows.length > 0 && (
-            <ul className="mt-3 flex flex-col gap-1 text-sm text-zinc-500">
+            <ul className="mt-3 flex flex-col gap-1 text-sm text-muted">
               {outcome.skippedRows.map((row) => (
                 <li key={row.rowNumber}>
                   Row {row.rowNumber}: {row.name} - {row.errors.join(" ") || "skipped"}

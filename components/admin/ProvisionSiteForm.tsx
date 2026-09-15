@@ -82,7 +82,7 @@ export function ProvisionSiteForm({ accessToken, onCreated }: { accessToken: str
             {done.complimentary && " It has free access, so they will never be asked to pay."}
           </Alert>
         )}
-        <Button className="!w-auto self-start px-4" variant="secondary" onClick={() => setIsOpen(true)}>
+        <Button className="self-start" variant="secondary" onClick={() => setIsOpen(true)}>
           Set up a site for an owner
         </Button>
       </div>
@@ -92,11 +92,11 @@ export function ProvisionSiteForm({ accessToken, onCreated }: { accessToken: str
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-4 rounded-2xl border border-black/[.08] bg-surface p-5 shadow-soft dark:border-white/[.12]"
+      className="flex flex-col gap-4 rounded-card border border-line bg-surface p-5 shadow-soft"
     >
       <div>
         <h2 className="text-sm font-semibold tracking-tight">Set up a site for an owner</h2>
-        <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="mt-0.5 text-xs text-muted">
           They will own it. If this email has no account yet, one is created and they are emailed a link to choose
           their own password - you never set it.
         </p>
@@ -139,17 +139,17 @@ export function ProvisionSiteForm({ accessToken, onCreated }: { accessToken: str
               type="button"
               onClick={() => setTemplateType(option.value)}
               className={`rounded-xl border p-3 text-left text-sm transition-colors ${
-                templateType === option.value
+ templateType === option.value
                   ? "border-[var(--accent-solid)] bg-[var(--accent-solid)]/8"
-                  : "border-black/[.08] hover:bg-black/[.02] dark:border-white/[.145] dark:hover:bg-white/[.04]"
+                  : "border-line hover:bg-surface-muted"
               }`}
             >
               <span className="font-medium">{option.label}</span>
-              <span className="mt-0.5 block text-xs text-zinc-500 dark:text-zinc-400">{option.description}</span>
+              <span className="mt-0.5 block text-xs text-muted">{option.description}</span>
             </button>
           ))}
         </div>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="text-xs text-muted">
           The owner picks the exact template and colours themselves, in their own setup.
         </p>
       </fieldset>
@@ -161,21 +161,21 @@ export function ProvisionSiteForm({ accessToken, onCreated }: { accessToken: str
           checked={complimentary}
           onChange={(e) => setComplimentary(e.target.checked)}
         />
-        <p className="mt-1 ps-7 text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 ps-7 text-xs text-muted">
           {complimentary
             ? "This site publishes and stays live without a subscription. The owner is never shown a plan or asked to pay."
             : "Leave off and this site behaves like any other - it gets the same free trial at its first publish."}
         </p>
       </div>
 
-      <div className="flex gap-2">
-        <Button type="submit" className="!w-auto px-5" isLoading={isSubmitting} disabled={!ownerEmail.trim() || !businessName.trim()}>
+      <div className="flex flex-wrap gap-2">
+        <Button type="submit" isLoading={isSubmitting} disabled={!ownerEmail.trim() || !businessName.trim()}>
           Create the site
         </Button>
         <Button
-          type="button"
+ type="button"
           variant="secondary"
-          className="!w-auto px-4"
+          
           disabled={isSubmitting}
           onClick={() => {
             setIsOpen(false);

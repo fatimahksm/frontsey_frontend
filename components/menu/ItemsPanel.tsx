@@ -7,6 +7,7 @@ import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Segmented } from "@/components/ui/Segmented";
 import { Select } from "@/components/ui/Select";
 import { TextField } from "@/components/ui/TextField";
 import { friendlyMessage } from "@/lib/api/client";
@@ -171,70 +172,84 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
     <div className="flex flex-col gap-4">
       {error && <Alert tone="error">{error}</Alert>}
 
-      <div className="flex flex-wrap items-end gap-3">
-        {!showTrash && (
-          <>
-            <Select id="categoryFilter" label="Category" value={categoryFilter} onChange={(e) => { setCategoryFilter(e.target.value); }}>
-              <option value="">All categories</option>
-              {categorySelectOptions(categories).map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-            <TextField id="search" label="Search" value={search} onChange={(e) => setSearch(e.target.value)} />
-            <Select
-              id="availabilityFilter"
-              label="Availability"
-              value={availabilityFilter}
-              onChange={(e) => setAvailabilityFilter(e.target.value as "" | ItemAvailability)}
-            >
-              <option value="">All availability</option>
-              <option value="AVAILABLE">Available</option>
-              <option value="UNAVAILABLE">Unavailable</option>
-            </Select>
-            <Button className="w-auto px-4" onClick={load} isLoading={isLoading}>
-              Apply
+      {/* One primary action per screen, and adding a product is it. Narrowing a
+          list you are already looking at is not the thing this page is for, so
+          Apply is secondary - it used to be the same gradient as Add item, and
+          a screen where everything shouts has nothing to say. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Segmented
+          ariaLabel="Which items to show"
+          value={showTrash ? "trash" : "active"}
+          onChange={(next) => setShowTrash(next === "trash")}
+          options={[
+            { value: "active", label: "Active" },
+            { value: "trash", label: "Trash" },
+          ]}
+        />
+        <div className="flex items-center gap-2">
+          <Link href={`/manage/${websiteId}/menu/import`}>
+            <Button variant="secondary" size="sm">
+              Import CSV
             </Button>
-          </>
-        )}
-        <div className="ml-auto flex items-center gap-3">
-          <Link href={`/manage/${websiteId}/menu/import`} className="text-sm font-medium hover:underline">
-            Import CSV
           </Link>
           <Link href={`/manage/${websiteId}/menu/items/new`}>
-            <Button className="w-auto px-4">Add item</Button>
+            <Button size="sm">Add item</Button>
           </Link>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 text-sm">
-        <button
-          type="button"
-          onClick={() => setShowTrash(false)}
-          className={`rounded-full px-3 py-1 ${!showTrash ? "bg-foreground text-background" : "text-zinc-500"}`}
-        >
-          Active
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowTrash(true)}
-          className={`rounded-full px-3 py-1 ${showTrash ? "bg-foreground text-background" : "text-zinc-500"}`}
-        >
-          Trash
-        </button>
-      </div>
+      {!showTrash && (
+        <div className="flex flex-wrap items-end gap-3 rounded-card border border-line bg-surface-muted p-3">
+          <Select
+            id="categoryFilter"
+            label="Category"
+            wrapperClassName="w-44"
+            value={categoryFilter}
+            onChange={(e) => {
+              setCategoryFilter(e.target.value);
+            }}
+          >
+            <option value="">All categories</option>
+            {categorySelectOptions(categories).map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+          <TextField
+            id="search"
+            label="Search"
+            wrapperClassName="min-w-40 flex-1"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <Select
+            id="availabilityFilter"
+            label="Availability"
+            wrapperClassName="w-44"
+            value={availabilityFilter}
+            onChange={(e) => setAvailabilityFilter(e.target.value as "" | ItemAvailability)}
+          >
+            <option value="">All availability</option>
+            <option value="AVAILABLE">Available</option>
+            <option value="UNAVAILABLE">Unavailable</option>
+          </Select>
+          <Button variant="secondary" onClick={load} isLoading={isLoading}>
+            Apply
+          </Button>
+        </div>
+      )}
 
       {selected.size > 0 && !showTrash && (
         <div className="flex flex-wrap items-center gap-2 rounded-lg bg-black/[.03] p-3 text-sm dark:bg-white/[.05]">
           <span className="font-medium">{selected.size} selected</span>
-          <Button className="w-auto px-3" onClick={() => handleBulkAvailability("AVAILABLE")} isLoading={isBusy}>
+          <Button onClick={() => handleBulkAvailability("AVAILABLE")} isLoading={isBusy}>
             Mark available
           </Button>
-          <Button className="w-auto px-3" onClick={() => handleBulkAvailability("UNAVAILABLE")} isLoading={isBusy}>
+          <Button onClick={() => handleBulkAvailability("UNAVAILABLE")} isLoading={isBusy}>
             Mark unavailable
           </Button>
-          <Button variant="secondary" className="w-auto px-3" onClick={handleBulkTrash} isLoading={isBusy}>
+          <Button variant="secondary" onClick={handleBulkTrash} isLoading={isBusy}>
             Move to trash
           </Button>
           <Select
@@ -252,8 +267,8 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
             ))}
           </Select>
           <Button
-            variant="secondary"
-            className="w-auto px-3"
+ variant="secondary"
+            
             onClick={handleBulkMoveCategory}
             isLoading={isBusy}
             disabled={!bulkTargetCategory}
@@ -264,13 +279,13 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
       )}
 
       {isLoading ? (
-        <p className="text-sm text-zinc-500">Loading…</p>
+        <p className="text-sm text-muted">Loading…</p>
       ) : items.length === 0 ? (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-muted">
           {showTrash ? "Trash is empty." : "You have not added any menu items yet. Use \"Add item\" above to add your first one."}
         </p>
       ) : visibleItems.length === 0 ? (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-muted">
           {hasMore
             ? "None of the items loaded so far match the availability filter. Load more to keep looking."
             : "No items match the availability filter."}
@@ -281,7 +296,7 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
             <StaggerItem
               as="li"
               key={item.id}
-              className="flex items-center gap-3 rounded-lg border border-black/[.08] p-3 transition-colors dark:border-white/[.145]"
+              className="flex items-center gap-3 rounded-lg border border-line p-3 transition-colors"
             >
               {!showTrash && (
                 <input
@@ -300,7 +315,7 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
                     {item.availability === "AVAILABLE" ? "Available" : "Unavailable"}
                   </Badge>
                 </div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                <p className="text-xs text-muted">
                   {categoryName(item.categoryId)} · {formatMoney(item.discountPrice ?? item.price, currency)}
                   {item.discountPrice != null && (
                     <span className="ml-1 line-through">{formatMoney(item.price, currency)}</span>
@@ -320,7 +335,7 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
                   <>
                     <button
                       type="button"
-                      className="text-zinc-500 hover:underline"
+                      className="text-muted hover:underline"
                       onClick={() => withBusy(() => menuApi.duplicateItem(accessToken, websiteId, item.id))}
                     >
                       Duplicate
@@ -341,13 +356,13 @@ export function ItemsPanel({ accessToken, websiteId, currency, categories }: Pro
       )}
 
       {!isLoading && total > items.length && (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-muted">
           Showing {items.length} of {total} items
         </p>
       )}
 
       {!isLoading && hasMore && (
-        <Button variant="secondary" className="w-auto self-start px-4" onClick={loadMore} isLoading={isLoadingMore}>
+        <Button variant="secondary" className="self-start" onClick={loadMore} isLoading={isLoadingMore}>
           Show more
         </Button>
       )}

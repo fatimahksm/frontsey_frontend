@@ -171,7 +171,7 @@ export default function AdminWebsitesPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Sites</h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-sm text-muted">
             {websites.length} website{websites.length === 1 ? "" : "s"} on the platform
             {blockedCount > 0 && <> · {blockedCount} blocked</>}
           </p>
@@ -182,7 +182,7 @@ export default function AdminWebsitesPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search name, link, email or phone…"
-            className="h-10 w-72 rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.18]"
+            className="h-10 w-72 rounded-xl border border-line-strong bg-surface px-3.5 text-sm outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40"
           />
           <Checkbox id="onlyBlocked" label="Blocked only" checked={onlyBlocked} onChange={(e) => setOnlyBlocked(e.target.checked)} />
         </div>
@@ -195,9 +195,9 @@ export default function AdminWebsitesPage() {
       {session && <ProvisionSiteForm accessToken={session.accessToken} onCreated={() => void load()} />}
 
       {isLoading ? (
-        <p className="text-sm text-zinc-500">Loading…</p>
+        <p className="text-sm text-muted">Loading…</p>
       ) : visible.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-black/[.12] p-8 text-center text-sm text-zinc-500 dark:border-white/[.18]">
+        <p className="rounded-card border border-dashed border-line-strong p-8 text-center text-sm text-muted">
           {websites.length === 0 ? "No websites yet." : "Nothing matches that search."}
         </p>
       ) : (
@@ -206,8 +206,8 @@ export default function AdminWebsitesPage() {
             <StaggerItem
               as="li"
               key={site.id}
-              className={`rounded-2xl border bg-surface p-4 shadow-soft transition-shadow hover:shadow-lift ${
-                isBlocked(site) ? "border-red-500/40" : "border-black/[.08] dark:border-white/[.12]"
+              className={`rounded-card border bg-surface p-4 shadow-soft transition-shadow hover:shadow-lift ${
+ isBlocked(site) ? "border-red-500/40" : "border-line"
               }`}
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
@@ -227,7 +227,7 @@ export default function AdminWebsitesPage() {
                       <Badge tone="neutral">No plan yet</Badge>
                     )}
                   </div>
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="mt-1 text-xs text-muted">
                     /site/{site.slug}
                     {site.subscriptionEndsAt && <> · renews {formatDate(site.subscriptionEndsAt)}</>}
                     {site.publishedAt && <> · published {formatDate(site.publishedAt)}</>}
@@ -236,13 +236,13 @@ export default function AdminWebsitesPage() {
 
                 <div className="flex flex-wrap items-center gap-2">
                   {isBlocked(site) ? (
-                    <Button className="!w-auto px-4" onClick={() => handleUnblock(site.id)} isLoading={isBusy}>
+                    <Button onClick={() => handleUnblock(site.id)} isLoading={isBusy}>
                       Unblock
                     </Button>
                   ) : (
                     <Button
-                      variant="secondary"
-                      className="!w-auto px-4"
+ variant="secondary"
+                      
                       onClick={() => setBlocking(blocking === site.id ? null : site.id)}
                     >
                       Block
@@ -250,7 +250,7 @@ export default function AdminWebsitesPage() {
                   )}
                   <button
                     type="button"
-                    className="rounded-full px-3 py-2 text-xs font-medium text-zinc-500 hover:text-foreground dark:text-zinc-400"
+                    className="rounded-full px-3 py-2 text-xs font-medium text-muted hover:text-foreground"
                     onClick={() => {
                       setEditingId(editingId === site.id ? null : site.id);
                       setEditName(site.businessName);
@@ -271,7 +271,7 @@ export default function AdminWebsitesPage() {
 
               {/* The owner, and the two ways to reach them. An admin about to
                   block somebody's business should be one tap from calling them. */}
-              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-black/[.06] pt-3 text-sm dark:border-white/[.1]">
+              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-3 text-sm">
                 <span className="font-medium">{site.ownerName || "Unnamed owner"}</span>
                 <a href={`mailto:${site.ownerEmail}`} className="text-[var(--accent-solid)] hover:underline">
                   {site.ownerEmail}
@@ -285,15 +285,15 @@ export default function AdminWebsitesPage() {
                       href={`https://wa.me/${dialable(site.ownerPhone).replace("+", "")}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-zinc-500 hover:underline dark:text-zinc-400"
+                      className="text-xs text-muted hover:underline"
                     >
                       WhatsApp ↗
                     </a>
                   </>
                 ) : (
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">No phone on this site&apos;s profile</span>
+                  <span className="text-xs text-muted">No phone on this site&apos;s profile</span>
                 )}
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                <span className="text-xs text-muted">
                   {site.ownerWebsiteCount} site{site.ownerWebsiteCount === 1 ? "" : "s"} on this account
                 </span>
               </div>
@@ -314,7 +314,7 @@ export default function AdminWebsitesPage() {
                     onChange={(e) => setEditName(e.target.value)}
                     className="flex-1"
                   />
-                  <Button className="!w-auto px-4" onClick={() => handleSaveEdit(site.id)} isLoading={isBusy} disabled={!editName.trim()}>
+                  <Button onClick={() => handleSaveEdit(site.id)} isLoading={isBusy} disabled={!editName.trim()}>
                     Save
                   </Button>
                 </div>
@@ -322,7 +322,7 @@ export default function AdminWebsitesPage() {
 
               {blocking === site.id && (
                 <div className="mt-3 flex flex-col gap-3 rounded-xl bg-black/[.03] p-3 dark:bg-white/[.05]">
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="text-xs text-muted">
                     Blocking takes the public site offline immediately. The owner keeps their content and can see the
                     reason.
                   </p>
@@ -346,15 +346,15 @@ export default function AdminWebsitesPage() {
                         type="datetime-local"
                         value={reactivateAt}
                         onChange={(e) => setReactivateAt(e.target.value)}
-                        className="h-9 rounded-lg border border-black/[.12] bg-transparent px-2.5 text-sm outline-none dark:border-white/[.18]"
+                        className="h-9 rounded-lg border border-line-strong bg-transparent px-2.5 text-sm outline-none"
                       />
                     </label>
                   )}
                   <div className="flex gap-2">
-                    <Button className="!w-auto px-4" onClick={() => handleBlock(site.id)} isLoading={isBusy} disabled={!reason.trim()}>
+                    <Button onClick={() => handleBlock(site.id)} isLoading={isBusy} disabled={!reason.trim()}>
                       Block this site
                     </Button>
-                    <Button variant="secondary" className="!w-auto px-4" onClick={() => setBlocking(null)} disabled={isBusy}>
+                    <Button variant="secondary" onClick={() => setBlocking(null)} disabled={isBusy}>
                       Cancel
                     </Button>
                   </div>

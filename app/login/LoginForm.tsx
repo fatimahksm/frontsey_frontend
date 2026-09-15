@@ -134,7 +134,7 @@ export function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
         />
         <div className="-mt-1 text-right text-sm">
-          <Link href="/reset-password" className="text-zinc-600 hover:underline dark:text-zinc-400">
+          <Link href="/reset-password" className="text-muted hover:underline">
             Forgot password?
           </Link>
         </div>

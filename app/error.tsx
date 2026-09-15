@@ -1,5 +1,6 @@
 "use client"; // Error boundaries must be Client Components.
 
+import { WarningIcon } from "@/components/ui/icons";
 import Link from "next/link";
 
 import { unexpectedErrorMessage } from "@/lib/api/errors";
@@ -27,13 +28,13 @@ export default function AppError({
 }) {
   return (
     <div className="mx-auto flex w-full max-w-lg flex-1 flex-col items-center justify-center gap-5 px-4 py-20 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/12 text-2xl" aria-hidden>
-        ⚠️
+      <div className="flex h-14 w-14 items-center justify-center rounded-card bg-warning-quiet text-warning" aria-hidden>
+        <WarningIcon className="h-7 w-7" />
       </div>
 
       <div className="flex flex-col gap-2">
         <h1 className="text-xl font-semibold tracking-tight">Something went wrong</h1>
-        <p className="text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">{unexpectedErrorMessage(error)}</p>
+        <p className="text-sm leading-relaxed text-muted">{unexpectedErrorMessage(error)}</p>
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -46,14 +47,14 @@ export default function AppError({
         </button>
         <Link
           href="/dashboard"
-          className="rounded-full border border-black/[.1] px-5 py-2.5 text-sm font-medium transition-colors hover:bg-black/[.04] dark:border-white/[.16] dark:hover:bg-white/[.06]"
+          className="rounded-full border border-line-strong px-5 py-2.5 text-sm font-medium transition-colors hover:bg-black/[.04] dark:hover:bg-white/[.06]"
         >
           Back to dashboard
         </Link>
       </div>
 
       {error.digest && (
-        <p className="font-mono text-xs text-zinc-400">
+        <p className="font-mono text-xs text-faint">
           Reference: {error.digest}
         </p>
       )}

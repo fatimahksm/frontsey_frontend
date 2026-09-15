@@ -69,7 +69,7 @@ export default function MockPreviewPage({ params }: Props) {
       <main className="flex min-h-screen items-center justify-center p-8 text-center">
         <div className="max-w-sm">
           <h1 className="text-lg font-semibold tracking-tight">This design is not available</h1>
-          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-2 text-sm text-muted">
             It is not one of the templates on offer right now. Pick another from the gallery.
           </p>
         </div>
@@ -81,7 +81,7 @@ export default function MockPreviewPage({ params }: Props) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="sticky top-0 z-50 flex items-center justify-between gap-3 border-b border-black/[.08] bg-amber-400 px-4 py-2 text-sm font-medium text-black dark:border-white/[.1]">
+      <div className="sticky top-0 z-50 flex items-center justify-between gap-3 border-b border-line bg-amber-400 px-4 py-2 text-sm font-medium text-black">
         <span>Sample preview - shown with placeholder data so you can see the design before picking it.</span>
         <button type="button" onClick={() => window.close()} className="shrink-0 underline">
           Close

@@ -28,9 +28,9 @@ function ColorField({ id, label, value, onChange }: { id: string; label: string;
           type="color"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="h-9 w-9 shrink-0 cursor-pointer rounded border border-black/[.12] bg-transparent p-0.5 dark:border-white/[.18]"
+          className="h-9 w-9 shrink-0 cursor-pointer rounded border border-line-strong bg-transparent p-0.5"
         />
-        <span className="font-mono text-xs uppercase text-zinc-500 dark:text-zinc-400">{value}</span>
+        <span className="font-mono text-xs uppercase text-muted">{value}</span>
       </div>
     </label>
   );
@@ -43,8 +43,8 @@ function ColorField({ id, label, value, onChange }: { id: string; label: string;
  */
 export function ThemeConfigForm({ config, onChange }: Props) {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-black/[.12] p-4 dark:border-white/[.18]">
-      <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Design system</p>
+    <div className="flex flex-col gap-4 rounded-card border border-dashed border-line-strong p-4">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted">Design system</p>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <ColorField id="primaryColor" label="Primary color" value={config.primaryColor} onChange={(v) => onChange("primaryColor", v)} />

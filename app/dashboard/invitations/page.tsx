@@ -1,5 +1,6 @@
 "use client";
 
+import { PageFrame } from "@/components/ui/PageFrame";
 import { useEffect, useState } from "react";
 
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
@@ -68,9 +69,9 @@ export default function InvitationsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
+    <PageFrame width="form">
       <h1 className="text-xl font-semibold tracking-tight">Invitations</h1>
-      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="mt-1 text-sm text-muted">
         Websites you&apos;ve been invited to help manage. Accept to get access, or decline if it&apos;s not for you.
       </p>
 
@@ -83,34 +84,34 @@ export default function InvitationsPage() {
       <div className="mt-6">
         <Card>
           {invitations === null ? (
-            <p className="text-sm text-zinc-500">Loading…</p>
+            <p className="text-sm text-muted">Loading…</p>
           ) : invitations.length === 0 ? (
-            <p className="text-sm text-zinc-500">You have no pending invitations right now.</p>
+            <p className="text-sm text-muted">You have no pending invitations right now.</p>
           ) : (
             <StaggerGroup as="ul" className="flex flex-col gap-3">
               {invitations.map((invitation) => (
                 <StaggerItem
                   as="li"
                   key={invitation.id}
-                  className="flex flex-col gap-3 rounded-lg border border-black/[.08] p-4 dark:border-white/[.145] sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-lg border border-line p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
                     <p className="text-sm font-medium">{invitation.businessName}</p>
-                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                    <p className="mt-1 text-xs text-muted">
                       {invitation.permissions.map((p) => PERMISSION_LABELS[p]).join(", ")}
                     </p>
                   </div>
                   <div className="flex shrink-0 gap-2">
                     <Button
-                      className="w-auto px-4"
+ 
                       isLoading={busyId === invitation.id}
                       onClick={() => handleAccept(invitation.id)}
                     >
                       Accept
                     </Button>
                     <Button
-                      variant="secondary"
-                      className="w-auto px-4"
+ variant="secondary"
+                      
                       isLoading={busyId === invitation.id}
                       onClick={() => handleReject(invitation.id)}
                     >
@@ -123,6 +124,6 @@ export default function InvitationsPage() {
           )}
         </Card>
       </div>
-    </div>
+    </PageFrame>
   );
 }

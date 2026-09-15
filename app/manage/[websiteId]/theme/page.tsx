@@ -93,16 +93,15 @@ export default function ThemePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold tracking-tight">Theme</h1>
       {error && <Alert tone="error">{error}</Alert>}
       {message && <Alert tone="success">{message}</Alert>}
 
       <Card title="Build from scratch">
-        <div className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 dark:border-white/[.145]">
+        <div className="flex items-center justify-between rounded-lg border border-line p-3">
           <span className="text-sm">No preset theme - fully custom sections.</span>
           <Button
-            variant={website.themeId === null ? "primary" : "secondary"}
-            className="w-auto px-4"
+ variant={website.themeId === null ? "primary" : "secondary"}
+            
             onClick={() => handleSelect(null)}
             isLoading={isBusy}
           >
@@ -116,15 +115,15 @@ export default function ThemePage() {
           {themes.map((theme) => (
             <li
               key={theme.id}
-              className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 dark:border-white/[.145]"
+              className="flex items-center justify-between rounded-lg border border-line p-3"
             >
               <div>
                 <p className="text-sm font-medium">{theme.name}</p>
-                {theme.description && <p className="text-xs text-zinc-500 dark:text-zinc-400">{theme.description}</p>}
+                {theme.description && <p className="text-xs text-muted">{theme.description}</p>}
               </div>
               <Button
-                variant={website.themeId === theme.id ? "primary" : "secondary"}
-                className="w-auto px-4"
+ variant={website.themeId === theme.id ? "primary" : "secondary"}
+                
                 onClick={() => handleSelect(theme.id)}
                 isLoading={isBusy}
               >
@@ -132,13 +131,13 @@ export default function ThemePage() {
               </Button>
             </li>
           ))}
-          {themes.length === 0 && <p className="text-sm text-zinc-500">No preset themes available.</p>}
+          {themes.length === 0 && <p className="text-sm text-muted">No preset themes available.</p>}
         </ul>
       </Card>
 
       <Card title="Colours & typography">
         <div className="flex flex-col gap-5">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-muted">
             {isCustomised
               ? "This website uses its own colours. Reset to go back to the preset above."
               : "Adjust anything here to make this website's own version of the preset above. The preset itself is left unchanged."}
@@ -147,16 +146,16 @@ export default function ThemePage() {
           <ThemeConfigForm config={config} onChange={(key, value) => setDraft({ ...config, [key]: value })} />
 
           <div className="flex flex-wrap items-center gap-2">
-            <Button className="w-auto px-4" onClick={handleSaveConfig} isLoading={isBusy} disabled={draft === null}>
+            <Button onClick={handleSaveConfig} isLoading={isBusy} disabled={draft === null}>
               Save colours
             </Button>
             {draft !== null && (
-              <Button variant="secondary" className="w-auto px-4" onClick={() => setDraft(null)} disabled={isBusy}>
+              <Button variant="secondary" onClick={() => setDraft(null)} disabled={isBusy}>
                 Discard changes
               </Button>
             )}
             {isCustomised && draft === null && (
-              <Button variant="secondary" className="w-auto px-4" onClick={handleResetConfig} isLoading={isBusy}>
+              <Button variant="secondary" onClick={handleResetConfig} isLoading={isBusy}>
                 Reset to preset
               </Button>
             )}

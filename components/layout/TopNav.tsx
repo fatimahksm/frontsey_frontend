@@ -57,13 +57,13 @@ export function TopNav() {
       initial={{ y: -12, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="sticky top-0 z-30 border-b border-black/[.08] bg-surface/80 backdrop-blur-md dark:border-white/[.1]"
+      className="sticky top-0 z-30 border-b border-line bg-surface/80 backdrop-blur-md"
     >
       <div className="flex h-14 items-center justify-between px-4">
         <Link href={isSuperAdmin ? "/admin" : "/dashboard"} className="flex items-center gap-2 text-sm font-semibold tracking-tight">
           <span className="text-gradient">Frontsey</span>
           {isSuperAdmin && (
-            <span className="rounded-full border border-black/[.12] px-2 py-0.5 text-[11px] font-medium text-zinc-500 dark:border-white/[.18] dark:text-zinc-400">
+            <span className="rounded-full border border-line-strong px-2 py-0.5 text-[11px] font-medium text-muted">
               Admin
             </span>
           )}
@@ -85,7 +85,7 @@ export function TopNav() {
                 key={link.href}
                 href={link.href}
                 className={`relative px-3 py-2 transition-colors ${
-                  isActive ? "text-foreground" : "text-zinc-500 hover:text-foreground dark:text-zinc-400"
+ isActive ? "text-foreground" : "text-muted hover:text-foreground dark:text-faint"
                 }`}
               >
                 {link.label}
@@ -107,7 +107,7 @@ export function TopNav() {
             whileTap={{ scale: 0.96 }}
             type="button"
             onClick={signOut}
-            className="ml-2 rounded-full border border-black/[.12] px-3 py-1.5 text-xs font-medium transition-colors hover:bg-black/[.04] dark:border-white/[.18] dark:hover:bg-white/[.06]"
+            className="ml-2 rounded-full border border-line-strong px-3 py-1.5 text-xs font-medium transition-colors hover:bg-black/[.04] dark:hover:bg-white/[.06]"
           >
             Log out
           </motion.button>
@@ -121,7 +121,7 @@ export function TopNav() {
             aria-expanded={menuOpen}
             aria-controls="topnav-menu"
             aria-label="Menu"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-black/[.12] dark:border-white/[.18]"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-line-strong"
           >
             <span aria-hidden className="flex flex-col gap-[3px]">
               <span className="block h-[2px] w-4 rounded bg-current" />
@@ -140,7 +140,7 @@ export function TopNav() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden border-t border-black/[.08] sm:hidden dark:border-white/[.1]"
+            className="overflow-hidden border-t border-line sm:hidden"
           >
             <div className="flex flex-col p-2">
               {links.map((link) => (
@@ -148,9 +148,9 @@ export function TopNav() {
                   key={link.href}
                   href={link.href}
                   className={`rounded-lg px-3 py-2.5 text-sm ${
-                    link.match(pathname ?? "")
+ link.match(pathname ?? "")
                       ? "bg-black/[.04] font-medium text-foreground dark:bg-white/[.06]"
-                      : "text-zinc-500 dark:text-zinc-400"
+                      : "text-muted"
                   }`}
                 >
                   {link.label}
@@ -159,7 +159,7 @@ export function TopNav() {
               <button
                 type="button"
                 onClick={signOut}
-                className="mt-1 rounded-lg px-3 py-2.5 text-start text-sm text-zinc-500 dark:text-zinc-400"
+                className="mt-1 rounded-lg px-3 py-2.5 text-start text-sm text-muted"
               >
                 Log out
               </button>

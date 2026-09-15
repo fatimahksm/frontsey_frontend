@@ -73,7 +73,7 @@ export default function AdminPlansPage() {
       {error && <Alert tone="error">{error}</Alert>}
 
       {isLoading ? (
-        <p className="text-sm text-zinc-500">Loading…</p>
+        <p className="text-sm text-muted">Loading…</p>
       ) : (
         <StaggerGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {plans.map((plan) => (
@@ -137,12 +137,12 @@ export default function AdminPlansPage() {
                     onChange={(e) => setDraft({ ...draft, multiPageEnabled: e.target.checked })}
                   />
                   <div className="flex gap-2">
-                    <Button className="w-auto px-4" onClick={handleSave} isLoading={isBusy}>
+                    <Button onClick={handleSave} isLoading={isBusy}>
                       Save
                     </Button>
                     <Button
-                      variant="secondary"
-                      className="w-auto px-4"
+ variant="secondary"
+                      
                       onClick={() => {
                         setEditingId(null);
                         setDraft(null);
@@ -160,7 +160,7 @@ export default function AdminPlansPage() {
                   <p>Max gallery images: {plan.maxGalleryImages}</p>
                   <p>Analytics: {plan.analyticsEnabled ? "Yes" : "No"}</p>
                   <p>Multi-page: {plan.multiPageEnabled ? "Yes" : "No"}</p>
-                  <Button variant="secondary" className="mt-2 w-auto px-4" onClick={() => startEdit(plan)}>
+                  <Button variant="secondary" className="mt-2" onClick={() => startEdit(plan)}>
                     Edit
                   </Button>
                 </div>

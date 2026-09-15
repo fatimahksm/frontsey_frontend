@@ -115,16 +115,15 @@ export default function ManagersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold tracking-tight">Managers</h1>
       {error && <Alert tone="error">{error}</Alert>}
 
       <Card title="Team">
         {isLoading ? (
-          <p className="text-sm text-zinc-500">Loading…</p>
+          <p className="text-sm text-muted">Loading…</p>
         ) : (
           <StaggerGroup as="ul" className="flex flex-col gap-3">
             {managers.map((manager) => (
-              <StaggerItem as="li" key={manager.id} className="rounded-lg border border-black/[.08] p-3 dark:border-white/[.145]">
+              <StaggerItem as="li" key={manager.id} className="rounded-lg border border-line p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">{manager.invitedEmail}</span>
@@ -151,7 +150,7 @@ export default function ManagersPage() {
                 )}
               </StaggerItem>
             ))}
-            {managers.length === 0 && <p className="text-sm text-zinc-500">No managers invited yet.</p>}
+            {managers.length === 0 && <p className="text-sm text-muted">No managers invited yet.</p>}
           </StaggerGroup>
         )}
       </Card>
@@ -177,7 +176,7 @@ export default function ManagersPage() {
               />
             ))}
           </div>
-          <Button type="submit" isLoading={isBusy} className="w-auto px-5" disabled={invitePermissions.size === 0}>
+          <Button type="submit" isLoading={isBusy} disabled={invitePermissions.size === 0}>
             Send invitation
           </Button>
         </form>

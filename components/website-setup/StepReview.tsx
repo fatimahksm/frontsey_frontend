@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckIcon, WarningIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -75,7 +76,7 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
   }
 
   if (!checklist) {
-    return <p className="text-sm text-zinc-500">Loading…</p>;
+    return <p className="text-sm text-muted">Loading…</p>;
   }
 
   const allComplete = checklist.every((item) => item.complete);
@@ -87,7 +88,7 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-lg font-semibold tracking-tight">Review and publish</h2>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           Everything below must be complete before your website can go live. Anything missing links straight to the
           page that fixes it.
         </p>
@@ -99,15 +100,15 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
         {checklist.map((item) => (
           <li
             key={item.key}
-            className="flex items-center gap-3 rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]"
+            className="flex items-center gap-3 rounded-lg border border-line p-3 text-sm"
           >
             <span
               aria-hidden
-              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs ${
-                item.complete ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400" : "bg-amber-500/20 text-amber-700 dark:text-amber-400"
+              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+                item.complete ? "bg-success-quiet text-success" : "bg-warning-quiet text-warning"
               }`}
             >
-              {item.complete ? "✓" : "!"}
+              {item.complete ? <CheckIcon className="h-3 w-3" /> : <WarningIcon className="h-3 w-3" />}
             </span>
             <span className={item.complete ? "" : "font-medium"}>{item.label}</span>
             {!item.complete && fixLink(item.key, website.templateType) && (
@@ -123,7 +124,7 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
       </ul>
 
       {isLive ? (
-        <div className="flex flex-col gap-4 rounded-xl border border-black/[.08] p-4 dark:border-white/[.145]">
+        <div className="flex flex-col gap-4 rounded-xl border border-line p-4">
           <Alert tone="success">Your website is live. Here is everything you need to hand it to customers.</Alert>
           <ShareLinksPanel website={website} />
         </div>
@@ -133,7 +134,7 @@ export function StepReview({ onPublished }: { onPublished(): void }) {
             <Alert tone="info">Finish the missing requirements above, then come back here to publish.</Alert>
           )}
 
-          <Button onClick={handlePublish} isLoading={isPublishing} disabled={!allComplete} className="w-auto self-start px-6">
+          <Button onClick={handlePublish} isLoading={isPublishing} disabled={!allComplete} className="self-start">
             Publish website
           </Button>
         </>

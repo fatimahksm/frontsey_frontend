@@ -134,17 +134,17 @@ export function ServicesManager() {
           <TextField id="serviceSearch" label="Search" value={search} onChange={(e) => setSearch(e.target.value)} className="mb-4" />
         )}
         {isLoading ? (
-          <p className="text-sm text-zinc-500">Loading…</p>
+          <p className="text-sm text-muted">Loading…</p>
         ) : (
           <StaggerGroup as="ul" className="flex flex-col gap-2">
             {filteredServices.map((service) => {
               const index = services.findIndex((s) => s.id === service.id);
               return (
-                <StaggerItem as="li" key={service.id} className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
+                <StaggerItem as="li" key={service.id} className="flex items-center justify-between rounded-lg border border-line p-3 text-sm">
                   <div className="min-w-0">
                     <p className="font-medium">{service.name}</p>
-                    {service.description && <p className="text-xs text-zinc-500 dark:text-zinc-400">{service.description}</p>}
-                    <p className="text-xs text-zinc-500">
+                    {service.description && <p className="text-xs text-muted">{service.description}</p>}
+                    <p className="text-xs text-muted">
                       {service.price != null ? formatMoney(service.price, website.currency) : "Priced on request"}
                     </p>
                   </div>
@@ -171,12 +171,12 @@ export function ServicesManager() {
               );
             })}
             {services.length === 0 && (
-              <p className="text-sm text-zinc-500">
+              <p className="text-sm text-muted">
                 You have not added any services yet. Add your first service below.
               </p>
             )}
             {services.length > 0 && filteredServices.length === 0 && (
-              <p className="text-sm text-zinc-500">No services match your search.</p>
+              <p className="text-sm text-muted">No services match your search.</p>
             )}
           </StaggerGroup>
         )}
@@ -209,15 +209,15 @@ export function ServicesManager() {
               accessToken={accessToken}
             />
           </div>
-          <div className="flex gap-3">
-            <Button type="submit" isLoading={isBusy} className="w-auto px-5">
+          <div className="flex flex-wrap gap-3">
+            <Button type="submit" isLoading={isBusy} >
               {editingId ? "Save changes" : "Add service"}
             </Button>
             {editingId && (
               <Button
-                type="button"
+ type="button"
                 variant="secondary"
-                className="w-auto px-5"
+                
                 onClick={() => {
                   setEditingId(null);
                   setDraft(EMPTY);

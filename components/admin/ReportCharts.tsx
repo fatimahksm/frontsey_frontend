@@ -77,7 +77,7 @@ export function TrendLines({
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         {series.map((s, i) => (
-          <span key={s.label} className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+          <span key={s.label} className="flex items-center gap-1.5 text-xs text-muted">
             <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: `var(${SERIES[i % SERIES.length]})` }} />
             {s.label}
           </span>
@@ -120,12 +120,12 @@ export function TrendLines({
 
         {hover != null && (
           <div
-            className="pointer-events-none absolute top-0 z-10 rounded-lg border border-black/[.1] bg-surface px-2.5 py-1.5 text-xs shadow-lift dark:border-white/[.15]"
+            className="pointer-events-none absolute top-0 z-10 rounded-lg border border-line-strong bg-surface px-2.5 py-1.5 text-xs shadow-lift"
             style={{ left: `min(max(0px, ${(hover / Math.max(1, length - 1)) * 100}% - 60px), calc(100% - 130px))` }}
           >
             <p className="font-medium">{shortDate(series[0].points[hover].date)}</p>
             {series.map((s, i) => (
-              <p key={s.label} className="flex items-center gap-1.5 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+              <p key={s.label} className="flex items-center gap-1.5 whitespace-nowrap text-muted">
                 <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ background: `var(${SERIES[i % SERIES.length]})` }} />
                 {s.label}: <span className="font-medium text-foreground">{s.points[hover]?.value ?? 0}</span>
               </p>
@@ -134,7 +134,7 @@ export function TrendLines({
         )}
       </div>
 
-      <div className="flex justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
+      <div className="flex justify-between text-[11px] text-muted">
         <span>{shortDate(series[0].points[0].date)}</span>
         <span>{shortDate(series[0].points[length - 1].date)}</span>
       </div>
@@ -184,17 +184,17 @@ export function RevenueArea({ points, currency = "$" }: { points: { date: string
         </svg>
         {hover != null && (
           <div
-            className="pointer-events-none absolute top-0 z-10 rounded-lg border border-black/[.1] bg-surface px-2.5 py-1.5 text-xs shadow-lift dark:border-white/[.15]"
+            className="pointer-events-none absolute top-0 z-10 rounded-lg border border-line-strong bg-surface px-2.5 py-1.5 text-xs shadow-lift"
             style={{ left: `min(max(0px, ${(hover / Math.max(1, points.length - 1)) * 100}% - 50px), calc(100% - 110px))` }}
           >
             <p className="font-medium">{shortDate(points[hover].date)}</p>
-            <p className="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+            <p className="whitespace-nowrap text-muted">
               Taken: <span className="font-medium text-foreground">{currency}{points[hover].amount.toFixed(2)}</span>
             </p>
           </div>
         )}
       </div>
-      <div className="flex justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
+      <div className="flex justify-between text-[11px] text-muted">
         <span>{shortDate(points[0].date)}</span>
         <span>{shortDate(points[points.length - 1].date)}</span>
       </div>
@@ -221,7 +221,7 @@ export function LabelledBars({
   const max = Math.max(1, ...rows.map((r) => r.value));
   const withValues = rows.filter((r) => r.value > 0);
   if (withValues.length === 0) {
-    return <p className="py-6 text-center text-sm text-zinc-500 dark:text-zinc-400">{emptyText}</p>;
+    return <p className="py-6 text-center text-sm text-muted">{emptyText}</p>;
   }
 
   return (
@@ -232,7 +232,7 @@ export function LabelledBars({
             <span className="min-w-0 truncate">{row.label}</span>
             <span className="shrink-0 font-medium tabular-nums">
               {row.display ?? row.value}
-              {row.note && <span className="ms-2 font-normal text-zinc-500 dark:text-zinc-400">{row.note}</span>}
+              {row.note && <span className="ms-2 font-normal text-muted">{row.note}</span>}
             </span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-[var(--viz-grid)]">

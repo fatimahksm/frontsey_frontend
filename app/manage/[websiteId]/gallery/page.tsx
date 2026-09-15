@@ -127,19 +127,18 @@ export default function GalleryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold tracking-tight">Gallery</h1>
       {error && <Alert tone="error">{error}</Alert>}
 
       <Card title="Images">
         {isLoading ? (
-          <p className="text-sm text-zinc-500">Loading…</p>
+          <p className="text-sm text-muted">Loading…</p>
         ) : (
           <StaggerGroup as="ul" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {images.map((image, index) => (
               <StaggerItem
                 as="li"
                 key={image.id}
-                className="overflow-hidden rounded-lg border border-black/[.08] shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.145]"
+                className="overflow-hidden rounded-lg border border-line shadow-soft transition-shadow duration-300 hover:shadow-lift"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URLs; next/image would need a configured remote pattern per business */}
                 <img src={image.imageUrl} alt="" className="h-40 w-full object-cover" />
@@ -159,7 +158,7 @@ export default function GalleryPage() {
                     <button
                       type="button"
                       onClick={() => handleSetCover(image.id)}
-                      className={image.cover ? "font-medium text-foreground" : "text-zinc-500 hover:underline"}
+                      className={image.cover ? "font-medium text-foreground" : "text-muted hover:underline"}
                     >
                       {image.cover ? "Cover" : "Set cover"}
                     </button>
@@ -170,7 +169,7 @@ export default function GalleryPage() {
                 </div>
               </StaggerItem>
             ))}
-            {images.length === 0 && <p className="text-sm text-zinc-500">No images yet.</p>}
+            {images.length === 0 && <p className="text-sm text-muted">No images yet.</p>}
           </StaggerGroup>
         )}
 
@@ -188,22 +187,22 @@ export default function GalleryPage() {
               }}
             />
             <Button
-              type="button"
+ type="button"
               variant="secondary"
-              className="w-auto px-4"
+              
               isLoading={isUploading}
               onClick={() => fileInputRef.current?.click()}
             >
               Upload image
             </Button>
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">or paste a URL below</span>
+            <span className="text-xs text-muted">or paste a URL below</span>
           </div>
           {/* min-w-0 so the field may shrink below the width of its own
               label and placeholder; flex-1 alone does not permit that, and the
               button beside it was pushed off a 320px screen. */}
           <form onSubmit={handleAdd} className="flex items-end gap-2">
             <TextField id="imageUrl" label="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} wrapperClassName="flex-1" />
-            <Button type="submit" isLoading={isBusy} className="w-auto px-5">
+            <Button type="submit" isLoading={isBusy} >
               Add image
             </Button>
           </form>

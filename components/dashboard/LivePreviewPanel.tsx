@@ -73,9 +73,9 @@ export function LivePreviewPanel({ websiteId }: { websiteId: string }) {
 
   return (
     <aside className="hidden w-[380px] shrink-0 xl:block">
-      <div className="sticky top-6 flex h-[calc(100vh-6rem)] flex-col overflow-hidden rounded-2xl border border-black/[.08] bg-surface shadow-soft dark:border-white/[.145]">
-        <div className="flex items-center justify-between gap-2 border-b border-black/[.06] px-3 py-2 dark:border-white/[.1]">
-          <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Live preview</span>
+      <div className="sticky top-6 flex h-[calc(100vh-6rem)] flex-col overflow-hidden rounded-card border border-line bg-surface shadow-soft">
+        <div className="flex items-center justify-between gap-2 border-b border-line px-3 py-2">
+          <span className="text-xs font-medium text-muted">Live preview</span>
           <div className="flex items-center gap-3">
             <button
               type="button"

@@ -73,7 +73,6 @@ export default function AnalyticsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold tracking-tight">Analytics</h1>
       {error && <Alert tone="error">{error}</Alert>}
 
       <Card title="Date range">
@@ -85,7 +84,7 @@ export default function AnalyticsPage() {
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="h-9 rounded-lg border border-black/[.12] bg-transparent px-2.5 text-sm outline-none dark:border-white/[.18]"
+              className="h-9 rounded-lg border border-line-strong bg-transparent px-2.5 text-sm outline-none"
             />
           </label>
           <label htmlFor="to" className="flex flex-col gap-1.5 text-sm">
@@ -95,13 +94,13 @@ export default function AnalyticsPage() {
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="h-9 rounded-lg border border-black/[.12] bg-transparent px-2.5 text-sm outline-none dark:border-white/[.18]"
+              className="h-9 rounded-lg border border-line-strong bg-transparent px-2.5 text-sm outline-none"
             />
           </label>
-          <Button className="w-auto px-4" onClick={load} isLoading={isLoading}>
+          <Button onClick={load} isLoading={isLoading}>
             Apply
           </Button>
-          <Button variant="secondary" className="w-auto px-4" onClick={handleExport} isLoading={isExporting}>
+          <Button variant="secondary" onClick={handleExport} isLoading={isExporting}>
             Export CSV
           </Button>
         </div>
@@ -111,18 +110,18 @@ export default function AnalyticsPage() {
         <>
           <Card title="Overview">
             <p className="text-3xl font-semibold">{summary.totalVisits}</p>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Total visits in range</p>
+            <p className="text-sm text-muted">Total visits in range</p>
           </Card>
 
           <Card title="Most viewed items">
             {summary.mostViewedItems.length === 0 ? (
-              <p className="text-sm text-zinc-500">No item views yet.</p>
+              <p className="text-sm text-muted">No item views yet.</p>
             ) : (
               <ul className="flex flex-col gap-1.5 text-sm">
                 {summary.mostViewedItems.map((item) => (
                   <li key={item.itemId} className="flex items-center justify-between">
                     <span>{item.itemName}</span>
-                    <span className="text-zinc-500">{item.views} views</span>
+                    <span className="text-muted">{item.views} views</span>
                   </li>
                 ))}
               </ul>
@@ -135,7 +134,7 @@ export default function AnalyticsPage() {
                 {Object.entries(summary.visitsByReferralSource).map(([source, count]) => (
                   <li key={source} className="flex items-center justify-between">
                     <span>{source}</span>
-                    <span className="text-zinc-500">{count}</span>
+                    <span className="text-muted">{count}</span>
                   </li>
                 ))}
               </ul>
@@ -145,7 +144,7 @@ export default function AnalyticsPage() {
                 {Object.entries(summary.visitsByDeviceType).map(([device, count]) => (
                   <li key={device} className="flex items-center justify-between">
                     <span>{device}</span>
-                    <span className="text-zinc-500">{count}</span>
+                    <span className="text-muted">{count}</span>
                   </li>
                 ))}
               </ul>

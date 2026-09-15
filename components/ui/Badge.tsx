@@ -1,15 +1,23 @@
-type Tone = "neutral" | "success" | "warning" | "danger";
+type Tone = "neutral" | "accent" | "success" | "warning" | "danger";
 
+/**
+ * Tones come from the shared tokens rather than from Tailwind's palette, so a
+ * badge, an alert and a danger button are the same red - they were three
+ * different ones.
+ */
 const TONE_CLASSES: Record<Tone, string> = {
-  neutral: "bg-black/[.06] text-foreground dark:bg-white/[.08]",
-  success: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-  warning: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-  danger: "bg-red-500/15 text-red-700 dark:text-red-400",
+  neutral: "bg-surface-muted text-muted",
+  accent: "bg-accent-quiet text-accent-ink",
+  success: "bg-success-quiet text-success",
+  warning: "bg-warning-quiet text-warning",
+  danger: "bg-danger-quiet text-danger",
 };
 
 export function Badge({ tone = "neutral", children }: { tone?: Tone; children: React.ReactNode }) {
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium tracking-tight ${TONE_CLASSES[tone]}`}>
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium tracking-tight ${TONE_CLASSES[tone]}`}
+    >
       {children}
     </span>
   );

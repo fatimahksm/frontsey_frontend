@@ -26,9 +26,9 @@ export function RankedBar({
     <li>
       <div className="mb-1.5 flex items-baseline justify-between gap-3 text-sm">
         <span className="min-w-0 truncate">{label}</span>
-        <span className="shrink-0 tabular-nums text-zinc-500 dark:text-zinc-400">{value.toLocaleString()}</span>
+        <span className="shrink-0 tabular-nums text-muted">{value.toLocaleString()}</span>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-black/[.06] dark:bg-white/[.08]">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-surface-muted">
         <div
           className={`h-full rounded-full ${tone === "accent" ? "bg-gradient-accent" : "bg-zinc-400/70 dark:bg-zinc-500/70"}`}
           style={{ width: `${pct}%` }}
@@ -74,7 +74,7 @@ export function ShareDonut({ data }: { data: Record<string, number> }) {
               style={{ backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length] }}
             />
             <span className="min-w-0 flex-1 truncate capitalize">{label.toLowerCase()}</span>
-            <span className="shrink-0 tabular-nums text-zinc-500 dark:text-zinc-400">
+            <span className="shrink-0 tabular-nums text-muted">
               {Math.round((value / total) * 100)}%
             </span>
           </li>
@@ -136,7 +136,7 @@ export function VisitsArea({ points }: { points: { date: string; visits: number 
         <path d={area} fill="url(#visits-fill)" />
         <path d={line} fill="none" stroke="var(--accent-solid, #7c3aed)" strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
       </svg>
-      <div className="flex justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
+      <div className="flex justify-between text-[11px] text-muted">
         {points
           .filter((_, i) => i % labelEvery === 0 || i === points.length - 1)
           .map((p) => (
