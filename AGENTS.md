@@ -26,6 +26,17 @@ Headings sitting over a photo or a gradient are skipped rather than guessed at;
 judging those needs real pixels. A skip is reported as a skip so a green run is
 never mistaken for coverage it does not have.
 
+The suite runs at four widths, and 320 earns its place: the first run of it
+found the Bistro menu's category strip pushing the page sideways, which nobody
+had seen because it only happens below 375.
+
+`/preview/mock/{variant}?count=200` pads the sample out to that many products.
+Twelve is the right number for showing a design off and the wrong number for
+reaching the paging, so `e2e/store-paging.spec.ts` drives that instead - it
+asserts one page is rendered rather than the lot, that Show more adds another,
+and that narrowing the list starts the count over. Confirmed to catch a
+regression by removing the limit: six of its eight tests fail.
+
 Note that `images.unsplash.com` is blocked in the sandbox, so the sample photos
 fall back to `SafeImage`'s drawn placeholder. That is expected, and the failed
 requests are filtered out of the console-error check.
@@ -49,3 +60,20 @@ It exists because the console had no browser test at all, and the first run of
 it found the top navigation pushing every dashboard page sideways on any phone,
 plus five more pages doing the same at 320. All of those were invisible to
 `tsc`, `eslint` and `npm run build`.
+
+The same project also runs `e2e/console-item-paging.spec.ts`, which asserts the
+owner's item list draws one page rather than the whole shop. Its first
+assertion - that a load never draws more than a page - is checked before the
+skip for a small website on purpose: deciding to skip from the absence of a
+Show more button let a version that loaded all sixty items report a skip
+instead of a failure. Confirmed to catch the regression by restoring the
+unbounded fetch: it fails with "Expected <= 50, Received 60".
+
+That suite signs in once per worker, so running it twice inside a quarter of an
+hour spends the login allowance (ten attempts per fifteen minutes per address)
+and every test then fails at `waitForURL`, which looks nothing like a rate
+limit. Raise it for the run rather than reading it as a regression:
+
+```bash
+DBWB_RATELIMITS_LOGIN_LIMIT=1000 mvn spring-boot:run
+```

@@ -47,6 +47,19 @@ export function ProjectsIcon(props: IconProps) {
   );
 }
 
+/** A timeline: a spine with dots on it, which is how both templates draw the work history. */
+export function ExperienceIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 4v16" />
+      <circle cx="7" cy="8" r="1.6" />
+      <circle cx="7" cy="16" r="1.6" />
+      <path d="M12 8h9" />
+      <path d="M12 16h9" />
+    </Icon>
+  );
+}
+
 export function ServicesIcon(props: IconProps) {
   return (
     <Icon {...props}>

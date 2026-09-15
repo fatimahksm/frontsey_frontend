@@ -51,6 +51,7 @@ interface NavGroup {
  */
 const CONTENT_ICONS: Record<ContentSection["key"], string> = {
   projects: "🗂️",
+  experience: "📋",
   services: "🛠️",
   menu: "🍽️",
   gallery: "🖼️",
@@ -62,6 +63,8 @@ const CONTENT_ICONS: Record<ContentSection["key"], string> = {
 /** Editing a content store needs the permission that governs it, not one blanket grant. */
 const CONTENT_PERMISSIONS: Record<ContentSection["key"], Permission> = {
   projects: "MANAGE_THEME_AND_CONTENT",
+  // Work history is website content, same as projects and the gallery.
+  experience: "MANAGE_THEME_AND_CONTENT",
   services: "MANAGE_MENU",
   menu: "MANAGE_MENU",
   gallery: "MANAGE_THEME_AND_CONTENT",

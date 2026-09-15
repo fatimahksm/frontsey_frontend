@@ -12,6 +12,7 @@ import {
   GalleryIcon,
   MenuIcon,
   PeopleIcon,
+  ExperienceIcon,
   ProjectsIcon,
   ReportsIcon,
   EventIcon,
@@ -77,6 +78,7 @@ interface NavGroup {
  */
 const ICONS: Record<ContentSection["key"], (props: { className?: string }) => React.ReactElement> = {
   projects: ProjectsIcon,
+  experience: ExperienceIcon,
   services: ServicesIcon,
   menu: MenuIcon,
   gallery: GalleryIcon,

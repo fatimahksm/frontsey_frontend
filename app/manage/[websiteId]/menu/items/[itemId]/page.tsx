@@ -26,17 +26,18 @@ export default function EditMenuItemPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    Promise.all([menuApi.listCategories(accessToken, website.id), menuApi.listItems(accessToken, website.id)])
-      .then(([fetchedCategories, fetchedItems]) => {
+    // One item by its id. This used to fetch every item the website had and
+    // find its one in the array, which on a shop with real stock is hundreds
+    // of rows assembled and sent to open one form.
+    Promise.all([
+      menuApi.listCategories(accessToken, website.id),
+      menuApi.getItem(accessToken, website.id, params.itemId),
+    ])
+      .then(([fetchedCategories, fetchedItem]) => {
         setCategories(fetchedCategories);
-        const found = fetchedItems.find((i) => i.id === params.itemId);
-        if (!found) {
-          setError("This item could not be found.");
-          return;
-        }
-        setItem(found);
+        setItem(fetchedItem);
       })
-      .catch((err) => setError(friendlyMessage(err, "Failed to load this item.")));
+      .catch((err) => setError(friendlyMessage(err, "This item could not be found.")));
   }, [accessToken, website.id, params.itemId]);
 
   async function handleUpdate(request: MenuItemRequest) {

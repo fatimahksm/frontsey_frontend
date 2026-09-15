@@ -156,7 +156,7 @@ export default function WebsiteOverviewPage() {
     const countPromise =
       website.templateType === "PORTFOLIO"
         ? servicesApi.list(accessToken, website.id).then((list) => list.length)
-        : menuApi.listItems(accessToken, website.id).then((list) => list.length);
+        : menuApi.countItems(accessToken, website.id);
     countPromise
       .then((count) => {
         if (!cancelled) setContentCount(count);

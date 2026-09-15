@@ -106,7 +106,7 @@ export async function loadSetupStatus(accessToken: string, website: WebsiteRespo
     subscriptionApi.get(accessToken, website.id).catch(() => null),
     website.templateType === "PORTFOLIO"
       ? servicesApi.list(accessToken, website.id).then((list) => list.length).catch(() => 0)
-      : menuApi.listItems(accessToken, website.id).then((list) => list.length).catch(() => 0),
+      : menuApi.countItems(accessToken, website.id).catch(() => 0),
     plansApi.trialDays().catch(() => null),
   ]);
   return buildPublicationChecklist({ website, profile, contentCount, subscription, trialDays });

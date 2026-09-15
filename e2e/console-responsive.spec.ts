@@ -42,6 +42,11 @@ function pagesFor(websiteId: string): string[] {
     `/manage/${websiteId}`, `/manage/${websiteId}/setup`, `/manage/${websiteId}/profile`,
     `/manage/${websiteId}/menu`, `/manage/${websiteId}/menu/items/new`, `/manage/${websiteId}/menu/import`,
     `/manage/${websiteId}/gallery`, `/manage/${websiteId}/sections`, `/manage/${websiteId}/delivery`,
+    // The content editors a portfolio or an events site uses. They render for
+    // any website - an editor whose store is empty shows its empty state - so
+    // they get the width check whatever the test account's template is.
+    `/manage/${websiteId}/projects`, `/manage/${websiteId}/experience`,
+    `/manage/${websiteId}/services`, `/manage/${websiteId}/event`,
     `/manage/${websiteId}/theme`, `/manage/${websiteId}/layout`, `/manage/${websiteId}/content`,
     `/manage/${websiteId}/share`, `/manage/${websiteId}/managers`, `/manage/${websiteId}/subscription`,
   ];

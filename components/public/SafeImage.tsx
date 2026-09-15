@@ -63,7 +63,14 @@ export function SafeImage({ src, fallbackSrc = IMAGE_PLACEHOLDER, alt = "", ref,
         if (typeof ref === "function") ref(node);
         else if (ref) ref.current = node;
       }}
-      src={failedSrc === src ? fallbackSrc : src}
+      /*
+        A fallback that is the same URL as the src is not a fallback: it fails
+        again and the drawn placeholder is never reached. Callers hit this
+        honestly - they ask for a small copy and pass the full picture as the
+        fallback, and thumbnailUrl returns the original unchanged for every
+        image that has no small copy.
+      */
+      src={failedSrc === src ? (fallbackSrc === src ? IMAGE_PLACEHOLDER : fallbackSrc) : src}
       alt={alt}
       onError={() => setFailedSrc(src)}
     />

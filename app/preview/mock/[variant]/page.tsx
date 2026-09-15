@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react";
 
 import { PublicSiteRenderer } from "@/components/public/PublicSiteRenderer";
 import type { LayoutVariant } from "@/lib/api/types";
-import { mockSiteFor } from "@/lib/mock-preview-data";
+import { mockSiteFor, withProductCount } from "@/lib/mock-preview-data";
 import { plansApi } from "@/lib/api/plans";
 import type { MenuBusinessKind } from "@/lib/website/draft-content";
 
@@ -24,9 +24,20 @@ export default function MockPreviewPage({ params }: Props) {
   // owner just clicked. Read from the URL rather than useSearchParams, which
   // would opt this statically prerendered page into a client bailout.
   const [kind, setKind] = useState<MenuBusinessKind>("FOOD");
+  /**
+   * ?count=N pads the sample out to N products.
+   *
+   * Twelve is the right number for showing a design off and the wrong number
+   * for seeing how it behaves with a shop's actual stock - whether the paging
+   * appears, whether the headings still work a hundred rows down. The browser
+   * suite drives it, and an owner deciding between templates can use it too.
+   */
+  const [count, setCount] = useState(0);
   useEffect(() => {
+    const search = new URLSearchParams(window.location.search);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reading the URL is a one-time sync with the browser, not derivable state
-    setKind(new URLSearchParams(window.location.search).get("kind") === "SHOP" ? "SHOP" : "FOOD");
+    setKind(search.get("kind") === "SHOP" ? "SHOP" : "FOOD");
+    setCount(Math.min(500, Math.max(0, Number(search.get("count")) || 0)));
   }, []);
 
   // This page is the sales gallery: it shows a template to somebody deciding
@@ -66,7 +77,7 @@ export default function MockPreviewPage({ params }: Props) {
     );
   }
 
-  const site = mockSiteFor(variant as LayoutVariant, kind);
+  const site = withProductCount(mockSiteFor(variant as LayoutVariant, kind), count);
 
   return (
     <div className="flex min-h-screen flex-col">

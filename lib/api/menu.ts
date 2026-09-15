@@ -1,5 +1,6 @@
 import { apiFetch } from "@/lib/api/client";
 import type {
+  PagedResponse,
   CategoryDeletionMode,
   CategoryDto,
   ItemAvailability,
@@ -72,15 +73,35 @@ export const menuApi = {
     });
   },
 
+  /**
+   * One page of items. The server caps `size`, so a caller asking for
+   * everything gets a page and a total rather than everything.
+   */
   listItems(
     accessToken: string,
     websiteId: string,
-    filters: { categoryId?: string; search?: string } = {},
-  ): Promise<MenuItemResponse[]> {
-    return apiFetch<MenuItemResponse[]>(`/websites/${websiteId}/menu/items`, {
+    filters: { categoryId?: string; search?: string; page?: number; size?: number } = {},
+  ): Promise<PagedResponse<MenuItemResponse>> {
+    return apiFetch<PagedResponse<MenuItemResponse>>(`/websites/${websiteId}/menu/items`, {
       query: filters,
       accessToken,
     });
+  },
+
+  /**
+   * How many items the website has, without fetching them.
+   *
+   * Three screens wanted nothing but this number and got it by fetching every
+   * item and reading .length - five hundred rows assembled, sent and parsed to
+   * render "500". One row now, and the count comes from the page's own total.
+   */
+  countItems(accessToken: string, websiteId: string): Promise<number> {
+    return menuApi.listItems(accessToken, websiteId, { size: 1 }).then((page) => page.total);
+  },
+
+  /** One item, by id - rather than fetching the whole list to find it. */
+  getItem(accessToken: string, websiteId: string, itemId: string): Promise<MenuItemResponse> {
+    return apiFetch<MenuItemResponse>(`/websites/${websiteId}/menu/items/${itemId}`, { accessToken });
   },
 
   trashItem(accessToken: string, websiteId: string, itemId: string): Promise<void> {

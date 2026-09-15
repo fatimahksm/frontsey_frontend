@@ -228,7 +228,7 @@ function Dashboard({ website, accessToken }: SiteAdminContext) {
     Promise.all([
       isPortfolio
         ? projectsApi.list(accessToken, website.id).then((l) => l.length)
-        : menuApi.listItems(accessToken, website.id).then((l) => l.length),
+        : menuApi.countItems(accessToken, website.id),
       isPortfolio
         ? servicesApi.list(accessToken, website.id).then((l) => l.length)
         : galleryApi.list(accessToken, website.id).then((l) => l.length),
