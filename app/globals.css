@@ -48,11 +48,14 @@
   --warning: #b45309;
   --warning-quiet: rgba(180, 83, 9, 0.1);
 
-  /* Three radii. Controls, cards, and the pills that are genuinely pills -
-     avatars, badges, toggles. A button is not a pill: a stadium-shaped button
-     reads as a consumer app, and this is a console someone works in all day. */
-  --radius-control: 10px;
-  --radius-card: 14px;
+  /* Buttons are pills; fields and cards are rounded rectangles.
+     A 10px button was tried and read as square against the rest of the
+     product - the rounded button is part of how Frontsey looks, not an
+     accident to be tidied away. Fields stay rectangular so a text field and
+     the button beside it are still clearly two different kinds of thing. */
+  --radius-button: 9999px;
+  --radius-control: 12px;
+  --radius-card: 16px;
 
   --shadow-soft: 0 1px 2px rgba(10, 10, 15, 0.04), 0 8px 24px -8px rgba(10, 10, 15, 0.12);
   --shadow-lift: 0 4px 8px rgba(10, 10, 15, 0.06), 0 16px 40px -12px rgba(10, 10, 15, 0.18);
@@ -80,6 +83,7 @@
   --color-success-quiet: var(--success-quiet);
   --color-warning: var(--warning);
   --color-warning-quiet: var(--warning-quiet);
+  --radius-button: var(--radius-button);
   --radius-control: var(--radius-control);
   --radius-card: var(--radius-card);
   --font-sans: var(--font-geist-sans);

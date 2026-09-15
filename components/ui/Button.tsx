@@ -43,10 +43,14 @@ const VARIANT_CLASSES: Record<Variant, string> = {
   danger: "border border-danger/30 bg-danger-quiet text-danger hover:bg-danger/15 disabled:opacity-50",
 };
 
-/** 36px for a toolbar, 40px for a form. Both are comfortably past the 24px touch-target floor. */
+/**
+ * 36px for a toolbar, 40px for a form, both past the 24px touch-target floor.
+ * A pill needs more side padding than a rectangle to look balanced, which is
+ * why these are wider than the field heights beside them.
+ */
 const SIZE_CLASSES: Record<Size, string> = {
-  sm: "h-9 gap-1.5 px-3 text-[13px]",
-  md: "h-10 gap-2 px-4 text-sm",
+  sm: "h-9 gap-1.5 px-4 text-[13px]",
+  md: "h-10 gap-2 px-5 text-sm",
 };
 
 export function Button({
@@ -67,7 +71,7 @@ export function Button({
       whileTap={isDisabled ? undefined : { scale: 0.98 }}
       transition={{ duration: 0.12, ease: "easeOut" }}
       disabled={isDisabled}
-      className={`focus-ring inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-control font-medium transition-[background-color,box-shadow,opacity,color] duration-150 disabled:cursor-not-allowed ${
+      className={`focus-ring inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-button font-medium transition-[background-color,box-shadow,opacity,color] duration-150 disabled:cursor-not-allowed ${
  block ? "w-full" : ""
       } ${SIZE_CLASSES[size]} ${VARIANT_CLASSES[variant]} ${className}`}
       {...props}
