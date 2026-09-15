@@ -12,7 +12,7 @@ export function BestForChips({ items }: { items?: string[] }) {
       {items.map((item) => (
         <li
           key={item}
-          className="rounded-full border border-black/[.08] px-2 py-0.5 text-[11px] text-zinc-600 dark:border-white/[.14] dark:text-zinc-400"
+          className="rounded-full border border-line px-2 py-0.5 text-[11px] text-muted"
         >
           {item}
         </li>

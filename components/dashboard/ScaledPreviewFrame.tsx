@@ -17,7 +17,7 @@ export function ScaledPreviewFrame({
   const scale = width / NATURAL_WIDTH;
   return (
     <div
-      className="relative overflow-hidden rounded-xl border border-black/[.08] bg-white dark:border-white/[.145]"
+      className="relative overflow-hidden rounded-xl border border-line bg-white"
       style={{ width, height }}
     >
       <div style={{ width: NATURAL_WIDTH, transform: `scale(${scale})`, transformOrigin: "top left" }} className="pointer-events-none">

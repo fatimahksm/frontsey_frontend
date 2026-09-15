@@ -1,5 +1,6 @@
 "use client";
 
+import { SparkleIcon } from "@/components/ui/icons";
 import { useState } from "react";
 
 import { aiApi } from "@/lib/api/ai";
@@ -44,11 +45,18 @@ export function SuggestButton({ accessToken, businessName, templateType, fieldTy
         type="button"
         onClick={handleClick}
         disabled={isLoading}
-        className="inline-flex items-center gap-1 text-xs font-medium text-[var(--accent-solid)] hover:underline disabled:opacity-50"
+        className="focus-ring inline-flex items-center gap-1 text-xs font-medium text-accent-ink hover:underline disabled:opacity-50"
       >
-        {isLoading ? "Thinking…" : "✨ Suggest with AI"}
+        {isLoading ? (
+          "Thinking…"
+        ) : (
+          <>
+            <SparkleIcon className="h-3.5 w-3.5" />
+            Suggest with AI
+          </>
+        )}
       </button>
-      {error && <span className="text-xs text-red-600">{error}</span>}
+      {error && <span className="text-xs text-danger">{error}</span>}
     </span>
   );
 }

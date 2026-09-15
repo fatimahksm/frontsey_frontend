@@ -46,7 +46,7 @@ export default function PreviewPage({ params }: Props) {
   return (
     <div className="flex min-h-screen flex-col">
       {!embedded && (
-        <div className="sticky top-0 z-50 flex items-center justify-between gap-3 border-b border-black/[.08] bg-amber-400 px-4 py-2 text-sm font-medium text-black dark:border-white/[.1]">
+        <div className="sticky top-0 z-50 flex items-center justify-between gap-3 border-b border-line bg-amber-400 px-4 py-2 text-sm font-medium text-black">
           <span>Draft preview - unpublished changes are included and won&apos;t be visible to customers until you publish.</span>
           <Link href={`/manage/${websiteId}`} className="shrink-0 underline">
             Back to editor
@@ -55,7 +55,7 @@ export default function PreviewPage({ params }: Props) {
       )}
 
       {error && <p className="p-10 text-center text-sm text-red-600">{error}</p>}
-      {!error && !site && <p className="p-10 text-center text-sm text-zinc-500">Loading preview…</p>}
+      {!error && !site && <p className="p-10 text-center text-sm text-muted">Loading preview…</p>}
       {site && <PublicSiteRenderer site={site} onFirstView={() => {}} />}
     </div>
   );

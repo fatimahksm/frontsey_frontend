@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { ScaledPreviewFrame } from "@/components/dashboard/ScaledPreviewFrame";
 import { WebsiteStatusBadge } from "@/components/dashboard/WebsiteStatusBadge";
 import { PublicSiteRenderer } from "@/components/public/PublicSiteRenderer";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { subscriptionApi } from "@/lib/api/subscription";
 import type { SubscriptionResponse, WebsiteResponse } from "@/lib/api/types";
@@ -14,15 +13,6 @@ import { mockSiteFor } from "@/lib/mock-preview-data";
 import { parseDraftContent } from "@/lib/website/draft-content";
 import { WEBSITE_TYPES } from "@/lib/website/layout-options";
 import { loadSetupStatus, readinessPercent } from "@/lib/website/setup-checklist";
-
-const SUBSCRIPTION_TONE = {
-  PENDING: "warning",
-  TRIAL: "success",
-  ACTIVE: "success",
-  GRACE: "warning",
-  EXPIRED: "danger",
-  CANCELED: "danger",
-} as const;
 
 const SUBSCRIPTION_LABEL = {
   PENDING: "Pending",
@@ -76,73 +66,81 @@ export function WebsiteCard({ website, accessToken }: { website: WebsiteResponse
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-black/[.08] bg-surface p-5 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.1] sm:flex-row sm:gap-6">
+    <div className="flex flex-col gap-4 rounded-card border border-line bg-surface p-5 shadow-soft sm:flex-row sm:gap-6">
       <div className="hidden shrink-0 sm:block">
         <ScaledPreviewFrame width={180} height={130}>
-          <PublicSiteRenderer site={mockSiteFor(website.layoutVariant, parseDraftContent(website.draftContent).menuBusinessKind)} onFirstView={() => {}} isSample />
+          <PublicSiteRenderer
+            site={mockSiteFor(website.layoutVariant, parseDraftContent(website.draftContent).menuBusinessKind)}
+            onFirstView={() => {}}
+            isSample
+          />
         </ScaledPreviewFrame>
       </div>
 
-      <div className="min-w-0 flex-1">
+      <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex flex-wrap items-center gap-2">
           <p className="truncate text-base font-semibold">{website.businessName}</p>
-          <Badge tone={website.role === "MANAGER" ? "neutral" : "success"}>{website.role === "MANAGER" ? "Manager" : "Owner"}</Badge>
           <WebsiteStatusBadge status={website.status} />
-          {subscription ? (
-            <Badge tone={SUBSCRIPTION_TONE[subscription.status]}>Subscription: {SUBSCRIPTION_LABEL[subscription.status]}</Badge>
-          ) : (
-            <Badge tone="neutral">No subscription</Badge>
-          )}
         </div>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{typeLabel}</p>
 
-        <div className="mt-3 flex items-center gap-2">
-          <div className="h-1.5 w-32 overflow-hidden rounded-full bg-black/[.06] dark:bg-white/[.08]">
-            <div
-              className="h-full rounded-full bg-gradient-accent transition-[width] duration-500"
-              style={{ width: `${percent ?? 0}%` }}
-            />
+        {/* One line of facts rather than a row of four badges. Three of them
+            said the same kind of thing in three different colours, which made
+            the one that matters - is this site live - hard to find. */}
+        <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-sm text-muted">
+          <span>{typeLabel}</span>
+          <span aria-hidden>·</span>
+          <span>{website.role === "MANAGER" ? "You manage this" : "You own this"}</span>
+          <span aria-hidden>·</span>
+          <span>{subscription ? SUBSCRIPTION_LABEL[subscription.status] : "No subscription"}</span>
+        </p>
+
+        {/* A progress bar that has reached the end is not progress. Once
+            everything is done it says so, instead of showing a full bar beside
+            a button offering to finish the setup. */}
+        {percent !== null && percent < 100 && (
+          <div className="mt-3 flex items-center gap-2">
+            <div className="h-1.5 w-32 overflow-hidden rounded-full bg-surface-muted">
+              <div
+                className="h-full rounded-full bg-gradient-accent transition-[width] duration-500"
+                style={{ width: `${percent}%` }}
+              />
+            </div>
+            <span className="text-xs text-muted">{percent}% ready</span>
           </div>
-          <span className="text-xs text-zinc-500 dark:text-zinc-400">
-            {percent === null ? "Checking readiness…" : `${percent}% ready`}
-          </span>
-        </div>
+        )}
+        {percent === 100 && !isPublished && (
+          <p className="mt-3 text-xs text-success">Everything is filled in - ready to publish.</p>
+        )}
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Link href={`/manage/${website.id}`}>
-            <Button variant="primary" className="w-auto px-4">
-              Manage website
-            </Button>
+            <Button size="sm">Manage website</Button>
           </Link>
           <Link href={`/preview/${website.id}`} target="_blank">
-            <Button variant="secondary" className="w-auto px-4">
+            <Button variant="secondary" size="sm">
               Preview draft
             </Button>
           </Link>
           {isPublished ? (
             <>
               <Link href={`/site/${website.slug}`} target="_blank">
-                <Button variant="secondary" className="w-auto px-4">
+                <Button variant="secondary" size="sm">
                   View live website
                 </Button>
               </Link>
-              <button
-                type="button"
-                onClick={copyLink}
-                className="rounded-full border border-black/[.12] px-4 py-2.5 text-sm font-medium text-foreground hover:bg-black/[.03] dark:border-white/[.16] dark:hover:bg-white/[.06]"
-              >
-                {copied ? "Link copied!" : "Copy public link"}
-              </button>
+              <Button variant="ghost" size="sm" onClick={copyLink}>
+                {copied ? "Link copied" : "Copy public link"}
+              </Button>
             </>
           ) : (
-            <>
-              <span className="text-sm text-zinc-500 dark:text-zinc-400">Not published yet</span>
+            percent !== null &&
+            percent < 100 && (
               <Link href={`/manage/${website.id}/setup`}>
-                <Button variant="secondary" className="w-auto px-4">
+                <Button variant="secondary" size="sm">
                   Continue setup
                 </Button>
               </Link>
-            </>
+            )
           )}
         </div>
       </div>

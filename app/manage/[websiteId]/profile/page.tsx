@@ -140,12 +140,11 @@ export default function BusinessProfilePage() {
   }
 
   if (isLoading) {
-    return <p className="text-sm text-zinc-500">Loading…</p>;
+    return <p className="text-sm text-muted">Loading…</p>;
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold tracking-tight">Business profile</h1>
 
       {error && <Alert tone="error">{error}</Alert>}
       {message && <Alert tone="success">{message}</Alert>}
@@ -188,7 +187,7 @@ export default function BusinessProfilePage() {
             </div>
           ))}
         </div>
-        <Button onClick={handleSaveProfile} isLoading={isSavingProfile} className="mt-5 w-auto px-5">
+        <Button onClick={handleSaveProfile} isLoading={isSavingProfile} className="mt-5">
           Save profile
         </Button>
       </Card>
@@ -216,9 +215,9 @@ export default function BusinessProfilePage() {
                         prev.map((h, i) => (i === index ? { ...h, opensAt: fromTimeInput(e.target.value) } : h)),
                       )
                     }
-                    className="h-9 rounded-lg border border-black/[.12] bg-transparent px-2.5 text-sm outline-none dark:border-white/[.18]"
+                    className="h-9 rounded-lg border border-line-strong bg-transparent px-2.5 text-sm outline-none"
                   />
-                  <span className="text-sm text-zinc-500">to</span>
+                  <span className="text-sm text-muted">to</span>
                   <input
                     type="time"
                     value={toTimeInput(entry.closesAt)}
@@ -227,14 +226,14 @@ export default function BusinessProfilePage() {
                         prev.map((h, i) => (i === index ? { ...h, closesAt: fromTimeInput(e.target.value) } : h)),
                       )
                     }
-                    className="h-9 rounded-lg border border-black/[.12] bg-transparent px-2.5 text-sm outline-none dark:border-white/[.18]"
+                    className="h-9 rounded-lg border border-line-strong bg-transparent px-2.5 text-sm outline-none"
                   />
                 </>
               )}
             </div>
           ))}
         </div>
-        <Button onClick={handleSaveHours} isLoading={isSavingHours} className="mt-5 w-auto px-5">
+        <Button onClick={handleSaveHours} isLoading={isSavingHours} className="mt-5">
           Save opening hours
         </Button>
       </Card>

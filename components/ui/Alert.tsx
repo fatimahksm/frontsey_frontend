@@ -12,7 +12,7 @@ const TONE_CLASSES: Record<Tone, string> = {
   // Something the reader has to act on, but nothing is broken - between info and error.
   warning: "border-amber-500/35 bg-amber-500/10 text-amber-800 dark:text-amber-300",
   success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
-  info: "border-black/[.12] bg-black/[.03] text-foreground dark:border-white/[.18] dark:bg-white/[.05]",
+  info: "border-line-strong bg-surface-muted text-foreground",
 };
 
 export function Alert({ tone = "info", children }: { tone?: Tone; children: React.ReactNode }) {

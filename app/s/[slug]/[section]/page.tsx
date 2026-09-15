@@ -1,118 +1,85 @@
 "use client";
 
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { use } from "react";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
 
-import { SiteAdminShell, type SiteAdminContext } from "@/components/site-admin/SiteAdminShell";
-import AnalyticsPage from "@/app/manage/[websiteId]/analytics/page";
-import PageContentPage from "@/app/manage/[websiteId]/content/page";
-import DeliveryPage from "@/app/manage/[websiteId]/delivery/page";
-import EventPage from "@/app/manage/[websiteId]/event/page";
-import ExperiencePage from "@/app/manage/[websiteId]/experience/page";
-import GalleryPage from "@/app/manage/[websiteId]/gallery/page";
-import ManagersPage from "@/app/manage/[websiteId]/managers/page";
-import MenuPage from "@/app/manage/[websiteId]/menu/page";
-import ProfilePage from "@/app/manage/[websiteId]/profile/page";
-import SharePage from "@/app/manage/[websiteId]/share/page";
-import SubscriptionPage from "@/app/manage/[websiteId]/subscription/page";
-import ProjectsPage from "@/app/manage/[websiteId]/projects/page";
-import SectionsPage from "@/app/manage/[websiteId]/sections/page";
-import ServicesPage from "@/app/manage/[websiteId]/services/page";
-import { contentPlanFor } from "@/lib/website/template-content";
-import { WebsiteProvider } from "@/lib/website/website-context";
+import { Alert } from "@/components/ui/Alert";
+import { friendlyMessage } from "@/lib/api/client";
+import { websitesApi } from "@/lib/api/websites";
+import { useAuth } from "@/lib/auth/auth-context";
 
 /**
- * The console's working sections.
+ * A section of a business's console, reached by its short link.
  *
- * They mount the same editors the setup area uses rather than a second copy:
- * one Projects screen, one Menu screen, reachable from wherever an owner
- * happens to be. Only the frame around them differs.
+ * Everything under /s/<slug>/ used to mount a second copy of the console's
+ * editors behind a second sign-in. There is one console now, so this resolves
+ * the slug and forwards the section to it - which also means an old bookmark
+ * or a link somebody sent a manager still lands where it used to.
  *
- * Which sections exist comes from the template's own content plan, not from a
- * list kept here - so a portfolio has no menu, and the Elegant menu layout has
- * only a menu. Asking for one this template does not have opens the console
- * and says so, rather than an editor saving into a store the site never
- * renders, and rather than a dead end.
+ * An unknown section is not a 404: the sections a console shows depend on the
+ * template, so a link that was valid on one website is not on another, and the
+ * console itself says so far better than a dead end does.
  */
-const EDITORS = {
-  projects: ProjectsPage,
-  experience: ExperiencePage,
-  services: ServicesPage,
-  // Both of these are in a template's content plan and were missing here, so
-  // the console offered the link and the link came straight back to the
-  // dashboard. Every key the plan can name needs an editor, or the nav lies.
-  event: EventPage,
-  menu: MenuPage,
-  delivery: DeliveryPage,
-  gallery: GalleryPage,
-  sections: SectionsPage,
-  content: PageContentPage,
-  profile: ProfilePage,
-  share: SharePage,
-  managers: ManagersPage,
-  subscription: SubscriptionPage,
-  analytics: AnalyticsPage,
-} as const;
+export default function SiteConsoleSectionPage({
+  params,
+}: {
+  params: Promise<{ slug: string; section: string }>;
+}) {
+  const { slug, section } = use(params);
+  const { session, isLoading } = useAuth();
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isDenied, setIsDenied] = useState(false);
 
-type EditorKey = keyof typeof EDITORS;
+  useEffect(() => {
+    if (isLoading) return;
+    if (!session) {
+      router.replace(`/login?next=${encodeURIComponent(`/s/${slug}/${section}`)}`);
+      return;
+    }
+    let cancelled = false;
+    websitesApi
+      .listAccessible(session.accessToken)
+      .then((all) => {
+        if (cancelled) return;
+        const match = all.find((w) => w.slug === slug);
+        if (!match) {
+          setIsDenied(true);
+          return;
+        }
+        router.replace(`/manage/${match.id}/${section}`);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(friendlyMessage(err, "Could not open this website."));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoading, session, router, slug, section]);
 
-/**
- * Editors that exist for every website, whatever its template - the ones the
- * content plan does not speak for. Only the content stores vary by template.
- *
- * Template and theme are absent on purpose: they are first-build decisions,
- * made once in setup, and the console is for running the site rather than
- * rebuilding it. There is no route to them here, not just no link. (SEO is
- * absent from both surfaces now - the whole editor is gone.)
- */
-const ALWAYS_AVAILABLE = new Set<EditorKey>([
-  "content",
-  "profile",
-  "share",
-  "managers",
-  "subscription",
-  "analytics",
-]);
-
-function Section({ context, section }: { context: SiteAdminContext; section: EditorKey }) {
-  const allowed =
-    ALWAYS_AVAILABLE.has(section) ||
-    contentPlanFor(context.website.layoutVariant).sections.some((entry) => entry.key === section);
-  if (!allowed) {
+  if (isDenied) {
     return (
-      <div className="rounded-2xl border border-black/[.07] bg-surface p-8 text-center dark:border-white/[.09]">
-        <p className="text-sm font-medium">This section isn&apos;t part of this kind of website.</p>
-        <Link href={`/s/${context.website.slug}`} className="mt-2 inline-block text-sm text-[var(--accent-solid)] hover:underline">
-          Back to the dashboard
-        </Link>
+      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center gap-3 px-4 py-16 text-center">
+        <h1 className="text-lg font-semibold tracking-tight">You don&apos;t have access to this website</h1>
+        <p className="text-sm text-muted">
+          You are signed in as {session?.email}. Ask the owner to invite you as a manager, or sign in with the account
+          that owns it.
+        </p>
       </div>
     );
   }
-  const Component = EDITORS[section];
-  return (
-    // The console's own header already names the section, and every editor
-    // opens with the same name as its own h1. Kept for screen readers, hidden
-    // for eyes - two identical titles stacked is the tell of a page embedded
-    // somewhere it was not designed for.
-    <WebsiteProvider websiteId={context.website.id} accessToken={context.accessToken} initialWebsite={context.website}>
-      <div className="[&>div>div>h1]:sr-only [&>div>h1]:sr-only">
-        <Component />
-      </div>
-    </WebsiteProvider>
-  );
-}
 
-export default function SiteAdminSectionPage({ params }: { params: Promise<{ slug: string; section: string }> }) {
-  const { slug, section } = use(params);
-  // An unknown section goes back to the console rather than to a 404. The
-  // sections a console shows depend on the template, so a link that was valid
-  // on one website is not on another - and a bookmark from before a change
-  // should land somewhere useful, not on "this page could not be found".
-  if (!(section in EDITORS)) redirect(`/s/${slug}`);
+  if (error) {
+    return (
+      <div className="mx-auto w-full max-w-lg flex-1 px-4 py-16">
+        <Alert tone="error">{error}</Alert>
+      </div>
+    );
+  }
+
   return (
-    <SiteAdminShell slug={slug}>
-      {(context) => <Section context={context} section={section as EditorKey} />}
-    </SiteAdminShell>
+    <div className="mx-auto w-full max-w-lg flex-1 px-4 py-16">
+      <p className="text-sm text-muted">Opening your console…</p>
+    </div>
   );
 }

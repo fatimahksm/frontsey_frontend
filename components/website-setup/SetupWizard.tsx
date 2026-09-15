@@ -72,7 +72,7 @@ export function SetupWizard() {
       <div className="flex flex-col gap-4">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Set up {website.businessName}</h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-sm text-muted">
             Step {step} of {LAST_STEP} - {SETUP_STEPS.find((s) => s.step === step)?.label}
           </p>
         </div>
@@ -80,7 +80,7 @@ export function SetupWizard() {
       </div>
 
       {step > FIRST_STEP && (
-        <button type="button" onClick={() => goTo(step - 1)} className="-mb-2 self-start text-sm text-zinc-500 hover:underline">
+        <button type="button" onClick={() => goTo(step - 1)} className="-mb-2 self-start text-sm text-muted hover:underline">
           ← Back
         </button>
       )}

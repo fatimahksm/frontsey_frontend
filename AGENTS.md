@@ -77,3 +77,56 @@ limit. Raise it for the run rather than reading it as a regression:
 ```bash
 DBWB_RATELIMITS_LOGIN_LIMIT=1000 mvn spring-boot:run
 ```
+
+# The console's design system
+
+Everything a signed-in person looks at - the owner's console, the platform
+admin, the dashboard - is built from the tokens at the top of
+`app/globals.css` and the primitives in `components/ui/`. The public site
+templates are **not**: they theme themselves from the owner's own palette
+(`--theme-*`), which is the product.
+
+Before adding a colour, a radius or a control, check whether one already
+exists. The reason these were written down is that they had not been: the
+console carried 127 hand-written copies of `text-zinc-500 dark:text-zinc-400`,
+four radii used interchangeably, three separate segmented controls, three icon
+vocabularies (one of them emoji), and a Button that defaulted to a full-width
+gradient - which 92 call sites then fought with `w-auto`.
+
+- **Text** is `text-foreground`, `text-muted`, `text-faint`. Three levels, no
+  more.
+- **Borders** are `border-line` between things inside a surface, and
+  `border-line-strong` around something you can click or type into.
+- **Radii** are `rounded-control` and `rounded-card`. `rounded-full` is for
+  things that are genuinely pills: avatars, badges, progress bars.
+- **Buttons** are auto-width. `primary` is the gradient and **should appear
+  once per screen** - a screen with two primaries has none. Everything else is
+  `secondary`, `ghost` or `danger`. Pass `block` for a form's submit.
+- **A Button never shrinks and never wraps its label**, so the row holding it
+  has to wrap: any `flex` row with more than one button needs `flex-wrap`, or
+  it will push a 320px screen sideways. This is the one way this design can
+  break a phone, and it is what `e2e/console-responsive.spec.ts` caught the
+  first time the new Button landed.
+- **Icons** all come from `components/ui/icons.tsx`. No emoji anywhere behind a
+  login: they render at a different size, weight and colour on every platform,
+  which is the surest "unfinished" tell in an admin panel.
+- **Fields** (`TextField`, `Select`, `Textarea`) share `FIELD_BASE`, and the
+  select's chevron is drawn rather than left to the operating system.
+
+## One console per website
+
+`/manage/<id>/*` is the console. `/s/<slug>` is a short link that resolves the
+slug and forwards into it, so an old bookmark still works.
+
+There used to be two consoles - a "setup area" and a "site admin" with its own
+shell, its own sign-in page and its own sessionStorage gate - listing mostly
+the same sections. An owner clicking "Open dashboard" was asked to sign in
+again to a product they were already signed in to, and the gate protected
+nothing: the same account could open the same website from its dashboard
+without it. Authorization is server-side and unchanged.
+
+The sidebar comes from `components/console/nav.ts`, and section names come from
+the template's own content plan - so the sidebar row, the page heading and the
+page's own title are the same word. They were three different words.
+**Section pages therefore have no `<h1>` of their own**; the shell prints it.
+A sub-route (`/menu/items/new`) keeps its heading, and the shell stays quiet.

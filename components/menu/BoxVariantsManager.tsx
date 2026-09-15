@@ -78,7 +78,7 @@ export function BoxVariantsManager({
       {error && <Alert tone="error">{error}</Alert>}
       <ul className="flex flex-col gap-1.5">
         {variants.map((v) => (
-          <li key={v.id} className="flex items-center justify-between rounded-lg border border-black/[.08] px-3 py-2 text-sm dark:border-white/[.145]">
+          <li key={v.id} className="flex items-center justify-between rounded-lg border border-line px-3 py-2 text-sm">
             <span>
               {v.label} · {v.unitCount} units · {formatMoney(v.price, currency)}
             </span>
@@ -87,13 +87,13 @@ export function BoxVariantsManager({
             </button>
           </li>
         ))}
-        {variants.length === 0 && <p className="text-sm text-zinc-500">No box variants yet.</p>}
+        {variants.length === 0 && <p className="text-sm text-muted">No box variants yet.</p>}
       </ul>
       <form onSubmit={handleAdd} className="flex items-end gap-2">
         <TextField id="boxLabel" label="Label" value={label} onChange={(e) => setLabel(e.target.value)} />
         <TextField id="boxUnitCount" label="Unit count" type="number" min="1" value={unitCount} onChange={(e) => setUnitCount(e.target.value)} />
         <TextField id="boxPrice" label="Price" type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} />
-        <Button type="submit" isLoading={isBusy} className="w-auto px-4">
+        <Button type="submit" isLoading={isBusy} >
           Add
         </Button>
       </form>

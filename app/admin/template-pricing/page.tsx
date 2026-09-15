@@ -141,7 +141,7 @@ export default function AdminTemplatePricingPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold tracking-tight">Template pricing</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           An owner picks a template, then monthly or yearly - the price is set here, per template. The plan on each row
           decides what that website is allowed to do; owners never see or choose it.
         </p>
@@ -151,7 +151,7 @@ export default function AdminTemplatePricingPage() {
       {message && <Alert tone="success">{message}</Alert>}
 
       {isLoading ? (
-        <p className="text-sm text-zinc-500">Loading…</p>
+        <p className="text-sm text-muted">Loading…</p>
       ) : families.length === 0 ? (
         <Alert tone="warning">
           No templates are priced yet. Until a template has a price, nobody can subscribe to a site using it.
@@ -159,7 +159,7 @@ export default function AdminTemplatePricingPage() {
       ) : (
         families.map((family) => (
           <section key={family.type} className="flex flex-col gap-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">
               {family.label}
             </h2>
             <StaggerGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -194,23 +194,23 @@ export default function AdminTemplatePricingPage() {
 
                           <fieldset className="flex flex-col gap-1.5">
                             <legend className="text-sm font-medium">What this template allows</legend>
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap gap-2">
                               {PLAN_CODES.map((code) => (
                                 <button
                                   key={code}
                                   type="button"
                                   onClick={() => setDraft({ ...draft, planCode: code })}
                                   className={`rounded-xl border px-4 py-2 text-sm transition-colors ${
-                                    draft.planCode === code
+ draft.planCode === code
                                       ? "border-[var(--accent-solid)] bg-[var(--accent-solid)]/8 font-medium"
-                                      : "border-black/[.08] hover:bg-black/[.02] dark:border-white/[.145] dark:hover:bg-white/[.06]"
+                                      : "border-line hover:bg-surface-muted"
                                   }`}
                                 >
                                   {code}
                                 </button>
                               ))}
                             </div>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                            <p className="text-xs text-muted">
                               The limits, analytics and multi-page rules come from this plan - set them under Plans.
                             </p>
                           </fieldset>
@@ -222,17 +222,17 @@ export default function AdminTemplatePricingPage() {
                             onChange={(e) => setDraft({ ...draft, active: e.target.checked })}
                           />
                           {!draft.active && (
-                            <p className="ps-7 text-xs text-zinc-500 dark:text-zinc-400">
+                            <p className="ps-7 text-xs text-muted">
                               Turning this off stops new checkouts on this template. Sites already subscribed to it are
                               not affected.
                             </p>
                           )}
 
-                          <div className="flex gap-2">
-                            <Button className="!w-auto px-4" onClick={() => handleSave(price)} isLoading={isBusy}>
+                          <div className="flex flex-wrap gap-2">
+                            <Button onClick={() => handleSave(price)} isLoading={isBusy}>
                               Save price
                             </Button>
-                            <Button variant="secondary" className="!w-auto px-4" disabled={isBusy} onClick={cancelEdit}>
+                            <Button variant="secondary" disabled={isBusy} onClick={cancelEdit}>
                               Cancel
                             </Button>
                           </div>
@@ -241,15 +241,15 @@ export default function AdminTemplatePricingPage() {
                         <div className="flex flex-col gap-3">
                           <div className="flex flex-wrap items-end gap-x-6 gap-y-2">
                             <div>
-                              <p className="text-xs text-zinc-500 dark:text-zinc-400">Monthly</p>
+                              <p className="text-xs text-muted">Monthly</p>
                               <p className="text-xl font-semibold tracking-tight">{formatMoney(price.monthlyPrice)}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-zinc-500 dark:text-zinc-400">Yearly</p>
+                              <p className="text-xs text-muted">Yearly</p>
                               <p className="text-xl font-semibold tracking-tight">{formatMoney(price.yearlyPrice)}</p>
                             </div>
                             {yearlySaving > 0 && (
-                              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                              <p className="text-xs text-muted">
                                 {formatMoney(yearlySaving)} less than twelve months
                               </p>
                             )}
@@ -265,8 +265,8 @@ export default function AdminTemplatePricingPage() {
                           </div>
 
                           <Button
-                            variant="secondary"
-                            className="!w-auto self-start px-4"
+ variant="secondary"
+                            className="self-start"
                             onClick={() => startEdit(price)}
                           >
                             Edit

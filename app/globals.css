@@ -1,25 +1,87 @@
 @import "tailwindcss";
 
+/*
+ * The console's design tokens.
+ *
+ * Everything an owner or an admin looks at is built from these. They exist
+ * because the alternative was what this file used to allow: 127 hand-written
+ * copies of `text-zinc-500 dark:text-zinc-400`, four radii used
+ * interchangeably, and two border weights picked per component. That is not a
+ * style anyone chose - it is the absence of one, and it is what made a
+ * finished product read as unfinished.
+ *
+ * The public site templates do NOT use these. They theme themselves from the
+ * owner's own palette (--theme-*), which is the whole point of the product.
+ */
 :root {
   --background: #ffffff;
   --foreground: #0a0a0f;
   --surface: #ffffff;
   --surface-muted: #f7f7f9;
+  /* One step further in than surface-muted: the sidebar, table headers, and
+     anything that should sit behind the content rather than on it. */
+  --surface-sunken: #f2f2f5;
+
+  /* Text has three levels and no more. Body, the quieter line under it, and
+     the small-caps label above a group. Anything else is decoration. */
+  --text-muted: #6b6b76;
+  --text-faint: #9a9aa5;
+
+  /* Two weights, each with a job: `border` separates things inside a surface,
+     `border-strong` outlines a control you can click or type into. */
   --border-subtle: rgba(10, 10, 15, 0.08);
+  --border-strong: rgba(10, 10, 15, 0.14);
+
   --accent-from: #6d28d9;
   --accent-to: #db2777;
   --accent-solid: #7c3aed;
+  /* The accent at reading strength on a light ground - a selected nav row, a
+     quiet badge. The solid purple as a background is too loud for anything
+     that is not the one primary action on the screen. */
+  --accent-quiet: rgba(124, 58, 237, 0.09);
+  --accent-ink: #5b21b6;
+
+  --danger: #dc2626;
+  --danger-quiet: rgba(220, 38, 38, 0.09);
+  --success: #15803d;
+  --success-quiet: rgba(21, 128, 61, 0.1);
+  --warning: #b45309;
+  --warning-quiet: rgba(180, 83, 9, 0.1);
+
+  /* Three radii. Controls, cards, and the pills that are genuinely pills -
+     avatars, badges, toggles. A button is not a pill: a stadium-shaped button
+     reads as a consumer app, and this is a console someone works in all day. */
+  --radius-control: 10px;
+  --radius-card: 14px;
+
   --shadow-soft: 0 1px 2px rgba(10, 10, 15, 0.04), 0 8px 24px -8px rgba(10, 10, 15, 0.12);
   --shadow-lift: 0 4px 8px rgba(10, 10, 15, 0.06), 0 16px 40px -12px rgba(10, 10, 15, 0.18);
 }
 
+/* Exposed as utilities so a component writes `text-muted` and `border-line`
+   rather than a colour pair it picked itself. */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+  --color-line: var(--border-subtle);
+  --color-line-strong: var(--border-strong);
   --color-border-subtle: var(--border-subtle);
   --color-accent-solid: var(--accent-solid);
+  --color-accent-quiet: var(--accent-quiet);
+  --color-accent-ink: var(--accent-ink);
+  --color-danger: var(--danger);
+  --color-danger-quiet: var(--danger-quiet);
+  --color-success: var(--success);
+  --color-success-quiet: var(--success-quiet);
+  --color-warning: var(--warning);
+  --color-warning-quiet: var(--warning-quiet);
+  --radius-control: var(--radius-control);
+  --radius-card: var(--radius-card);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -30,10 +92,24 @@
     --foreground: #f4f4f6;
     --surface: #111114;
     --surface-muted: #16161a;
+    /* Darker than surface in dark mode, the way it is lighter in light mode:
+       sunken means further from the reader, not a fixed colour. */
+    --surface-sunken: #0c0c0f;
+    --text-muted: #a1a1ac;
+    --text-faint: #71717d;
     --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.16);
     --accent-from: #a78bfa;
     --accent-to: #f472b6;
     --accent-solid: #a78bfa;
+    --accent-quiet: rgba(167, 139, 250, 0.16);
+    --accent-ink: #c4b5fd;
+    --danger: #f87171;
+    --danger-quiet: rgba(248, 113, 113, 0.16);
+    --success: #4ade80;
+    --success-quiet: rgba(74, 222, 128, 0.14);
+    --warning: #fbbf24;
+    --warning-quiet: rgba(251, 191, 36, 0.14);
     --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -8px rgba(0, 0, 0, 0.5);
     --shadow-lift: 0 4px 8px rgba(0, 0, 0, 0.3), 0 16px 40px -12px rgba(0, 0, 0, 0.6);
   }
@@ -99,4 +175,27 @@ body {
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* One focus ring for every control in the console. A keyboard user has to be
+   able to see where they are, and a ring that each component invents is a ring
+   that some component forgets. */
+@utility focus-ring {
+  outline: none;
+  &:focus-visible {
+    outline: 2px solid var(--accent-solid);
+    outline-offset: 2px;
+  }
+}
+
+/* Native selects render the operating system's own arrow at the operating
+   system's own metrics, which is why a `<select>` never quite matched the text
+   field beside it. This draws the chevron instead. */
+@utility select-chevron {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b6b76' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.25rem;
 }

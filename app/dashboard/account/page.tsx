@@ -1,5 +1,6 @@
 "use client";
 
+import { PageFrame } from "@/components/ui/PageFrame";
 import { useState } from "react";
 
 import { Alert } from "@/components/ui/Alert";
@@ -67,7 +68,7 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
+    <PageFrame width="form">
       <h1 className="mb-6 text-xl font-semibold tracking-tight">Account</h1>
 
       {error && <Alert tone="error">{error}</Alert>}
@@ -75,22 +76,22 @@ export default function AccountPage() {
 
       <div className="flex flex-col gap-6">
         <Card title="Your data" description="Download a complete copy of your business data.">
-          <Button className="w-auto px-5" onClick={handleExport} isLoading={isBusy}>
+          <Button onClick={handleExport} isLoading={isBusy}>
             Export my data
           </Button>
         </Card>
 
         <Card title="Delete account" description="Schedules permanent deletion after a retention window. You can cancel any time before then.">
-          <div className="flex gap-3">
-            <Button variant="secondary" className="w-auto px-5" onClick={handleRequestDeletion} isLoading={isBusy}>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="secondary" onClick={handleRequestDeletion} isLoading={isBusy}>
               Request deletion
             </Button>
-            <Button variant="secondary" className="w-auto px-5" onClick={handleCancelDeletion} isLoading={isBusy}>
+            <Button variant="secondary" onClick={handleCancelDeletion} isLoading={isBusy}>
               Cancel deletion
             </Button>
           </div>
         </Card>
       </div>
-    </div>
+    </PageFrame>
   );
 }

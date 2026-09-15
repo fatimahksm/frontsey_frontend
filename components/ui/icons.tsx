@@ -1,10 +1,16 @@
 /**
- * The console's icon set.
+ * The console's icon set - one file, used by every signed-in surface.
  *
  * Inline SVG rather than emoji or box-drawing characters: those render at a
  * different size, weight and colour on every platform, which is exactly the
  * "looks unfinished" tell in an admin panel. These inherit currentColor and
  * sit on the same 20x20 grid, so a row of them lines up.
+ *
+ * It lived under site-admin/ and so only one of the three signed-in surfaces
+ * used it. The owner's setup area drew its sidebar with emoji and the platform
+ * admin drew its own SVGs inline in a layout file, which is how one product
+ * ended up with three icon vocabularies - the surest way to look like three
+ * products.
  */
 
 type IconProps = { className?: string };
@@ -228,6 +234,106 @@ export function CheckIcon(props: IconProps) {
   return (
     <Icon {...props}>
       <path d="M5 12.5l5 5 9-11" />
+    </Icon>
+  );
+}
+
+/** A plan lock on a nav row. Was an emoji padlock, which rendered as a yellow blob on Windows. */
+/** The notifications bell. Was an emoji, which every platform draws at its own size and in its own yellow. */
+export function BellIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M18 10a6 6 0 10-12 0c0 4-1.5 5.5-2 6h16c-.5-.5-2-2-2-6z" />
+      <path d="M10 20a2 2 0 004 0" />
+    </Icon>
+  );
+}
+
+export function WarningIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 4.5l8.5 15h-17l8.5-15z" />
+      <path d="M12 10v4" />
+      <path d="M12 17.2v.01" />
+    </Icon>
+  );
+}
+
+/** The AI suggestion mark. Was a sparkles emoji, which is a different drawing on every platform. */
+export function SparkleIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z" />
+      <path d="M18.5 15l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7.7-1.8z" />
+    </Icon>
+  );
+}
+
+/** A new website, on the dashboard's empty state. */
+export function NewSiteIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M3 9h18" />
+      <path d="M12 13v4" />
+      <path d="M10 15h4" />
+    </Icon>
+  );
+}
+
+export function ChatIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M20 12a7 7 0 01-7 7H8l-4 3v-4.6A7 7 0 0111 5h2a7 7 0 017 7z" />
+    </Icon>
+  );
+}
+
+export function LockIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="4" y="10" width="16" height="10" rx="2" />
+      <path d="M8 10V7a4 4 0 018 0v3" />
+    </Icon>
+  );
+}
+
+export function BarsIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 7h16" />
+      <path d="M4 12h16" />
+      <path d="M4 17h16" />
+    </Icon>
+  );
+}
+
+export function CloseIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 6l12 12" />
+      <path d="M18 6L6 18" />
+    </Icon>
+  );
+}
+
+/** Opens the site in a new tab. */
+export function ExternalIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M14 4h6v6" />
+      <path d="M20 4l-8 8" />
+      <path d="M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5" />
+    </Icon>
+  );
+}
+
+export function LogoutIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M15 4h3a1 1 0 011 1v14a1 1 0 01-1 1h-3" />
+      <path d="M10 8l-4 4 4 4" />
+      <path d="M6 12h9" />
     </Icon>
   );
 }

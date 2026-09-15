@@ -28,32 +28,32 @@ export default function AdminAuditLogPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold tracking-tight">Audit log</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           Every significant platform action - suspensions, plan changes, publishes, account changes.
         </p>
       </div>
       {error && <Alert tone="error">{error}</Alert>}
       <Card>
         {logs === null ? (
-          <p className="text-sm text-zinc-500">Loading…</p>
+          <p className="text-sm text-muted">Loading…</p>
         ) : logs.length === 0 ? (
-          <p className="text-sm text-zinc-500">No audit entries yet.</p>
+          <p className="text-sm text-muted">No audit entries yet.</p>
         ) : (
           <StaggerGroup as="ul" className="flex flex-col gap-2">
             {logs.map((log) => (
               <StaggerItem
                 as="li"
                 key={log.id}
-                className="flex items-center justify-between rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]"
+                className="flex items-center justify-between rounded-lg border border-line p-3 text-sm"
               >
                 <div className="min-w-0">
                   <p className="font-medium">{log.action.replace(/_/g, " ")}</p>
-                  <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="truncate text-xs text-muted">
                     {log.actorEmail ?? log.actorAccountId}
                     {log.targetId && ` · target ${log.targetId}`}
                   </p>
                 </div>
-                <span className="shrink-0 text-xs text-zinc-500">{formatDate(log.createdAt)}</span>
+                <span className="shrink-0 text-xs text-muted">{formatDate(log.createdAt)}</span>
               </StaggerItem>
             ))}
           </StaggerGroup>

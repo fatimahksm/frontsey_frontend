@@ -35,7 +35,7 @@ export function PlanLockBanner({
     >
       <p className="text-sm">
         <span className="font-semibold">This website is locked.</span>{" "}
-        <span className="text-zinc-600 dark:text-zinc-300">
+        <span className="text-muted">
           Your plan ended, so the site is offline and nothing can be edited. You can still look at everything.
         </span>
       </p>

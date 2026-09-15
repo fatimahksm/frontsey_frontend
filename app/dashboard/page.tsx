@@ -1,5 +1,6 @@
 "use client";
 
+import { PageFrame } from "@/components/ui/PageFrame";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -8,6 +9,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
+import { NewSiteIcon } from "@/components/ui/icons";
 import { friendlyMessage } from "@/lib/api/client";
 import { managerInvitationsApi } from "@/lib/api/managerInvitations";
 import { websitesApi } from "@/lib/api/websites";
@@ -33,17 +35,17 @@ export default function WebsitesPage() {
   }, [session]);
 
   return (
-    <div className="mx-auto w-full max-w-4xl flex-1 px-4 py-10">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
+    <PageFrame>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
           <h1 className="text-xl font-semibold tracking-tight">My Websites</h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-sm text-muted">
             Every business website you own or help manage, in one place.
           </p>
         </div>
         {websites !== null && websites.length > 0 && (
           <Link href="/dashboard/websites/new">
-            <Button className="w-auto px-5">Create website</Button>
+            <Button>Create website</Button>
           </Link>
         )}
       </div>
@@ -59,24 +61,24 @@ export default function WebsitesPage() {
 
       {error && <Alert tone="error">{error}</Alert>}
 
-      {websites === null && !error && <p className="text-sm text-zinc-500">Loading…</p>}
+      {websites === null && !error && <p className="text-sm text-muted">Loading…</p>}
 
       {websites !== null && websites.length === 0 && (
-        <Reveal className="mt-6 flex flex-col items-center gap-4 rounded-3xl border border-dashed border-black/[.12] bg-surface-muted px-6 py-24 text-center dark:border-white/[.18]">
+        <Reveal className="mt-6 flex flex-col items-center gap-4 rounded-card border border-dashed border-line-strong bg-surface-muted px-6 py-20 text-center">
           <div
             aria-hidden
-            className="animate-float flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-accent text-3xl shadow-lift"
+            className="flex h-14 w-14 items-center justify-center rounded-card bg-accent-quiet text-accent-ink"
           >
-            🚀
+            <NewSiteIcon className="h-7 w-7" />
           </div>
           <div>
             <h2 className="text-lg font-semibold">Build your first website</h2>
-            <p className="mt-1 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mt-1 max-w-sm text-sm text-muted">
               Choose a menu-ordering or portfolio template, add your content, and publish - all in a few minutes.
             </p>
           </div>
           <Link href="/dashboard/websites/new">
-            <Button className="w-auto px-6">Create your first website</Button>
+            <Button>Create your first website</Button>
           </Link>
         </Reveal>
       )}
@@ -90,6 +92,6 @@ export default function WebsitesPage() {
           ))}
         </StaggerGroup>
       )}
-    </div>
+    </PageFrame>
   );
 }

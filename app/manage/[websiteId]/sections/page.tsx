@@ -22,7 +22,7 @@ import {
   type TeamSectionData,
   type TestimonialsSectionData,
 } from "@/lib/website/page-sections";
-import { contentPlanFor, sectionLabel } from "@/lib/website/template-content";
+import { contentPlanFor } from "@/lib/website/template-content";
 import { useWebsite } from "@/lib/website/website-context";
 
 type DraftData = AboutSectionData | TestimonialsSectionData | FaqSectionData | TeamSectionData;
@@ -39,8 +39,8 @@ export default function SectionsPage() {
   const { website, accessToken, notifyDraftChanged } = useWebsite();
 
   // Every name on this page comes from the template's plan, so the editor calls
-  // each block what the site calls it.
-  const planLabel = sectionLabel(website.layoutVariant, "sections", "Sections");
+  // each block what the site calls it. The section's own name is printed by the
+  // console, from that same plan.
   const blocks = contentPlanFor(website.layoutVariant).blocks;
   const [sections, setSections] = useState<PageSectionResponse[]>([]);
   const [mode, setMode] = useState<"list" | "edit">("list");
@@ -133,8 +133,7 @@ export default function SectionsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">{planLabel}</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           The blocks your template&apos;s page is made of. Fill in the ones you want; anything left empty is simply not
           shown.
         </p>
@@ -145,13 +144,13 @@ export default function SectionsPage() {
         <>
           {blocks.length === 0 ? (
             <Card>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm text-muted">
                 This template is deliberately just your menu - it has no extra blocks.
               </p>
             </Card>
           ) : isLoading ? (
             <Card>
-              <p className="text-sm text-zinc-500">Loading…</p>
+              <p className="text-sm text-muted">Loading…</p>
             </Card>
           ) : (
             <StaggerGroup as="ul" className="flex flex-col gap-3">
@@ -161,18 +160,18 @@ export default function SectionsPage() {
                   <StaggerItem
                     as="li"
                     key={block.type}
-                    className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-black/[.08] bg-surface p-4 dark:border-white/[.12]"
+                    className="flex flex-wrap items-center justify-between gap-4 rounded-card border border-line bg-surface p-4"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="font-medium">{block.label}</p>
                         {!existing && (
-                          <span className="rounded-full bg-black/[.05] px-2 py-0.5 text-xs text-zinc-500 dark:bg-white/[.08] dark:text-zinc-400">
+                          <span className="rounded-full bg-black/[.05] px-2 py-0.5 text-xs text-muted dark:bg-white/[.08]">
                             Not shown yet
                           </span>
                         )}
                       </div>
-                      <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                      <p className="mt-0.5 text-sm text-muted">
                         {existing ? summarize(existing) : block.hint}
                       </p>
                     </div>
@@ -208,11 +207,11 @@ export default function SectionsPage() {
                 {leftovers.map((section) => (
                   <li
                     key={section.id}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed border-black/[.12] p-3 text-sm dark:border-white/[.18]"
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed border-line-strong p-3 text-sm"
                   >
                     <span className="min-w-0">
                       <span className="font-medium">{SECTION_TYPE_LABELS[section.type]}</span>
-                      <span className="ms-2 text-zinc-500 dark:text-zinc-400">{summarize(section)}</span>
+                      <span className="ms-2 text-muted">{summarize(section)}</span>
                     </span>
                     <button type="button" className="shrink-0 text-red-600 hover:underline" onClick={() => handleDelete(section.id)}>
                       Delete
@@ -232,11 +231,11 @@ export default function SectionsPage() {
         >
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <SectionForm type={editingType} draft={draft} onChange={setDraft} accessToken={accessToken} />
-            <div className="flex gap-3">
-              <Button type="submit" isLoading={isBusy} className="!w-auto px-5">
+            <div className="flex flex-wrap gap-3">
+              <Button type="submit" isLoading={isBusy} >
                 Save
               </Button>
-              <Button type="button" variant="secondary" className="!w-auto px-5" onClick={cancelEdit}>
+              <Button type="button" variant="secondary" onClick={cancelEdit}>
                 Cancel
               </Button>
             </div>
@@ -362,7 +361,7 @@ function RepeatableItems<T>({
   return (
     <div className="flex flex-col gap-4">
       {items.map((item, index) => (
-        <div key={index} className="flex flex-col gap-3 rounded-xl border border-dashed border-black/[.12] p-4 dark:border-white/[.18]">
+        <div key={index} className="flex flex-col gap-3 rounded-xl border border-dashed border-line-strong p-4">
           {renderFields(item, (next) => onChange(items.map((it, i) => (i === index ? next : it))), index)}
           <button
             type="button"

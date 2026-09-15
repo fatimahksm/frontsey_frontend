@@ -181,7 +181,7 @@ export default function SubscriptionPage() {
   }
 
   if (isLoading) {
-    return <p className="text-sm text-zinc-500">Loading…</p>;
+    return <p className="text-sm text-muted">Loading…</p>;
   }
 
   // A billing period is "yours" only once it has actually been paid for. A
@@ -224,7 +224,6 @@ export default function SubscriptionPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold tracking-tight">Subscription</h1>
       {error && <Alert tone="error">{error}</Alert>}
       {message && <Alert tone="success">{message}</Alert>}
 
@@ -233,7 +232,7 @@ export default function SubscriptionPage() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-col gap-1">
-                <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                <p className="text-xs font-medium uppercase tracking-wider text-muted">
                   Your plan
                 </p>
                 <p className="text-2xl font-semibold tracking-tight">
@@ -262,7 +261,7 @@ export default function SubscriptionPage() {
                 <p className="text-lg font-semibold">
                   {trialDaysLeft === 0 ? "Ends today" : `${dayCount(trialDaysLeft)} left`}
                 </p>
-                <p className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-400">
+                <p className="mt-0.5 text-sm text-muted">
                   Nothing to pay until then. Your site is live and your link works.
                 </p>
               </div>
@@ -271,19 +270,19 @@ export default function SubscriptionPage() {
             <p className="text-sm">{statusSentence(subscription, trialDays)}</p>
 
             <dl
-              className={`grid grid-cols-2 gap-x-6 gap-y-2 border-t border-black/[.08] pt-4 text-sm sm:grid-cols-3 dark:border-white/[.145] ${
-                hasEverRun(subscription) && !subscription.complimentary ? "" : "hidden"
+              className={`grid grid-cols-2 gap-x-6 gap-y-2 border-t border-line pt-4 text-sm sm:grid-cols-3 ${
+ hasEverRun(subscription) && !subscription.complimentary ? "" : "hidden"
               }`}
             >
               {subscription.startDate && (
                 <div>
-                  <dt className="text-xs text-zinc-500 dark:text-zinc-400">Started</dt>
+                  <dt className="text-xs text-muted">Started</dt>
                   <dd>{formatDate(subscription.startDate)}</dd>
                 </div>
               )}
               {subscription.endDate && (
                 <div>
-                  <dt className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <dt className="text-xs text-muted">
                     {subscription.status === "TRIAL" ? "Trial ends" : "Ends"}
                   </dt>
                   <dd>{formatDate(subscription.endDate)}</dd>
@@ -291,7 +290,7 @@ export default function SubscriptionPage() {
               )}
               {subscription.graceEndsAt && subscription.status !== "TRIAL" && (
                 <div>
-                  <dt className="text-xs text-zinc-500 dark:text-zinc-400">Goes offline after</dt>
+                  <dt className="text-xs text-muted">Goes offline after</dt>
                   <dd>{formatDate(subscription.graceEndsAt)}</dd>
                 </div>
               )}
@@ -302,7 +301,7 @@ export default function SubscriptionPage() {
         <Card>
           <div className="flex flex-col gap-1">
             <p className="text-lg font-semibold tracking-tight">No subscription yet - and nothing to pay</p>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="text-sm text-muted">
               Build your site and publish it whenever you are ready. Your free trial starts the moment you publish, so
               you can see your real link working before you decide on a plan.
             </p>
@@ -315,14 +314,14 @@ export default function SubscriptionPage() {
           title="Mock Whish checkout"
           description={`Reference ${pendingPayment.reference} · ${formatMoney(pendingPayment.amount, website.currency)}. This mock gateway needs you to simulate an outcome.`}
         >
-          <div className="flex gap-3">
-            <Button className="!w-auto px-4" onClick={() => handleSimulate("SUCCESS")} isLoading={isBusy}>
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={() => handleSimulate("SUCCESS")} isLoading={isBusy}>
               Simulate success
             </Button>
-            <Button variant="secondary" className="!w-auto px-4" onClick={() => handleSimulate("FAILED")} isLoading={isBusy}>
+            <Button variant="secondary" onClick={() => handleSimulate("FAILED")} isLoading={isBusy}>
               Simulate failure
             </Button>
-            <Button variant="secondary" className="!w-auto px-4" onClick={() => handleSimulate("PENDING")} isLoading={isBusy}>
+            <Button variant="secondary" onClick={() => handleSimulate("PENDING")} isLoading={isBusy}>
               Keep pending
             </Button>
           </div>
@@ -354,9 +353,9 @@ export default function SubscriptionPage() {
                   <li
                     key={option.period}
                     className={`flex flex-col gap-2 rounded-xl border p-4 ${
-                      current
+ current
                         ? "border-[var(--accent-solid)] bg-[var(--accent-solid)]/5"
-                        : "border-black/[.08] dark:border-white/[.145]"
+                        : "border-line"
                     } ${locked ? "opacity-60" : ""}`}
                   >
                     <div className="flex items-center justify-between gap-2">
@@ -365,19 +364,19 @@ export default function SubscriptionPage() {
                     </div>
                     <p className="text-2xl font-semibold tracking-tight">
                       {formatMoney(option.price, website.currency)}
-                      <span className="ms-1 text-sm font-normal text-zinc-500 dark:text-zinc-400">
+                      <span className="ms-1 text-sm font-normal text-muted">
                         {option.period === "MONTHLY" ? "/ month" : "/ year"}
                       </span>
                     </p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{option.note}</p>
+                    <p className="text-xs text-muted">{option.note}</p>
                     {locked ? (
-                      <p className="mt-auto pt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                      <p className="mt-auto pt-2 text-xs text-muted">
                         Available once your current subscription ends
                         {subscription?.endDate ? ` on ${formatDate(subscription.endDate)}` : ""}.
                       </p>
                     ) : (
                       <Button
-                        className="mt-auto !w-auto self-start px-4"
+ className="mt-auto self-start"
                         onClick={() => handleCheckout(option.period)}
                         isLoading={isBusy}
                       >

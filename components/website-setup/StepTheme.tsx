@@ -41,7 +41,7 @@ function Swatch({ colors, label }: { colors: ReturnType<typeof swatchOf>; label:
   return (
     <span
       aria-hidden
-      className="flex h-14 w-20 shrink-0 flex-col justify-between rounded-lg border border-black/[.12] p-2 dark:border-white/[.18]"
+      className="flex h-14 w-20 shrink-0 flex-col justify-between rounded-lg border border-line-strong p-2"
       style={{ background: colors.backgroundColor, color: colors.textColor }}
     >
       <span className="text-[11px] font-semibold leading-none">{label}</span>
@@ -85,7 +85,7 @@ export function StepTheme({ onContinue }: { onContinue(): void }) {
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-lg font-semibold tracking-tight">Pick your colours</h2>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           This is a first-build choice, so it is made here rather than in your console. You can still change it later
           from Design → Theme.
         </p>
@@ -94,7 +94,7 @@ export function StepTheme({ onContinue }: { onContinue(): void }) {
       {error && <Alert tone="error">{error}</Alert>}
 
       <ul className="flex flex-col gap-2">
-        <li className="flex items-center gap-4 rounded-xl border border-black/[.08] p-3 dark:border-white/[.145]">
+        <li className="flex items-center gap-4 rounded-xl border border-line p-3">
           <Swatch
             colors={{
               backgroundColor: templateOwn.backgroundColor,
@@ -105,13 +105,13 @@ export function StepTheme({ onContinue }: { onContinue(): void }) {
           />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium">The template&apos;s own look</p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-muted">
               The colours this template was designed in. A good default.
             </p>
           </div>
           <Button
-            variant={website.themeId === null ? "primary" : "secondary"}
-            className="!w-auto shrink-0 px-4"
+ variant={website.themeId === null ? "primary" : "secondary"}
+            className="shrink-0"
             onClick={() => choose(null)}
             isLoading={isBusy}
           >
@@ -122,18 +122,18 @@ export function StepTheme({ onContinue }: { onContinue(): void }) {
         {themes.map((theme) => (
           <li
             key={theme.id}
-            className="flex items-center gap-4 rounded-xl border border-black/[.08] p-3 dark:border-white/[.145]"
+            className="flex items-center gap-4 rounded-xl border border-line p-3"
           >
             <Swatch colors={swatchOf(theme.themeConfig)} label="Aa" />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium">{theme.name}</p>
               {theme.description && (
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">{theme.description}</p>
+                <p className="text-xs text-muted">{theme.description}</p>
               )}
             </div>
             <Button
-              variant={website.themeId === theme.id ? "primary" : "secondary"}
-              className="!w-auto shrink-0 px-4"
+ variant={website.themeId === theme.id ? "primary" : "secondary"}
+              className="shrink-0"
               onClick={() => choose(theme.id)}
               isLoading={isBusy}
             >
@@ -143,7 +143,7 @@ export function StepTheme({ onContinue }: { onContinue(): void }) {
         ))}
       </ul>
 
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="text-xs text-muted">
         Want to set exact colours, fonts and corners?{" "}
         <Link href={`/manage/${website.id}/theme`} className="font-medium text-[var(--accent-solid)] hover:underline">
           Open the full theme editor
@@ -151,7 +151,7 @@ export function StepTheme({ onContinue }: { onContinue(): void }) {
         .
       </p>
 
-      <Button onClick={onContinue} className="!w-auto self-start px-6">
+      <Button onClick={onContinue} className="self-start">
         Continue
       </Button>
     </div>

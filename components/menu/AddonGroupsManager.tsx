@@ -108,12 +108,12 @@ export function AddonGroupsManager({
       {error && <Alert tone="error">{error}</Alert>}
 
       {groups.map((group) => (
-        <div key={group.id} className="rounded-lg border border-black/[.08] p-3 dark:border-white/[.145]">
+        <div key={group.id} className="rounded-lg border border-line p-3">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">
               {group.name}
               {group.maxSelections != null && (
-                <span className="ml-2 text-xs font-normal text-zinc-500">max {group.maxSelections}</span>
+                <span className="ml-2 text-xs font-normal text-muted">max {group.maxSelections}</span>
               )}
             </span>
             <button type="button" className="text-xs text-red-600 hover:underline" onClick={() => handleDeleteGroup(group.id)}>
@@ -136,7 +136,7 @@ export function AddonGroupsManager({
                 </button>
               </li>
             ))}
-            {group.addons.length === 0 && <p className="text-sm text-zinc-500">No add-ons in this group yet.</p>}
+            {group.addons.length === 0 && <p className="text-sm text-muted">No add-ons in this group yet.</p>}
           </ul>
 
           <div className="mt-2 flex items-end gap-2">
@@ -159,7 +159,7 @@ export function AddonGroupsManager({
                 setAddonDrafts((prev) => ({ ...prev, [group.id]: { name: prev[group.id]?.name ?? "", extraPrice: e.target.value } }))
               }
             />
-            <Button className="w-auto px-3" onClick={() => handleAddAddon(group.id)} isLoading={isBusy}>
+            <Button onClick={() => handleAddAddon(group.id)} isLoading={isBusy}>
               Add
             </Button>
           </div>
@@ -176,7 +176,7 @@ export function AddonGroupsManager({
           value={maxSelections}
           onChange={(e) => setMaxSelections(e.target.value)}
         />
-        <Button type="submit" isLoading={isBusy} className="w-auto px-4">
+        <Button type="submit" isLoading={isBusy} >
           Add group
         </Button>
       </form>

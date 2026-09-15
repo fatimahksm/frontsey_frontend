@@ -86,18 +86,18 @@ export default function AdminUsersPage() {
       {error && <Alert tone="error">{error}</Alert>}
       <Card>
         {users === null ? (
-          <p className="text-sm text-zinc-500">Loading…</p>
+          <p className="text-sm text-muted">Loading…</p>
         ) : (
           <StaggerGroup as="ul" className="flex flex-col gap-2">
             {users.map((user) => (
               <StaggerItem
                 as="li"
                 key={user.id}
-                className="flex flex-col gap-2 rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145] sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-2 rounded-lg border border-line p-3 text-sm sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <p className="font-medium">{user.email}</p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="text-xs text-muted">
                     {user.fullName ?? "-"} · {user.role} · joined {formatDate(user.createdAt)}
                   </p>
                 </div>
@@ -109,7 +109,7 @@ export default function AdminUsersPage() {
                     value={user.role}
                     disabled={busyId === user.id}
                     onChange={(e) => handleRoleChange(user.id, e.target.value as Role)}
-                    className="h-8 rounded-lg border border-black/[.12] bg-surface px-2 text-xs outline-none disabled:opacity-50 dark:border-white/[.16]"
+                    className="h-8 rounded-lg border border-line-strong bg-surface px-2 text-xs outline-none disabled:opacity-50"
                   >
                     {ROLES.map((role) => (
                       <option key={role} value={role}>

@@ -50,7 +50,7 @@ export default function NewMenuItemPage() {
       <h1 className="text-xl font-semibold tracking-tight">Add menu item</h1>
       {error && <Alert tone="error">{error}</Alert>}
       {categories.length === 0 ? (
-        <p className="text-sm text-zinc-500">Create a category first before adding items.</p>
+        <p className="text-sm text-muted">Create a category first before adding items.</p>
       ) : (
         <MenuItemForm categories={categories} initial={EMPTY} submitLabel="Create item" isSubmitting={isSubmitting} onSubmit={handleSubmit} />
       )}

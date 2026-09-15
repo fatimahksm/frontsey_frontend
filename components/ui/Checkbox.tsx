@@ -10,7 +10,7 @@ export function Checkbox({ label, id, className = "", ...props }: CheckboxProps)
       <input
         id={id}
         type="checkbox"
-        className={`h-4 w-4 rounded border-black/[.25] accent-[var(--accent-solid)] ${className}`}
+        className={`h-4 w-4 rounded border-line-strong accent-[var(--accent-solid)] ${className}`}
         {...props}
       />
       <span>{label}</span>

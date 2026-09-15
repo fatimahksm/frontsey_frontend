@@ -83,14 +83,14 @@ export function StepBusinessInfo({ onContinue }: { onContinue(): void }) {
   }
 
   if (isLoading) {
-    return <p className="text-sm text-zinc-500">Loading…</p>;
+    return <p className="text-sm text-muted">Loading…</p>;
   }
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-lg font-semibold tracking-tight">The basics</h2>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           Just enough to open your website. Everything else - your work, your services, photos, colours, opening hours
           and the rest of your contact details - you add from your dashboard afterwards, and can change any time.
         </p>
@@ -107,7 +107,7 @@ export function StepBusinessInfo({ onContinue }: { onContinue(): void }) {
         fields="essentials"
       />
 
-      <Button onClick={handleSaveAndContinue} isLoading={isSaving} className="w-auto self-start px-6">
+      <Button onClick={handleSaveAndContinue} isLoading={isSaving} className="self-start">
         Save and continue
       </Button>
     </div>

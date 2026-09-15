@@ -64,13 +64,13 @@ export function AuthCard({ title, subtitle, children, footer, brand }: AuthCardP
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-sm rounded-2xl border border-black/[.08] bg-surface p-8 shadow-lift dark:border-white/[.1]"
+          className="w-full max-w-sm rounded-card border border-line bg-surface p-8 shadow-lift"
         >
           <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
-          {subtitle && <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{subtitle}</p>}
+          {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
           <div className="mt-6 flex flex-col gap-4">{children}</div>
           {footer && (
-            <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="mt-6 text-center text-sm text-muted">
               {footer.question && <>{footer.question} </>}
               <Link href={footer.href} className="font-medium text-foreground hover:underline">
                 {footer.linkLabel}

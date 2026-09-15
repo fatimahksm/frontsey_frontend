@@ -1,3 +1,5 @@
+import { CheckIcon } from "@/components/ui/icons";
+
 export interface StepDefinition {
   step: number;
   label: string;
@@ -23,20 +25,20 @@ export function Stepper({ steps, currentStep, completedSteps }: {
             <div
               aria-current={isCurrent ? "step" : undefined}
               className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                isCurrent
+ isCurrent
                   ? "bg-gradient-accent text-white"
                   : isDone
                     ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-                    : "bg-black/[.05] text-zinc-500 dark:bg-white/[.06] dark:text-zinc-400"
+                    : "bg-black/[.05] text-muted dark:bg-white/[.06] dark:text-faint"
               }`}
             >
               <span
                 className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] ${
-                  isCurrent ? "bg-white/25" : isDone ? "bg-emerald-500/25" : "bg-black/[.08] dark:bg-white/[.12]"
+ isCurrent ? "bg-white/25" : isDone ? "bg-emerald-500/25" : "bg-black/[.08] dark:bg-white/[.12]"
                 }`}
                 aria-hidden
               >
-                {isDone ? "✓" : item.step}
+                {isDone ? <CheckIcon className="h-3 w-3" /> : item.step}
               </span>
               <span className="whitespace-nowrap">{item.label}</span>
             </div>

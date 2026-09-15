@@ -72,8 +72,7 @@ export default function LayoutPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">Template</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           The complete ready-made visual design for your website - your content stays the same, only the look and
           arrangement change. Switch anytime.
         </p>
@@ -107,7 +106,7 @@ export default function LayoutPage() {
                   // nothing to scroll. With it the card fits the phone and the
                   // preview scrolls inside the card.
                   className={`flex w-full min-w-0 cursor-pointer justify-center overflow-x-auto rounded-xl transition-shadow ${
-                    previewVariant === option.value ? "ring-2 ring-[var(--accent-solid)]" : ""
+ previewVariant === option.value ? "ring-2 ring-[var(--accent-solid)]" : ""
                   }`}
                 >
                   <ScaledPreviewFrame>
@@ -117,7 +116,7 @@ export default function LayoutPage() {
                 <div className="mt-4 flex items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold">{option.label}</p>
-                    <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{option.description}</p>
+                    <p className="mt-0.5 text-xs text-muted">{option.description}</p>
                     <BestForChips items={option.bestFor} />
                     <a
                       href={`/preview/mock/${option.value}${kind === "SHOP" ? "?kind=SHOP" : ""}`}
@@ -132,9 +131,9 @@ export default function LayoutPage() {
                     disabled={busyVariant !== null}
                     onClick={() => handleSelect(option.value)}
                     className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                      isSelected
+ isSelected
                         ? "bg-gradient-accent text-white"
-                        : "border border-black/[.12] hover:bg-black/[.03] dark:border-white/[.16] dark:hover:bg-white/[.06]"
+                        : "border border-line-strong hover:bg-surface-muted"
                     } disabled:opacity-50`}
                   >
                     {busyVariant === option.value ? "Saving…" : isSelected ? "Selected" : "Use this layout"}
@@ -150,7 +149,7 @@ export default function LayoutPage() {
         <p className="mb-2 text-sm font-medium">
           Live preview - {options.find((o) => o.value === previewVariant)?.label}
         </p>
-        <div className="flex min-w-0 justify-center overflow-x-auto rounded-2xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]">
+        <div className="flex min-w-0 justify-center overflow-x-auto rounded-card border border-line bg-white p-2">
           <ScaledPreviewFrame width={820} height={520}>
             <PublicSiteRenderer site={mockSiteFor(previewVariant, kind)} onFirstView={() => {}} isSample />
           </ScaledPreviewFrame>

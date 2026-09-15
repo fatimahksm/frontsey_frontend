@@ -1,5 +1,6 @@
 "use client";
 
+import { PageFrame } from "@/components/ui/PageFrame";
 import { useEffect, useState } from "react";
 
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
@@ -77,7 +78,7 @@ export default function SupportPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
+    <PageFrame width="form">
       <h1 className="mb-6 text-xl font-semibold tracking-tight">Support</h1>
 
       {error && <Alert tone="error">{error}</Alert>}
@@ -100,7 +101,7 @@ export default function SupportPage() {
             value={attachmentUrl}
             onChange={(e) => setAttachmentUrl(e.target.value)}
           />
-          <Button type="submit" isLoading={isSubmitting} className="w-auto px-5">
+          <Button type="submit" isLoading={isSubmitting} >
             Submit ticket
           </Button>
         </form>
@@ -108,23 +109,23 @@ export default function SupportPage() {
 
       <h2 className="mt-8 mb-3 text-sm font-semibold">Your tickets</h2>
       {isLoading ? (
-        <p className="text-sm text-zinc-500">Loading…</p>
+        <p className="text-sm text-muted">Loading…</p>
       ) : tickets.length === 0 ? (
-        <p className="text-sm text-zinc-500">No tickets yet.</p>
+        <p className="text-sm text-muted">No tickets yet.</p>
       ) : (
         <StaggerGroup as="ul" className="flex flex-col gap-2">
           {tickets.map((ticket) => (
-            <StaggerItem as="li" key={ticket.id} className="rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145]">
+            <StaggerItem as="li" key={ticket.id} className="rounded-lg border border-line p-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="font-medium">{ticket.subject}</span>
                 <Badge tone={STATUS_TONE[ticket.status]}>{ticket.status.replace("_", " ")}</Badge>
               </div>
-              <p className="mt-1 text-zinc-600 dark:text-zinc-400">{ticket.message}</p>
-              <p className="mt-1 text-xs text-zinc-500">{formatDateTime(ticket.createdAt)}</p>
+              <p className="mt-1 text-muted">{ticket.message}</p>
+              <p className="mt-1 text-xs text-muted">{formatDateTime(ticket.createdAt)}</p>
             </StaggerItem>
           ))}
         </StaggerGroup>
       )}
-    </div>
+    </PageFrame>
   );
 }

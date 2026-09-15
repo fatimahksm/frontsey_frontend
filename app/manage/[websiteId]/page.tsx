@@ -1,384 +1,470 @@
 "use client";
 
+import { Segmented } from "@/components/ui/Segmented";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { Alert } from "@/components/ui/Alert";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { RankedBar, ShareDonut, VisitsArea } from "@/components/console/Charts";
+import { ArrowDownIcon, ArrowUpIcon, CheckIcon } from "@/components/ui/icons";
 import { analyticsApi } from "@/lib/api/analytics";
+import { galleryApi } from "@/lib/api/gallery";
 import { menuApi } from "@/lib/api/menu";
 import { projectsApi } from "@/lib/api/projects";
 import { servicesApi } from "@/lib/api/services";
-import type { AnalyticsSummaryResponse, TemplateType } from "@/lib/api/types";
+import type { AnalyticsSummaryResponse } from "@/lib/api/types";
+import { loadSetupStatus, type ChecklistItem } from "@/lib/website/setup-checklist";
+import { sectionLabel } from "@/lib/website/template-content";
 import { useWebsite } from "@/lib/website/website-context";
-import { loadSetupStatus, readinessPercent, type ChecklistItem } from "@/lib/website/setup-checklist";
 
-const TILE_TONES = {
-  violet: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
-  emerald: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
-  sky: "bg-sky-500/15 text-sky-600 dark:text-sky-400",
-} as const;
+/**
+ * The business's dashboard.
+ *
+ * Written for someone who runs a salon, not an analyst. Every panel says in a
+ * sentence what its numbers mean, the top of the page reads as plain English
+ * before it reads as charts, and anything that needs doing is a labelled button
+ * rather than something to infer from a gap.
+ *
+ * Every number is measured. There is no revenue and no order count because the
+ * platform records neither - a figure someone's bank statement disagrees with
+ * is worse than no figure. The period comparison is real: it fetches the
+ * preceding window of the same length and subtracts.
+ */
 
-/** At-a-glance KPI tile for the stats row - only ever fed real, already-fetched numbers (never a placeholder/fake value). */
-function StatTile({ icon, label, value, tone }: { icon: string; label: string; value: string | number; tone: keyof typeof TILE_TONES }) {
+const RANGES = [
+  { days: 7, label: "7 days", previous: "the 7 days before" },
+  { days: 30, label: "30 days", previous: "the 30 days before" },
+  { days: 90, label: "90 days", previous: "the 90 days before" },
+] as const;
+
+function Panel({
+  title,
+  description,
+  action,
+  children,
+}: {
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-black/[.08] bg-surface p-4 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.1]">
-      <span aria-hidden className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-lg ${TILE_TONES[tone]}`}>
-        {icon}
-      </span>
-      <div className="flex flex-col gap-0.5">
-        <span className="text-2xl font-semibold tracking-tight">{value}</span>
-        <span className="text-xs text-zinc-500 dark:text-zinc-400">{label}</span>
+    <section className="rounded-card border border-line bg-surface p-5 shadow-soft">
+      {/* Wraps: a panel's action can be a three-button segmented control, and
+          at 320 that does not fit beside a title. Without this it pushed the
+          whole page sideways - which the 320px browser test caught. */}
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-sm font-semibold tracking-tight">{title}</h2>
+          {description && <p className="mt-0.5 text-xs text-muted">{description}</p>}
+        </div>
+        {action}
       </div>
+      {children}
+    </section>
+  );
+}
+
+/** A measured change against the preceding window. Absent when there is nothing to compare to. */
+function Trend({ current, previous }: { current: number; previous: number | null }) {
+  if (previous === null || previous === 0) return null;
+  const change = Math.round(((current - previous) / previous) * 100);
+  if (change === 0) return <span className="text-xs opacity-80">Same as before</span>;
+  const up = change > 0;
+  return (
+    <span className="inline-flex items-center gap-1 text-xs opacity-90">
+      {up ? <ArrowUpIcon className="h-3.5 w-3.5" /> : <ArrowDownIcon className="h-3.5 w-3.5" />}
+      {Math.abs(change)}% vs before
+    </span>
+  );
+}
+
+function Kpi({
+  label,
+  value,
+  hint,
+  tone,
+  href,
+}: {
+  label: string;
+  value: string;
+  hint?: React.ReactNode;
+  tone?: "accent";
+  href?: string;
+}) {
+  // The headline figure is marked by a tinted ground and coloured type, not by
+  // a saturated gradient block. The gradient belongs to the one action a screen
+  // is asking you to take; a tile carrying "-" because there is no data yet was
+  // the loudest thing on this page.
+  const body = (
+    <div
+      className={`h-full rounded-card border p-5 shadow-soft ${
+        tone === "accent" ? "border-accent-quiet bg-accent-quiet" : "border-line bg-surface"
+      }`}
+    >
+      <p className={`text-xs ${tone === "accent" ? "text-accent-ink" : "text-muted"}`}>{label}</p>
+      <p
+        className={`mt-2 text-3xl font-semibold tabular-nums tracking-tight ${
+          tone === "accent" ? "text-accent-ink" : ""
+        }`}
+      >
+        {value}
+      </p>
+      {hint && (
+        <div className={`mt-1.5 text-xs ${tone === "accent" ? "text-accent-ink/80" : "text-muted"}`}>
+          {hint}
+        </div>
+      )}
     </div>
   );
-}
-
-/** Ranked row with a proportional bar - shared by the Top items and Referral source cards. Bar width is always a real value/max ratio, never a fabricated trend. */
-function BarRow({ label, value, max, barClassName }: { label: string; value: number; max: number; barClassName: string }) {
-  const pct = max > 0 ? Math.round((value / max) * 100) : 0;
-  return (
-    <li>
-      <div className="mb-1 flex items-center justify-between gap-2 text-sm">
-        <span className="truncate">{label}</span>
-        <span className="shrink-0 text-zinc-500 dark:text-zinc-400">{value}</span>
-      </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/[.06] dark:bg-white/[.08]">
-        <div className={`h-full rounded-full ${barClassName}`} style={{ width: `${pct}%` }} />
-      </div>
-    </li>
+  return href ? (
+    <Link href={href} className="block">
+      {body}
+    </Link>
+  ) : (
+    body
   );
 }
 
-/** The backend stores the raw Referer header (or "direct" when absent) - format it into a readable source name for display, without changing the underlying real value. */
-function formatReferralSource(source: string): string {
-  if (source.toLowerCase() === "direct") return "Direct";
+function Empty({ children }: { children: React.ReactNode }) {
+  return <p className="py-8 text-center text-sm text-muted">{children}</p>;
+}
+
+/** The backend stores the raw Referer (or "direct"); make it readable without changing the value. */
+function formatSource(source: string): string {
+  if (source.toLowerCase() === "direct") return "Direct link";
   try {
-    const hostname = new URL(source).hostname.replace(/^www\./, "");
-    const label = hostname.split(".")[0];
-    return label.charAt(0).toUpperCase() + label.slice(1);
+    const host = new URL(source).hostname.replace(/^www\./, "");
+    const name = host.split(".")[0];
+    return name.charAt(0).toUpperCase() + name.slice(1);
   } catch {
     return source;
   }
 }
 
-/** DeviceType enum values (DESKTOP/MOBILE/TABLET/UNKNOWN) are all-caps on the wire - title-case them for display only. */
-function formatDeviceType(value: string): string {
-  return value.charAt(0) + value.slice(1).toLowerCase();
-}
-
-const DONUT_COLORS = ["#7c3aed", "#db2777", "#0ea5e9", "#f59e0b", "#10b981"];
-
-/** Real conic-gradient donut (no chart library) built entirely from the actual visitsByDeviceType counts. */
-function DeviceDonut({ data }: { data: Record<string, number> }) {
-  const entries = Object.entries(data);
-  const total = entries.reduce((sum, [, v]) => sum + v, 0);
-  if (total === 0) return null;
-  let cumulative = 0;
-  const stops = entries.map(([, value], i) => {
-    const start = (cumulative / total) * 360;
-    cumulative += value;
-    const end = (cumulative / total) * 360;
-    return `${DONUT_COLORS[i % DONUT_COLORS.length]} ${start}deg ${end}deg`;
-  });
-  return (
-    <div className="flex flex-col items-center gap-4">
-      <div aria-hidden className="relative h-24 w-24 shrink-0 rounded-full" style={{ background: `conic-gradient(${stops.join(", ")})` }}>
-        <div className="absolute inset-[7px] rounded-full bg-surface" />
-      </div>
-      <ul className="flex w-full flex-col gap-1.5 text-sm">
-        {entries.map(([label, value], i) => (
-          <li key={label} className="flex items-center gap-2">
-            <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length] }} />
-            <span className="min-w-0 flex-1 truncate">{formatDeviceType(label)}</span>
-            <span className="shrink-0 text-zinc-500 dark:text-zinc-400">{Math.round((value / total) * 100)}%</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/** Where each checklist item can be fixed, so the setup card can link straight there. "content" is resolved separately since it depends on the website's template type. */
-const CHECKLIST_LINKS: Record<string, string> = {
-  contact: "/profile",
-  subscription: "/subscription",
-};
-
 /**
- * The four places an owner most often needs to go, per website type.
+ * An unfinished checklist item, phrased as the thing still to do.
  *
- * Kept short on purpose - the sidebar already lists everything, so this row is
- * for the work that actually fills a site up rather than a second full menu.
+ * The checklist's own labels are written as completed states - "Contact
+ * information added" - which is right beside a green tick and actively
+ * misleading under a heading that says these are the things left. Falling back
+ * to the original label keeps a future checklist item visible rather than
+ * silently dropping it.
  */
-function quickActionsFor(templateType: TemplateType): { href: string; label: string; icon: string; hint: string }[] {
-  if (templateType === "PORTFOLIO") {
-    return [
-      { href: "/projects", label: "Projects", icon: "🗂️", hint: "The work your site shows" },
-      { href: "/services", label: "Services", icon: "🛠️", hint: "What you offer, and prices" },
-      { href: "/gallery", label: "Gallery", icon: "🖼️", hint: "Extra photos" },
-      { href: "/theme", label: "Theme", icon: "🖌️", hint: "Colours and fonts" },
-    ];
+function todoFor(
+  key: string,
+  label: string,
+  isPortfolio: boolean,
+  base: string,
+  manageBase: string,
+): { text: string; href: string; action: string } | null {
+  switch (key) {
+    case "contact":
+      return {
+        text: "Visitors have no way to reach you",
+        href: `${manageBase}/profile`,
+        action: "Add a phone or email",
+      };
+    case "content":
+      return isPortfolio
+        ? { text: "You haven't listed what you offer", href: `${base}/services`, action: "Add a service" }
+        : { text: "Your menu is empty", href: `${base}/menu`, action: "Add an item" };
+    case "subscription":
+      // Only ever reached when the checklist marks this incomplete, which since
+      // the free trial means a subscription that genuinely stopped - expired,
+      // canceled, or a checkout left unpaid. "No active plan" was the old
+      // wording from when any un-subscribed website was blocked from going
+      // live; a website with no subscription at all is fine now, and publishing
+      // opens its trial.
+      return { text: "Your plan has stopped, so the site can't go live", href: `${manageBase}/subscription`, action: "See plans" };
+    case "businessName":
+      return { text: "Your business has no name yet", href: `${manageBase}/profile`, action: "Add a name" };
+    default:
+      return { text: label, href: manageBase, action: "Open setup" };
   }
-  return [
-    { href: "/menu", label: "Menu", icon: "🍽️", hint: "Categories and items" },
-    { href: "/gallery", label: "Gallery", icon: "🖼️", hint: "Photos of the place" },
-    { href: "/delivery", label: "Delivery areas", icon: "🚚", hint: "Zones and fees" },
-    { href: "/theme", label: "Theme", icon: "🖌️", hint: "Colours and fonts" },
-  ];
 }
 
 export default function WebsiteOverviewPage() {
   const { website, accessToken } = useWebsite();
+  const [rangeDays, setRangeDays] = useState<number>(30);
+  const [summary, setSummary] = useState<AnalyticsSummaryResponse | null>(null);
+  const [previousVisits, setPreviousVisits] = useState<number | null>(null);
+  const [analyticsUnavailable, setAnalyticsUnavailable] = useState(false);
   const [checklist, setChecklist] = useState<ChecklistItem[] | null>(null);
-  const [contentCount, setContentCount] = useState<number | null>(null);
-  const [projectCount, setProjectCount] = useState<number | null>(null);
-  const [analyticsSummary, setAnalyticsSummary] = useState<AnalyticsSummaryResponse | null>(null);
+  // `== null` at the render sites below, not `=== null`: a response that is not
+  // the array we expect leaves these undefined, and an admin page must degrade
+  // to a dash rather than throw the whole console away.
+  const [counts, setCounts] = useState<{ primary: number | null; secondary: number | null }>({
+    primary: null,
+    secondary: null,
+  });
 
+  // Two windows, one after the other, so "vs before" is a measurement rather
+  // than a decoration. The second failing only costs the comparison.
+  useEffect(() => {
+    let cancelled = false;
+    const now = Date.now();
+    const span = rangeDays * 24 * 60 * 60 * 1000;
+    const currentFrom = new Date(now - span).toISOString();
+    const currentTo = new Date(now).toISOString();
+
+    analyticsApi
+      .summary(accessToken, website.id, currentFrom, currentTo)
+      .then((result) => {
+        if (cancelled) return;
+        setSummary(result);
+        setAnalyticsUnavailable(false);
+        return analyticsApi
+          .summary(accessToken, website.id, new Date(now - span * 2).toISOString(), currentFrom)
+          .then((prior) => {
+            if (!cancelled) setPreviousVisits(prior.totalVisits);
+          })
+          .catch(() => {
+            if (!cancelled) setPreviousVisits(null);
+          });
+      })
+      .catch(() => {
+        // Either the plan does not include analytics or this manager lacks the
+        // permission. Both mean "no numbers to show", not "something broke".
+        if (cancelled) return;
+        setSummary(null);
+        setPreviousVisits(null);
+        setAnalyticsUnavailable(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, website.id, rangeDays]);
 
   useEffect(() => {
     let cancelled = false;
+    const isPortfolio = website.templateType === "PORTFOLIO";
+    Promise.all([
+      isPortfolio
+        ? projectsApi.list(accessToken, website.id).then((l) => l.length)
+        : menuApi.countItems(accessToken, website.id),
+      isPortfolio
+        ? servicesApi.list(accessToken, website.id).then((l) => l.length)
+        : galleryApi.list(accessToken, website.id).then((l) => l.length),
+    ])
+      .then(([primary, secondary]) => {
+        if (!cancelled) setCounts({ primary, secondary });
+      })
+      .catch(() => undefined);
     loadSetupStatus(accessToken, website)
       .then((result) => {
         if (!cancelled) setChecklist(result);
       })
-      .catch(() => {
-        if (!cancelled) setChecklist(null);
-      });
+      .catch(() => undefined);
     return () => {
       cancelled = true;
     };
   }, [accessToken, website]);
 
-  useEffect(() => {
-    let cancelled = false;
-    const countPromise =
-      website.templateType === "PORTFOLIO"
-        ? servicesApi.list(accessToken, website.id).then((list) => list.length)
-        : menuApi.countItems(accessToken, website.id);
-    countPromise
-      .then((count) => {
-        if (!cancelled) setContentCount(count);
-      })
-      .catch(() => {
-        if (!cancelled) setContentCount(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken, website]);
+  const isPortfolio = website.templateType === "PORTFOLIO";
+  // There used to be two of these, pointing at the two consoles this page
+  // linked between. One console, one base.
+  const base = `/manage/${website.id}`;
+  const manageBase = base;
+  // The same words the sidebar and the site itself use - "Packages" on the
+  // Services template, "Products" on Brand. Two names for one store on one
+  // screen is exactly what this is meant to stop.
+  const primaryLabel = isPortfolio
+    ? sectionLabel(website.layoutVariant, "projects", "Projects")
+    : sectionLabel(website.layoutVariant, "menu", "Menu");
+  const secondaryLabel = isPortfolio
+    ? sectionLabel(website.layoutVariant, "services", "Services")
+    : sectionLabel(website.layoutVariant, "gallery", "Gallery");
+  const range = RANGES.find((r) => r.days === rangeDays) ?? RANGES[1];
 
-  // Portfolio sites have two content stores now - the services they sell and
-  // the work they show - and the tile below used to label the service count
-  // "Projects", which was simply wrong once a Projects editor existed.
-  useEffect(() => {
-    if (website.templateType !== "PORTFOLIO") return;
-    let cancelled = false;
-    projectsApi
-      .list(accessToken, website.id)
-      .then((list) => {
-        if (!cancelled) setProjectCount(list.length);
-      })
-      .catch(() => {
-        if (!cancelled) setProjectCount(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken, website]);
+  const topItems = summary?.mostViewedItems ?? [];
+  const sources = Object.entries(summary?.visitsByReferralSource ?? {}).sort(([, a], [, b]) => b - a);
+  const devices = Object.entries(summary?.visitsByDeviceType ?? {}).sort(([, a], [, b]) => b - a);
+  const todo = (checklist ?? []).filter((item) => !item.complete);
 
-  useEffect(() => {
-    let cancelled = false;
-    const to = new Date();
-    const from = new Date(to.getTime() - 30 * 24 * 60 * 60 * 1000);
-    // Silently hidden (not an error banner) when the caller lacks VIEW_ANALYTICS or the plan doesn't include analytics - same soft-check pattern as WebsiteShell's nav gating.
-    analyticsApi
-      .summary(accessToken, website.id, from.toISOString(), to.toISOString())
-      .then((summary) => {
-        if (!cancelled) setAnalyticsSummary(summary);
-      })
-      .catch(() => {
-        if (!cancelled) setAnalyticsSummary(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken, website]);
-
-
-
+  /**
+   * The headline, in words.
+   *
+   * The charts underneath answer the same question, but somebody opening this
+   * between two clients should not have to read a chart to find out whether
+   * the week went well.
+   */
+  const sentence = (() => {
+    if (analyticsUnavailable) return "Visitor numbers aren't included in your current plan.";
+    if (!summary) return "Checking how your website is doing…";
+    if (summary.totalVisits === 0) {
+      return website.status === "PUBLISHED"
+        ? `No one has opened your website in the last ${rangeDays} days yet. Share your link to get the first visitors.`
+        : "Your website isn't published yet, so nobody can visit it.";
+    }
+    const parts = [`${summary.totalVisits.toLocaleString()} people opened your website in the last ${rangeDays} days`];
+    if (sources.length > 0) parts.push(`most came from ${formatSource(sources[0][0])}`);
+    if (devices.length > 0) parts.push(`mostly on ${devices[0][0].toLowerCase()}`);
+    return `${parts.join(", ")}.`;
+  })();
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Setup</h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Template, profile, theme and publishing for {website.businessName} - the things you set once.
-          </p>
-        </div>
-        {/* The day-to-day console is a separate place with a separate door;
-            this is the one link between them. */}
-        <Link
-          href={`/s/${website.slug}`}
-          className="shrink-0 rounded-full bg-gradient-accent px-5 py-2.5 text-sm font-medium text-white"
-        >
-          Open dashboard →
-        </Link>
-      </div>
-
-
-      {(website.status === "SUSPENDED_TEMPORARY" || website.status === "SUSPENDED_PERMANENT") && (
-        <Alert tone="error">
-          This website is currently suspended and isn&apos;t visible to the public.
-          {website.status === "SUSPENDED_TEMPORARY" ? " Contact support if you believe this is a mistake." : ""}
-        </Alert>
-      )}
-      {website.status === "EXPIRED" && (
-        <Alert tone="error">
-          Your subscription has expired, so this website is no longer public.{" "}
-          <Link href={`/manage/${website.id}/subscription`} className="font-medium underline">
-            Renew your subscription →
-          </Link>
-        </Alert>
+    <div className="flex flex-col gap-5">
+      {/* What needs doing, before anything to look at. */}
+      {todo.length > 0 && (
+        <section className="rounded-card border border-amber-500/25 bg-amber-500/[0.07] p-5">
+          <h2 className="text-sm font-semibold tracking-tight">
+            {todo.length === 1 ? "One thing left to do" : `${todo.length} things left to do`}
+          </h2>
+          <ul className="mt-3 flex flex-col gap-2">
+            {todo.map((item) => {
+              const fix = todoFor(item.key, item.label, isPortfolio, base, manageBase);
+              if (!fix) return null;
+              return (
+                <li key={item.key} className="flex flex-wrap items-center justify-between gap-3 text-sm">
+                  <span>{fix.text}</span>
+                  <Link
+                    href={fix.href}
+                    className="shrink-0 rounded-full bg-foreground px-3.5 py-1.5 text-xs font-medium text-background"
+                  >
+                    {fix.action}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       )}
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatTile
-          tone="violet"
-          icon={website.templateType === "PORTFOLIO" ? "🛠️" : "🍽️"}
-          label={website.templateType === "PORTFOLIO" ? "Services" : "Menu items"}
-          value={contentCount ?? "—"}
+      {checklist !== null && todo.length === 0 && website.status === "PUBLISHED" && (
+        <p className="flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400">
+          <CheckIcon className="h-4 w-4" />
+          Your website is live and everything is set up.
+        </p>
+      )}
+
+      <p className="text-base leading-relaxed">{sentence}</p>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Kpi
+          tone="accent"
+          label={`Visits · last ${rangeDays} days`}
+          value={summary ? summary.totalVisits.toLocaleString() : analyticsUnavailable ? "—" : "…"}
+          hint={summary ? <Trend current={summary.totalVisits} previous={previousVisits} /> : undefined}
         />
-        {website.templateType === "PORTFOLIO" && (
-          <StatTile tone="violet" icon="🗂️" label="Projects" value={projectCount ?? "—"} />
-        )}
-        <StatTile tone="emerald" icon="✅" label="Readiness" value={checklist ? `${readinessPercent(checklist)}%` : "—"} />
-        {analyticsSummary !== null && <StatTile tone="sky" icon="👀" label="Visits (30d)" value={analyticsSummary.totalVisits} />}
+        <Kpi
+          href={isPortfolio ? `${base}/projects` : `${base}/menu`}
+          label={primaryLabel}
+          value={counts.primary == null ? "…" : counts.primary.toLocaleString()}
+          hint={counts.primary === 0 ? "Add your first one →" : "Manage →"}
+        />
+        <Kpi
+          href={isPortfolio ? `${base}/services` : `${base}/gallery`}
+          label={secondaryLabel}
+          value={counts.secondary == null ? "…" : counts.secondary.toLocaleString()}
+          hint={counts.secondary === 0 ? "Add your first one →" : "Manage →"}
+        />
+        <Kpi
+          label="Website"
+          value={website.status === "PUBLISHED" ? "Live" : "Draft"}
+          hint={
+            website.status === "PUBLISHED" ? (
+              <a href={`/site/${website.slug}`} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                /site/{website.slug} ↗
+              </a>
+            ) : (
+              <Link href={manageBase} className="hover:underline">
+                Finish setup to publish →
+              </Link>
+            )
+          }
+        />
       </div>
 
-      {/* Quick actions, drawn from the same source as the sidebar so a Portfolio
-          never offers a Menu shortcut and a menu site never offers Projects. */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {quickActionsFor(website.templateType).map((action) => (
-          <Link
-            key={action.href}
-            href={`/manage/${website.id}${action.href}`}
-            className="flex items-start gap-3 rounded-2xl border border-black/[.08] bg-surface p-4 shadow-soft transition-shadow duration-300 hover:shadow-lift dark:border-white/[.1]"
-          >
-            <span aria-hidden className="text-lg">
-              {action.icon}
-            </span>
-            <span className="min-w-0">
-              <span className="block text-sm font-medium">{action.label}</span>
-              <span className="mt-0.5 block text-xs text-zinc-500 dark:text-zinc-400">{action.hint}</span>
-            </span>
-          </Link>
-        ))}
-      </div>
-
-      {analyticsSummary !== null && (analyticsSummary.mostViewedItems.length > 0 || analyticsSummary.totalVisits > 0) && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {analyticsSummary.mostViewedItems.length > 0 && (
-            <Card title="Top items" description="Most-viewed in the last 30 days.">
-              <ul className="flex flex-col gap-3">
-                {analyticsSummary.mostViewedItems.slice(0, 5).map((item, i) => (
-                  <BarRow
-                    key={item.itemId}
-                    label={item.itemName}
-                    value={item.views}
-                    max={analyticsSummary.mostViewedItems[0].views}
-                    barClassName={i === 0 ? "bg-gradient-accent" : "bg-violet-400/70 dark:bg-violet-500/60"}
-                  />
-                ))}
-              </ul>
-            </Card>
-          )}
-          {Object.keys(analyticsSummary.visitsByReferralSource).length > 0 && (
-            <Card title="Referral source">
-              <ul className="flex flex-col gap-3">
-                {Object.entries(analyticsSummary.visitsByReferralSource)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([source, count], i, sorted) => (
-                    <BarRow key={source} label={formatReferralSource(source)} value={count} max={sorted[0][1]} barClassName="bg-sky-500" />
-                  ))}
-              </ul>
-            </Card>
-          )}
-          {Object.keys(analyticsSummary.visitsByDeviceType).length > 0 && (
-            <Card title="Device type">
-              <DeviceDonut data={analyticsSummary.visitsByDeviceType} />
-            </Card>
-          )}
-        </div>
-      )}
-
-      <Card title="Setup progress" description="What's left before this website is ready to publish.">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-black/[.06] dark:bg-white/[.08]">
-              <div
-                className="h-full rounded-full bg-gradient-accent transition-[width] duration-500"
-                style={{ width: `${checklist ? readinessPercent(checklist) : 0}%` }}
-              />
-            </div>
-            <span className="shrink-0 text-sm font-medium">
-              {checklist ? `${readinessPercent(checklist)}% ready` : "Checking…"}
-            </span>
-          </div>
-
-          {checklist && (
-            <ul className="flex flex-col gap-1.5 text-sm">
-              {checklist.map((item) => {
-                const contentHref = website.templateType === "PORTFOLIO" ? "/services" : "/menu";
-                const linkSuffix = item.key === "content" ? contentHref : CHECKLIST_LINKS[item.key];
-                return (
-                  <li key={item.key} className="flex items-center gap-2">
-                    <span
-                      aria-hidden
-                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] ${
-                        item.complete
-                          ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400"
-                          : "bg-amber-500/20 text-amber-700 dark:text-amber-400"
-                      }`}
-                    >
-                      {item.complete ? "✓" : "!"}
-                    </span>
-                    <span className={item.complete ? "text-zinc-500 dark:text-zinc-400" : ""}>{item.label}</span>
-                    {!item.complete && linkSuffix !== undefined && (
-                      <Link
-                        href={`/manage/${website.id}${linkSuffix}`}
-                        className="text-xs font-medium text-[var(--accent-solid)] hover:underline"
-                      >
-                        Fix →
-                      </Link>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-
-          {website.status === "DRAFT" && (
-            <Link href={`/manage/${website.id}/setup`} className="self-start">
-              <Button variant="secondary" className="w-auto px-4">
-                Continue guided setup
-              </Button>
-            </Link>
-          )}
-        </div>
-      </Card>
-
-      <Card title="Page content and publishing" description="Your tagline, accent colour and the Publish button now live in the console.">
-        <Link
-          href={`/s/${website.slug}/content`}
-          className="inline-block rounded-full bg-gradient-accent px-5 py-2.5 text-sm font-medium text-white"
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1.6fr_1fr]">
+        <Panel
+          title="Visits over time"
+          description={`How many times your page was opened each day, compared with ${range.previous}.`}
+          action={
+            <Segmented<number>
+              ariaLabel="Reporting period"
+              value={rangeDays}
+              onChange={setRangeDays}
+              options={RANGES.map((option) => ({ value: option.days, label: option.label }))}
+            />
+          }
         >
-          Open page content →
-        </Link>
-      </Card>
+          {analyticsUnavailable ? (
+            <Empty>
+              Visitor numbers aren&apos;t included in your plan.{" "}
+              <Link href={`${manageBase}/subscription`} className="font-medium text-[var(--accent-solid)] hover:underline">
+                See plans
+              </Link>
+            </Empty>
+          ) : !summary ? (
+            <Empty>Loading…</Empty>
+          ) : summary.totalVisits === 0 ? (
+            <Empty>
+              Nothing to chart yet.{" "}
+              <Link href={`${manageBase}/share`} className="font-medium text-[var(--accent-solid)] hover:underline">
+                Share your link
+              </Link>{" "}
+              and check back.
+            </Empty>
+          ) : (
+            <VisitsArea points={summary.visitsByDay} />
+          )}
+        </Panel>
 
+        <Panel title="Phone or computer" description="What visitors were using.">
+          {devices.length > 0 ? (
+            <ShareDonut data={summary!.visitsByDeviceType} />
+          ) : (
+            <Empty>Nothing to break down yet.</Empty>
+          )}
+        </Panel>
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <Panel
+          title="Most looked at"
+          description="What visitors opened the most."
+          action={
+            <Link href={`${base}/analytics`} className="shrink-0 text-xs font-medium text-[var(--accent-solid)] hover:underline">
+              Full report
+            </Link>
+          }
+        >
+          {topItems.length > 0 ? (
+            <ul className="flex flex-col gap-3.5">
+              {topItems.slice(0, 5).map((item, i) => (
+                <RankedBar
+                  key={item.itemId}
+                  label={item.itemName}
+                  value={item.views}
+                  max={topItems[0].views}
+                  tone={i === 0 ? "accent" : "muted"}
+                />
+              ))}
+            </ul>
+          ) : (
+            <Empty>No one has opened an individual item yet.</Empty>
+          )}
+        </Panel>
+
+        <Panel title="How people found you" description="The link they arrived from.">
+          {sources.length > 0 ? (
+            <ul className="flex flex-col gap-3.5">
+              {sources.slice(0, 5).map(([source, count], i) => (
+                <RankedBar
+                  key={source}
+                  label={formatSource(source)}
+                  value={count}
+                  max={sources[0][1]}
+                  tone={i === 0 ? "accent" : "muted"}
+                />
+              ))}
+            </ul>
+          ) : (
+            <Empty>No visits recorded yet.</Empty>
+          )}
+        </Panel>
+      </div>
     </div>
   );
 }
+

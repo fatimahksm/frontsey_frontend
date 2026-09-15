@@ -48,7 +48,7 @@ export function ImageUploadField({ id, label, helperText, value, onChange, acces
     // meant the preview and its buttons widened the column past the screen.
     <div className="flex min-w-0 flex-col gap-1.5 text-sm">
       <span className="font-medium text-foreground">{label}</span>
-      {helperText && <span className="text-xs text-zinc-500 dark:text-zinc-400">{helperText}</span>}
+      {helperText && <span className="text-xs text-muted">{helperText}</span>}
 
       {/* Wraps on a narrow phone rather than pushing the page sideways - the
           preview square is fixed at 64px and the buttons beside it are not
@@ -56,9 +56,9 @@ export function ImageUploadField({ id, label, helperText, value, onChange, acces
       <div className="flex flex-wrap items-center gap-3">
         {value ? (
           // eslint-disable-next-line @next/next/no-img-element -- owner-supplied preview, may be a remote URL
-          <img src={value} alt="" className="h-16 w-16 shrink-0 rounded-xl border border-black/[.08] object-cover dark:border-white/[.145]" />
+          <img src={value} alt="" className="h-16 w-16 shrink-0 rounded-xl border border-line object-cover" />
         ) : (
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-dashed border-black/[.15] text-xs text-zinc-400 dark:border-white/[.2]">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-dashed border-line-strong text-xs text-faint">
             No image
           </div>
         )}
@@ -77,9 +77,9 @@ export function ImageUploadField({ id, label, helperText, value, onChange, acces
             }}
           />
           <Button
-            type="button"
+ type="button"
             variant="secondary"
-            className="w-auto px-4"
+            
             isLoading={isUploading}
             onClick={() => inputRef.current?.click()}
           >
@@ -87,7 +87,7 @@ export function ImageUploadField({ id, label, helperText, value, onChange, acces
           </Button>
           <button
             type="button"
-            className="text-left text-xs text-zinc-500 hover:underline dark:text-zinc-400"
+            className="text-left text-xs text-muted hover:underline"
             onClick={() => setShowUrlField((v) => !v)}
           >
             or paste an image URL instead
@@ -100,7 +100,7 @@ export function ImageUploadField({ id, label, helperText, value, onChange, acces
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="https://…"
-          className="h-10 rounded-lg border border-black/[.12] bg-surface px-3 text-sm outline-none dark:border-white/[.16]"
+          className="h-10 rounded-lg border border-line-strong bg-surface px-3 text-sm outline-none"
         />
       )}
 

@@ -72,7 +72,7 @@ export function SizesManager({
       {error && <Alert tone="error">{error}</Alert>}
       <ul className="flex flex-col gap-1.5">
         {sizes.map((size) => (
-          <li key={size.id} className="flex items-center justify-between rounded-lg border border-black/[.08] px-3 py-2 text-sm dark:border-white/[.145]">
+          <li key={size.id} className="flex items-center justify-between rounded-lg border border-line px-3 py-2 text-sm">
             <span>
               {size.label} · {formatMoney(size.price, currency)}
             </span>
@@ -81,12 +81,12 @@ export function SizesManager({
             </button>
           </li>
         ))}
-        {sizes.length === 0 && <p className="text-sm text-zinc-500">No sizes yet.</p>}
+        {sizes.length === 0 && <p className="text-sm text-muted">No sizes yet.</p>}
       </ul>
       <form onSubmit={handleAdd} className="flex items-end gap-2">
         <TextField id="sizeLabel" label="Label" value={label} onChange={(e) => setLabel(e.target.value)} />
         <TextField id="sizePrice" label="Price" type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} />
-        <Button type="submit" isLoading={isBusy} className="w-auto px-4">
+        <Button type="submit" isLoading={isBusy} >
           Add
         </Button>
       </form>

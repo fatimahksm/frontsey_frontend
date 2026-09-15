@@ -1,9 +1,13 @@
 import type { InputHTMLAttributes } from "react";
 
+import { FIELD_BASE, FIELD_LABEL } from "@/components/ui/field-styles";
+
 interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  /** Layout classes for the wrapper - `flex-1`, a width, a span. See below. */
+  /** Layout classes for the wrapper - `flex-1`, a width, a grid span. See below. */
   wrapperClassName?: string;
+  /** A line under the field explaining what belongs in it. */
+  hint?: string;
 }
 
 /**
@@ -18,15 +22,19 @@ interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
  * container cannot fit the screen, and a flex or grid child keeps its
  * content's width unless it is told it may shrink.
  */
-export function TextField({ label, id, className = "", wrapperClassName = "", ...props }: TextFieldProps) {
+export function TextField({
+  label,
+  id,
+  hint,
+  className = "",
+  wrapperClassName = "",
+  ...props
+}: TextFieldProps) {
   return (
-    <label htmlFor={id} className={`flex min-w-0 flex-col gap-1.5 text-sm ${wrapperClassName}`}>
-      <span className="font-medium text-foreground">{label}</span>
-      <input
-        id={id}
-        className={`h-11 rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16] ${className}`}
-        {...props}
-      />
+    <label htmlFor={id} className={`flex min-w-0 flex-col gap-1.5 ${wrapperClassName}`}>
+      {label && <span className={FIELD_LABEL}>{label}</span>}
+      <input id={id} className={`${FIELD_BASE} ${className}`} {...props} />
+      {hint && <span className="text-xs text-muted">{hint}</span>}
     </label>
   );
 }

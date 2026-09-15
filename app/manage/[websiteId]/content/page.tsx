@@ -96,8 +96,7 @@ export default function PageContentPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">Page content</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           The words at the top of your site, and your accent colour.
         </p>
       </div>
@@ -152,7 +151,7 @@ export default function PageContentPage() {
                 value={cvUrl}
                 onChange={(e) => setCvUrl(e.target.value)}
               />
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs text-muted">
                 Shown as a Download CV button. Leave it blank and no button appears.
               </p>
             </div>
@@ -166,18 +165,18 @@ export default function PageContentPage() {
                 value={heroBadge}
                 onChange={(e) => setHeroBadge(e.target.value)}
               />
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs text-muted">
                 Shown as a small floating badge next to your hero photo. Leave blank to hide it.
               </p>
             </div>
           )}
           <label htmlFor="brandColor" className="flex flex-col gap-1.5 text-sm">
             <span className="font-medium text-foreground">Brand color</span>
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="text-xs text-muted">
               Used for buttons and accents across your public site.
             </span>
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border-2 border-black/[.15] bg-surface p-1 dark:border-white/[.3]">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border-2 border-line-strong bg-surface p-1">
                 <input
                   id="brandColor"
                   type="color"
@@ -186,11 +185,11 @@ export default function PageContentPage() {
                   className="h-full w-full cursor-pointer rounded border-0 bg-transparent p-0"
                 />
               </div>
-              <span className="font-mono text-xs uppercase text-zinc-500 dark:text-zinc-400">{brandColor}</span>
+              <span className="font-mono text-xs uppercase text-muted">{brandColor}</span>
             </div>
           </label>
           {isDisplayOnlyLayout(website.layoutVariant) ? (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="text-sm text-muted">
               <span className="font-medium text-foreground">Display only.</span> The{" "}
               {templateLabel(website.layoutVariant, website.templateType)} layout has no cart - visitors read the prices
               and contact you directly. Switch layout under Design → Template to enable ordering.
@@ -217,9 +216,9 @@ export default function PageContentPage() {
               )}
             </Select>
           )}
-          {/* self-start as well as w-auto: the parent is a column flex, so
-              stretch would make this span the card whatever the width says. */}
-          <Button onClick={handleSaveDraft} isLoading={isSaving} className="mt-2 !w-auto self-start px-5">
+          {/* self-start: the parent is a column flex, so a stretched child
+              would span the card however wide the button asks to be. */}
+          <Button onClick={handleSaveDraft} isLoading={isSaving} className="mt-2 self-start">
             Save
           </Button>
         </div>
@@ -227,15 +226,15 @@ export default function PageContentPage() {
 
       <Card title="Publish" description="Nothing you change is visible to visitors until you publish.">
         <div className="flex flex-wrap items-center gap-3">
-          <Button onClick={handlePublish} isLoading={isPublishing} className="!w-auto px-5">
+          <Button onClick={handlePublish} isLoading={isPublishing} >
             Publish changes
           </Button>
           <Link href={`/preview/${website.id}`} target="_blank">
-            <Button variant="secondary" className="!w-auto px-5">
+            <Button variant="secondary" >
               Preview first
             </Button>
           </Link>
-          <Button variant="secondary" onClick={handleRestore} isLoading={isRestoring} className="!w-auto px-5">
+          <Button variant="secondary" onClick={handleRestore} isLoading={isRestoring} >
             Undo last publish
           </Button>
         </div>

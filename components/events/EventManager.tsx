@@ -155,7 +155,7 @@ export function EventManager() {
   }
 
   if (isLoading) {
-    return <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading…</p>;
+    return <p className="text-sm text-muted">Loading…</p>;
   }
 
   return (
@@ -166,7 +166,7 @@ export function EventManager() {
         <form onSubmit={saveDetails} className="flex flex-col gap-4">
           <div>
             <h2 className="text-base font-semibold">The occasion</h2>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mt-1 text-sm text-muted">
               Write these however you say them out loud - &ldquo;Saturday the 14th&rdquo; and &ldquo;after sunset&rdquo; are
               perfectly good answers. Anything you leave blank simply will not appear.
             </p>
@@ -226,7 +226,7 @@ export function EventManager() {
             {saved && <span className="text-sm text-emerald-600 dark:text-emerald-400">Saved.</span>}
           </div>
 
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-muted">
             The address and map link live on <strong>Business profile</strong>, and the photographs on{" "}
             <strong>Memories</strong> - they are shared with the rest of the site rather than kept twice.
           </p>
@@ -237,7 +237,7 @@ export function EventManager() {
         <div className="flex flex-col gap-4">
           <div>
             <h2 className="text-base font-semibold">The day</h2>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mt-1 text-sm text-muted">
               The running order, in the order you want it read - not sorted by the clock, so &ldquo;after dinner&rdquo;
               sits exactly where you put it.
             </p>
@@ -284,19 +284,19 @@ export function EventManager() {
           )}
 
           {schedule.length === 0 ? (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="text-sm text-muted">
               Nothing yet. A page with no running order is still a perfectly good invitation.
             </p>
           ) : (
             <StaggerGroup className="flex flex-col gap-2">
               {schedule.map((entry, index) => (
                 <StaggerItem key={entry.id}>
-                  <div className="flex items-start gap-3 rounded-lg border border-black/[.08] p-3 dark:border-white/[.12]">
+                  <div className="flex items-start gap-3 rounded-lg border border-line p-3">
                     <div className="w-24 shrink-0 text-sm font-medium tabular-nums">{entry.time ?? "—"}</div>
                     <div className="min-w-0 flex-1">
                       <p className="font-medium">{entry.title}</p>
                       {entry.detail && (
-                        <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{entry.detail}</p>
+                        <p className="mt-0.5 text-sm text-muted">{entry.detail}</p>
                       )}
                     </div>
                     <div className="flex shrink-0 items-center gap-1">

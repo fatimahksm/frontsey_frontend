@@ -46,25 +46,22 @@ function CopyableLink({ label, description, url }: { label: string; description:
     <div className="flex flex-col gap-1.5">
       <div>
         <p className="text-sm font-medium">{label}</p>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">{description}</p>
+        <p className="text-xs text-muted">{description}</p>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <input
           readOnly
           value={url}
           onFocus={(e) => e.currentTarget.select()}
-          className="h-10 min-w-0 flex-1 rounded-lg border border-black/[.12] bg-surface px-3 font-mono text-xs outline-none dark:border-white/[.18]"
+          className="focus-ring h-9 min-w-0 flex-1 rounded-control border border-line-strong bg-surface px-3 font-mono text-xs"
         />
-        {/* Button is w-full by design, so the row's widths are set by these
-            wrappers - a bare w-auto on the button loses to its own base class
-            and would swallow the whole row. */}
-        <span className="w-24 shrink-0">
-          <Button variant="secondary" onClick={handleCopy}>
-            {copied ? "Copied" : "Copy"}
+        <Button variant="secondary" size="sm" onClick={handleCopy}>
+          {copied ? "Copied" : "Copy"}
+        </Button>
+        <a href={url} target="_blank" rel="noreferrer">
+          <Button variant="secondary" size="sm">
+            Open
           </Button>
-        </span>
-        <a href={url} target="_blank" rel="noreferrer" className="w-24 shrink-0">
-          <Button variant="secondary">Open</Button>
         </a>
       </div>
     </div>
@@ -162,7 +159,7 @@ export function ShareLinksPanel({ website }: { website: WebsiteResponse }) {
       <div className="flex flex-col gap-3">
         <div>
           <p className="text-sm font-medium">{qrTitle}</p>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          <p className="text-xs text-muted">
             {qrHint}
           </p>
         </div>
@@ -175,7 +172,7 @@ export function ShareLinksPanel({ website }: { website: WebsiteResponse }) {
             <img
               src={qrPngUrl}
               alt={`QR code linking to ${urls.publicSite}`}
-              className="h-40 w-40 rounded-xl border border-black/[.08] bg-white p-2 dark:border-white/[.145]"
+              className="h-40 w-40 rounded-xl border border-line bg-white p-2"
             />
             <div className="flex w-44 flex-col gap-2">
               <a href={qrPngUrl} download={`${fileBase}.png`}>
@@ -186,7 +183,7 @@ export function ShareLinksPanel({ website }: { website: WebsiteResponse }) {
                   <Button variant="secondary">Download SVG</Button>
                 </a>
               )}
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs text-muted">
                 Use the SVG for large prints - it stays sharp at any size.
               </p>
             </div>

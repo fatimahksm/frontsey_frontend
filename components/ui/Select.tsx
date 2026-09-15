@@ -1,18 +1,25 @@
 import type { SelectHTMLAttributes } from "react";
 
+import { FIELD_BASE, FIELD_LABEL } from "@/components/ui/field-styles";
+
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+  /** Empty renders no label, for a select that sits inside a labelled toolbar. */
   label: string;
+  /** Layout classes for the wrapper - a width, `flex-1`, a grid span. */
+  wrapperClassName?: string;
 }
 
-export function Select({ label, id, className = "", children, ...props }: SelectProps) {
+/**
+ * Matches TextField exactly, down to the chevron - which is drawn rather than
+ * left to the platform, because the native one is a different shape, colour
+ * and inset on every operating system and made a filter row look assembled
+ * from parts.
+ */
+export function Select({ label, id, className = "", wrapperClassName = "", children, ...props }: SelectProps) {
   return (
-    <label htmlFor={id} className="flex flex-col gap-1.5 text-sm">
-      <span className="font-medium text-foreground">{label}</span>
-      <select
-        id={id}
-        className={`h-11 rounded-xl border border-black/[.12] bg-surface px-3.5 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[var(--accent-solid)]/40 dark:border-white/[.16] ${className}`}
-        {...props}
-      >
+    <label htmlFor={id} className={`flex min-w-0 flex-col gap-1.5 ${wrapperClassName}`}>
+      {label && <span className={FIELD_LABEL}>{label}</span>}
+      <select id={id} className={`${FIELD_BASE} select-chevron ${className}`} {...props}>
         {children}
       </select>
     </label>

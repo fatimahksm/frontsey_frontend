@@ -104,7 +104,7 @@ export function MenuItemForm({ categories, initial, submitLabel, isSubmitting, o
         onChange={(e) => setFixedBoxItem(e.target.checked)}
       />
 
-      <Button type="submit" isLoading={isSubmitting} className="mt-2 w-auto px-5">
+      <Button type="submit" isLoading={isSubmitting} className="mt-2">
         {submitLabel}
       </Button>
     </form>

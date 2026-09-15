@@ -67,7 +67,7 @@ export default function EditMenuItemPage() {
   }
 
   if (!item) {
-    return <p className="text-sm text-zinc-500">Loading…</p>;
+    return <p className="text-sm text-muted">Loading…</p>;
   }
 
   return (

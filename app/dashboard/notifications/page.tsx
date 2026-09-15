@@ -1,5 +1,6 @@
 "use client";
 
+import { PageFrame } from "@/components/ui/PageFrame";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -46,11 +47,11 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
+    <PageFrame width="form">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-xl font-semibold tracking-tight">Notifications</h1>
         {unreadCount > 0 && (
-          <Button variant="secondary" className="w-auto px-4" onClick={markAllAsRead}>
+          <Button variant="secondary" onClick={markAllAsRead}>
             Mark all read
           </Button>
         )}
@@ -59,27 +60,27 @@ export default function NotificationsPage() {
       {error && <Alert tone="error">{error}</Alert>}
 
       {isLoading ? (
-        <p className="text-sm text-zinc-500">Loading…</p>
+        <p className="text-sm text-muted">Loading…</p>
       ) : notifications.length === 0 ? (
-        <p className="text-sm text-zinc-500">No notifications yet.</p>
+        <p className="text-sm text-muted">No notifications yet.</p>
       ) : (
         <StaggerGroup as="ul" className="flex flex-col gap-2">
           {notifications.map((n) => (
             <StaggerItem
               as="li"
               key={n.id}
-              className={`rounded-lg border border-black/[.08] p-3 text-sm dark:border-white/[.145] ${n.read ? "" : "bg-black/[.02] dark:bg-white/[.04]"}`}
+              className={`rounded-control border border-line p-3 text-sm ${n.read ? "" : "bg-surface-muted"}`}
             >
               <div className="flex items-center justify-between gap-4">
                 <p className={n.read ? "" : "font-medium"}>{n.message}</p>
                 {!n.read && (
-                  <button type="button" className="shrink-0 text-xs text-zinc-500 hover:underline" onClick={() => markAsRead(n.id)}>
+                  <button type="button" className="shrink-0 text-xs text-muted hover:underline" onClick={() => markAsRead(n.id)}>
                     Mark read
                   </button>
                 )}
               </div>
               <div className="mt-1 flex items-center gap-3">
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">{formatDateTime(n.createdAt)}</p>
+                <p className="text-xs text-muted">{formatDateTime(n.createdAt)}</p>
                 {n.event === "MANAGER_INVITATION" && (
                   <Link href="/dashboard/invitations" className="text-xs font-medium text-[var(--accent-solid)] hover:underline">
                     Review invitation →
@@ -90,6 +91,6 @@ export default function NotificationsPage() {
           ))}
         </StaggerGroup>
       )}
-    </div>
+    </PageFrame>
   );
 }
