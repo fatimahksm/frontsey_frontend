@@ -97,8 +97,10 @@ gradient - which 92 call sites then fought with `w-auto`.
   more.
 - **Borders** are `border-line` between things inside a surface, and
   `border-line-strong` around something you can click or type into.
-- **Radii** are `rounded-control` and `rounded-card`. `rounded-full` is for
-  things that are genuinely pills: avatars, badges, progress bars.
+- **Radii**: buttons are `rounded-button` (a pill - part of how Frontsey
+  looks, not an accident; a 10px button was tried and read as square against
+  the rest of the product), fields are `rounded-control`, panels are
+  `rounded-card`.
 - **Buttons** are auto-width. `primary` is the gradient and **should appear
   once per screen** - a screen with two primaries has none. Everything else is
   `secondary`, `ghost` or `danger`. Pass `block` for a form's submit.
@@ -130,3 +132,30 @@ the template's own content plan - so the sidebar row, the page heading and the
 page's own title are the same word. They were three different words.
 **Section pages therefore have no `<h1>` of their own**; the shell prints it.
 A sub-route (`/menu/items/new`) keeps its heading, and the shell stays quiet.
+
+## Your own account
+
+`components/layout/AccountMenu.tsx` in the top bar is where identity lives: the
+signed-in email, the role, Account settings, Support and Log out.
+
+It exists because there was no route to any of that. Support and Account sat in
+the owner's nav as peers of Websites, and the Super Admin's nav had neither -
+so the person who runs the platform could not open their own account page
+without typing the URL. The page itself offered to export and permanently
+delete an account it never named, and there was no way to change a password
+while signed in at all.
+
+`GET/PUT /api/account/me` and `POST /api/account/password` back it. The email
+is deliberately not editable: it is the login and the address every reset goes
+to, so changing it needs confirming at the new address rather than a text field
+a typo can lock someone out of. Changing a password requires the current one
+even though the caller is authenticated - a session on an unattended machine is
+exactly the case that stops - and sends a "your password was changed" email,
+because the time the owner did not do it is the time it matters.
+
+One trap to know: `GlobalExceptionHandler` puts the humanised field name in
+front of a constraint's message, so **every validation message must be a
+fragment that completes the name** ("must be at least 8 characters"), never a
+whole sentence. A sentence gets the name stapled to it - registration shipped
+"Password Password must be at least 8 characters long" that way.
+`ApiErrorResponseTest.aFieldsNameIsNotRepeatedInsideItsOwnMessage` holds it.

@@ -5,14 +5,20 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { AccountMenu } from "@/components/layout/AccountMenu";
 import { NotificationsBell } from "@/components/layout/NotificationsBell";
 import { useAuth } from "@/lib/auth/auth-context";
 
-/** What a business owner's account is for: their own websites. */
+/**
+ * What a business owner's account is for: their own websites.
+ *
+ * Support and Account used to sit here as peers of Websites, which put three
+ * unrelated jobs in one row and still left a Super Admin with no route to
+ * their own settings at all. Both moved into the account menu, where every
+ * role can reach them.
+ */
 const OWNER_LINKS = [
   { href: "/dashboard", label: "Websites", match: (path: string) => path === "/dashboard" || path.startsWith("/dashboard/websites") },
-  { href: "/dashboard/support", label: "Support", match: (path: string) => path.startsWith("/dashboard/support") },
-  { href: "/dashboard/account", label: "Account", match: (path: string) => path.startsWith("/dashboard/account") },
 ];
 
 /**
@@ -27,6 +33,11 @@ const OWNER_LINKS = [
 const ADMIN_LINKS = [
   { href: "/admin", label: "Platform", match: (path: string) => path.startsWith("/admin") },
   { href: "/dashboard", label: "My own websites", match: (path: string) => path.startsWith("/dashboard") },
+];
+
+const ACCOUNT_ITEMS = [
+  { href: "/dashboard/account", label: "Account settings" },
+  { href: "/dashboard/support", label: "Support" },
 ];
 
 export function TopNav() {
@@ -102,19 +113,12 @@ export function TopNav() {
           <span className="mx-1">
             <NotificationsBell accessToken={session.accessToken} />
           </span>
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.96 }}
-            type="button"
-            onClick={signOut}
-            className="ml-2 rounded-full border border-line-strong px-3 py-1.5 text-xs font-medium transition-colors hover:bg-black/[.04] dark:hover:bg-white/[.06]"
-          >
-            Log out
-          </motion.button>
+          <AccountMenu />
         </nav>
 
         <div className="flex items-center gap-1 sm:hidden">
           <NotificationsBell accessToken={session.accessToken} />
+          <AccountMenu />
           <button
             type="button"
             onClick={() => setMenu({ path: pathname, open: !menuOpen })}
@@ -156,10 +160,15 @@ export function TopNav() {
                   {link.label}
                 </Link>
               ))}
+              {ACCOUNT_ITEMS.map((item) => (
+                <Link key={item.href} href={item.href} className="rounded-control px-3 py-2.5 text-sm text-muted">
+                  {item.label}
+                </Link>
+              ))}
               <button
                 type="button"
                 onClick={signOut}
-                className="mt-1 rounded-lg px-3 py-2.5 text-start text-sm text-muted"
+                className="mt-1 rounded-control px-3 py-2.5 text-start text-sm text-muted"
               >
                 Log out
               </button>

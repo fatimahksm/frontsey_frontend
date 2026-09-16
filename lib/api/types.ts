@@ -46,6 +46,28 @@ export interface AuthResponse {
   role: Role;
 }
 
+/** The signed-in person, as they may read themselves. No hash, no token. */
+export interface AccountProfileResponse {
+  id: string;
+  email: string;
+  fullName: string | null;
+  role: Role;
+  status: AccountStatus;
+  emailVerified: boolean;
+  /** Set once a deletion is requested; a date here means the account is scheduled to go. */
+  disabledAt: string | null;
+  createdAt: string;
+}
+
+export interface UpdateAccountProfileRequest {
+  fullName: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export type AccountStatus =
   | "PENDING_VERIFICATION"
   | "ACTIVE"
