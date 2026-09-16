@@ -5,8 +5,9 @@ import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 
 import { RequireAuth } from "@/components/auth/RequireAuth";
+import { useSidebarCollapsed } from "@/lib/console/sidebar-collapse";
 import { TopNav } from "@/components/layout/TopNav";
-import { SidebarNav, type SidebarGroup } from "@/components/ui/SidebarNav";
+import { SidebarNav, SidebarToggle, type SidebarGroup } from "@/components/ui/SidebarNav";
 import {
   BarsIcon,
   BillingIcon,
@@ -64,19 +65,25 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? "";
   const [drawerPath, setDrawerPath] = useState<string | null>(null);
   const isDrawerOpen = drawerPath === pathname;
+  const { collapsed, hasToggled, toggle: toggleCollapsed } = useSidebarCollapsed();
 
-  const identity = (
-    <div className="flex items-center gap-3 border-b border-line px-4 py-4">
+  const identity = (collapsedForm: boolean) => (
+    <div
+      className={`flex items-center gap-3 border-b border-line py-4 ${collapsedForm ? "justify-center px-2" : "px-4"}`}
+      title={collapsedForm ? "Super Admin" : undefined}
+    >
       <span
         aria-hidden
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-gradient-accent text-xs font-semibold text-white"
       >
         SA
       </span>
-      <div className="min-w-0">
-        <p className="truncate text-sm font-semibold">Super Admin</p>
-        <p className="truncate text-xs text-muted">Platform control</p>
-      </div>
+      {!collapsedForm && (
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold">Super Admin</p>
+          <p className="truncate text-xs text-muted">Platform control</p>
+        </div>
+      )}
     </div>
   );
 
@@ -85,9 +92,28 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <div className="flex flex-1 flex-col">
         <TopNav />
         <div className="flex flex-1">
-          <aside className="sticky top-0 hidden h-full w-60 shrink-0 flex-col border-e border-line bg-surface lg:flex">
-            {identity}
-            <SidebarNav groups={NAV_GROUPS} pathname={pathname} layoutId="admin-nav-active" />
+          {/* h-full was the bug: the aside is a flex child of a row that is only
+              as tall as its content, so the rail stopped under its last item
+              instead of running the side of the screen. Sticky inside a box
+              sized to the viewport minus the top bar is what makes it full
+              height at any scroll position. The width animates on a fold, not
+              on load - see hasToggled. */}
+          <aside
+            aria-label="Platform sections"
+            className={`sticky top-14 hidden h-[calc(100vh-3.5rem)] shrink-0 flex-col border-e border-line bg-surface lg:flex ${
+              hasToggled ? "transition-[width] duration-200 ease-out" : ""
+            } ${collapsed ? "w-[3.75rem]" : "w-60"}`}
+          >
+            {identity(collapsed)}
+            <SidebarNav
+              groups={NAV_GROUPS}
+              pathname={pathname}
+              layoutId={collapsed ? "admin-nav-active-collapsed" : "admin-nav-active"}
+              collapsed={collapsed}
+            />
+            <div className={`border-t border-line ${collapsed ? "p-2" : "p-3"}`}>
+              <SidebarToggle collapsed={collapsed} onToggle={toggleCollapsed} />
+            </div>
           </aside>
 
           {/* Below lg the same list is a drawer, not a strip of pills that runs
@@ -101,7 +127,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 className="absolute inset-0 bg-black/40"
               />
               <div className="relative flex h-full w-72 max-w-[85vw] flex-col bg-surface shadow-lift">
-                {identity}
+                {identity(false)}
                 <SidebarNav
                   groups={NAV_GROUPS}
                   pathname={pathname}

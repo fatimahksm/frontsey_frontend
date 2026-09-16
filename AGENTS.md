@@ -159,3 +159,30 @@ fragment that completes the name** ("must be at least 8 characters"), never a
 whole sentence. A sentence gets the name stapled to it - registration shipped
 "Password Password must be at least 8 characters long" that way.
 `ApiErrorResponseTest.aFieldsNameIsNotRepeatedInsideItsOwnMessage` holds it.
+
+## The sidebar
+
+Both consoles use one rail (`components/ui/SidebarNav.tsx`), and it does three
+things, each of which was reported from a real screen rather than found here:
+
+- **Full height.** It is `sticky` inside a box sized to the viewport - the
+  console's is `h-screen`, the admin's is `h-[calc(100vh-3.5rem)]` under the
+  top bar. The admin's was `h-full` inside a flex row only as tall as its own
+  content, so the rail stopped under its last item. Correct-looking CSS that
+  `tsc`, `eslint` and `npm run build` are all blind to.
+- **Foldable**, down to its icons, remembered across visits
+  (`lib/console/sidebar-collapse.ts`). localStorage is read through
+  `useSyncExternalStore`, not copied into state in an effect: that gives a
+  server snapshot matching the server's markup, the real value on the next
+  render, and two tabs that agree. The width transition is gated on
+  `hasToggled` so it animates when someone folds it and not on load.
+- **A drawer below `lg`**, never a folded rail - it is already a sheet you
+  opened, so offering to shrink it would be two ways to dismiss one thing.
+
+`e2e/console-sidebar.spec.ts` holds all three. Confirmed against the original
+bug by restoring `h-full`: the height test fails with "Expected > 0.9,
+Received 0.6".
+
+Both navigation rails carry an `aria-label` ("Sections", "Platform sections")
+because the live preview panel beside them is a complementary region too -
+without names, neither a screen reader nor a test can tell the two apart.

@@ -12,8 +12,8 @@ import { NotificationsBell } from "@/components/layout/NotificationsBell";
 import { activeItem, navGroupsFor, visibleFor, type NavGroup } from "@/components/console/nav";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
-import { SidebarNav } from "@/components/ui/SidebarNav";
-import { BarsIcon, CloseIcon, ExternalIcon, SettingsIcon } from "@/components/ui/icons";
+import { SidebarNav, SidebarToggle } from "@/components/ui/SidebarNav";
+import { BackIcon, BarsIcon, CloseIcon, ExternalIcon, SettingsIcon } from "@/components/ui/icons";
 import { friendlyMessage } from "@/lib/api/client";
 import { plansApi } from "@/lib/api/plans";
 import { profileApi } from "@/lib/api/profile";
@@ -21,6 +21,7 @@ import { subscriptionApi } from "@/lib/api/subscription";
 import { websitesApi } from "@/lib/api/websites";
 import type { SubscriptionResponse, WebsiteResponse } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/auth-context";
+import { useSidebarCollapsed } from "@/lib/console/sidebar-collapse";
 import { hasPermission } from "@/lib/website/permissions";
 import { publicPath } from "@/lib/website/share-links";
 import { WebsiteProvider } from "@/lib/website/website-context";
@@ -48,17 +49,20 @@ function NavList({
   groups,
   base,
   pathname,
+  collapsed = false,
   onNavigate,
 }: {
   groups: NavGroup[];
   base: string;
   pathname: string;
+  collapsed?: boolean;
   onNavigate?: () => void;
 }) {
   return (
     <SidebarNav
-      layoutId="console-nav-active"
+      layoutId={collapsed ? "console-nav-active-collapsed" : "console-nav-active"}
       pathname={pathname}
+      collapsed={collapsed}
       onNavigate={onNavigate}
       // A section owns its sub-routes: adding an item keeps the row that got
       // you there lit, rather than lighting nothing.
@@ -89,6 +93,7 @@ export function ConsoleShell({ websiteId, children }: { websiteId: string; child
   const [analyticsEnabled, setAnalyticsEnabled] = useState(true);
   const [subscription, setSubscription] = useState<SubscriptionResponse | null>(null);
   const [drawerPath, setDrawerPath] = useState<string | null>(null);
+  const { collapsed, hasToggled, toggle: toggleCollapsed } = useSidebarCollapsed();
 
   useEffect(() => {
     if (!session) return;
@@ -199,8 +204,13 @@ export function ConsoleShell({ websiteId, children }: { websiteId: string; child
   // sitting above "Add menu item".
   const isSectionRoot = active !== null && pathname === `${base}${active.href}`;
 
-  const identity = (
-    <div className="flex items-center gap-3 border-b border-line px-4 py-4">
+  const identity = (collapsedForm: boolean) => (
+    <div
+      className={`flex items-center gap-3 border-b border-line py-4 ${
+        collapsedForm ? "justify-center px-2" : "px-4"
+      }`}
+      title={collapsedForm ? website.businessName : undefined}
+    >
       {logoUrl ? (
         // eslint-disable-next-line @next/next/no-img-element -- remote, owner-supplied URL; next/image would need a configured remote pattern per business
         <img src={logoUrl} alt="" className="h-9 w-9 shrink-0 rounded-control object-cover" />
@@ -212,40 +222,62 @@ export function ConsoleShell({ websiteId, children }: { websiteId: string; child
           {initialsOf(website.businessName)}
         </span>
       )}
-      <div className="min-w-0">
-        <p className="truncate text-sm font-semibold">{website.businessName}</p>
-        <p className="text-xs text-muted">{website.role === "MANAGER" ? "Manager" : "Owner"}</p>
-      </div>
+      {!collapsedForm && (
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold">{website.businessName}</p>
+          <p className="text-xs text-muted">{website.role === "MANAGER" ? "Manager" : "Owner"}</p>
+        </div>
+      )}
     </div>
   );
 
-  const footer = (
-    <div className="border-t border-line p-3">
+  const footer = (collapsedForm: boolean, withToggle: boolean) => (
+    <div className={`border-t border-line ${collapsedForm ? "p-2" : "p-3"}`}>
       {website.status === "DRAFT" && (
         <Link
           href={`${base}/setup`}
-          className="focus-ring mb-1 flex items-center gap-2.5 rounded-control px-3 py-2 text-sm text-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+          title={collapsedForm ? "Guided setup" : undefined}
+          aria-label={collapsedForm ? "Guided setup" : undefined}
+          className={`focus-ring mb-1 flex items-center gap-2.5 rounded-control py-2 text-sm text-muted transition-colors hover:bg-surface-muted hover:text-foreground ${
+            collapsedForm ? "justify-center px-2" : "px-3"
+          }`}
         >
           <SettingsIcon className="h-[17px] w-[17px] shrink-0" />
-          Guided setup
+          {!collapsedForm && "Guided setup"}
         </Link>
       )}
       <Link
         href="/dashboard"
-        className="focus-ring block rounded-control px-3 py-2 text-xs text-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+        title={collapsedForm ? "All my websites" : undefined}
+        aria-label={collapsedForm ? "All my websites" : undefined}
+        className={`focus-ring mb-1 flex items-center gap-2.5 rounded-control py-2 text-xs text-muted transition-colors hover:bg-surface-muted hover:text-foreground ${
+          collapsedForm ? "justify-center px-2" : "px-3"
+        }`}
       >
-        ← All my websites
+        <BackIcon className="h-[17px] w-[17px] shrink-0" />
+        {!collapsedForm && "All my websites"}
       </Link>
+      {withToggle && <SidebarToggle collapsed={collapsedForm} onToggle={toggleCollapsed} />}
     </div>
   );
 
   return (
     <WebsiteProvider websiteId={websiteId} accessToken={session.accessToken} initialWebsite={website}>
       <div className="flex flex-1">
-        <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-e border-line bg-surface lg:flex">
-          {identity}
-          <NavList groups={groups} base={base} pathname={pathname} />
-          {footer}
+        {/* Full height, always: it is sticky at the top of a screen-tall box,
+            so the rail runs the whole side rather than stopping under its last
+            row. The width animates, but only once the stored preference has
+            landed - otherwise a collapsed sidebar unfolds and refolds on every
+            page load. */}
+        <aside
+          aria-label="Sections"
+          className={`sticky top-0 hidden h-screen shrink-0 flex-col border-e border-line bg-surface lg:flex ${
+            hasToggled ? "transition-[width] duration-200 ease-out" : ""
+          } ${collapsed ? "w-[3.75rem]" : "w-60"}`}
+        >
+          {identity(collapsed)}
+          <NavList groups={groups} base={base} pathname={pathname} collapsed={collapsed} />
+          {footer(collapsed, true)}
         </aside>
 
         {/* Below lg the same list is a drawer rather than a scrolling strip of
@@ -261,9 +293,9 @@ export function ConsoleShell({ websiteId, children }: { websiteId: string; child
               className="absolute inset-0 bg-black/40"
             />
             <div className="relative flex h-full w-72 max-w-[85vw] flex-col bg-surface shadow-lift">
-              {identity}
+              {identity(false)}
               <NavList groups={groups} base={base} pathname={pathname} onNavigate={() => setDrawerPath(null)} />
-              {footer}
+              {footer(false, false)}
             </div>
           </div>
         )}
