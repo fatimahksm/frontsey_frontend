@@ -289,6 +289,25 @@ export function ChatIcon(props: IconProps) {
   );
 }
 
+/** Points at the edge the sidebar folds toward; flipped when it is already folded. */
+export function ChevronLeftIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M15 5l-7 7 7 7" />
+    </Icon>
+  );
+}
+
+/** Back out to the list of websites. Was a literal "←" in the text, which is not an icon. */
+export function BackIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M19 12H5" />
+      <path d="M11 6l-6 6 6 6" />
+    </Icon>
+  );
+}
+
 export function LockIcon(props: IconProps) {
   return (
     <Icon {...props}>

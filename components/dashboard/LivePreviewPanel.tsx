@@ -72,7 +72,7 @@ export function LivePreviewPanel({ websiteId }: { websiteId: string }) {
   }, [refresh]);
 
   return (
-    <aside className="hidden w-[380px] shrink-0 xl:block">
+    <aside aria-label="Live preview" className="hidden w-[380px] shrink-0 xl:block">
       <div className="sticky top-6 flex h-[calc(100vh-6rem)] flex-col overflow-hidden rounded-card border border-line bg-surface shadow-soft">
         <div className="flex items-center justify-between gap-2 border-b border-line px-3 py-2">
           <span className="text-xs font-medium text-muted">Live preview</span>
